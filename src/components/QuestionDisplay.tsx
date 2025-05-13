@@ -53,7 +53,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
             </h2>
           </div>
           <div className="space-y-6">
-            {question.options.map((option, index) => (
+            {question.options.map((option) => (
               <button
                 key={option.id}
                 onClick={() => onSelectOption(option.id)}

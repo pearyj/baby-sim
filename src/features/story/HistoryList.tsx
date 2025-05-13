@@ -1,4 +1,3 @@
-import React from 'react'
 import type { GameState } from '../../types/game'
 
 interface HistoryListProps {
