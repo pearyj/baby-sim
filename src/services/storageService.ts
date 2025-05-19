@@ -3,7 +3,7 @@ import type { Question } from '../types/game'; // Import Question type
 const CHILD_SIM_GAME_STATE_KEY = 'childSimGameState';
 const CURRENT_STORAGE_VERSION = 1;
 
-// Placeholder types - replace with actual types from src/types/
+// Define interfaces for the structure of the state to be stored
 interface ChildProfile {
   name: string;
   gender: 'male' | 'female';
@@ -11,30 +11,36 @@ interface ChildProfile {
   description: string;
 }
 
-interface PlayerProfile { // Changed from ParentProfile
+interface PlayerProfile { 
   gender: 'male' | 'female';
   age: number;
   description: string;
 }
 
 interface HistoryEntry {
-  age: number; // Changed from year to age for consistency with App.tsx
-  question: string; // The question text presented
-  choice: string; // The user's chosen option
-  outcome: string; // The resulting state changes or outcomes
+  age: number; 
+  question: string; 
+  choice: string; 
+  outcome: string; 
 }
 
-export interface GameStateToStore { // Renamed from GameState
+export interface GameStateToStore {
   player: PlayerProfile;
   child: ChildProfile;
   history: HistoryEntry[];
-  currentYear: number; // Pointer to the current game position (App.tsx currentAge)
-  activeQuestion: Question | null; // Added to store the current question
+  currentYear: number; 
+  activeQuestion: Question | null; 
+  pendingChoice?: {
+    questionId?: string;
+    optionId: string;
+    questionText: string;
+    optionText: string;
+  } | null;
 }
 
 interface StoredState {
   version: number;
-  data: GameStateToStore; // Updated to GameStateToStore
+  data: GameStateToStore; 
 }
 
 const isLocalStorageAvailable = (): boolean => {
@@ -48,7 +54,7 @@ const isLocalStorageAvailable = (): boolean => {
   }
 };
 
-export const saveState = (state: GameStateToStore): void => { // Updated parameter type
+export const saveState = (state: GameStateToStore): void => {
   if (!isLocalStorageAvailable()) {
     console.warn('localStorage is not available. Game state will not be saved.');
     return;
@@ -61,16 +67,16 @@ export const saveState = (state: GameStateToStore): void => { // Updated paramet
     };
     const serializedState = JSON.stringify(stateToStore);
     localStorage.setItem(CHILD_SIM_GAME_STATE_KEY, serializedState);
+    console.log(`Successfully saved state to localStorage (${serializedState.length} bytes)`);
   } catch (error) {
     console.error('Error saving state to localStorage:', error);
     if (error instanceof DOMException && error.name === 'QuotaExceededError') {
       console.error('LocalStorage quota exceeded. Cannot save game state.');
-      // Optionally, notify the user or try to clear some less critical old data if applicable
     }
   }
 };
 
-export const loadState = (): GameStateToStore | null => { // Updated return type
+export const loadState = (): GameStateToStore | null => {
   if (!isLocalStorageAvailable()) {
     console.warn('localStorage is not available. Cannot load game state.');
     return null;
@@ -79,23 +85,25 @@ export const loadState = (): GameStateToStore | null => { // Updated return type
   try {
     const serializedState = localStorage.getItem(CHILD_SIM_GAME_STATE_KEY);
     if (serializedState === null) {
-      return null; // No state saved previously
+      console.log('No saved game state found in localStorage');
+      return null; 
     }
 
+    console.log(`Found saved state in localStorage (${serializedState.length} bytes)`);
     const storedState: StoredState = JSON.parse(serializedState);
 
     if (storedState.version !== CURRENT_STORAGE_VERSION) {
       console.warn(
         `Stored data version (${storedState.version}) does not match current version (${CURRENT_STORAGE_VERSION}). Resetting state.`,
       );
-      clearState(); // Clear the outdated state
+      clearState(); 
       return null;
     }
 
+    console.log('Successfully loaded and parsed saved game state', storedState.data);
     return storedState.data;
   } catch (error) {
     console.error('Error loading state from localStorage:', error);
-    // If parsing fails or any other error, clear the potentially corrupted state
     clearState();
     return null;
   }

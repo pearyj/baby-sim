@@ -12,7 +12,7 @@ export const Timeline: React.FC<TimelineProps> = ({
   currentAge
 }) => {
   const [selectedAges, setSelectedAges] = useState<number[]>([]);
-  const sortedEvents = [...history].sort((a, b) => a.age - b.age);
+  const sortedEvents = history.filter(event => event.question && event.question.trim() !== '').sort((a, b) => a.age - b.age);
   
   const handleAgeSelection = (age: number) => {
     setSelectedAges(prevSelectedAges => 
@@ -38,7 +38,7 @@ export const Timeline: React.FC<TimelineProps> = ({
       <div className="flex-1 p-4 overflow-auto space-y-3 bg-gray-50">
         {sortedEvents.length === 0 ? (
           <div className="text-center text-gray-500 italic py-8">
-            <p>辛勤养娃的一点一滴都会被记录下来...</p>
+            <p>辛勤养娃的一点一滴都会被记录下来。</p>
           </div>
         ) : (
           sortedEvents.map((event, index) => {

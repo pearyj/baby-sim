@@ -1,6 +1,40 @@
 import { API_CONFIG } from '../config/api';
 import type { Question, GameState } from '../types/game';
 
+// Add interface for model provider and selection functionality
+export interface ModelProvider {
+  name: string;
+  apiUrl: string;
+  apiKey: string;
+  model: string;
+}
+
+// Get the currently active provider
+export const getActiveProvider = (): ModelProvider => {
+  const isOpenAI = API_CONFIG.ACTIVE_PROVIDER === 'openai';
+  
+  return {
+    name: isOpenAI ? 'openai' : 'deepseek',
+    apiUrl: isOpenAI ? API_CONFIG.OPENAI_API_URL : API_CONFIG.DEEPSEEK_API_URL,
+    apiKey: isOpenAI ? API_CONFIG.OPENAI_API_KEY : API_CONFIG.DEEPSEEK_API_KEY,
+    model: isOpenAI ? API_CONFIG.OPENAI_MODEL : API_CONFIG.DEEPSEEK_MODEL,
+  };
+};
+
+// Switch between providers
+export const switchProvider = (): ModelProvider => {
+  // Toggle the provider
+  API_CONFIG.ACTIVE_PROVIDER = API_CONFIG.ACTIVE_PROVIDER === 'openai' ? 'deepseek' : 'openai';
+  console.log(`🔄 Switched to ${API_CONFIG.ACTIVE_PROVIDER} model provider`);
+  return getActiveProvider();
+};
+
+// Get current model information
+export const getCurrentModel = (): string => {
+  const provider = getActiveProvider();
+  return `${provider.name} - ${provider.model}`;
+};
+
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -11,6 +45,7 @@ interface OpenAIResponse {
   choices: Array<{
     message: {
       content: string;
+      role?: string;
     };
     index: number;
     finish_reason: string;
@@ -20,6 +55,10 @@ interface OpenAIResponse {
     completion_tokens: number;
     total_tokens: number;
   };
+  // Add DeepSeek-specific fields if they differ
+  id?: string;
+  model?: string;
+  created?: number;
 }
 
 // 添加Token使用统计接口
@@ -168,6 +207,98 @@ const safeJsonParse = (content: string): any => {
   }
 };
 
+// Helper function to make API requests with the active provider
+const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse> => {
+  const provider = getActiveProvider();
+  console.log(`📤 Sending API request to ${provider.name} provider using ${provider.model}`);
+  
+  // Deep clone messages to avoid reference issues
+  const cleanedMessages = JSON.parse(JSON.stringify(messages));
+  
+  // Create the request body based on provider
+  let requestBody: any = {
+    model: provider.model,
+    messages: cleanedMessages,
+    temperature: 0.7,
+  };
+  
+  // Add provider-specific parameters
+  if (provider.name === 'deepseek') {
+    // DeepSeek specific adjustments
+    requestBody = {
+      ...requestBody,
+      max_tokens: 2048,     // Required parameter for DeepSeek
+      stream: false,        // Ensure streaming is disabled
+      top_p: 0.8,           // Add top_p parameter
+      frequency_penalty: 0, // Add frequency_penalty
+      presence_penalty: 0,  // Add presence_penalty
+    };
+    
+    console.log("Using DeepSeek-specific request format with model: " + provider.model);
+  }
+  
+  try {
+    console.log(`Making request to ${provider.apiUrl}`);
+    
+    const response = await fetch(provider.apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${provider.apiKey}`
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    const responseText = await response.text();
+    if (!response.ok) {
+      console.error(`❌ API Error from ${provider.name}:`, response.status, responseText);
+      console.error('Request that caused error:', JSON.stringify({
+        url: provider.apiUrl,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer [REDACTED]'
+        },
+        body: {
+          ...requestBody,
+          messages: requestBody.messages.map((m: any) => ({ 
+            role: m.role, 
+            content: m.content?.substring(0, 100) + (m.content?.length > 100 ? "..." : "") 
+          }))
+        }
+      }, null, 2));
+      throw new Error(`Failed API request to ${provider.name}: ${response.statusText || responseText}`);
+    }
+
+    // Parse the response as JSON
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error(`Failed to parse response as JSON: ${responseText}`);
+      throw new Error(`${provider.name} returned invalid JSON: ${e}`);
+    }
+    
+    console.log(`✅ Successful ${provider.name} response received`);
+    
+    // Handle DeepSeek response format differences if needed
+    if (provider.name === 'deepseek') {
+      // Ensure the response matches OpenAI format for our code
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        console.log('Unexpected DeepSeek response format:', data);
+        throw new Error(`Unexpected ${provider.name} response format`);
+      }
+    }
+    
+    return data as OpenAIResponse;
+  } catch (error) {
+    console.error(`❌ Exception in API call to ${provider.name}:`, error);
+    if (error instanceof Error) {
+      console.error('Error stack:', error.stack);
+    }
+    throw error;
+  }
+};
+
 const generateSystemPrompt = (): string => {
   console.log("📝 Generating system prompt");
   return `你是一个叙事游戏"养娃模拟器"，要模拟玩家把一个娃从婴儿出生时养到18岁的时候所需要做出的各种选择和体验故事，目的是让玩家身临其境的体会养娃的酸甜苦辣，有深刻的感情体验和跌宕起伏，在结尾时爱上自己的孩子，反思自己的选择，为自己深思。
@@ -183,11 +314,11 @@ const generateSystemPrompt = (): string => {
 
 const generateInitialStatePrompt = (): string => {
   console.log("📝 Generating initial state prompt");
-  return `你是一个沉浸式的养娃游戏。要模拟玩家“你”把一个娃从婴儿出生时养到18岁的时候所需要做出的各种选择。这是一个叙事游戏，目的是让玩家身临其境的体会养娃的酸甜苦辣，并在结尾时可以爱自己的孩子，反思自己的选择，为自己深思。
+  return `你是一个沉浸式的养娃游戏。要模拟玩家"你"把一个娃从婴儿出生时养到18岁的时候所需要做出的各种选择。这是一个叙事游戏，目的是让玩家身临其境的体会养娃的酸甜苦辣，并在结尾时可以爱自己的孩子，反思自己的选择，为自己深思。
   
 请为游戏生成初始设定，包括两部分内容：
 
-1. 玩家“你”的信息：性别、年龄以及完整详细的你的背景，包括财富水平、社会地位、职业、家庭状况、伴侣关系等一切和养娃相关信息
+1. 玩家"你"的信息：性别、年龄以及完整详细的你的背景，包括财富水平、社会地位、职业、家庭状况、伴侣关系等一切和养娃相关信息
 
 2. 婴儿信息：性别、名字，以及完整详细的婴儿背景，包括性格特点、健康状况等一切和ta未来成长相关的信息
 
@@ -376,6 +507,32 @@ const logTokenUsage = (functionName: string, data: OpenAIResponse): void => {
   }
 };
 
+// Improved error handling function - unused but kept for reference
+/* 
+const handleApiError = (error: any, functionName: string): never => {
+  console.error(`❌ ${functionName} error:`, error);
+  
+  // Extract useful information from different error types
+  let errorMessage = "Unknown error";
+  if (error instanceof Error) {
+    errorMessage = error.message;
+    console.error('Error details:', error.stack);
+  } else if (typeof error === 'string') {
+    errorMessage = error;
+  } else if (error && typeof error === 'object') {
+    errorMessage = JSON.stringify(error);
+  }
+  
+  // Additional logging for network errors
+  if (error.response) {
+    console.error('Response error status:', error.response.status);
+    console.error('Response data:', error.response.data);
+  }
+  
+  throw new Error(`${functionName} failed: ${errorMessage}`);
+};
+*/
+
 export const generateInitialState = async (): Promise<GameState> => {
   console.log("🚀 Function called: generateInitialState()");
   
@@ -385,25 +542,7 @@ export const generateInitialState = async (): Promise<GameState> => {
   ];
 
   try {
-    console.log("📤 Sending API request for initial state");
-    const response = await fetch(API_CONFIG.OPENAI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_CONFIG.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: API_CONFIG.MODEL,
-        messages,
-        temperature: 0.7,
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate initial state');
-    }
-
-    const data = await response.json() as OpenAIResponse;
+    const data = await makeModelRequest(messages);
     console.log('📥 Received API response for initial state');
     
     // 记录token使用情况
@@ -431,24 +570,7 @@ export const generateQuestion = async (gameState: GameState): Promise<Question &
   try {
     console.log("📤 Sending API request for question generation");
     
-    const response = await fetch(API_CONFIG.OPENAI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_CONFIG.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: API_CONFIG.MODEL,
-        messages,
-        temperature: 0.7,
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate question');
-    }
-
-    const data = await response.json() as OpenAIResponse;
+    const data = await makeModelRequest(messages);
     console.log('📥 Received API response for question generation');
     
     // 记录token使用情况
@@ -517,24 +639,7 @@ export const generateOutcomeAndNextQuestion = async (
   try {
     console.log("📤 Sending API request for outcome" + (shouldGenerateNextQuestion ? " and next question" : ""));
     
-    const response = await fetch(API_CONFIG.OPENAI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_CONFIG.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: API_CONFIG.MODEL,
-        messages,
-        temperature: 0.7,
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate outcome and next question');
-    }
-
-    const data = await response.json() as OpenAIResponse;
+    const data = await makeModelRequest(messages);
     console.log('📥 Received API response for outcome' + (shouldGenerateNextQuestion ? " and next question" : ""));
     
     // 记录token使用情况
@@ -594,26 +699,8 @@ export const generateEnding = async (gameState: GameState): Promise<string> => {
 
   try {
     console.log("📤 Sending API request for ending generation");
-    const response = await fetch(API_CONFIG.OPENAI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_CONFIG.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: API_CONFIG.MODEL,
-        messages,
-        temperature: 0.7,
-      })
-    });
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error('❌ API error response for ending:', response.status, errorBody);
-      throw new Error(`Failed to generate ending. Status: ${response.status}, Body: ${errorBody}`);
-    }
-
-    const data = await response.json() as OpenAIResponse;
+    
+    const data = await makeModelRequest(messages);
     console.log('📥 Received API response for ending generation');
     
     logTokenUsage('generateEnding', data);
@@ -626,7 +713,7 @@ export const generateEnding = async (gameState: GameState): Promise<string> => {
     content = content
       .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
       .replace(/[""]/g, '"') // Normalize quotes
-      .replace(/[‘’]/g, "'")   // Normalize single quotes
+      .replace(/['']/g, "'")   // Normalize single quotes
       .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width spaces
       .replace(/[\u2028\u2029]/g, '') // Remove line/paragraph separators
       .replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\'); // Fix bad escapes
