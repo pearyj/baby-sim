@@ -312,17 +312,84 @@ const generateSystemPrompt = (): string => {
 `;
 };
 
-const generateInitialStatePrompt = (): string => {
-  console.log("📝 Generating initial state prompt");
-  return `你是一个沉浸式的养娃游戏。要模拟玩家"你"把一个娃从婴儿出生时养到18岁的时候所需要做出的各种选择。这是一个叙事游戏，目的是让玩家身临其境的体会养娃的酸甜苦辣，并在结尾时可以爱自己的孩子，反思自己的选择，为自己深思。
+// Define the structure for the initial state
+export interface InitialStateType {
+  player: {
+    gender: 'male' | 'female';
+    age: number;
+  };
+  child: {
+    name: string;
+    gender: 'male' | 'female';
+    age: 0;
+  };
+  playerDescription: string;
+  childDescription: string;
+}
+
+// Update the options type for generateInitialState
+interface GenerateInitialStateOptions {
+  specialRequirements?: string;
+  preloadedState?: InitialStateType;
+}
+
+export const generateInitialState = async (options?: GenerateInitialStateOptions): Promise<GameState> => {
+  const specialRequirements = options?.specialRequirements;
+  const preloadedState = options?.preloadedState;
+
+  console.log("🚀 Function called: generateInitialState()" + 
+    (specialRequirements ? " with special requirements" : "") +
+    (preloadedState ? " with preloaded state" : "")
+  );
+
+  if (preloadedState) {
+    console.log("🔄 Using preloaded initial state:", preloadedState);
+    // Ensure the preloaded state is returned as a GameState, which might have more fields (e.g., history)
+    // For now, assuming InitialStateType is compatible or a subset of GameState for initialization.
+    // If GameState requires more fields than InitialStateType provides, this needs adjustment.
+    return Promise.resolve(preloadedState as GameState); 
+  }
+  
+  const messages: ChatMessage[] = [
+    { role: 'system', content: generateSystemPrompt() },
+    { role: 'user', content: generateInitialStatePrompt(specialRequirements) }
+  ];
+
+  try {
+    const data = await makeModelRequest(messages);
+    console.log('📥 Received API response for initial state');
+    
+    // 记录token使用情况
+    logTokenUsage('generateInitialState', data);
+    
+    const content = data.choices[0].message.content;
+    console.log('📄 API response content (initial state):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
+    
+    // Use safe JSON parser
+    return safeJsonParse(content);
+  } catch (error) {
+    console.error('❌ Error generating initial state:', error);
+    throw error;
+  }
+};
+
+const generateInitialStatePrompt = (specialRequirements?: string): string => {
+  console.log("📝 Generating initial state prompt" + (specialRequirements ? " with special requirements" : ""));
+  
+  const basePrompt = `你是一个沉浸式的养娃游戏。要模拟玩家"你"把一个娃从婴儿出生时养到18岁的时候所需要做出的各种选择。这是一个叙事游戏，目的是让玩家身临其境的体会养娃的酸甜苦辣，并在结尾时可以爱自己的孩子，反思自己的选择，为自己深思。
   
 请为游戏生成初始设定，包括两部分内容：
 
 1. 玩家"你"的信息：性别、年龄以及完整详细的你的背景，包括财富水平、社会地位、职业、家庭状况、伴侣关系等一切和养娃相关信息
 
-2. 婴儿信息：性别、名字，以及完整详细的婴儿背景，包括性格特点、健康状况等一切和ta未来成长相关的信息
+2. 婴儿信息：性别、名字，以及完整详细的婴儿背景，包括性格特点、健康状况等一切和ta未来成长相关的信息`;
 
-按以下格式直接返回，使用文字描述而不是JSON格式：
+  // Add special requirements if provided
+  const promptWithRequirements = specialRequirements 
+    ? `${basePrompt}\n\n请根据以下特殊要求生成初始设定：\n${specialRequirements}` 
+    : basePrompt;
+
+  return `${promptWithRequirements}\n\n按以下格式直接返回，使用文字描述而不是JSON格式：
 
 {
   "player": {
@@ -532,32 +599,6 @@ const handleApiError = (error: any, functionName: string): never => {
   throw new Error(`${functionName} failed: ${errorMessage}`);
 };
 */
-
-export const generateInitialState = async (): Promise<GameState> => {
-  console.log("🚀 Function called: generateInitialState()");
-  
-  const messages: ChatMessage[] = [
-    { role: 'system', content: generateSystemPrompt() },
-    { role: 'user', content: generateInitialStatePrompt() }
-  ];
-
-  try {
-    const data = await makeModelRequest(messages);
-    console.log('📥 Received API response for initial state');
-    
-    // 记录token使用情况
-    logTokenUsage('generateInitialState', data);
-    
-    const content = data.choices[0].message.content;
-    console.log('📄 API response content (initial state):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
-    
-    // Use safe JSON parser
-    return safeJsonParse(content);
-  } catch (error) {
-    console.error('❌ Error generating initial state:', error);
-    throw error;
-  }
-};
 
 export const generateQuestion = async (gameState: GameState): Promise<Question & { isExtremeEvent: boolean }> => {
   console.log(`🚀 Function called: generateQuestion(child.age=${gameState.child.age})`);

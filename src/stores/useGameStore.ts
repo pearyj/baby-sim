@@ -1,7 +1,10 @@
 import { create } from 'zustand';
-import { generateInitialState as fetchInitialGameState, generateOutcomeAndNextQuestion, generateQuestion as fetchQuestion, generateEnding as fetchEnding } from '../services/gptService';
+// import { persist, createJSONStorage } from 'zustand/middleware'; // Removed unused import
+import * as gptService from '../services/gptService';
+import type { InitialStateType } from '../services/gptService'; // Ensured type-only import
+import * as storageService from '../services/storageService';
 import type { GameState as ApiGameState, Player, Child, HistoryEntry, Question as ApiQuestionType } from '../types/game';
-import { loadState, saveState, clearState } from '../services/storageService'; // Import storage functions and clearState
+import { clearState } from '../services/storageService'; // Keep clearState, remove loadState and saveState as they are used via storageService.* methods
 import type { GameStateToStore } from '../services/storageService'; // Import GameStateToStore as a type
 
 // Define a placeholder type for Question. This can be refined later.
@@ -50,12 +53,13 @@ interface GameStoreState {
   } | null;
 
   // Actions
-  initializeGame: () => Promise<void>; // Make it async
-  startGame: () => void; // This might now transition from 'welcome' to 'playing'
+  initializeGame: (options?: { specialRequirements?: string; preloadedState?: InitialStateType }) => Promise<void>;
+  startGame: (player: Player, child: Child, playerDescription: string, childDescription: string) => void;
   continueSavedGame: () => void; // New function to continue a saved game
   loadQuestion: () => Promise<void>; // Now async for fetching
   selectOption: (optionId: string) => Promise<void>; // Now async
   continueGame: () => Promise<void>; // Now async for potential ending generation
+  resetToWelcome: () => void; // New function to reset to the welcome screen
 }
 
 // Helper function to save current state to localStorage
@@ -83,12 +87,12 @@ const saveGameState = (state: GameStoreState) => {
   };
   
   console.log("Saving game state to localStorage:", stateToStore);
-  saveState(stateToStore);
+  storageService.saveState(stateToStore);
 };
 
 const useGameStore = create<GameStoreState>((set, get) => {
   // Try to load initial state from localStorage
-  const savedState = loadState();
+  const savedState = storageService.loadState();
   console.log("Loaded state from localStorage:", savedState);
   
   const initialState: GameStoreState = {
@@ -113,13 +117,14 @@ const useGameStore = create<GameStoreState>((set, get) => {
     showEndingSummary: false,
     pendingChoice: null,
     
-    // Define all required functions up front
-    initializeGame: async () => { console.log("initializeGame stub called") },
-    startGame: () => { console.log("startGame stub called") },
+    // Define all required functions up front with unused parameters prefixed
+    initializeGame: async (_options?: { specialRequirements?: string; preloadedState?: InitialStateType }) => { console.log("initializeGame stub called") },
+    startGame: (_player: Player, _child: Child, _playerDescription: string, _childDescription: string) => { console.log("startGame stub called") },
     continueSavedGame: () => { console.log("continueSavedGame stub called") },
     loadQuestion: async () => { console.log("loadQuestion stub called") },
     selectOption: async () => { console.log("selectOption stub called") },
     continueGame: async () => { console.log("continueGame stub called") },
+    resetToWelcome: () => { console.log("resetToWelcome stub called") },
   };
 
   // If there's saved state, use it to initialize
@@ -151,11 +156,13 @@ const useGameStore = create<GameStoreState>((set, get) => {
   }
 
   const actions = {
-    initializeGame: async () => {
+    initializeGame: async (options?: { specialRequirements?: string; preloadedState?: InitialStateType }) => {
       // Clear any existing state before initializing a new game
       clearState();
       
-      // Reset to initializing state with empty values - similar to what restartGame used to do
+      const startTime = Date.now(); // Record start time for the 2-second delay logic
+
+      // Reset to initializing state with empty values
       set(prevState => ({ 
         ...prevState, // Explicitly carry over previous state (including actions)
         gamePhase: 'initializing', 
@@ -183,9 +190,19 @@ const useGameStore = create<GameStoreState>((set, get) => {
         // This helps prevent stale UI states
         await new Promise(resolve => setTimeout(resolve, 0));
         
-        console.log("Initializing new game with fresh state");
+        console.log("Initializing new game with fresh state" + (options?.specialRequirements ? " and special requirements" : ""));
         
-        const initialState: ApiGameState = await fetchInitialGameState();
+        const initialState: ApiGameState = await gptService.generateInitialState(options);
+
+        // If a preloaded state was used, ensure a minimum 2-second loading display
+        if (options?.preloadedState) {
+          const elapsedTime = Date.now() - startTime;
+          const remainingTime = 2000 - elapsedTime;
+          if (remainingTime > 0) {
+            await new Promise(resolve => setTimeout(resolve, remainingTime));
+          }
+        }
+
         const playerDesc = initialState.player.gender === 'male' ? '父亲' : '母亲';
         const childDesc = initialState.child.gender === 'male' ? '男孩' : '女孩';
         const narrative = `作为${playerDesc}（${initialState.player.age}岁），你即将开始养育你的孩子${initialState.child.name}（${childDesc}，刚刚出生）的旅程。
@@ -243,10 +260,11 @@ ${initialState.childDescription}
       }
     },
 
-    startGame: () => {
+    startGame: (player: Player, child: Child, playerDescription: string, childDescription: string) => {
       const currentPhase = get().gamePhase;
       if (currentPhase === 'uninitialized' || currentPhase === 'initialization_failed') {
-        get().initializeGame();
+        // Correctly set child age to 0 for preloadedState
+        get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 0 }, playerDescription, childDescription } });
       } else if (currentPhase === 'welcome') {
         if (get().initialGameNarrative) {
            const newState = {
@@ -259,7 +277,8 @@ ${initialState.childDescription}
            set(prevState => ({ ...prevState, ...newState }));
            saveGameState(get());
         } else {
-          get().initializeGame(); 
+          // Correctly set child age to 0 for preloadedState
+          get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 0 }, playerDescription, childDescription } }); 
         }
       } else {
         console.warn("startGame called in an unexpected phase:", get().gamePhase);
@@ -405,7 +424,7 @@ ${initialState.childDescription}
         // This seems acceptable; the game narrative can adapt. The history will record event at age 0.
         let question;
         try {
-          question = await fetchQuestion(fullGameStateForApi);
+          question = await gptService.generateQuestion(fullGameStateForApi);
           console.log("Successfully received question from API:", question);
         } catch (apiError) {
           console.error("API error when fetching question:", apiError);
@@ -509,7 +528,7 @@ ${initialState.childDescription}
           childDescription: childDescription!,
           history: history,
         };
-        const result = await generateOutcomeAndNextQuestion(
+        const result = await gptService.generateOutcomeAndNextQuestion(
           fullGameStateForApi,
           currentQuestion.question,
           selectedOption.text
@@ -633,7 +652,7 @@ ${initialState.childDescription}
             childDescription: childDescription!,
             history: history,
           };
-          const summary = await fetchEnding(fullGameStateForApi);
+          const summary = await gptService.generateEnding(fullGameStateForApi);
           const newState = {
             endingSummaryText: summary,
             showEndingSummary: true,
@@ -681,6 +700,33 @@ ${initialState.childDescription}
           await get().loadQuestion(); 
         }
       }
+    },
+
+    resetToWelcome: () => {
+      console.log("Resetting to welcome screen");
+      // Clear localStorage state
+      clearState();
+      // Reset the store state to welcome, but don't initialize a new game yet
+      useGameStore.setState({
+        gamePhase: 'welcome',
+        player: null,
+        child: null,
+        playerDescription: null,
+        childDescription: null,
+        initialGameNarrative: null,
+        history: [],
+        feedbackText: null,
+        endingSummaryText: null,
+        currentAge: 0,
+        currentQuestion: null,
+        nextQuestion: null,
+        isLoading: false,
+        error: null,
+        showFeedback: false,
+        isEnding: false,
+        showEndingSummary: false,
+        pendingChoice: null,
+      });
     },
   };
 

@@ -27,9 +27,9 @@ function App() {
     endingSummaryText,
     storeIsLoading,
     error,
-    initializeGame,
     selectOption,
     continueGame,
+    resetToWelcome,
   } = useGameStore(state => ({
     gamePhase: state.gamePhase,
     player: state.player,
@@ -41,10 +41,10 @@ function App() {
     endingSummaryText: state.endingSummaryText,
     storeIsLoading: state.isLoading,
     error: state.error,
-    initializeGame: state.initializeGame,
     startGame: state.startGame,
     selectOption: state.selectOption,
     continueGame: state.continueGame,
+    resetToWelcome: state.resetToWelcome,
   }))
 
   const isLoading = storeIsLoading || 
@@ -68,7 +68,7 @@ function App() {
           <h2 className="text-xl font-semibold text-red-600 mb-2">发生错误</h2>
           <p className="text-gray-700">{error}</p>
           <button
-            onClick={initializeGame}
+            onClick={(e) => { e.preventDefault(); resetToWelcome(); }}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             重新开始游戏
@@ -89,7 +89,7 @@ function App() {
 
     if (gamePhase === 'uninitialized' || gamePhase === 'initialization_failed' || gamePhase === 'welcome') {
       // No longer need to determine action here, WelcomeScreen handles this
-      return <WelcomeScreen onTestEnding={isDevelopment ? initializeGame : undefined} />;
+      return <WelcomeScreen onTestEnding={isDevelopment ? resetToWelcome : undefined} />;
     }
     
     if (isEndingPhase) {
@@ -110,7 +110,7 @@ function App() {
             <p className="text-gray-600 italic">感谢你参与这段养育的旅程</p>
           </div>
           <button
-            onClick={initializeGame}
+            onClick={(e) => { e.preventDefault(); resetToWelcome(); }}
             className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
           >
             重新开始新的养育之旅
@@ -191,14 +191,12 @@ function App() {
             {child?.name && (
               <button
                 onClick={() => {
-                  // Force complete reset
-                  if (typeof initializeGame === 'function') {
-                    initializeGame();
-                    // Reload the page to ensure clean state
-                    window.location.reload();
+                  // Reset to welcome screen instead of initializing a new game
+                  if (typeof resetToWelcome === 'function') {
+                    resetToWelcome();
                   } else {
-                    console.error("initializeGame is not a function:", initializeGame);
-                    // Fallback action: just reload
+                    console.error("resetToWelcome is not a function:", resetToWelcome);
+                    // Fallback: reload the page
                     window.location.reload();
                   }
                 }}
