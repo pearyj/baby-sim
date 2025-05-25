@@ -353,7 +353,7 @@ function App() {
       <ContentArea>
         <MainContentArea>
           <Container component="main" maxWidth="lg" sx={{ 
-            px: { xs: 2, sm: 3 }, 
+            px: { xs: 1, sm: 1.5 }, 
             flex: 1, 
             display: 'flex', 
             flexDirection: 'column' 
