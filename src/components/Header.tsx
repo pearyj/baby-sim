@@ -1,22 +1,48 @@
 import React from 'react';
+import { AppBar, Toolbar, Typography, Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import DevModelSwitcher from './DevModelSwitcher';
+
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+  boxShadow: '0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)',
+}));
+
+const StyledTitle = styled(Typography)(({ theme }) => ({
+  position: 'relative',
+  fontWeight: 600,
+  color: theme.palette.primary.contrastText,
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    bottom: -4,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '80%',
+    height: 3,
+    background: theme.palette.primary.contrastText,
+    opacity: 0.3,
+    borderRadius: 2,
+  },
+}));
 
 export const Header: React.FC = () => {
   return (
-    <header className="bg-gradient-to-r from-blue-500 to-blue-600 shadow-md">
-      <div className="max-w-3xl mx-auto px-4 py-4 relative">
-        {/* Model switcher - only appears in dev mode */}
-        <div className="absolute right-4 top-1/2 -translate-y-1/2">
-          <DevModelSwitcher />
-        </div>
-        
-        <h1 className="text-2xl sm:text-3xl font-bold text-center text-white">
-          <span className="relative inline-block">
+    <StyledAppBar position="fixed" elevation={2}>
+      <Toolbar sx={{ maxWidth: '3xl', mx: 'auto', width: '100%', px: 2 }}>
+        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+          <StyledTitle variant="h4" sx={{ 
+            fontSize: { xs: '1.5rem', sm: '2rem' },
+            textAlign: 'center'
+          }}>
             养娃模拟器
-            <span className="absolute -bottom-1 left-0 right-0 h-1 bg-white opacity-30 rounded-full"></span>
-          </span>
-        </h1>
-      </div>
-    </header>
+          </StyledTitle>
+        </Box>
+        
+        <Box sx={{ position: 'absolute', right: 16 }}>
+          <DevModelSwitcher />
+        </Box>
+      </Toolbar>
+    </StyledAppBar>
   );
 }; 

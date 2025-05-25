@@ -1,12 +1,62 @@
 import React, { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  TextField,
+  Box,
+  Alert,
+  List,
+  ListItem,
+  ListItemText,
+  Chip,
+  Stack,
+  Fade,
+  Container
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { PlayArrow, Refresh, Psychology, Timeline, AutoAwesome } from '@mui/icons-material';
 import useGameStore from '../stores/useGameStore';
 import { loadState } from '../services/storageService';
 import type { InitialStateType } from '../services/gptService';
+import { logger } from '../utils/logger';
 
 interface WelcomeScreenProps {
   onStartLoading?: () => void;
   onTestEnding?: () => void;
 }
+
+const WelcomeCard = styled(Card)(({ theme }) => ({
+  background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
+  marginBottom: theme.spacing(3),
+}));
+
+const FeatureCard = styled(Card)(({ theme }) => ({
+  background: `linear-gradient(135deg, ${theme.palette.primary.light}10 0%, ${theme.palette.secondary.light}10 100%)`,
+  border: `1px solid ${theme.palette.primary.light}30`,
+  marginBottom: theme.spacing(2),
+}));
+
+const SavedGameCard = styled(Card)(({ theme }) => ({
+  background: `linear-gradient(135deg, ${theme.palette.warning.light}15 0%, ${theme.palette.info.light}15 100%)`,
+  border: `1px solid ${theme.palette.warning.light}`,
+  marginBottom: theme.spacing(3),
+}));
+
+const ActionButton = styled(Button)(({ theme }) => ({
+  borderRadius: theme.spacing(3),
+  padding: theme.spacing(1.5, 4),
+  fontSize: '1.125rem',
+  fontWeight: 600,
+  textTransform: 'none',
+  minHeight: 56,
+  marginBottom: theme.spacing(2),
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+  },
+}));
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) => {
   // In Vite, use import.meta.env.DEV for development mode check
@@ -30,13 +80,13 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
   const savedState = loadState();
   const hasSavedGame = savedState !== null && savedState.player && savedState.child;
   
-  console.log("Welcome screen - Game phase:", gamePhase, "Has saved game:", hasSavedGame);
+  logger.info("Welcome screen - Game phase:", gamePhase, "Has saved game:", hasSavedGame);
 
   // Handle starting a new game
   const handleStartNewGame = async () => {
     if (!specialRequirements) {
       try {
-        console.log("No special requirements, fetching pre-generated states...");
+        logger.info("No special requirements, fetching pre-generated states...");
         const response = await fetch('/pregenerated_states.json');
         if (!response.ok) {
           throw new Error(`Failed to fetch pregenerated_states.json: ${response.statusText}`);
@@ -45,19 +95,19 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
         if (states && states.length > 0) {
           const randomIndex = Math.floor(Math.random() * states.length);
           const selectedState = states[randomIndex];
-          console.log("Selected pre-generated state:", selectedState);
+          logger.info("Selected pre-generated state:", selectedState);
           initializeGame({ preloadedState: selectedState });
         } else {
-          console.warn("No pre-generated states found or array is empty, falling back to default generation.");
+          logger.warn("No pre-generated states found or array is empty, falling back to default generation.");
           initializeGame({}); // Fallback to default generation without special requirements
         }
       } catch (error) {
-        console.error("Error fetching or using pre-generated states:", error);
+        logger.error("Error fetching or using pre-generated states:", error);
         // Fallback to default generation in case of error
         initializeGame({}); 
       }
     } else {
-      console.log("Starting a new game with special requirements:", specialRequirements);
+      logger.info("Starting a new game with special requirements:", specialRequirements);
       initializeGame({ specialRequirements: specialRequirements });
     }
   };
@@ -74,118 +124,197 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
 
   // Handle continuing a saved game
   const handleContinueSavedGame = () => {
-    console.log("Continuing saved game");
+    logger.info("Continuing saved game");
     continueSavedGame();
   };
 
   // Special requirements input field
   const renderSpecialRequirementsInput = () => (
-    <div className="mb-6">
-      <label htmlFor="specialRequirements" className="block text-sm font-medium text-gray-700 mb-2">
+    <Box sx={{ mb: 4 }}>
+      <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
         特殊要求（可选）
-      </label>
-      <textarea
-        id="specialRequirements"
+      </Typography>
+      <TextField
+        fullWidth
+        multiline
+        rows={3}
         placeholder="我想养个邻居家的孩子"
-        className="w-[200%] mx-auto block -ml-[60%] px-6 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-base"
-        rows={2}
         value={specialRequirements}
         onChange={(e) => setSpecialRequirements(e.target.value)}
+        variant="outlined"
+        sx={{ mb: 2 }}
       />
-      <p className="mt-2 text-sm text-gray-500">您可以描述具体的想要的关于自己和娃的背景和特点，AI将尽量满足您的要求。（当然，养娃和AI一样，是个玄学……）</p>
-
-      <p className="mt-2">准备好开始这段充满挑战与惊喜的养育之旅了吗？</p>
-    </div>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        您可以描述具体的想要的关于自己和娃的背景和特点，AI将尽量满足您的要求。（当然，养娃和AI一样，是个玄学……）
+      </Typography>
+      <Typography variant="body1">
+        准备好开始这段充满挑战与惊喜的养育之旅了吗？
+      </Typography>
+    </Box>
   );
 
   return (
-    <div className="w-full px-4 sm:px-6 animate-fadeIn">
-      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-5 sm:p-8 mb-6">
-        
-        {hasSavedGame ? (
-          <div className="mb-8 space-y-4 text-gray-700">
-            <div className="bg-yellow-50 p-6 rounded-md border-2 border-yellow-200">
-              <h2 className="text-2xl font-bold mb-4 text-yellow-700">发现已保存的游戏进度</h2>
-              <p className="text-lg mb-4">
-                您好！我们发现您有一个进行中的游戏：
-              </p>
-              <div className="mb-6 bg-white p-4 rounded-md shadow-sm">
-                <p className="font-semibold">孩子: {savedState?.child?.name} ({savedState?.child?.gender === 'male' ? '男孩' : '女孩'})</p>
-                <p>当前年龄: {savedState?.child?.age} 岁</p>
-              </div>
-              <p>
-                您可以继续这个游戏，或者开始一个全新的游戏。
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="mb-8 space-y-4 text-gray-700">
-            <p className="text-lg">
-              欢迎来到《养娃模拟器》，一个模拟从孩子出生到成年的养育历程的游戏。
-            </p>
+    <Container maxWidth="md" sx={{ py: 3 }}>
+      <Fade in timeout={500}>
+        <WelcomeCard elevation={3}>
+          <CardContent sx={{ p: { xs: 3, sm: 4, md: 5 } }}>
             
-            <div className="bg-blue-50 p-4 rounded-md">
-              <h2 className="text-xl font-semibold mb-3 text-blue-700">游戏介绍</h2>
-              <p>在这个游戏中，你将扮演一位父亲或母亲，从孩子出生开始，一直陪伴他/她成长到18岁。</p>
-              <p className="mt-2">每一年，你都将面临各种养育抉择，你的选择将深刻影响孩子的性格、兴趣和未来发展方向。</p>
-            </div>
+            {hasSavedGame ? (
+              <SavedGameCard elevation={2}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Timeline sx={{ mr: 1, color: 'warning.main' }} />
+                    <Typography variant="h5" sx={{ fontWeight: 600, color: 'warning.main' }}>
+                      发现已保存的游戏进度
+                    </Typography>
+                  </Box>
+                  
+                  <Typography variant="body1" sx={{ mb: 3 }}>
+                    您好！我们发现您有一个进行中的游戏：
+                  </Typography>
+                  
+                  <Card variant="outlined" sx={{ mb: 3, p: 2 }}>
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Chip 
+                        label={savedState?.child?.gender === 'male' ? '男孩' : '女孩'} 
+                        color="primary" 
+                        size="small" 
+                      />
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {savedState?.child?.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        当前年龄: {savedState?.child?.age} 岁
+                      </Typography>
+                    </Stack>
+                  </Card>
+                  
+                  <Typography variant="body1">
+                    您可以继续这个游戏，或者开始一个全新的游戏。
+                  </Typography>
+                </CardContent>
+              </SavedGameCard>
+            ) : (
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h4" sx={{ 
+                  textAlign: 'center', 
+                  mb: 3, 
+                  fontWeight: 600,
+                  background: 'linear-gradient(45deg, #6750A4 30%, #7D5260 90%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>
+                  养娃模拟器
+                </Typography>
+                
+                <Typography variant="h6" sx={{ textAlign: 'center', mb: 4, color: 'text.secondary' }}>
+                  一个模拟从孩子出生到成年的养育历程的游戏
+                </Typography>
+                
+                <FeatureCard elevation={1}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <Psychology sx={{ mr: 1, color: 'primary.main' }} />
+                      <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                        游戏介绍
+                      </Typography>
+                    </Box>
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                      在这个游戏中，你将扮演一位父亲或母亲，从孩子出生开始，一直陪伴他/她成长到18岁。
+                    </Typography>
+                    <Typography variant="body1">
+                      每一年，你都将面临各种养育抉择，你的选择将深刻影响孩子的性格、兴趣和未来发展方向。
+                    </Typography>
+                  </CardContent>
+                </FeatureCard>
+                
+                <FeatureCard elevation={1}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <AutoAwesome sx={{ mr: 1, color: 'secondary.main' }} />
+                      <Typography variant="h6" sx={{ fontWeight: 600, color: 'secondary.main' }}>
+                        游戏特点
+                      </Typography>
+                    </Box>
+                    <List dense>
+                      <ListItem disablePadding>
+                        <ListItemText primary="AI生成的角色背景、养育情境和故事线" />
+                      </ListItem>
+                      <ListItem disablePadding>
+                        <ListItemText primary="每个决定都会影响娃的成长路径" />
+                      </ListItem>
+                      <ListItem disablePadding>
+                        <ListItemText primary="时间轴记录你的养育历程，直到18岁送娃成人" />
+                      </ListItem>
+                      <ListItem disablePadding>
+                        <ListItemText primary="查看娃的成长经历和自己是个什么样的父母" />
+                      </ListItem>
+                    </List>
+                  </CardContent>
+                </FeatureCard>
+                
+                <Alert severity="info" sx={{ mb: 3 }}>
+                  <Typography variant="body1">
+                    点击开始游戏，随机生成一位父亲/母亲的角色，以及娃的基本信息。
+                  </Typography>
+                </Alert>
+                
+                {renderSpecialRequirementsInput()}
+              </Box>
+            )}
             
-            <div className="bg-purple-50 p-4 rounded-md">
-              <h2 className="text-xl font-semibold mb-3 text-purple-700">游戏特点</h2>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>AI生成的角色背景、养育情境和故事线</li>
-                <li>每个决定都会影响娃的成长路径</li>
-                <li>时间轴记录你的养育历程，直到18岁送娃成人</li>
-                <li>查看娃的成长经历和自己是个什么样的父母</li>
-              </ul>
-            </div>
-            
-            <div className="bg-green-50 p-4 rounded-md">
-              <h2 className="text-xl font-semibold mb-3 text-green-700">开始游戏</h2>
-              <p>点击下方按钮，系统将为你随机生成一位父亲/母亲的角色，以及你娃的基本信息。</p>
-              
-            </div>
-            
-            {/* Add special requirements input */}
-            {renderSpecialRequirementsInput()}
-          </div>
-        )}
-        
-        {hasSavedGame ? (
-          <>
-            <button
-              onClick={handleContinueSavedGame}
-              className="w-full py-3 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
-            >
-              继续游戏
-            </button>
-            
-            <button
-              onClick={handleResetAndShowNewGameScreen}
-              className="w-full mt-4 py-3 bg-red-500 text-white text-lg rounded-lg hover:bg-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2"
-            >
-              开始新游戏
-            </button>
-          </>
-        ) : (
-          <button
-            onClick={handleStartNewGame}
-            className="w-full py-3 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
-          >
-            开始游戏
-          </button>
-        )}
+            <Stack spacing={2}>
+              {hasSavedGame ? (
+                <>
+                  <ActionButton
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    onClick={handleContinueSavedGame}
+                    startIcon={<PlayArrow />}
+                  >
+                    继续游戏
+                  </ActionButton>
+                  
+                  <ActionButton
+                    fullWidth
+                    variant="outlined"
+                    color="error"
+                    onClick={handleResetAndShowNewGameScreen}
+                    startIcon={<Refresh />}
+                  >
+                    开始新游戏
+                  </ActionButton>
+                </>
+              ) : (
+                <ActionButton
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  onClick={handleStartNewGame}
+                  startIcon={<PlayArrow />}
+                >
+                  开始游戏
+                </ActionButton>
+              )}
 
-        {/* Show Test Ending Button only in development mode */}
-        {isDevelopment && onTestEnding && (
-          <button
-            onClick={onTestEnding}
-            className="w-full mt-4 py-2 bg-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
-          >
-            (Dev) Test Ending Page
-          </button>
-        )}
-      </div>
-    </div>
+              {isDevelopment && onTestEnding && (
+                <Button
+                  fullWidth
+                  variant="text"
+                  color="secondary"
+                  onClick={onTestEnding}
+                  size="small"
+                  sx={{ mt: 2 }}
+                >
+                  (Dev) Test Ending Page
+                </Button>
+              )}
+            </Stack>
+          </CardContent>
+        </WelcomeCard>
+      </Fade>
+    </Container>
   );
 }; 

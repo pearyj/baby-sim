@@ -5,6 +5,7 @@ import type { GameState } from '../types/game';
 interface TimelineProviderProps {
   history: GameState['history'];
   currentAge: number;
+  childGender: 'male' | 'female';
   isVisible: boolean;
   hideLatest?: boolean;
 }
@@ -12,6 +13,7 @@ interface TimelineProviderProps {
 export const TimelineProvider: React.FC<TimelineProviderProps> = ({
   history,
   currentAge,
+  childGender,
   isVisible,
   hideLatest = false
 }) => {
@@ -23,11 +25,10 @@ export const TimelineProvider: React.FC<TimelineProviderProps> = ({
     : history;
   
   return (
-    <div className="flex flex-row h-full">
-      <Timeline 
-        history={displayHistory}
-        currentAge={currentAge}
-      />
-    </div>
+    <Timeline 
+      history={displayHistory}
+      currentAge={currentAge}
+      childGender={childGender}
+    />
   );
 }; 

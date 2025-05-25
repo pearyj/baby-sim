@@ -1,4 +1,5 @@
 import type { Question } from '../types/game'; // Import Question type
+import { logger } from '../utils/logger';
 
 const CHILD_SIM_GAME_STATE_KEY = 'childSimGameState';
 const CURRENT_STORAGE_VERSION = 1;
@@ -56,7 +57,7 @@ const isLocalStorageAvailable = (): boolean => {
 
 export const saveState = (state: GameStateToStore): void => {
   if (!isLocalStorageAvailable()) {
-    console.warn('localStorage is not available. Game state will not be saved.');
+    logger.warn('localStorage is not available. Game state will not be saved.');
     return;
   }
 
@@ -67,43 +68,43 @@ export const saveState = (state: GameStateToStore): void => {
     };
     const serializedState = JSON.stringify(stateToStore);
     localStorage.setItem(CHILD_SIM_GAME_STATE_KEY, serializedState);
-    console.log(`Successfully saved state to localStorage (${serializedState.length} bytes)`);
+    logger.log(`Successfully saved state to localStorage (${serializedState.length} bytes)`);
   } catch (error) {
-    console.error('Error saving state to localStorage:', error);
+    logger.error('Error saving state to localStorage:', error);
     if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-      console.error('LocalStorage quota exceeded. Cannot save game state.');
+      logger.error('LocalStorage quota exceeded. Cannot save game state.');
     }
   }
 };
 
 export const loadState = (): GameStateToStore | null => {
   if (!isLocalStorageAvailable()) {
-    console.warn('localStorage is not available. Cannot load game state.');
+    logger.warn('localStorage is not available. Cannot load game state.');
     return null;
   }
 
   try {
     const serializedState = localStorage.getItem(CHILD_SIM_GAME_STATE_KEY);
     if (serializedState === null) {
-      console.log('No saved game state found in localStorage');
+      logger.log('No saved game state found in localStorage');
       return null; 
     }
 
-    console.log(`Found saved state in localStorage (${serializedState.length} bytes)`);
+    logger.log(`Found saved state in localStorage (${serializedState.length} bytes)`);
     const storedState: StoredState = JSON.parse(serializedState);
 
     if (storedState.version !== CURRENT_STORAGE_VERSION) {
-      console.warn(
+      logger.warn(
         `Stored data version (${storedState.version}) does not match current version (${CURRENT_STORAGE_VERSION}). Resetting state.`,
       );
       clearState(); 
       return null;
     }
 
-    console.log('Successfully loaded and parsed saved game state', storedState.data);
+    logger.log('Successfully loaded and parsed saved game state', storedState.data);
     return storedState.data;
   } catch (error) {
-    console.error('Error loading state from localStorage:', error);
+    logger.error('Error loading state from localStorage:', error);
     clearState();
     return null;
   }
@@ -111,13 +112,13 @@ export const loadState = (): GameStateToStore | null => {
 
 export const clearState = (): void => {
   if (!isLocalStorageAvailable()) {
-    console.warn('localStorage is not available. Cannot clear game state.');
+    logger.warn('localStorage is not available. Cannot clear game state.');
     return;
   }
 
   try {
     localStorage.removeItem(CHILD_SIM_GAME_STATE_KEY);
   } catch (error) {
-    console.error('Error clearing state from localStorage:', error);
+    logger.error('Error clearing state from localStorage:', error);
   }
 }; 

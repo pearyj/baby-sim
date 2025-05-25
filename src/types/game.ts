@@ -1,6 +1,7 @@
 export interface Option {
   id: string;
   text: string;
+  cost: number;
 }
 
 export interface Question {
@@ -36,12 +37,18 @@ export interface GameState {
   }[];
   playerDescription: string;
   childDescription: string;
+  wealthTier: 'poor' | 'middle' | 'wealthy';
+  financialBurden: number;
+  isBankrupt: boolean;
   pendingChoice?: {
     questionId?: string;
     optionId: string;
     questionText: string;
     optionText: string;
   } | null;
+  currentQuestion: Question | null;
+  feedbackText: string | null;
+  endingSummaryText: string | null;
 }
 
 // Add HistoryEntry interface

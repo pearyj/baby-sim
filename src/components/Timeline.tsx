@@ -1,28 +1,108 @@
 import React, { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Chip,
+  Collapse,
+  IconButton,
+  Paper,
+  Tooltip
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { ExpandMore, ExpandLess } from '@mui/icons-material';
+import { getTimelineIcon, getCurrentAgeColor, DEVELOPMENTAL_STAGES } from '../constants/timelineIcons';
 import type { GameState } from '../types/game';
-import clsx from 'clsx';
 
 interface TimelineProps {
   history: GameState['history'];
   currentAge: number;
+  childGender: 'male' | 'female';
 }
+
+const TimelineContainer = styled(Box)(() => ({
+  position: 'relative',
+}));
+
+const TimelineItem = styled(Box)(({ theme }) => ({
+  position: 'relative',
+  paddingLeft: theme.spacing(6), // Space for the icon
+  paddingBottom: theme.spacing(2),
+  '&:not(:last-child)::after': {
+    content: '""',
+    position: 'absolute',
+    left: theme.spacing(2.25), // Center of the icon
+    top: theme.spacing(6),
+    bottom: theme.spacing(-2),
+    width: 2,
+    backgroundColor: theme.palette.divider,
+    zIndex: 0,
+  },
+}));
+
+const TimelineIcon = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  left: 0,
+  top: theme.spacing(1),
+  width: theme.spacing(4.5),
+  height: theme.spacing(4.5),
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  border: `2px solid ${theme.palette.background.paper}`,
+  boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+  zIndex: 1,
+  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+  '& .MuiSvgIcon-root': {
+    fontSize: '1.25rem',
+    color: 'white',
+  },
+  '&:hover': {
+    transform: 'scale(1.1)',
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+  },
+}));
+
+const TimelineCard = styled(Card)(() => ({
+  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+  cursor: 'pointer',
+  '&:hover': {
+    transform: 'translateY(-1px)',
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.12)',
+  },
+}));
+
+const CurrentAgeCard = styled(TimelineCard)(() => ({
+  border: `2px solid ${getCurrentAgeColor()}`,
+  background: `linear-gradient(135deg, ${getCurrentAgeColor()}10 0%, ${getCurrentAgeColor()}05 100%)`,
+}));
+
+const ExpandableContent = styled(Box)(({ theme }) => ({
+  borderTop: `1px solid ${theme.palette.divider}`,
+  marginTop: theme.spacing(2),
+  paddingTop: theme.spacing(2),
+}));
 
 export const Timeline: React.FC<TimelineProps> = ({ 
   history, 
-  currentAge
+  currentAge,
+  childGender
 }) => {
-  const [selectedAges, setSelectedAges] = useState<number[]>([]);
-  const sortedEvents = history.filter(event => event.question && event.question.trim() !== '').sort((a, b) => a.age - b.age);
+  const [expandedAges, setExpandedAges] = useState<number[]>([]);
+  const sortedEvents = history
+    .filter(event => event.question && event.question.trim() !== '')
+    .sort((a, b) => a.age - b.age);
   
-  const handleAgeSelection = (age: number) => {
-    setSelectedAges(prevSelectedAges => 
-      prevSelectedAges.includes(age)
-        ? prevSelectedAges.filter(selected => selected !== age)
-        : [...prevSelectedAges, age]
+  const handleToggleExpand = (age: number) => {
+    setExpandedAges(prevExpanded => 
+      prevExpanded.includes(age)
+        ? prevExpanded.filter(expanded => expanded !== age)
+        : [...prevExpanded, age]
     );
   };
   
-  // Helper function to get a clean display text from outcome
   const getDisplayText = (text: string, maxLength: number): string => {
     if (!text) return "...";
     const firstSentence = text.split(/[.!?][\s\n]/)[0];
@@ -31,64 +111,160 @@ export const Timeline: React.FC<TimelineProps> = ({
     }
     return firstSentence + (firstSentence.match(/[.!?]$/) ? '' : '...');
   };
-  
+
+  if (sortedEvents.length === 0) {
+    return (
+      <Paper elevation={1} sx={{ p: 3, mb: 3, textAlign: 'center' }}>
+        <Typography variant="body1" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+          辛勤养娃的一点一滴都会被记录下来。
+        </Typography>
+      </Paper>
+    );
+  }
+
   return (
-    <>
-      {/* content panel */}
-      <div className="flex-1 p-4 overflow-auto space-y-3 bg-gray-50">
-        {sortedEvents.length === 0 ? (
-          <div className="text-center text-gray-500 italic py-8">
-            <p>辛勤养娃的一点一滴都会被记录下来。</p>
-          </div>
-        ) : (
-          sortedEvents.map((event, index) => {
-            const isSelected = selectedAges.includes(event.age);
-            const isCurrent = event.age === currentAge;
-            return (
-              <div 
-                key={`content-${event.age}-${index}`}
-                className={clsx(
-                  "rounded-lg border-l-4 cursor-pointer transition-all duration-200 p-3",
-                  isCurrent
-                    ? "bg-blue-50 border-blue-500 shadow-sm"
-                    : isSelected
-                      ? "bg-indigo-50 border-indigo-500 shadow-sm"
-                      : "bg-white border-gray-300 hover:border-indigo-400 hover:bg-indigo-50"
-                )}
-                onClick={() => handleAgeSelection(event.age)}
+    <Box sx={{ mb: 3 }}>
+      <Typography variant="h6" sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
+        成长时间轴
+      </Typography>
+      
+      <TimelineContainer>
+        {sortedEvents.map((event, index) => {
+          const isExpanded = expandedAges.includes(event.age);
+          const isCurrent = event.age === currentAge;
+          const isLast = index === sortedEvents.length - 1;
+          const iconConfig = getTimelineIcon(event.age, childGender);
+          const IconComponent = iconConfig.icon;
+          const iconColor = isCurrent ? getCurrentAgeColor() : iconConfig.color;
+          const developmentalStage = DEVELOPMENTAL_STAGES[event.age as keyof typeof DEVELOPMENTAL_STAGES] || '成长期';
+          
+          return (
+            <TimelineItem key={`timeline-${event.age}-${index}`} sx={{ 
+              paddingBottom: isLast ? 0 : 2 
+            }}>
+              <Tooltip 
+                title={`${event.age}岁 - ${iconConfig.description} (${developmentalStage})`}
+                placement="left"
               >
-                {/* Render Details if selected, otherwise render Summary */}
-                {isSelected ? (
-                  // Detailed View (when selected)
-                  <div className="text-sm text-gray-700">
-                    <h3 className="font-bold mb-2 text-gray-800">{event.age}岁</h3>
+                <TimelineIcon sx={{ 
+                  backgroundColor: iconColor,
+                  borderColor: iconColor
+                }}>
+                  <IconComponent />
+                </TimelineIcon>
+              </Tooltip>
+              
+              {isCurrent ? (
+                <CurrentAgeCard elevation={2} onClick={() => handleToggleExpand(event.age)}>
+                  <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Chip 
+                          label={`${event.age}岁`} 
+                          color="primary" 
+                          size="small"
+                          variant="filled"
+                        />
+                        <Chip 
+                          label="当前年龄" 
+                          color="primary" 
+                          size="small"
+                          variant="outlined"
+                        />
+                        <Chip 
+                          label={developmentalStage}
+                          size="small"
+                          variant="outlined"
+                          sx={{ 
+                            borderColor: iconColor,
+                            color: iconColor 
+                          }}
+                        />
+                      </Box>
+                      <IconButton size="small" color="primary">
+                        {isExpanded ? <ExpandLess /> : <ExpandMore />}
+                      </IconButton>
+                    </Box>
                     
-                    <div className="text-xs text-gray-500 space-y-1 border-t pt-2 mt-2">
-                      <p><span className="font-medium">状况: </span>{event.question}</p>
-                      <p className="whitespace-pre-wrap mb-3">{event.outcome}</p>
-                    </div>
-                  </div>
-                ) : (
-                  // Summary View (when not selected)
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-baseline overflow-hidden">
-                      <span className="font-bold text-gray-700 text-sm flex-shrink-0">{event.age}岁: </span>
-                      {/* Single line preview with truncation */}
-                      <span className="ml-2 text-gray-600 text-sm truncate whitespace-nowrap">
-                        {getDisplayText(event.outcome, 60)} 
-                      </span>
-                    </div>
-                    {/* Indicate expandability */}
-                    <span className="text-indigo-500 text-xs ml-2 flex-shrink-0">
-                      ▼
-                    </span>
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
-    </>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      {getDisplayText(event.outcome, 80)}
+                    </Typography>
+                    
+                    <Collapse in={isExpanded}>
+                      <ExpandableContent>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: 'primary.main' }}>
+                          状况：
+                        </Typography>
+                        <Typography variant="body2" sx={{ mb: 2 }}>
+                          {event.question}
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: 'primary.main' }}>
+                          结果：
+                        </Typography>
+                        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                          {event.outcome}
+                        </Typography>
+                      </ExpandableContent>
+                    </Collapse>
+                  </CardContent>
+                </CurrentAgeCard>
+              ) : (
+                <TimelineCard elevation={1} onClick={() => handleToggleExpand(event.age)}>
+                  <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Chip 
+                          label={`${event.age}岁`} 
+                          size="small"
+                          variant="outlined"
+                          sx={{ 
+                            borderColor: iconColor,
+                            color: iconColor
+                          }}
+                        />
+                        <Chip 
+                          label={developmentalStage}
+                          size="small"
+                          variant="outlined"
+                          sx={{ 
+                            borderColor: iconColor,
+                            color: iconColor,
+                            fontSize: '0.7rem'
+                          }}
+                        />
+                      </Box>
+                      <IconButton size="small">
+                        {isExpanded ? <ExpandLess /> : <ExpandMore />}
+                      </IconButton>
+                    </Box>
+                    
+                    <Typography variant="body2" color="text.secondary">
+                      {getDisplayText(event.outcome, 80)}
+                    </Typography>
+                    
+                    <Collapse in={isExpanded}>
+                      <ExpandableContent>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: 'text.primary' }}>
+                          状况：
+                        </Typography>
+                        <Typography variant="body2" sx={{ mb: 2 }}>
+                          {event.question}
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: 'text.primary' }}>
+                          结果：
+                        </Typography>
+                        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                          {event.outcome}
+                        </Typography>
+                      </ExpandableContent>
+                    </Collapse>
+                  </CardContent>
+                </TimelineCard>
+              )}
+            </TimelineItem>
+          );
+        })}
+      </TimelineContainer>
+    </Box>
   );
 }; 
