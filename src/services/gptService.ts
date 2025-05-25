@@ -805,14 +805,12 @@ export const generateEnding = async (gameState: GameState): Promise<string> => {
       child_status_at_18: string;
       parent_evaluation: string;
       future_outlook: string;
-      summary_narrative: string;
     }
 
     if (parsedEnding && 
         typeof parsedEnding.child_status_at_18 === 'string' &&
         typeof parsedEnding.parent_evaluation === 'string' &&
-        typeof parsedEnding.future_outlook === 'string' &&
-        typeof parsedEnding.summary_narrative === 'string') {
+        typeof parsedEnding.future_outlook === 'string') {
       const typedEnding = parsedEnding as EndingFormat;
       
       const formattedEnding = `
@@ -831,11 +829,6 @@ ${typedEnding.parent_evaluation.replace(/\n/g, '\n\n')}
 **未来的序曲：**
 ${typedEnding.future_outlook.replace(/\n/g, '\n\n')}
 
----
-
-**岁月回响：**
-${typedEnding.summary_narrative.replace(/\n/g, '\n\n')}
-
 感谢你的养育，这段旅程就此告一段落。
 `;
       logger.info('🎨 Formatted ending string generated.');
@@ -848,14 +841,14 @@ ${typedEnding.summary_narrative.replace(/\n/g, '\n\n')}
       // Attempt to construct a fallback from any available text fields
       let fallbackText = "";
       if (parsedEnding) {
-        if (parsedEnding.summary_narrative) fallbackText += parsedEnding.summary_narrative + "\n\n";
-        else if (parsedEnding.summary) fallbackText += parsedEnding.summary + "\n\n";
-        else if (parsedEnding.text) fallbackText += parsedEnding.text + "\n\n";
-        else if (parsedEnding.ending) fallbackText += parsedEnding.ending + "\n\n";
+        if (parsedEnding.child_status_at_18) fallbackText += "**孩子状况：**\n" + parsedEnding.child_status_at_18 + "\n\n";
+        if (parsedEnding.parent_evaluation) fallbackText += "**父母评价：**\n" + parsedEnding.parent_evaluation + "\n\n";
+        if (parsedEnding.future_outlook) fallbackText += "**未来展望：**\n" + parsedEnding.future_outlook + "\n\n";
         
-        if (parsedEnding.child_status_at_18) fallbackText += "孩子状况：" + parsedEnding.child_status_at_18 + "\n";
-        if (parsedEnding.parent_evaluation) fallbackText += "父母评价：" + parsedEnding.parent_evaluation + "\n";
-        if (parsedEnding.future_outlook) fallbackText += "未来展望：" + parsedEnding.future_outlook + "\n";
+        // Handle any other possible fields that might be returned
+        if (parsedEnding.summary) fallbackText += parsedEnding.summary + "\n\n";
+        if (parsedEnding.text) fallbackText += parsedEnding.text + "\n\n";
+        if (parsedEnding.ending) fallbackText += parsedEnding.ending + "\n\n";
       }
       if (fallbackText.trim() !== "") {
         return `## 游戏结局\n\n${fallbackText.trim()}\n\n感谢您的游玩！结局内容可能未完全按预期格式展示。`;

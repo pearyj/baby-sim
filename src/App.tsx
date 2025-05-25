@@ -197,7 +197,7 @@ function App() {
                 </Box>
                 
                 <Box sx={{ mb: 4 }}>
-                  <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                  <Typography variant="body1" component="div" sx={{ lineHeight: 1.7 }}>
                     <ReactMarkdown>{endingSummaryText || (isLoading && gamePhase === 'ending_game' ? "结局生成中..." : "结局回顾完毕。")}</ReactMarkdown>
                   </Typography>
                 </Box>
