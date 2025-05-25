@@ -1,6 +1,7 @@
 import { API_CONFIG } from '../config/api';
 import type { Question, GameState } from '../types/game';
 import { logger } from '../utils/logger';
+import { performanceMonitor } from '../utils/performanceMonitor';
 
 // Add interface for model provider and selection functionality
 export interface ModelProvider {
@@ -12,20 +13,49 @@ export interface ModelProvider {
 
 // Get the currently active provider
 export const getActiveProvider = (): ModelProvider => {
-  const isOpenAI = API_CONFIG.ACTIVE_PROVIDER === 'openai';
+  const provider = API_CONFIG.ACTIVE_PROVIDER;
   
-  return {
-    name: isOpenAI ? 'openai' : 'deepseek',
-    apiUrl: isOpenAI ? API_CONFIG.OPENAI_API_URL : API_CONFIG.DEEPSEEK_API_URL,
-    apiKey: isOpenAI ? API_CONFIG.OPENAI_API_KEY : API_CONFIG.DEEPSEEK_API_KEY,
-    model: isOpenAI ? API_CONFIG.OPENAI_MODEL : API_CONFIG.DEEPSEEK_MODEL,
-  };
+  switch (provider) {
+    case 'openai':
+      return {
+        name: 'openai',
+        apiUrl: API_CONFIG.OPENAI_API_URL,
+        apiKey: API_CONFIG.OPENAI_API_KEY,
+        model: API_CONFIG.OPENAI_MODEL,
+      };
+    case 'deepseek':
+      return {
+        name: 'deepseek',
+        apiUrl: API_CONFIG.DEEPSEEK_API_URL,
+        apiKey: API_CONFIG.DEEPSEEK_API_KEY,
+        model: API_CONFIG.DEEPSEEK_MODEL,
+      };
+    case 'volcengine':
+      return {
+        name: 'volcengine',
+        apiUrl: API_CONFIG.VOLCENGINE_API_URL,
+        apiKey: API_CONFIG.VOLCENGINE_API_KEY,
+        model: API_CONFIG.VOLCENGINE_MODEL,
+      };
+    default:
+      // Fallback to volcengine if invalid provider
+      return {
+        name: 'volcengine',
+        apiUrl: API_CONFIG.VOLCENGINE_API_URL,
+        apiKey: API_CONFIG.VOLCENGINE_API_KEY,
+        model: API_CONFIG.VOLCENGINE_MODEL,
+      };
+  }
 };
 
 // Switch between providers
 export const switchProvider = (): ModelProvider => {
-  // Toggle the provider
-  API_CONFIG.ACTIVE_PROVIDER = API_CONFIG.ACTIVE_PROVIDER === 'openai' ? 'deepseek' : 'openai';
+  // Cycle through the three providers
+  const providers = ['openai', 'deepseek', 'volcengine'] as const;
+  const currentIndex = providers.indexOf(API_CONFIG.ACTIVE_PROVIDER as any);
+  const nextIndex = (currentIndex + 1) % providers.length;
+  
+  API_CONFIG.ACTIVE_PROVIDER = providers[nextIndex];
   logger.info(`🔄 Switched to ${API_CONFIG.ACTIVE_PROVIDER} model provider`);
   return getActiveProvider();
 };
@@ -213,6 +243,13 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
   const provider = getActiveProvider();
   logger.info(`📤 Sending API request to ${provider.name} provider using ${provider.model}`);
   
+  // Start timing the API request
+  performanceMonitor.startTiming(`API-${provider.name}-request`, 'api', {
+    provider: provider.name,
+    model: provider.model,
+    messageCount: messages.length
+  });
+  
   // Deep clone messages to avoid reference issues
   const cleanedMessages = JSON.parse(JSON.stringify(messages));
   
@@ -252,6 +289,7 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
 
     const responseText = await response.text();
     if (!response.ok) {
+      performanceMonitor.endTiming(`API-${provider.name}-request`);
       logger.error(`❌ API Error from ${provider.name}:`, response.status, responseText);
       logger.error('Request that caused error:', JSON.stringify({
         url: provider.apiUrl,
@@ -275,11 +313,14 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
     try {
       data = JSON.parse(responseText);
     } catch (e) {
+      performanceMonitor.endTiming(`API-${provider.name}-request`);
       logger.error(`Failed to parse response as JSON: ${responseText}`);
       throw new Error(`${provider.name} returned invalid JSON: ${e}`);
     }
     
-    logger.info(`✅ Successful ${provider.name} response received`);
+    // End timing the API request
+    const duration = performanceMonitor.endTiming(`API-${provider.name}-request`);
+    logger.info(`✅ Successful ${provider.name} response received in ${duration?.toFixed(2)}ms`);
     
     // Handle DeepSeek response format differences if needed
     if (provider.name === 'deepseek') {
@@ -292,6 +333,7 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
     
     return data as OpenAIResponse;
   } catch (error) {
+    performanceMonitor.endTiming(`API-${provider.name}-request`);
     logger.error(`❌ Exception in API call to ${provider.name}:`, error);
     if (error instanceof Error) {
       logger.error('Error stack:', error.stack);
@@ -345,42 +387,48 @@ export const generateInitialState = async (options?: GenerateInitialStateOptions
   );
 
   if (preloadedState) {
-    logger.info("🔄 Using preloaded initial state:", preloadedState);
-    // Ensure the preloaded state is returned as a GameState
-    return Promise.resolve({
-      ...preloadedState,
-      history: [], // Add empty history
-      currentQuestion: null, // Add null currentQuestion
-      feedbackText: null, // Add null feedbackText
-      endingSummaryText: null, // Add null endingSummaryText
-      // Ensure wealthTier is present, defaulting if necessary (it's required on InitialStateType now)
-      wealthTier: preloadedState.wealthTier, 
-      financialBurden: 0, // Add default financialBurden for type compatibility
-      isBankrupt: false, // Add default isBankrupt for type compatibility
-    } as GameState); 
+    return performanceMonitor.timeSync('generateInitialState-preloaded', 'local', () => {
+      logger.info("🔄 Using preloaded initial state:", preloadedState);
+      // Ensure the preloaded state is returned as a GameState
+      return {
+        ...preloadedState,
+        history: [], // Add empty history
+        currentQuestion: null, // Add null currentQuestion
+        feedbackText: null, // Add null feedbackText
+        endingSummaryText: null, // Add null endingSummaryText
+        // Ensure wealthTier is present, defaulting if necessary (it's required on InitialStateType now)
+        wealthTier: preloadedState.wealthTier, 
+        financialBurden: 0, // Add default financialBurden for type compatibility
+        isBankrupt: false, // Add default isBankrupt for type compatibility
+      } as GameState;
+    });
   }
   
-  const messages: ChatMessage[] = [
-    { role: 'system', content: generateSystemPrompt() },
-    { role: 'user', content: generateInitialStatePrompt(specialRequirements) }
-  ];
+  return performanceMonitor.timeAsync('generateInitialState-full', 'api', async () => {
+    const messages: ChatMessage[] = [
+      { role: 'system', content: generateSystemPrompt() },
+      { role: 'user', content: generateInitialStatePrompt(specialRequirements) }
+    ];
 
-  try {
-    const data = await makeModelRequest(messages);
-    logger.info('📥 Received API response for initial state');
-    
-    // 记录token使用情况
-    logTokenUsage('generateInitialState', data);
-    
-    const content = data.choices[0].message.content;
-    logger.info('📄 API response content (initial state):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
-    
-    // Use safe JSON parser
-    return safeJsonParse(content);
-  } catch (error) {
-    logger.error('❌ Error generating initial state:', error);
-    throw error;
-  }
+    try {
+      const data = await makeModelRequest(messages);
+      logger.info('📥 Received API response for initial state');
+      
+      // 记录token使用情况
+      logTokenUsage('generateInitialState', data);
+      
+      const content = data.choices[0].message.content;
+      logger.info('📄 API response content (initial state):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
+      
+      // Use safe JSON parser with timing
+      return performanceMonitor.timeSync('safeJsonParse-initialState', 'local', () => {
+        return safeJsonParse(content);
+      });
+    } catch (error) {
+      logger.error('❌ Error generating initial state:', error);
+      throw error;
+    }
+  });
 };
 
 const generateInitialStatePrompt = (specialRequirements?: string): string => {

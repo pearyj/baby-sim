@@ -6,6 +6,7 @@ interface TextDisplayProps {
   paragraphClassName?: string;
   animated?: boolean;
   delay?: number; // 延迟时间，单位毫秒
+  inline?: boolean; // 是否内联显示，避免嵌套p标签
 }
 
 /**
@@ -17,6 +18,7 @@ export const TextDisplay: React.FC<TextDisplayProps> = ({
   paragraphClassName = '',
   animated = false,
   delay = 100,
+  inline = false,
 }) => {
   const [isVisible, setIsVisible] = useState(!animated);
   
@@ -32,6 +34,15 @@ export const TextDisplay: React.FC<TextDisplayProps> = ({
   
   // 将文本按段落分割
   const paragraphs = text.split('\n').filter(p => p.trim() !== '');
+  
+  // 如果是内联模式，直接返回文本，避免嵌套标签
+  if (inline) {
+    return (
+      <span className={`text-display ${className}`}>
+        {paragraphs.join(' ')}
+      </span>
+    );
+  }
   
   return (
     <div className={`text-display ${className}`}>

@@ -70,7 +70,7 @@ export const StoryDialog: React.FC<StoryDialogProps> = ({
                   </div>
                   <div className="flex-1">
                     <h3 className="font-medium text-base sm:text-lg text-gray-900">
-                      <TextDisplay text={entry.question} />
+                      <TextDisplay text={entry.question} inline={true} />
                     </h3>
                   </div>
                 </div>
@@ -80,6 +80,7 @@ export const StoryDialog: React.FC<StoryDialogProps> = ({
                     <TextDisplay 
                       text={entry.choice}
                       className="inline" 
+                      inline={true}
                     />
                   </div>
                   <div className="mt-2 text-gray-700">

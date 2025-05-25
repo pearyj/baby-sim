@@ -140,6 +140,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                   <TextDisplay 
                     text={question.question}
                     paragraphClassName=""
+                    inline={true}
                   />
                 </Typography>
               </Box>
@@ -162,6 +163,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                         <TextDisplay 
                           text={`${option.id}: ${option.text}`}
                           paragraphClassName=""
+                          inline={true}
                         />
                       </Typography>
                     </Box>

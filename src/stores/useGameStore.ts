@@ -7,6 +7,7 @@ import type { GameState as ApiGameState, Player, Child, HistoryEntry, Question a
 import { clearState } from '../services/storageService'; // Keep clearState, remove loadState and saveState as they are used via storageService.* methods
 import type { GameStateToStore } from '../services/storageService'; // Import GameStateToStore as a type
 import { logger } from '../utils/logger';
+import { performanceMonitor } from '../utils/performanceMonitor';
 
 // Define a placeholder type for Question. This can be refined later.
 interface QuestionType extends ApiQuestionType {}
@@ -171,31 +172,39 @@ const useGameStore = create<GameStoreState>((set, get) => {
       
       const startTime = Date.now(); // Record start time for the 2-second delay logic
 
+      // Start overall game initialization timing
+      performanceMonitor.startTiming('game-initialization-total', 'local', {
+        hasSpecialRequirements: !!options?.specialRequirements,
+        hasPreloadedState: !!options?.preloadedState
+      });
+
       // Reset to initializing state with empty values
-      set(prevState => ({ 
-        ...prevState, // Explicitly carry over previous state (including actions)
-        gamePhase: 'initializing', 
-        error: null, 
-        isLoading: true, 
-        history: [],
-        feedbackText: null,
-        endingSummaryText: null,
-        player: null,
-        child: null,
-        playerDescription: null,
-        childDescription: null,
-        initialGameNarrative: null,
-        currentAge: 0,
-        currentQuestion: null,
-        nextQuestion: null,
-        showFeedback: false,
-        isEnding: false,
-        showEndingSummary: false,
-        pendingChoice: null, // Make sure to clear pendingChoice as well
-        wealthTier: null, // Clear wealthTier
-        financialBurden: 0, // Reset financialBurden
-        isBankrupt: false, // Reset isBankrupt
-      }));
+      performanceMonitor.timeSync('reset-game-state', 'local', () => {
+        set(prevState => ({ 
+          ...prevState, // Explicitly carry over previous state (including actions)
+          gamePhase: 'initializing', 
+          error: null, 
+          isLoading: true, 
+          history: [],
+          feedbackText: null,
+          endingSummaryText: null,
+          player: null,
+          child: null,
+          playerDescription: null,
+          childDescription: null,
+          initialGameNarrative: null,
+          currentAge: 0,
+          currentQuestion: null,
+          nextQuestion: null,
+          showFeedback: false,
+          isEnding: false,
+          showEndingSummary: false,
+          pendingChoice: null, // Make sure to clear pendingChoice as well
+          wealthTier: null, // Clear wealthTier
+          financialBurden: 0, // Reset financialBurden
+          isBankrupt: false, // Reset isBankrupt
+        }));
+      });
       
       try {
         // Force a state update to ensure any components dependent on this state re-render
@@ -204,63 +213,84 @@ const useGameStore = create<GameStoreState>((set, get) => {
         
         logger.log("Initializing new game with fresh state" + (options?.specialRequirements ? " and special requirements" : ""));
         
-        const initialScenarioState: ApiGameState = await gptService.generateInitialState(options);
+        const initialScenarioState: ApiGameState = await performanceMonitor.timeAsync(
+          'generate-initial-state', 
+          'api', 
+          () => gptService.generateInitialState(options),
+          { isPreloaded: !!options?.preloadedState }
+        );
 
         // If a preloaded state was used, ensure a minimum 2-second loading display
         if (options?.preloadedState) {
           const elapsedTime = Date.now() - startTime;
           const remainingTime = 2000 - elapsedTime;
           if (remainingTime > 0) {
-            await new Promise(resolve => setTimeout(resolve, remainingTime));
+            await performanceMonitor.timeAsync('artificial-delay', 'local', async () => {
+              await new Promise(resolve => setTimeout(resolve, remainingTime));
+            }, { delayMs: remainingTime });
           }
         }
 
-        const tierMap = { poor: 0, middle: 10, wealthy: 30 };
-        const B = tierMap[initialScenarioState.wealthTier || 'middle']; // Default to middle if not present
-        const calculatedFinancialBurden = -B;
+        // Process the initial state (local processing)
+        const processedState = performanceMonitor.timeSync('process-initial-state', 'local', () => {
+          const tierMap = { poor: 0, middle: 10, wealthy: 30 };
+          const B = tierMap[initialScenarioState.wealthTier || 'middle']; // Default to middle if not present
+          const calculatedFinancialBurden = -B;
 
-        logger.log(`Scenario wealthTier: ${initialScenarioState.wealthTier}, Initial financialBurden: ${calculatedFinancialBurden}`);
+          logger.log(`Scenario wealthTier: ${initialScenarioState.wealthTier}, Initial financialBurden: ${calculatedFinancialBurden}`);
 
-        const playerDesc = initialScenarioState.player.gender === 'male' ? '父亲' : '母亲';
-        const childDesc = initialScenarioState.child.gender === 'male' ? '男孩' : '女孩';
-        const narrative = `作为${playerDesc}（${initialScenarioState.player.age}岁），你即将开始养育你的孩子${initialScenarioState.child.name}（${childDesc}，刚刚出生）的旅程。\n\n${initialScenarioState.playerDescription}\n\n${initialScenarioState.childDescription}\n\n从0岁开始，你将面临各种养育过程中的抉择，这些选择将影响孩子的成长和你们的家庭关系。\n\n准备好开始这段旅程了吗？`;
+          const playerDesc = initialScenarioState.player.gender === 'male' ? '父亲' : '母亲';
+          const childDesc = initialScenarioState.child.gender === 'male' ? '男孩' : '女孩';
+          const narrative = `作为${playerDesc}（${initialScenarioState.player.age}岁），你即将开始养育你的孩子${initialScenarioState.child.name}（${childDesc}，刚刚出生）的旅程。\n\n${initialScenarioState.playerDescription}\n\n${initialScenarioState.childDescription}\n\n从0岁开始，你将面临各种养育过程中的抉择，这些选择将影响孩子的成长和你们的家庭关系。\n\n准备好开始这段旅程了吗？`;
 
-        // Initial history entry for game start (age 0, before first question)
-        const initialHistoryEntry: HistoryEntry = {
-          age: 0,
-          question: "游戏开始",
-          choice: "开始养育旅程",
-          outcome: narrative.substring(0, narrative.lastIndexOf('\n\n准备好开始这段旅程了吗？')) // Get only the descriptive part
-        };
+          // Initial history entry for game start (age 0, before first question)
+          const initialHistoryEntry: HistoryEntry = {
+            age: 0,
+            question: "游戏开始",
+            choice: "开始养育旅程",
+            outcome: narrative.substring(0, narrative.lastIndexOf('\n\n准备好开始这段旅程了吗？')) // Get only the descriptive part
+          };
 
-        const newState = {
-          player: initialScenarioState.player,
-          child: { ...initialScenarioState.child, age: 0 }, // Ensure child age starts at 0
-          playerDescription: initialScenarioState.playerDescription,
-          childDescription: initialScenarioState.childDescription,
-          wealthTier: initialScenarioState.wealthTier || 'middle', // Persist wealthTier
-          financialBurden: calculatedFinancialBurden, // Persist calculated financialBurden
-          isBankrupt: false, // Initialize isBankrupt for a new game
-          currentAge: 0, // Current display age starts at 0
-          history: [initialHistoryEntry],
-          initialGameNarrative: narrative, 
-          feedbackText: narrative, 
-          gamePhase: 'feedback' as GamePhase, 
-          isLoading: false, 
-          error: null,
-          currentQuestion: null,
-          nextQuestion: null,
-          showFeedback: true, 
-          isEnding: false,
-          showEndingSummary: false,
-          endingSummaryText: null,
-        };
+          return {
+            player: initialScenarioState.player,
+            child: { ...initialScenarioState.child, age: 0 }, // Ensure child age starts at 0
+            playerDescription: initialScenarioState.playerDescription,
+            childDescription: initialScenarioState.childDescription,
+            wealthTier: initialScenarioState.wealthTier || 'middle', // Persist wealthTier
+            financialBurden: calculatedFinancialBurden, // Persist calculated financialBurden
+            isBankrupt: false, // Initialize isBankrupt for a new game
+            currentAge: 0, // Current display age starts at 0
+            history: [initialHistoryEntry],
+            initialGameNarrative: narrative, 
+            feedbackText: narrative, 
+            gamePhase: 'feedback' as GamePhase, 
+            isLoading: false, 
+            error: null,
+            currentQuestion: null,
+            nextQuestion: null,
+            showFeedback: true, 
+            isEnding: false,
+            showEndingSummary: false,
+            endingSummaryText: null,
+          };
+        });
         
-        set(prevState => ({ ...prevState, ...newState }));
+        // Update state
+        performanceMonitor.timeSync('update-state', 'local', () => {
+          set(prevState => ({ ...prevState, ...processedState }));
+        });
         
         // Save to localStorage
-        saveGameState(get());
+        performanceMonitor.timeSync('save-game-state', 'local', () => {
+          saveGameState(get());
+        });
+
+        // End overall timing and print report
+        performanceMonitor.endTiming('game-initialization-total');
+        performanceMonitor.printReport();
+        
       } catch (err) {
+        performanceMonitor.endTiming('game-initialization-total');
         logger.error('Error initializing game in store:', err);
         const errorMessage = err instanceof Error ? err.message : 'Failed to initialize game data.';
         set(prevState => ({ 
