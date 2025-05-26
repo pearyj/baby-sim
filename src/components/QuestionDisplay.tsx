@@ -14,12 +14,15 @@ import {
 import { styled } from '@mui/material/styles';
 import type { Question } from '../types/game';
 import { TextDisplay } from './TextDisplay';
+import { StreamingTextDisplay } from './StreamingTextDisplay';
 
 interface QuestionDisplayProps {
-  question: Question;
+  question: Question | null;
   onSelectOption: (optionId: string) => Promise<void>;
   isLoading: boolean;
   childName: string;
+  isStreaming?: boolean;
+  streamingContent?: string;
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -79,18 +82,21 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
   question,
   onSelectOption,
   isLoading,
-  childName
+  childName,
+  isStreaming = false,
+  streamingContent = ''
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [customOption, setCustomOption] = useState('');
   
-  // Auto scroll to bottom when component mounts
+  // Auto scroll to this component when it mounts
   useEffect(() => {
     if (containerRef.current) {
       setTimeout(() => {
-        window.scrollTo({
-          top: document.body.scrollHeight,
-          behavior: 'smooth'
+        containerRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
         });
       }, 200);
     }
@@ -99,7 +105,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
   // Reset custom option when question changes
   useEffect(() => {
     setCustomOption('');
-  }, [question.id]);
+  }, [question?.id]);
 
   const handleCustomOptionSubmit = () => {
     if (customOption.trim()) {
@@ -114,6 +120,48 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
       onSelectOption(customOptionId);
     }
   };
+
+  // Show streaming content if question is being loaded
+  if (isStreaming && streamingContent && !question) {
+    return (
+      <Box sx={{ width: '100%', px: { xs: 2, sm: 3 } }} ref={containerRef}>
+        <Box sx={{ maxWidth: '48rem', mx: 'auto' }}>
+          <Fade in timeout={500}>
+            <StyledCard elevation={2}>
+              <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+                <StreamingTextDisplay
+                  content={streamingContent}
+                  isStreaming={isStreaming}
+                  isComplete={false}
+                  showTypewriter={true}
+                  placeholder="正在生成问题..."
+                />
+              </CardContent>
+            </StyledCard>
+          </Fade>
+        </Box>
+      </Box>
+    );
+  }
+
+  // If question is null and not streaming, show error or loading state
+  if (!question) {
+    return (
+      <Box sx={{ width: '100%', px: { xs: 2, sm: 3 } }} ref={containerRef}>
+        <Box sx={{ maxWidth: '48rem', mx: 'auto' }}>
+          <Fade in timeout={500}>
+            <StyledCard elevation={2}>
+              <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+                <Typography variant="h6" color="text.secondary" sx={{ textAlign: 'center' }}>
+                  正在加载问题...
+                </Typography>
+              </CardContent>
+            </StyledCard>
+          </Fade>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: '100%', px: { xs: 2, sm: 3 } }} ref={containerRef}>
@@ -130,12 +178,12 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
             </LoadingOverlay>
             
             <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-              <Box sx={{ mb: 4, textAlign: { xs: 'center', sm: 'left' } }}>
-                <Typography variant="h5" component="h2" sx={{ 
-                  fontWeight: 500,
+              <Box sx={{ mb: 4, textAlign: 'left' }}>
+                <Typography component="div" sx={{ 
+                  fontWeight: 400,
                   color: 'text.primary',
-                  lineHeight: 1.4,
-                  fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' }
+                  lineHeight: 1.6,
+                  fontSize: { xs: '1rem', sm: '1.125rem' }
                 }}>
                   <TextDisplay 
                     text={question.question}

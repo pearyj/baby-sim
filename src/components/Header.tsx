@@ -1,7 +1,8 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, Switch, FormControlLabel, Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import DevModelSwitcher from './DevModelSwitcher';
+import useGameStore from '../stores/useGameStore';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
@@ -27,6 +28,12 @@ const StyledTitle = styled(Typography)(({ theme }) => ({
 }));
 
 export const Header: React.FC = () => {
+  const { enableStreaming, toggleStreaming, isStreaming } = useGameStore(state => ({
+    enableStreaming: state.enableStreaming,
+    toggleStreaming: state.toggleStreaming,
+    isStreaming: state.isStreaming,
+  }));
+
   return (
     <StyledAppBar position="fixed" elevation={2}>
       <Toolbar sx={{ maxWidth: '3xl', mx: 'auto', width: '100%', px: 2 }}>
@@ -39,7 +46,60 @@ export const Header: React.FC = () => {
           </StyledTitle>
         </Box>
         
-        <Box sx={{ position: 'absolute', right: 16 }}>
+        <Box sx={{ position: 'absolute', right: 16, display: 'flex', gap: 2, alignItems: 'center' }}>
+          {/* Only show streaming toggle in development mode */}
+          {import.meta.env.DEV && (
+            <Tooltip title={enableStreaming ? "禁用实时流式响应" : "启用实时流式响应"}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={enableStreaming}
+                    onChange={toggleStreaming}
+                    color="default"
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: 'white',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        },
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                      },
+                      '& .MuiSwitch-track': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      },
+                    }}
+                  />
+                }
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography variant="body2" sx={{ color: 'white', fontSize: '0.875rem' }}>
+                      流式
+                    </Typography>
+                    {isStreaming && (
+                      <Box
+                        sx={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: '50%',
+                          backgroundColor: '#4CAF50',
+                          animation: 'pulse 1.5s infinite',
+                          '@keyframes pulse': {
+                            '0%': { opacity: 1 },
+                            '50%': { opacity: 0.5 },
+                            '100%': { opacity: 1 },
+                          },
+                        }}
+                      />
+                    )}
+                  </Box>
+                }
+                labelPlacement="start"
+                sx={{ m: 0 }}
+              />
+            </Tooltip>
+          )}
           <DevModelSwitcher />
         </Box>
       </Toolbar>

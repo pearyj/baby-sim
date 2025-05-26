@@ -23,14 +23,15 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
     return () => clearTimeout(timer);
   }, []);
   
-  // 自动滚动到底部
+  // 自动滚动到这个组件
   useEffect(() => {
     if (isVisible && containerRef.current) {
       // 延迟一点点时间确保DOM已更新
       setTimeout(() => {
-        window.scrollTo({
-          top: document.body.scrollHeight,
-          behavior: 'smooth'
+        containerRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
         });
       }, 300);
     }

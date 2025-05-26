@@ -520,21 +520,21 @@ const generateOutcomeAndNextQuestionPrompt = (
 
   if (gameState.isBankrupt) {
     logger.info("🚨 Bankruptcy detected! Generating bankruptcy-specific prompt.");
-    // For bankruptcy, we generate a specific outcome and a very specific type of "next question" related to the dire situation.
+    // For bankruptcy, we generate a specific outcome and a recovery question that allows the player to get out of bankruptcy
     return `${financialHeader}⚠️ 你的财务状况非常糟糕，你决策的重担已经变得令人窒息。
 
 根据你目前的情况（孩子：${gameState.child.name}，${gameState.child.age}岁）以及你的选择（针对问题"${question}"选择了"${choice}"），描述你财务崩溃直接带来的毁灭性后果。这个结果应该具有冲击力，并反映破产的严重性。
 
-面对这次财务崩溃，为玩家提供一个唯一的、严峻的选择。这个选择应该以"nextQuestion"的形式呈现，包含一个单一选项，代表着一条艰难的前进道路或一个清算的时刻。
+面对这次财务崩溃，为玩家提供一个重要的恢复机会。这个选择应该以"nextQuestion"的形式呈现，包含一个特殊的恢复选项，允许玩家通过艰难的努力重新振作起来。
 
-将整个回应格式化为JSON对象，包含"outcome"和"nextQuestion"（其中包含一个成本为0的单一选项）：
+将整个回应格式化为JSON对象，包含"outcome"和"nextQuestion"（其中包含一个成本为0、带有特殊isRecovery标记的恢复选项）：
 
 {
   "outcome": "关于财务崩溃及其直接影响的详细描述...",
   "nextQuestion": {
-    "question": "面对这样的财务崩溃，你该怎么办？",
+    "question": "面对这样的财务崩溃，你决定采取什么行动？",
     "options": [
-      {"id": "A", "text": "承认困境，努力寻找重新振作的方法。", "cost": 0}
+      {"id": "A", "text": "承认困境，努力工作并寻找重新振作的方法。", "cost": 0, "isRecovery": true}
     ],
     "isExtremeEvent": true
   }
@@ -618,7 +618,7 @@ ${historyContext}
 
 请针对玩家"你"，生成一个深刻又感人的结局总结。总结应包含以下几个方面：
 1. 18岁时孩子的状况（性格、能力、成就、与你的关系等详细描述）。
-2. 对玩家"你"作为父母的整体表现的评价与反思。
+2. 参考玩家所有的选择，分析玩家“你”为人父母的倾向，给出整体评价与总结语。
 3. 对孩子未来的展望和寄语。
 
 返回格式必须严格遵循以下JSON结构，不要添加任何markdown或其他包裹：

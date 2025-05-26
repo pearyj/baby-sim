@@ -4,6 +4,7 @@ import { FeedbackDisplay } from './components/FeedbackDisplay'
 import { TimelineProvider } from './components/TimelineProvider'
 import { WelcomeScreen } from './pages'
 import { PerformanceMonitor } from './components/PerformanceMonitor'
+import { StreamingTextDisplay } from './components/StreamingTextDisplay'
 import ReactMarkdown from 'react-markdown'
 import { 
   Box, 
@@ -84,9 +85,15 @@ function App() {
     storeIsLoading,
     error,
     selectOption,
+    selectOptionStreaming,
     continueGame,
     resetToWelcome,
     testEnding,
+    isStreaming,
+    streamingContent,
+    streamingType,
+    enableStreaming,
+    toggleStreaming, // Used only in development mode
   } = useGameStore(state => ({
     gamePhase: state.gamePhase,
     player: state.player,
@@ -100,10 +107,23 @@ function App() {
     error: state.error,
     startGame: state.startGame,
     selectOption: state.selectOption,
+    selectOptionStreaming: state.selectOptionStreaming,
     continueGame: state.continueGame,
     resetToWelcome: state.resetToWelcome,
     testEnding: state.testEnding,
+    isStreaming: state.isStreaming,
+    streamingContent: state.streamingContent,
+    streamingType: state.streamingType,
+    enableStreaming: state.enableStreaming,
+    toggleStreaming: state.toggleStreaming,
   }))
+
+  // Suppress unused variable warnings for production-only variables
+  // These are used in development mode but not in production
+  if (import.meta.env.DEV) {
+    // This ensures TypeScript knows these variables might be used in dev mode
+    void toggleStreaming;
+  }
 
   const isLoading = storeIsLoading || 
                     gamePhase === 'loading_question' || 
@@ -159,9 +179,25 @@ function App() {
           <LoadingCard>
             <CardContent>
               <CircularProgress size={60} sx={{ mb: 3 }} />
-              <Typography variant="h6" color="text.secondary">
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
                 经过3亿个精子的激烈角逐，数十个卵泡中的艰难竞争，再加上漫长而艰辛的十月怀胎，你家娃终于决定降临人间，准备向你发起最甜蜜又最痛苦的挑战了！
               </Typography>
+              
+              {isStreaming && streamingType === 'initial' && streamingContent && (
+                <Box sx={{ mt: 3, p: 2, backgroundColor: 'background.default', borderRadius: 1 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    正在生成初始设定...
+                  </Typography>
+                  <StreamingTextDisplay
+                    content={streamingContent}
+                    isStreaming={isStreaming}
+                    isComplete={false}
+                    showTypewriter={true}
+                    placeholder="正在生成游戏设定..."
+                    
+                  />
+                </Box>
+              )}
             </CardContent>
           </LoadingCard>
         );
@@ -237,14 +273,7 @@ function App() {
                     </Box>
                   ) : (
                     <>
-                      <Typography variant="body2" sx={{ 
-                        textAlign: 'center', 
-                        fontStyle: 'italic',
-                        color: 'text.secondary',
-                        mb: 3
-                      }}>
-                        感谢你参与这段养育的旅程
-                      </Typography>
+                      
                       
                       <Button
                         onClick={(e) => { e.preventDefault(); resetToWelcome(); }}
@@ -265,7 +294,7 @@ function App() {
         );
       }
 
-      if (isFeedbackPhase) {
+      if (isFeedbackPhase || isGeneratingOutcomePhase) {
           // Check if this is the initial feedback narrative (after initialization)
           const isInitialNarrative = history.length === 1 && history[0].question === "游戏开始";
           
@@ -292,27 +321,45 @@ function App() {
           
           return (
             <FeedbackDisplay
-              feedback={feedbackText || (isGeneratingOutcomePhase ? "正在分析你的选择..." : "")}
+              feedback={feedbackText || (isGeneratingOutcomePhase ? "" : "")}
               onContinue={safeContinue}
               isEnding={child?.age ? child.age >= 17 : false}
               isFirstQuestion={isInitialNarrative}
               isLoadingFirstQuestion={isInitialNarrative && isLoading}
               childName={child?.name || ''}
+              isStreaming={isStreaming && streamingType === 'outcome'}
+              streamingContent={streamingContent}
             />
           );
       }
 
-      if (isGamePlayPhase || isGeneratingOutcomePhase) {
+      if (isGamePlayPhase) {
         if (currentQuestion) {
           return (
             <QuestionDisplay
               question={currentQuestion}
-              onSelectOption={selectOption}
-              isLoading={isGeneratingOutcomePhase} 
+              onSelectOption={enableStreaming ? selectOptionStreaming : selectOption}
+              isLoading={false} 
               childName={child?.name || '孩子'}
+              isStreaming={isStreaming && streamingType === 'question'}
+              streamingContent={streamingContent}
             />
           );
         } else if (gamePhase === 'loading_question' && isLoading) { 
+          // Show streaming content if available, otherwise show loading
+          if (isStreaming && streamingType === 'question' && streamingContent) {
+            return (
+              <QuestionDisplay
+                question={null} // Will be handled by the streaming display
+                onSelectOption={async () => {}}
+                isLoading={false}
+                childName={child?.name || '孩子'}
+                isStreaming={true}
+                streamingContent={streamingContent}
+              />
+            );
+          }
+          
           return (
             <LoadingCard>
               <CardContent>

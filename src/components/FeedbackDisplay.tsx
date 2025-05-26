@@ -12,6 +12,7 @@ import {
 import { styled } from '@mui/material/styles';
 import { PlayArrow, Flag, Start } from '@mui/icons-material';
 import { TextDisplay } from './TextDisplay';
+import { StreamingTextDisplay } from './StreamingTextDisplay';
 import { logger } from '../utils/logger';
 
 interface FeedbackDisplayProps {
@@ -21,6 +22,8 @@ interface FeedbackDisplayProps {
   isFirstQuestion?: boolean;
   isLoadingFirstQuestion?: boolean;
   childName?: string;
+  isStreaming?: boolean;
+  streamingContent?: string;
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -62,6 +65,8 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
   isFirstQuestion = false,
   isLoadingFirstQuestion = false,
   childName = '',
+  isStreaming = false,
+  streamingContent = '',
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -72,13 +77,14 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
     return () => clearTimeout(timer);
   }, []);
   
-  // Auto scroll to bottom
+  // Auto scroll to this component
   useEffect(() => {
     if (isVisible && containerRef.current) {
       setTimeout(() => {
-        window.scrollTo({
-          top: document.body.scrollHeight,
-          behavior: 'smooth'
+        containerRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
         });
       }, 300);
     }
@@ -86,17 +92,20 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
   
   // Determine button text and styling
   const buttonText = 
-    isLoadingFirstQuestion && isFirstQuestion 
-      ? '加载中...'
-      : isEnding 
-        ? '结束游戏' 
-        : isFirstQuestion && childName
-          ? `开始养育${childName}`
-        : isFirstQuestion
-          ? '开始养育'
-          : '继续';
+    isStreaming
+      ? '生成中...'
+      : isLoadingFirstQuestion && isFirstQuestion 
+        ? '加载中...'
+        : isEnding 
+          ? '结束游戏' 
+          : isFirstQuestion && childName
+            ? `开始养育${childName}`
+          : isFirstQuestion
+            ? '开始养育'
+            : '继续';
 
   const getButtonIcon = () => {
+    if (isStreaming) return null;
     if (isLoadingFirstQuestion && isFirstQuestion) return null;
     if (isEnding) return <Flag sx={{ mr: 1 }} />;
     if (isFirstQuestion) return <Start sx={{ mr: 1 }} />;
@@ -146,22 +155,39 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
                 </Box>
               )}
               
-              <Box sx={{ mb: 5 }}>
-                <Typography
-                  component="div"
-                  sx={{
-                    fontSize: { xs: '1rem', sm: '1.25rem', md: '1.375rem' },
-                    lineHeight: 1.6,
-                    color: 'text.primary',
-                  }}
-                >
-                  <TextDisplay 
-                    text={feedback} 
-                    animated={true} 
-                    delay={200}
-                    paragraphClassName=""
+              <Box sx={{ mb: 3 }}>
+                {isStreaming && streamingContent ? (
+                  <StreamingTextDisplay
+                    content={streamingContent}
+                    isStreaming={isStreaming}
+                    isComplete={!isStreaming}
+                    showTypewriter={true}
+                    placeholder="正在生成结果..."
+                    onStreamingComplete={() => {
+                      // Force a re-render to show the static content when streaming completes
+                      // This helps ensure proper transition from streaming to static display
+                    }}
                   />
-                </Typography>
+                ) : (
+                  <Typography
+                    component="div"
+                    sx={{
+                      fontSize: { xs: '1rem', sm: '1.125rem' },
+                      lineHeight: 1.6,
+                      color: 'text.primary',
+                      fontWeight: 400,
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                    }}
+                  >
+                    <TextDisplay 
+                      text={feedback} 
+                      animated={false} 
+                      delay={200}
+                      paragraphClassName=""
+                    />
+                  </Typography>
+                )}
               </Box>
               
               <Zoom in={isVisible} timeout={700} style={{ transitionDelay: '300ms' }}>
@@ -171,9 +197,20 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
                     variant="contained"
                     color={isEnding ? 'warning' : 'primary'}
                     onClick={handleContinue}
-                    disabled={isLoadingFirstQuestion && isFirstQuestion}
+                    disabled={(isLoadingFirstQuestion && isFirstQuestion) || isStreaming}
                     sx={{
-                      ...(isEnding && {
+                      ...(isStreaming && {
+                        backgroundColor: '#424242',
+                        color: '#ffffff',
+                        '&:hover': {
+                          backgroundColor: '#424242',
+                        },
+                        '&.Mui-disabled': {
+                          backgroundColor: '#424242',
+                          color: '#ffffff',
+                        },
+                      }),
+                      ...(isEnding && !isStreaming && {
                         background: 'linear-gradient(135deg, #6750A4 0%, #7D5260 100%)',
                         '&:hover': {
                           background: 'linear-gradient(135deg, #4F378B 0%, #633B48 100%)',

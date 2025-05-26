@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 // import { persist, createJSONStorage } from 'zustand/middleware'; // Removed unused import
 import * as gptService from '../services/gptService';
+import * as streamingService from '../services/gptServiceStreaming';
 import type { InitialStateType } from '../services/gptService'; // Ensured type-only import
 import * as storageService from '../services/storageService';
 import type { GameState as ApiGameState, Player, Child, HistoryEntry, Question as ApiQuestionType } from '../types/game';
@@ -49,6 +50,12 @@ interface GameStoreState {
   isEnding: boolean; // True when the game is in the process of ending, before the summary
   showEndingSummary: boolean;
   
+  // Streaming state
+  isStreaming: boolean; // Whether any content is currently streaming
+  streamingContent: string; // Current streaming content
+  streamingType: 'question' | 'outcome' | 'initial' | null; // What type of content is streaming
+  enableStreaming: boolean; // User preference for streaming mode
+  
   // Store the pending choice to recover from refreshes during API calls
   pendingChoice?: {
     questionId?: string;
@@ -62,10 +69,13 @@ interface GameStoreState {
   startGame: (player: Player, child: Child, playerDescription: string, childDescription: string) => void;
   continueSavedGame: () => void; // New function to continue a saved game
   loadQuestion: () => Promise<void>; // Now async for fetching
+  loadQuestionStreaming: () => Promise<void>; // Streaming version
   selectOption: (optionId: string) => Promise<void>; // Now async
+  selectOptionStreaming: (optionId: string) => Promise<void>; // Streaming version
   continueGame: () => Promise<void>; // Now async for potential ending generation
   resetToWelcome: () => void; // New function to reset to the welcome screen
   testEnding: () => Promise<void>; // Dev function to test ending screen
+  toggleStreaming: () => void; // Toggle streaming mode
 }
 
 // Helper function to save current state to localStorage
@@ -126,15 +136,24 @@ const useGameStore = create<GameStoreState>((set, get) => {
     showEndingSummary: false,
     pendingChoice: null,
     
+    // Streaming state
+    isStreaming: false,
+    streamingContent: '',
+    streamingType: null,
+    enableStreaming: true, // Enable streaming by default
+    
     // Define all required functions up front with unused parameters prefixed
     initializeGame: async (_options?: { specialRequirements?: string; preloadedState?: InitialStateType }) => { logger.log("initializeGame stub called") },
     startGame: (_player: Player, _child: Child, _playerDescription: string, _childDescription: string) => { logger.log("startGame stub called") },
     continueSavedGame: () => { logger.log("continueSavedGame stub called") },
     loadQuestion: async () => { logger.log("loadQuestion stub called") },
+    loadQuestionStreaming: async () => { logger.log("loadQuestionStreaming stub called") },
     selectOption: async () => { logger.log("selectOption stub called") },
+    selectOptionStreaming: async () => { logger.log("selectOptionStreaming stub called") },
     continueGame: async () => { logger.log("continueGame stub called") },
     resetToWelcome: () => { logger.log("resetToWelcome stub called") },
     testEnding: async () => { logger.log("testEnding stub called") },
+    toggleStreaming: () => { logger.log("toggleStreaming stub called") },
   };
 
   // If there's saved state, use it to initialize
@@ -213,12 +232,49 @@ const useGameStore = create<GameStoreState>((set, get) => {
         
         logger.log("Initializing new game with fresh state" + (options?.specialRequirements ? " and special requirements" : ""));
         
-        const initialScenarioState: ApiGameState = await performanceMonitor.timeAsync(
-          'generate-initial-state', 
-          'api', 
-          () => gptService.generateInitialState(options),
-          { isPreloaded: !!options?.preloadedState }
-        );
+        let initialScenarioState: ApiGameState;
+        const { enableStreaming } = get();
+        
+        if (enableStreaming && !options?.preloadedState) {
+          // Use streaming for initial state generation (not for preloaded states)
+          set(prevState => ({ 
+            ...prevState, 
+            isStreaming: true,
+            streamingContent: '',
+            streamingType: 'initial' as const
+          }));
+          
+          initialScenarioState = await performanceMonitor.timeAsync(
+            'generate-initial-state-streaming', 
+            'api', 
+            () => streamingService.generateInitialStateStreaming(
+              options?.specialRequirements,
+              (partialContent) => {
+                set(prevState => ({ 
+                  ...prevState, 
+                  streamingContent: partialContent 
+                }));
+              }
+            ),
+            { isStreaming: true }
+          );
+          
+          // Clear streaming state
+          set(prevState => ({ 
+            ...prevState, 
+            isStreaming: false,
+            streamingContent: '',
+            streamingType: null
+          }));
+        } else {
+          // Use regular generation
+          initialScenarioState = await performanceMonitor.timeAsync(
+            'generate-initial-state', 
+            'api', 
+            () => gptService.generateInitialState(options),
+            { isPreloaded: !!options?.preloadedState }
+          );
+        }
 
         // If a preloaded state was used, ensure a minimum 2-second loading display
         if (options?.preloadedState) {
@@ -524,6 +580,108 @@ const useGameStore = create<GameStoreState>((set, get) => {
       }
     },
 
+    loadQuestionStreaming: async () => {
+      const { child, player, playerDescription, childDescription, history, wealthTier, financialBurden, currentQuestion: cQ_store, feedbackText: ft_store, endingSummaryText: est_store, isBankrupt, enableStreaming } = get();
+      
+      console.log('🚀 loadQuestionStreaming called! enableStreaming:', enableStreaming);
+      logger.log(`🚀 loadQuestionStreaming called with enableStreaming: ${enableStreaming}`);
+      
+      if (!enableStreaming) {
+        console.log('⚠️ Streaming disabled, falling back to regular loadQuestion');
+        // Fall back to regular loading if streaming is disabled
+        return get().loadQuestion();
+      }
+      
+      if (!child || !player) {
+        set(prevState => ({ ...prevState, error: "Cannot load question: Player or child data is missing.", gamePhase: 'initialization_failed', isLoading: false }));
+        return;
+      }
+      
+      // Set streaming state
+      set(prevState => ({ 
+        ...prevState, 
+        gamePhase: 'loading_question', 
+        isLoading: true, 
+        isStreaming: true,
+        streamingContent: '',
+        streamingType: 'question',
+        error: null, 
+        currentQuestion: null 
+      }));
+      
+      try {
+        logger.log("Preparing game state for streaming API call");
+        const fullGameStateForApi: ApiGameState = {
+          player: player!,
+          child: child!,
+          playerDescription: playerDescription!,
+          childDescription: childDescription!,
+          history: history,
+          wealthTier: wealthTier || 'middle',
+          financialBurden: financialBurden || 0,
+          currentQuestion: cQ_store,
+          feedbackText: ft_store,
+          endingSummaryText: est_store,
+          isBankrupt: isBankrupt || false,
+        };
+        
+        logger.log("Making streaming API call to fetch question for age:", child.age);
+        
+        const question = await streamingService.generateQuestionStreaming(
+          fullGameStateForApi,
+          (partialContent) => {
+            // Update streaming content as it comes in
+            set(prevState => ({ 
+              ...prevState, 
+              streamingContent: partialContent 
+            }));
+          }
+        );
+        
+        logger.log("Successfully received streaming question from API:", question);
+        
+        // Set final state with complete question
+        const newState = {
+          currentQuestion: question,
+          nextQuestion: null,
+          isLoading: false,
+          isStreaming: false,
+          streamingContent: '',
+          streamingType: null,
+          showFeedback: false,
+          feedbackText: null,
+          gamePhase: 'playing' as GamePhase,
+          error: null,
+        };
+        set(prevState => ({ ...prevState, ...newState }));
+        saveGameState(get());
+        
+      } catch (err) {
+        logger.error('Error in loadQuestionStreaming function:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load question.';
+        
+        // Clear streaming state and show error
+        set(prevState => ({ 
+          ...prevState,
+          gamePhase: 'playing', 
+          error: errorMessage, 
+          isLoading: false,
+          isStreaming: false,
+          streamingContent: '',
+          streamingType: null,
+          currentQuestion: {
+            id: `error-${Date.now()}`,
+            question: "加载问题时发生错误，请选择如何继续",
+            options: [
+              { id: "retry", text: "重新尝试", cost: 0 },
+              { id: "reload", text: "刷新页面", cost: 0 }
+            ],
+            isExtremeEvent: false
+          }
+        })); 
+      }
+    },
+
     selectOption: async (optionId: string) => {
       const { currentQuestion, player, child, playerDescription, childDescription, history, wealthTier, financialBurden, feedbackText: ft_store, endingSummaryText: est_store } = get();
       if (!currentQuestion || !player || !child) {
@@ -570,20 +728,41 @@ const useGameStore = create<GameStoreState>((set, get) => {
       const newFinancialBurden = (financialBurden || 0) + (selectedOption.cost || 0);
       let newIsBankrupt = get().isBankrupt; // Preserve existing bankruptcy state unless changed
 
-      if (newFinancialBurden >= 50) {
-        newIsBankrupt = true;
-        logger.warn(`Bankruptcy threshold reached! Financial Burden: ${newFinancialBurden}`);
-      }
+      // Check for bankruptcy recovery: if player is currently bankrupt and chooses an option with isRecovery flag
+      if (get().isBankrupt && (selectedOption as any).isRecovery) {
+        newIsBankrupt = false;
+        logger.info(`🎉 Player recovered from bankruptcy! Financial burden reduced significantly.`);
+        // Significantly reduce financial burden on recovery (but not to zero)
+        const recoveredBurden = Math.max(20, newFinancialBurden - 35); // Reduce by 35, minimum 20
+        logger.info(`Financial burden reduced from ${newFinancialBurden} to ${recoveredBurden}`);
+        const finalFinancialBurden = recoveredBurden;
+        
+        set(prevState => ({ 
+          ...prevState, 
+          financialBurden: finalFinancialBurden,
+          isBankrupt: newIsBankrupt,
+          gamePhase: 'generating_outcome', 
+          isLoading: true, 
+          error: null 
+        }));
+        logger.log(`Bankruptcy recovery: Financial burden set to ${finalFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+      } else {
+        // Normal financial burden logic
+        if (newFinancialBurden >= 50) {
+          newIsBankrupt = true;
+          logger.warn(`Bankruptcy threshold reached! Financial Burden: ${newFinancialBurden}`);
+        }
 
-      set(prevState => ({ 
-        ...prevState, 
-        financialBurden: newFinancialBurden,
-        isBankrupt: newIsBankrupt, // Set the bankruptcy state
-        gamePhase: 'generating_outcome', 
-        isLoading: true, 
-        error: null 
-      }));
-      logger.log(`Financial burden updated: ${financialBurden} + ${selectedOption.cost || 0} = ${newFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+        set(prevState => ({ 
+          ...prevState, 
+          financialBurden: newFinancialBurden,
+          isBankrupt: newIsBankrupt, // Set the bankruptcy state
+          gamePhase: 'generating_outcome', 
+          isLoading: true, 
+          error: null 
+        }));
+        logger.log(`Financial burden updated: ${financialBurden} + ${selectedOption.cost || 0} = ${newFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+      }
 
       // Save this intermediate state to localStorage so we can recover if needed
       const intermediateState = {
@@ -603,6 +782,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
       
       try {
         const eventAge = child.age; 
+        const currentState = get(); // Get the current state to get the updated financial burden
         const fullGameStateForApi: ApiGameState = {
           player: player!,
           child: child!,
@@ -610,8 +790,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
           childDescription: childDescription!,
           history: history,
           wealthTier: wealthTier || 'middle',
-          financialBurden: newFinancialBurden, // Use the newFinancialBurden directly
-          isBankrupt: newIsBankrupt, // Use the updated newIsBankrupt for the API call
+          financialBurden: currentState.financialBurden, // Use the updated financial burden from state
+          isBankrupt: currentState.isBankrupt, // Use the updated bankruptcy state
           currentQuestion: currentQuestion, // currentQuestion from selectOption scope
           feedbackText: ft_store,
           endingSummaryText: est_store,
@@ -664,6 +844,192 @@ const useGameStore = create<GameStoreState>((set, get) => {
       }
     },
 
+    selectOptionStreaming: async (optionId: string) => {
+      const { currentQuestion, player, child, playerDescription, childDescription, history, wealthTier, financialBurden, feedbackText: ft_store, endingSummaryText: est_store, enableStreaming } = get();
+      
+      console.log('🚀 selectOptionStreaming called! optionId:', optionId, 'enableStreaming:', enableStreaming);
+      logger.log(`🚀 selectOptionStreaming called with optionId: ${optionId}, enableStreaming: ${enableStreaming}`);
+      
+      if (!enableStreaming) {
+        console.log('⚠️ Streaming disabled, falling back to regular selectOption');
+        // Fall back to regular selectOption if streaming is disabled
+        return get().selectOption(optionId);
+      }
+      
+      if (!currentQuestion || !player || !child) {
+        set(prevState => ({ ...prevState, error: "Cannot select option: Missing data.", gamePhase: 'playing', isLoading: false }));
+        return;
+      }
+      
+      // Special handling for recovery options
+      if (optionId === "retry") {
+        logger.log("User selected to retry the last pending choice");
+        set(prevState => ({ ...prevState, error: null, isLoading: false }));
+        get().loadQuestionStreaming();
+        return;
+      } else if (optionId === "reload") {
+        logger.log("User selected to reload the game");
+        window.location.reload();
+        return;
+      }
+      
+      // Handle custom options
+      let selectedOption = currentQuestion.options.find(opt => opt.id === optionId);
+      
+      if (!selectedOption && optionId.startsWith('custom_')) {
+        const customOption = (window as any).lastCustomOption;
+        if (customOption && customOption.id === optionId) {
+          selectedOption = customOption;
+          logger.log("Using custom option:", selectedOption);
+          delete (window as any).lastCustomOption;
+        }
+      }
+      
+      if (!selectedOption) {
+        set(prevState => ({ ...prevState, error: "Invalid option selected.", gamePhase: 'playing', isLoading: false }));
+        return;
+      }
+
+      // Update financial burden
+      const newFinancialBurden = (financialBurden || 0) + (selectedOption.cost || 0);
+      let newIsBankrupt = get().isBankrupt;
+
+      // Check for bankruptcy recovery: if player is currently bankrupt and chooses an option with isRecovery flag
+      if (get().isBankrupt && (selectedOption as any).isRecovery) {
+        newIsBankrupt = false;
+        logger.info(`🎉 Player recovered from bankruptcy! Financial burden reduced significantly.`);
+        // Significantly reduce financial burden on recovery (but not to zero)
+        const recoveredBurden = Math.max(20, newFinancialBurden - 35); // Reduce by 35, minimum 20
+        logger.info(`Financial burden reduced from ${newFinancialBurden} to ${recoveredBurden}`);
+        const finalFinancialBurden = recoveredBurden;
+        
+        // Set streaming state
+        set(prevState => ({ 
+          ...prevState, 
+          financialBurden: finalFinancialBurden,
+          isBankrupt: newIsBankrupt,
+          gamePhase: 'generating_outcome', 
+          isLoading: true,
+          isStreaming: true,
+          streamingContent: '',
+          streamingType: 'outcome',
+          error: null 
+        }));
+        
+        logger.log(`Bankruptcy recovery: Financial burden set to ${finalFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+      } else {
+        // Normal financial burden logic
+        if (newFinancialBurden >= 50) {
+          newIsBankrupt = true;
+          logger.warn(`Bankruptcy threshold reached! Financial Burden: ${newFinancialBurden}`);
+        }
+
+        // Set streaming state
+        set(prevState => ({ 
+          ...prevState, 
+          financialBurden: newFinancialBurden,
+          isBankrupt: newIsBankrupt,
+          gamePhase: 'generating_outcome', 
+          isLoading: true,
+          isStreaming: true,
+          streamingContent: '',
+          streamingType: 'outcome',
+          error: null 
+        }));
+        
+        logger.log(`Financial burden updated: ${financialBurden} + ${selectedOption.cost || 0} = ${newFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+      }
+
+      // Save intermediate state
+      const intermediateState = {
+        ...get(),
+        pendingChoice: {
+          questionId: currentQuestion.id,
+          optionId: selectedOption.id,
+          questionText: currentQuestion.question,
+          optionText: selectedOption.text
+        }
+      };
+      saveGameState(intermediateState);
+      
+      try {
+        const eventAge = child.age; 
+        const currentState = get(); // Get the current state to get the updated financial burden
+        const fullGameStateForApi: ApiGameState = {
+          player: player!,
+          child: child!,
+          playerDescription: playerDescription!,
+          childDescription: childDescription!,
+          history: history,
+          wealthTier: wealthTier || 'middle',
+          financialBurden: currentState.financialBurden, // Use the updated financial burden from state
+          isBankrupt: currentState.isBankrupt, // Use the updated bankruptcy state
+          currentQuestion: currentQuestion,
+          feedbackText: ft_store,
+          endingSummaryText: est_store,
+        };
+        
+        const result = await streamingService.generateOutcomeAndNextQuestionStreaming(
+          fullGameStateForApi,
+          currentQuestion.question,
+          selectedOption.text,
+          (partialContent) => {
+            // Update streaming content as it comes in
+            set(prevState => ({ 
+              ...prevState, 
+              streamingContent: partialContent 
+            }));
+          }
+        );
+        
+        const newHistoryEntry: HistoryEntry = {
+          age: eventAge, 
+          question: currentQuestion.question,
+          choice: selectedOption.text,
+          outcome: result.outcome,
+        };
+        
+        const updatedHistory = history
+          .filter(entry => entry.age !== eventAge)
+          .concat(newHistoryEntry)
+          .sort((a, b) => a.age - b.age);
+        
+        logger.log(`Updated history: Removed entry for age ${eventAge} if it existed, added new entry`);
+        
+        const newState = {
+          feedbackText: result.outcome,
+          nextQuestion: result.nextQuestion || null,
+          isEnding: result.isEnding || false,
+          history: updatedHistory,
+          currentQuestion: null, 
+          showFeedback: true,
+          gamePhase: 'feedback' as GamePhase,
+          isLoading: false,
+          isStreaming: false,
+          streamingContent: '',
+          streamingType: null,
+          pendingChoice: null,
+        };
+        set(prevState => ({ ...prevState, ...newState }));
+        saveGameState(get());
+        
+      } catch (err) {
+        logger.error('Error generating outcome in streaming store:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Failed to process selection.';
+        set(prevState => ({ 
+          ...prevState,
+          gamePhase: 'feedback', 
+          error: errorMessage, 
+          isLoading: false,
+          isStreaming: false,
+          streamingContent: '',
+          streamingType: null,
+          showFeedback: true, 
+          feedbackText: "很抱歉，在处理您的选择时遇到了技术问题。您可以尝试重新选择或刷新页面。错误详情：" + errorMessage
+        }));
+      }
+    },
+
     continueGame: async () => {
       const { isEnding, gamePhase, child, player, playerDescription, childDescription, history, nextQuestion: preloadedNextQuestion, wealthTier, financialBurden, currentQuestion: cQ_store, feedbackText: ft_store, endingSummaryText: est_store, isBankrupt } = get();
       
@@ -699,7 +1065,12 @@ const useGameStore = create<GameStoreState>((set, get) => {
             try {
               // Call loadQuestion directly, not as a next tick action
               logger.log("DEBUG: Attempting to load first question - BEFORE await loadQuestion()"); // New Log
-              await get().loadQuestion();
+              const { enableStreaming } = get();
+              if (enableStreaming) {
+                await get().loadQuestionStreaming();
+              } else {
+                await get().loadQuestion();
+              }
               logger.log("DEBUG: Successfully loaded first question - AFTER await loadQuestion()"); // New Log
               logger.log("Successfully loaded first question");
             } catch (innerErr) {
@@ -791,7 +1162,12 @@ const useGameStore = create<GameStoreState>((set, get) => {
         } else {
           logger.log("Loading new question for next age");
           // Call loadQuestion directly instead of in the next tick
-          await get().loadQuestion(); 
+          const { enableStreaming } = get();
+          if (enableStreaming) {
+            await get().loadQuestionStreaming();
+          } else {
+            await get().loadQuestion();
+          }
         }
       }
     },
@@ -820,7 +1196,24 @@ const useGameStore = create<GameStoreState>((set, get) => {
         isEnding: false,
         showEndingSummary: false,
         pendingChoice: null,
+        // Keep streaming preferences
+        isStreaming: false,
+        streamingContent: '',
+        streamingType: null,
+        // enableStreaming: true, // Keep the user's streaming preference
       });
+    },
+
+    toggleStreaming: () => {
+      const { enableStreaming } = get();
+      logger.log(`🔄 Toggling streaming mode from ${enableStreaming} to ${!enableStreaming}`);
+      set(prevState => ({ 
+        ...prevState, 
+        enableStreaming: !enableStreaming 
+      }));
+      
+      // Add a visual confirmation
+      console.log(`🔄 Streaming mode is now: ${!enableStreaming ? 'ENABLED ✅' : 'DISABLED ❌'}`);
     },
 
     testEnding: async () => {
