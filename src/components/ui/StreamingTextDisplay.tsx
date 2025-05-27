@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Fade, LinearProgress } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
+import { useGameTranslations } from '../../hooks/useGameTranslations';
 
 interface StreamingTextDisplayProps {
   content: string;
@@ -408,8 +409,10 @@ export const StreamingTextDisplay: React.FC<StreamingTextDisplayProps> = ({
   showTypewriter = true,
   onStreamingComplete,
   onStreamingStart,
-  placeholder = "正在生成内容..."
+  placeholder
 }) => {
+  const { t } = useGameTranslations();
+  const defaultPlaceholder = placeholder || t('game.loading');
   const [displayedContent, setDisplayedContent] = useState('');
   const [showCursor, setShowCursor] = useState(false);
   const [minHeight, setMinHeight] = useState<number>(0);
@@ -531,7 +534,7 @@ export const StreamingTextDisplay: React.FC<StreamingTextDisplayProps> = ({
 
   // Show placeholder when no content
   if (!content && isStreaming) {
-    const isOutcomePlaceholder = placeholder.includes('结果');
+    const isOutcomePlaceholder = defaultPlaceholder.includes('结果');
     
     return (
       <StreamingContainer>
@@ -546,7 +549,7 @@ export const StreamingTextDisplay: React.FC<StreamingTextDisplayProps> = ({
               }} 
             />
             <Typography color="text.secondary" sx={{ fontStyle: 'italic', mb: isOutcomePlaceholder ? 0 : 4 }}>
-              {placeholder}
+              {defaultPlaceholder}
             </Typography>
             
             {!isOutcomePlaceholder && (

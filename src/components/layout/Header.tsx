@@ -1,7 +1,10 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box, Switch, FormControlLabel, Tooltip } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, Switch, FormControlLabel, Tooltip, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import InfoIcon from '@mui/icons-material/Info';
 import { DevModelSwitcher } from '../dev';
+import { LanguageToggle } from '../ui';
+import { useTranslation } from 'react-i18next';
 import useGameStore from '../../stores/useGameStore';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
@@ -10,28 +13,17 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
 }));
 
 const StyledTitle = styled(Typography)(({ theme }) => ({
-  position: 'relative',
   fontWeight: 600,
   color: theme.palette.primary.contrastText,
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    bottom: -4,
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '80%',
-    height: 3,
-    background: theme.palette.primary.contrastText,
-    opacity: 0.3,
-    borderRadius: 2,
-  },
 }));
 
 export const Header: React.FC = () => {
-  const { enableStreaming, toggleStreaming, isStreaming } = useGameStore(state => ({
+  const { t } = useTranslation();
+  const { enableStreaming, toggleStreaming, isStreaming, openInfoModal } = useGameStore(state => ({
     enableStreaming: state.enableStreaming,
     toggleStreaming: state.toggleStreaming,
     isStreaming: state.isStreaming,
+    openInfoModal: state.openInfoModal,
   }));
 
   return (
@@ -42,14 +34,32 @@ export const Header: React.FC = () => {
             fontSize: { xs: '1.5rem', sm: '2rem' },
             textAlign: 'center'
           }}>
-            养娃模拟器
+            {t('header.title')}
           </StyledTitle>
         </Box>
         
         <Box sx={{ position: 'absolute', right: 16, display: 'flex', gap: 2, alignItems: 'center' }}>
+          {/* Language Toggle */}
+          <LanguageToggle />
+          
+          {/* Info icon */}
+          <Tooltip title={t('header.infoCenter')}>
+            <IconButton
+              onClick={openInfoModal}
+              sx={{
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+              }}
+            >
+              <InfoIcon />
+            </IconButton>
+          </Tooltip>
+          
           {/* Only show streaming toggle in development mode */}
           {import.meta.env.DEV && (
-            <Tooltip title={enableStreaming ? "禁用实时流式响应" : "启用实时流式响应"}>
+            <Tooltip title={enableStreaming ? t('header.disableStreaming') : t('header.enableStreaming')}>
               <FormControlLabel
                 control={
                   <Switch
@@ -75,7 +85,7 @@ export const Header: React.FC = () => {
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     <Typography variant="body2" sx={{ color: 'white', fontSize: '0.875rem' }}>
-                      流式
+                      {t('header.streaming')}
                     </Typography>
                     {isStreaming && (
                       <Box

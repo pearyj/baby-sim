@@ -17,10 +17,13 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { PlayArrow, Refresh, Psychology, Timeline, AutoAwesome } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import useGameStore from '../stores/useGameStore';
 import { loadState } from '../services/storageService';
 import type { InitialStateType } from '../services/gptServiceUnified';
 import { logger } from '../utils/logger';
+import pregenStatesZh from '../i18n/pregen/zh.json';
+import pregenStatesEn from '../i18n/pregen/en.json';
 
 interface WelcomeScreenProps {
   onStartLoading?: () => void;
@@ -61,6 +64,7 @@ const ActionButton = styled(Button)(({ theme }) => ({
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) => {
   // In Vite, use import.meta.env.DEV for development mode check
   const isDevelopment = import.meta.env.DEV;
+  const { t } = useTranslation();
   
   // Add state for special requirements input
   const [specialRequirements, setSpecialRequirements] = useState('');
@@ -86,23 +90,62 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
   const handleStartNewGame = async () => {
     if (!specialRequirements) {
       try {
-        logger.info("No special requirements, fetching pre-generated states...");
-        const response = await fetch('/pregenerated_states.json');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch pregenerated_states.json: ${response.statusText}`);
+        logger.info("No special requirements, loading pre-generated states...");
+        
+        // Get current language from i18n
+        const currentLanguage = t('language.code'); // This should return 'zh' or 'en'
+        
+        // Select the appropriate pre-generated states based on language
+        let states: InitialStateType[];
+        let fallbackUsed = false;
+        
+        if (currentLanguage === 'zh') {
+          states = pregenStatesZh as InitialStateType[];
+          logger.info("Using Chinese pre-generated states");
+        } else if (currentLanguage === 'en') {
+          // Check if English states have actual content (not just placeholders)
+          const hasRealContent = pregenStatesEn.some(state => 
+            !state.playerDescription.includes('[English translation needed]')
+          );
+          
+          if (hasRealContent) {
+            states = pregenStatesEn as InitialStateType[];
+            logger.info("Using English pre-generated states");
+          } else {
+            // Fallback to Chinese if English only has placeholders
+            states = pregenStatesZh as InitialStateType[];
+            fallbackUsed = true;
+            logger.info("English states not ready, falling back to Chinese states");
+          }
+        } else {
+          // Default fallback to Chinese for any other language
+          states = pregenStatesZh as InitialStateType[];
+          fallbackUsed = true;
+          logger.info(`Unknown language ${currentLanguage}, falling back to Chinese states`);
         }
-        const states: InitialStateType[] = await response.json();
+        
+        // Final fallback to fetch original file if imported states are empty or invalid
+        if (!states || states.length === 0) {
+          logger.warn("Imported states are empty, falling back to original pregenerated_states.json");
+          const response = await fetch('/pregenerated_states.json');
+          if (!response.ok) {
+            throw new Error(`Failed to fetch pregenerated_states.json: ${response.statusText}`);
+          }
+          states = await response.json();
+          fallbackUsed = true;
+        }
+        
         if (states && states.length > 0) {
           const randomIndex = Math.floor(Math.random() * states.length);
           const selectedState = states[randomIndex];
-          logger.info("Selected pre-generated state:", selectedState);
+          logger.info("Selected pre-generated state:", selectedState, fallbackUsed ? "(using fallback)" : "");
           initializeGame({ preloadedState: selectedState });
         } else {
           logger.warn("No pre-generated states found or array is empty, falling back to default generation.");
           initializeGame({}); // Fallback to default generation without special requirements
         }
       } catch (error) {
-        logger.error("Error fetching or using pre-generated states:", error);
+        logger.error("Error loading or using pre-generated states:", error);
         // Fallback to default generation in case of error
         initializeGame({}); 
       }
@@ -132,23 +175,23 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
   const renderSpecialRequirementsInput = () => (
     <Box sx={{ mb: 4 }}>
       <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
-        特殊要求（可选）
+        {t('welcome.specialRequirements')}
       </Typography>
       <TextField
         fullWidth
         multiline
         rows={3}
-        placeholder="我想养个邻居家的孩子"
+        placeholder={t('welcome.specialRequirementsPlaceholder')}
         value={specialRequirements}
         onChange={(e) => setSpecialRequirements(e.target.value)}
         variant="outlined"
         sx={{ mb: 2 }}
       />
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        您可以描述具体的想要的关于自己和娃的背景和特点，AI将尽量满足您的要求。（当然，养娃和AI一样，是个玄学……）
+        {t('welcome.specialRequirementsDesc')}
       </Typography>
       <Typography variant="body1">
-        准备好开始这段充满挑战与惊喜的养育之旅了吗？
+        {t('welcome.readyToStart')}
       </Typography>
     </Box>
   );
@@ -165,18 +208,18 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Timeline sx={{ mr: 1, color: 'warning.main' }} />
                     <Typography variant="h5" sx={{ fontWeight: 600, color: 'warning.main' }}>
-                      发现已保存的游戏进度
+                      {t('welcome.savedGameFound')}
                     </Typography>
                   </Box>
                   
                   <Typography variant="body1" sx={{ mb: 3 }}>
-                    您好！我们发现您有一个进行中的游戏：
+                    {t('welcome.savedGameGreeting')}
                   </Typography>
                   
                   <Card variant="outlined" sx={{ mb: 3, p: 2 }}>
                     <Stack direction="row" spacing={2} alignItems="center">
                       <Chip 
-                        label={savedState?.child?.gender === 'male' ? '男孩' : '女孩'} 
+                        label={savedState?.child?.gender === 'male' ? t('game.boy') : t('game.girl')} 
                         color="primary" 
                         size="small" 
                       />
@@ -184,13 +227,13 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                         {savedState?.child?.name}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        当前年龄: {savedState?.child?.age} 岁
+                        {t('welcome.currentAge', { age: savedState?.child?.age })}
                       </Typography>
                     </Stack>
                   </Card>
                   
                   <Typography variant="body1">
-                    您可以继续这个游戏，或者开始一个全新的游戏。
+                    {t('welcome.continueOrNew')}
                   </Typography>
                 </CardContent>
               </SavedGameCard>
@@ -205,11 +248,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}>
-                  养娃模拟器
+                  {t('welcome.title')}
                 </Typography>
                 
                 <Typography variant="h6" sx={{ textAlign: 'center', mb: 4, color: 'text.secondary' }}>
-                  一个模拟从孩子出生到成年的养育历程的游戏
+                  {t('welcome.subtitle')}
                 </Typography>
                 
                 <FeatureCard elevation={1}>
@@ -217,14 +260,14 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                       <Psychology sx={{ mr: 1, color: 'primary.main' }} />
                       <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                        游戏介绍
+                        {t('welcome.gameIntro')}
                       </Typography>
                     </Box>
                     <Typography variant="body1" sx={{ mb: 2 }}>
-                      在这个游戏中，你将扮演一位父亲或母亲，从孩子出生开始，一直陪伴他/她成长到18岁。
+                      {t('welcome.gameIntroText1')}
                     </Typography>
                     <Typography variant="body1">
-                      每一年，你都将面临各种养育抉择，你的选择将深刻影响孩子的性格、兴趣和未来发展方向。
+                      {t('welcome.gameIntroText2')}
                     </Typography>
                   </CardContent>
                 </FeatureCard>
@@ -234,21 +277,21 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                       <AutoAwesome sx={{ mr: 1, color: 'secondary.main' }} />
                       <Typography variant="h6" sx={{ fontWeight: 600, color: 'secondary.main' }}>
-                        游戏特点
+                        {t('welcome.gameFeatures')}
                       </Typography>
                     </Box>
                     <List dense>
                       <ListItem disablePadding>
-                        <ListItemText primary="AI生成的角色背景、养育情境和故事线" />
+                        <ListItemText primary={t('welcome.feature1')} />
                       </ListItem>
                       <ListItem disablePadding>
-                        <ListItemText primary="每个决定都会影响娃的成长路径" />
+                        <ListItemText primary={t('welcome.feature2')} />
                       </ListItem>
                       <ListItem disablePadding>
-                        <ListItemText primary="时间轴记录你的养育历程，直到18岁送娃成人" />
+                        <ListItemText primary={t('welcome.feature3')} />
                       </ListItem>
                       <ListItem disablePadding>
-                        <ListItemText primary="查看娃的成长经历和自己是个什么样的父母" />
+                        <ListItemText primary={t('welcome.feature4')} />
                       </ListItem>
                     </List>
                   </CardContent>
@@ -256,7 +299,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                 
                 <Alert severity="info" sx={{ mb: 3 }}>
                   <Typography variant="body1">
-                    点击开始游戏，随机生成一位父亲/母亲的角色，以及娃的基本信息。
+                    {t('welcome.startGameInfo')}
                   </Typography>
                 </Alert>
                 
@@ -274,7 +317,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                     onClick={handleContinueSavedGame}
                     startIcon={<PlayArrow />}
                   >
-                    继续游戏
+                    {t('actions.continueGame')}
                   </ActionButton>
                   
                   <ActionButton
@@ -284,7 +327,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                     onClick={handleResetAndShowNewGameScreen}
                     startIcon={<Refresh />}
                   >
-                    开始新游戏
+                    {t('actions.startNewGame')}
                   </ActionButton>
                 </>
               ) : (
@@ -295,7 +338,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   onClick={handleStartNewGame}
                   startIcon={<PlayArrow />}
                 >
-                  开始游戏
+                  {t('actions.startGame')}
                 </ActionButton>
               )}
 
@@ -308,7 +351,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   size="small"
                   sx={{ mt: 2 }}
                 >
-                  (Dev) Test Ending Page
+                  {t('actions.testEnding')}
                 </Button>
               )}
             </Stack>

@@ -12,6 +12,7 @@ import {
   Fade
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useTranslation } from 'react-i18next';
 import type { Question } from '../../types/game';
 import { TextDisplay } from '../../components/ui/TextDisplay';
 import { StreamingTextDisplay } from '../../components/ui/StreamingTextDisplay';
@@ -86,6 +87,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
   isStreaming = false,
   streamingContent = ''
 }) => {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [customOption, setCustomOption] = useState('');
   
@@ -123,7 +125,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                   isStreaming={isStreaming}
                   isComplete={false}
                   showTypewriter={true}
-                  placeholder="正在生成问题..."
+                  placeholder={t('ui.generatingQuestion')}
                   onStreamingStart={() => {
                     // Scrolling removed for QuestionDisplay
                   }}
@@ -145,7 +147,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
             <StyledCard elevation={2}>
               <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
                 <Typography variant="h6" color="text.secondary" sx={{ textAlign: 'center' }}>
-                  正在加载问题...
+                  {t('ui.loadingQuestion')}
                 </Typography>
               </CardContent>
             </StyledCard>
@@ -164,7 +166,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
                 <CircularProgress size={48} thickness={4} />
                 <Typography variant="body1" sx={{ mt: 2, color: 'primary.main', fontWeight: 500 }}>
-                  {childName}正在成长中...
+                  {t('ui.childGrowing', { childName })}
                 </Typography>
               </Box>
             </LoadingOverlay>
@@ -219,7 +221,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                         color: 'primary.main',
                         mb: 2
                       }}>
-                        E: 我有其他想法
+                        E: {t('ui.customOption')}
                       </Typography>
                     </Box>
                     
@@ -230,7 +232,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                         rows={3}
                         value={customOption}
                         onChange={(e) => setCustomOption(e.target.value)}
-                        placeholder="输入你的想法..."
+                        placeholder={t('ui.enterYourIdea')}
                         disabled={isLoading}
                         inputProps={{ maxLength: 200 }}
                         variant="outlined"
@@ -243,17 +245,17 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                       
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="caption" color="text.secondary">
-                          {customOption.length}/200 字符
+                          {t('ui.charactersCount', { count: customOption.length })}
                         </Typography>
-                        <Button
-                          onClick={handleCustomOptionSubmit}
-                          disabled={isLoading || !customOption.trim()}
-                          variant="contained"
-                          color="primary"
-                          sx={{ minWidth: 120 }}
-                        >
-                          选择这个方案
-                        </Button>
+                                                  <Button
+                            onClick={handleCustomOptionSubmit}
+                            disabled={isLoading || !customOption.trim()}
+                            variant="contained"
+                            color="primary"
+                            sx={{ minWidth: 120 }}
+                          >
+                            {t('actions.selectThisOption')}
+                          </Button>
                       </Box>
                     </Stack>
                   </CardContent>

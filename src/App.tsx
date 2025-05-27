@@ -1,9 +1,10 @@
 import { Header } from './components/layout/Header'
 import { QuestionDisplay, FeedbackDisplay } from './features/game'
 import { TimelineProvider } from './features/timeline'
-import { WelcomeScreen } from './pages'
+import { WelcomeScreen, InfoPage } from './pages'
 import { PerformanceMonitor } from './components/dev'
 import { StreamingTextDisplay } from './components/ui/StreamingTextDisplay'
+import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import { 
   Box, 
@@ -23,6 +24,8 @@ import useGameStore from './stores/useGameStore'
 import { useGameFlow } from './hooks/useGameFlow'
 import { logger } from './utils/logger'
 import { performanceMonitor } from './utils/performanceMonitor'
+import { checkAllPrompts, testPromptGeneration } from './utils/promptChecker'
+import { useEffect } from 'react'
 // Removed direct gptService and storageService imports
 // Removed Question, GameState, GameStateToStore type imports from local files if not used by App.tsx directly
 
@@ -69,6 +72,7 @@ const EndingCard = styled(Card)(({ theme }) => ({
 
 function App() {
   useGameFlow() // Initialize game flow logic
+  const { t } = useTranslation();
   
   // Determine if in development mode
   const isDevelopment = import.meta.env.DEV;
@@ -93,6 +97,8 @@ function App() {
     streamingType,
     enableStreaming,
     toggleStreaming, // Used only in development mode
+    showInfoModal,
+    closeInfoModal,
   } = useGameStore(state => ({
     gamePhase: state.gamePhase,
     player: state.player,
@@ -115,6 +121,8 @@ function App() {
     streamingType: state.streamingType,
     enableStreaming: state.enableStreaming,
     toggleStreaming: state.toggleStreaming,
+    showInfoModal: state.showInfoModal,
+    closeInfoModal: state.closeInfoModal,
   }))
 
   // Suppress unused variable warnings for production-only variables
@@ -138,6 +146,14 @@ function App() {
   const hasStoryToShow = history && history.length > 0;
   const showTimeline = hasStoryToShow && (isGamePlayPhase || isFeedbackPhase || isGeneratingOutcomePhase || isEndingPhase);
   
+  // Development-only prompt system test
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      checkAllPrompts();
+      testPromptGeneration();
+    }
+  }, []);
+
   if (error && gamePhase !== 'welcome' && gamePhase !== 'playing' && gamePhase !== 'feedback') { // Show general error screen only if not in a phase that might have its own error display or content
     return (
       <MainContainer>
@@ -151,7 +167,7 @@ function App() {
           <ErrorCard>
             <CardContent>
               <Typography variant="h6" sx={{ color: 'error.main', mb: 2 }}>
-                发生错误
+                {t('messages.error')}
               </Typography>
               <Typography variant="body1" sx={{ mb: 3 }}>
                 {error}
@@ -162,7 +178,7 @@ function App() {
                 color="primary"
                 fullWidth
               >
-                重新开始游戏
+                {t('actions.restart')}
               </Button>
             </CardContent>
           </ErrorCard>
@@ -179,20 +195,20 @@ function App() {
             <CardContent>
               <CircularProgress size={60} sx={{ mb: 3 }} />
               <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
-                经过3亿个精子的激烈角逐，数十个卵泡中的艰难竞争，再加上漫长而艰辛的十月怀胎，你家娃终于决定降临人间，准备向你发起最甜蜜又最痛苦的挑战了！
+                {t('intro.birthStory')}
               </Typography>
               
               {isStreaming && streamingType === 'initial' && streamingContent && (
                 <Box sx={{ mt: 3, p: 2, backgroundColor: 'background.default', borderRadius: 1 }}>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    正在生成初始设定...
+                    {t('intro.generatingSettings')}
                   </Typography>
                   <StreamingTextDisplay
                     content={streamingContent}
                     isStreaming={isStreaming}
                     isComplete={false}
                     showTypewriter={true}
-                    placeholder="正在生成游戏设定..."
+                    placeholder={t('intro.generatingGameSettings')}
                     onStreamingStart={() => {
                       // Scroll to the top of the new content when initialization begins
                       const container = document.querySelector('.MuiCard-root');
@@ -234,12 +250,12 @@ function App() {
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                   }}>
-                    养育之旅圆满结束
+                    {t('messages.journeyComplete')}
                   </Typography>
                   
                   <Box sx={{ textAlign: 'center', mb: 3 }}>
                     <Chip 
-                      label={`${child?.name || '你的孩子'} 已经长大成人，18岁了`}
+                      label={t('messages.childGrownUp', { childName: child?.name || t('game.childName') })}
                       color="primary"
                       variant="outlined"
                       sx={{ fontSize: '1rem', py: 1 }}
@@ -248,7 +264,7 @@ function App() {
                   
                   <Box sx={{ mb: 4 }}>
                     <Typography variant="body1" component="div" sx={{ lineHeight: 1.7 }}>
-                      <ReactMarkdown>{endingSummaryText || (isLoading && gamePhase === 'ending_game' ? "结局生成中..." : "结局回顾完毕。")}</ReactMarkdown>
+                      <ReactMarkdown>{endingSummaryText || (isLoading && gamePhase === 'ending_game' ? t('messages.endingGenerating') : t('messages.endingComplete'))}</ReactMarkdown>
                     </Typography>
                   </Box>
                   
@@ -263,7 +279,7 @@ function App() {
                         fontWeight: 500,
                         color: 'primary.main'
                       }}>
-                        正在为你生成专属的结局报告...
+                        {t('messages.generatingReport')}
                       </Typography>
                       <Typography variant="body2" sx={{ 
                         fontStyle: 'italic',
@@ -271,10 +287,10 @@ function App() {
                         mb: 2,
                         lineHeight: 1.6
                       }}>
-                        回顾你与{child?.name || '孩子'}一起度过的18年时光<br/>
-                        分析每一个重要的养育决定<br/>
-                        评价你作为父母的成长历程<br/>
-                        展望{child?.name || '孩子'}的美好未来
+                        {t('messages.reviewJourney', { childName: child?.name || t('game.childName') })}<br/>
+                        {t('messages.analyzeDecisions')}<br/>
+                        {t('messages.evaluateGrowth')}<br/>
+                        {t('messages.lookToFuture', { childName: child?.name || t('game.childName') })}
                       </Typography>
                       <Typography variant="body2" sx={{ 
                         color: 'primary.dark',
@@ -294,7 +310,7 @@ function App() {
                         size="large"
                         sx={{ py: 1.5, fontSize: '1.1rem' }}
                       >
-                        重新开始新的养育之旅
+                        {t('actions.restartNewJourney')}
                       </Button>
                     </>
                   )}
@@ -337,7 +353,7 @@ function App() {
               isEnding={child?.age ? child.age >= 17 : false}
               isFirstQuestion={isInitialNarrative}
               isLoadingFirstQuestion={isInitialNarrative && isLoading}
-              childName={child?.name || ''}
+              childName={child?.name || t('game.childName')}
               isStreaming={isStreaming && streamingType === 'outcome'}
               streamingContent={streamingContent}
             />
@@ -351,7 +367,7 @@ function App() {
               question={currentQuestion}
               onSelectOption={enableStreaming ? selectOptionStreaming : selectOption}
               isLoading={false} 
-              childName={child?.name || '孩子'}
+              childName={child?.name || t('game.childName')}
               isStreaming={isStreaming && streamingType === 'question'}
               streamingContent={streamingContent}
             />
@@ -364,7 +380,7 @@ function App() {
                 question={null} // Will be handled by the streaming display
                 onSelectOption={async () => {}}
                 isLoading={false}
-                childName={child?.name || '孩子'}
+                childName={child?.name || t('game.childName')}
                 isStreaming={true}
                 streamingContent={streamingContent}
               />
@@ -376,7 +392,7 @@ function App() {
               <CardContent>
                 <CircularProgress size={40} sx={{ mb: 2 }} />
                 <Typography variant="h6" color="text.secondary">
-                  养娃进行时...
+                  {t('messages.gameInProgress')}
                 </Typography>
               </CardContent>
             </LoadingCard>
@@ -390,7 +406,7 @@ function App() {
               <CardContent>
                 <CircularProgress size={40} sx={{ mb: 2 }} />
                 <Typography variant="h6" color="text.secondary">
-                  加载中...
+                  {t('actions.loading')}
                 </Typography>
               </CardContent>
             </LoadingCard>
@@ -401,7 +417,7 @@ function App() {
         <LoadingCard>
           <CardContent>
             <Typography variant="h6" color="text.secondary">
-              请稍候，游戏状态 ({gamePhase}) 未明确处理。
+              {t('messages.gameStateUnclear', { gamePhase })}
             </Typography>
           </CardContent>
         </LoadingCard>
@@ -438,7 +454,7 @@ function App() {
                     size="small"
                     sx={{ borderRadius: 3 }}
                   >
-                    放弃{child.name}，重新开始
+                    {t('actions.giveUpAndRestart', { childName: child.name })}
                   </Button>
                 </Box>
               )}
@@ -461,6 +477,9 @@ function App() {
       
       {/* Show performance monitor in development mode */}
       {isDevelopment && <PerformanceMonitor autoRefresh={true} />}
+      
+      {/* Info Modal */}
+      <InfoPage open={showInfoModal} onClose={closeInfoModal} />
     </MainContainer>
   );
 }

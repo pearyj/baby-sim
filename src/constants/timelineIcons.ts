@@ -353,7 +353,7 @@ export const getTimelineIcon = (age: number, gender: 'male' | 'female'): Timelin
 export const getCurrentAgeColor = (): string => '#6750A4';
 
 /**
- * Age-based developmental stage labels
+ * Age-based developmental stage labels (Chinese - for backward compatibility)
  */
 export const DEVELOPMENTAL_STAGES = {
   0: '新生儿期',
@@ -375,4 +375,29 @@ export const DEVELOPMENTAL_STAGES = {
   16: '青春期',
   17: '青春期',
   18: '成年期'
+} as const;
+
+/**
+ * Age-based developmental stage mapping to translation keys
+ */
+export const DEVELOPMENTAL_STAGE_KEYS = {
+  0: 'newborn',
+  1: 'infant', 
+  2: 'toddler',
+  3: 'preschool',
+  4: 'preschool',
+  5: 'preschool',
+  6: 'schoolAge',
+  7: 'schoolAge',
+  8: 'schoolAge',
+  9: 'schoolAge',
+  10: 'schoolAge',
+  11: 'schoolAge',
+  12: 'adolescence',
+  13: 'adolescence',
+  14: 'adolescence',
+  15: 'adolescence',
+  16: 'adolescence',
+  17: 'adolescence',
+  18: 'adulthood'
 } as const; 

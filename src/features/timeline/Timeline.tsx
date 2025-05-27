@@ -12,7 +12,8 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
-import { getTimelineIcon, getCurrentAgeColor, DEVELOPMENTAL_STAGES } from '../../constants/timelineIcons';
+import { useTranslation } from 'react-i18next';
+import { getTimelineIcon, getCurrentAgeColor, DEVELOPMENTAL_STAGE_KEYS } from '../../constants/timelineIcons';
 import type { GameState } from '../../types/game';
 
 interface TimelineProps {
@@ -90,6 +91,7 @@ export const Timeline: React.FC<TimelineProps> = ({
   currentAge,
   childGender
 }) => {
+  const { t } = useTranslation();
   const [expandedAges, setExpandedAges] = useState<number[]>([]);
   const sortedEvents = history
     .filter(event => event.question && event.question.trim() !== '')
@@ -116,7 +118,7 @@ export const Timeline: React.FC<TimelineProps> = ({
     return (
       <Paper elevation={1} sx={{ p: 3, mb: 3, textAlign: 'center' }}>
         <Typography variant="body1" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-          辛勤养娃的一点一滴都会被记录下来。
+          {t('ui.timelineEmpty')}
         </Typography>
       </Paper>
     );
@@ -125,7 +127,7 @@ export const Timeline: React.FC<TimelineProps> = ({
   return (
     <Box sx={{ mb: 3 }}>
       <Typography variant="h6" sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
-        成长时间轴
+        {t('ui.timelineTitle')}
       </Typography>
       
       <TimelineContainer>
@@ -136,14 +138,15 @@ export const Timeline: React.FC<TimelineProps> = ({
           const iconConfig = getTimelineIcon(event.age, childGender);
           const IconComponent = iconConfig.icon;
           const iconColor = isCurrent ? getCurrentAgeColor() : iconConfig.color;
-          const developmentalStage = DEVELOPMENTAL_STAGES[event.age as keyof typeof DEVELOPMENTAL_STAGES] || '成长期';
+          const stageKey = DEVELOPMENTAL_STAGE_KEYS[event.age as keyof typeof DEVELOPMENTAL_STAGE_KEYS];
+          const developmentalStage = stageKey ? t(`developmentalStages.${stageKey}`) : t('ui.growthStage');
           
           return (
             <TimelineItem key={`timeline-${event.age}-${index}`} sx={{ 
               paddingBottom: isLast ? 0 : 2 
             }}>
               <Tooltip 
-                title={`${event.age}岁 - ${iconConfig.description} (${developmentalStage})`}
+                title={`${event.age} ${t('game.yearsOld')} - ${iconConfig.description} (${developmentalStage})`}
                 placement="left"
               >
                 <TimelineIcon sx={{ 
@@ -160,13 +163,13 @@ export const Timeline: React.FC<TimelineProps> = ({
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Chip 
-                          label={`${event.age}岁`} 
+                          label={`${event.age} ${t('game.yearsOld')}`} 
                           color="primary" 
                           size="small"
                           variant="filled"
                         />
                         <Chip 
-                          label="当前年龄" 
+                          label={t('ui.currentAge')} 
                           color="primary" 
                           size="small"
                           variant="outlined"
@@ -193,13 +196,13 @@ export const Timeline: React.FC<TimelineProps> = ({
                     <Collapse in={isExpanded}>
                       <ExpandableContent>
                         <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: 'primary.main' }}>
-                          状况：
+                          {t('ui.situation')}
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 2 }}>
                           {event.question}
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: 'primary.main' }}>
-                          结果：
+                          {t('ui.result')}
                         </Typography>
                         <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
                           {event.outcome}
@@ -214,7 +217,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Chip 
-                          label={`${event.age}岁`} 
+                          label={`${event.age} ${t('game.yearsOld')}`} 
                           size="small"
                           variant="outlined"
                           sx={{ 
@@ -245,13 +248,13 @@ export const Timeline: React.FC<TimelineProps> = ({
                     <Collapse in={isExpanded}>
                       <ExpandableContent>
                         <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: 'text.primary' }}>
-                          状况：
+                          {t('ui.situation')}
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 2 }}>
                           {event.question}
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: 'text.primary' }}>
-                          结果：
+                          {t('ui.result')}
                         </Typography>
                         <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
                           {event.outcome}

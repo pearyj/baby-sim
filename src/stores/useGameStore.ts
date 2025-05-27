@@ -8,6 +8,7 @@ import { clearState } from '../services/storageService'; // Keep clearState, rem
 import type { GameStateToStore } from '../services/storageService'; // Import GameStateToStore as a type
 import { logger } from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
+import i18n from '../i18n';
 
 // Define a placeholder type for Question. This can be refined later.
 interface QuestionType extends ApiQuestionType {}
@@ -55,6 +56,9 @@ interface GameStoreState {
   streamingType: 'question' | 'outcome' | 'initial' | null; // What type of content is streaming
   enableStreaming: boolean; // User preference for streaming mode
   
+  // UI state
+  showInfoModal: boolean; // Whether the info modal is open
+  
   // Store the pending choice to recover from refreshes during API calls
   pendingChoice?: {
     questionId?: string;
@@ -75,7 +79,33 @@ interface GameStoreState {
   resetToWelcome: () => void; // New function to reset to the welcome screen
   testEnding: () => Promise<void>; // Dev function to test ending screen
   toggleStreaming: () => void; // Toggle streaming mode
+  openInfoModal: () => void; // Open the info modal
+  closeInfoModal: () => void; // Close the info modal
 }
+
+// Helper function to generate narrative with translations
+const generateNarrative = (scenarioState: {
+  player: { gender: 'male' | 'female'; age: number };
+  child: { name: string; gender: 'male' | 'female' };
+  playerDescription: string;
+  childDescription: string;
+}): string => {
+  const playerGenderKey = scenarioState.player.gender === 'male' ? 'father' : 'mother';
+  const childGenderKey = scenarioState.child.gender === 'male' ? 'boy' : 'girl';
+  
+  const playerDesc = i18n.t(`game.${playerGenderKey}`);
+  const childDesc = i18n.t(`game.${childGenderKey}`);
+  const journeyStart = i18n.t('ui.journeyStart');
+  const readyToBegin = i18n.t('ui.readyToBegin');
+  
+  // Construct the narrative based on current language
+  if (i18n.language === 'en') {
+    return `As a ${playerDesc.toLowerCase()} (${scenarioState.player.age} years old), you are about to begin the journey of raising your child ${scenarioState.child.name} (${childDesc.toLowerCase()}, just born).\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
+  } else {
+    // Chinese version (default)
+    return `作为${playerDesc}（${scenarioState.player.age}岁），你即将开始养育你的孩子${scenarioState.child.name}（${childDesc}，刚刚出生）的旅程。\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
+  }
+};
 
 // Helper function to save current state to localStorage
 const saveGameState = (state: GameStoreState) => {
@@ -141,6 +171,9 @@ const useGameStore = create<GameStoreState>((set, get) => {
     streamingType: null,
     enableStreaming: true, // Enable streaming by default
     
+    // UI state
+    showInfoModal: false,
+    
     // Define all required functions up front with unused parameters prefixed
     initializeGame: async (_options?: { specialRequirements?: string; preloadedState?: InitialStateType }) => { logger.log("initializeGame stub called") },
     startGame: (_player: Player, _child: Child, _playerDescription: string, _childDescription: string) => { logger.log("startGame stub called") },
@@ -153,6 +186,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
     resetToWelcome: () => { logger.log("resetToWelcome stub called") },
     testEnding: async () => { logger.log("testEnding stub called") },
     toggleStreaming: () => { logger.log("toggleStreaming stub called") },
+    openInfoModal: () => { logger.log("openInfoModal stub called") },
+    closeInfoModal: () => { logger.log("closeInfoModal stub called") },
   };
 
   // If there's saved state, use it to initialize
@@ -292,16 +327,15 @@ const useGameStore = create<GameStoreState>((set, get) => {
 
           logger.log(`Scenario wealthTier: ${initialScenarioState.wealthTier}, Initial financialBurden: ${calculatedFinancialBurden}`);
 
-          const playerDesc = initialScenarioState.player.gender === 'male' ? '父亲' : '母亲';
-          const childDesc = initialScenarioState.child.gender === 'male' ? '男孩' : '女孩';
-          const narrative = `作为${playerDesc}（${initialScenarioState.player.age}岁），你即将开始养育你的孩子${initialScenarioState.child.name}（${childDesc}，刚刚出生）的旅程。\n\n${initialScenarioState.playerDescription}\n\n${initialScenarioState.childDescription}\n\n从0岁开始，你将面临各种养育过程中的抉择，这些选择将影响孩子的成长和你们的家庭关系。\n\n准备好开始这段旅程了吗？`;
+          const narrative = generateNarrative(initialScenarioState);
 
           // Initial history entry for game start (age 0, before first question)
+          const readyToBeginText = i18n.t('ui.readyToBegin');
           const initialHistoryEntry: HistoryEntry = {
             age: 0,
-            question: "游戏开始",
-            choice: "开始养育旅程",
-            outcome: narrative.substring(0, narrative.lastIndexOf('\n\n准备好开始这段旅程了吗？')) // Get only the descriptive part
+            question: i18n.language === 'en' ? "Game Start" : "游戏开始",
+            choice: i18n.language === 'en' ? "Begin parenting journey" : "开始养育旅程",
+            outcome: narrative.substring(0, narrative.lastIndexOf(`\n\n${readyToBeginText}`)) // Get only the descriptive part
           };
 
           return {
@@ -470,7 +504,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
       // If we're at the initial welcome phase with saved data
       else if (get().player && get().child) {
         // First check if we have a beginning narrative in history
-        const initialStoryEntry = get().history.find(h => h.question === "游戏开始");
+        const initialStoryEntry = get().history.find(h => h.question === "游戏开始" || h.question === "Game Start");
         
         if (initialStoryEntry) {
           // Set feedback to show the initial story
@@ -1217,6 +1251,22 @@ const useGameStore = create<GameStoreState>((set, get) => {
       
       // Add a visual confirmation
       console.log(`🔄 Streaming mode is now: ${!enableStreaming ? 'ENABLED ✅' : 'DISABLED ❌'}`);
+    },
+
+    openInfoModal: () => {
+      logger.log("Opening info modal");
+      set(prevState => ({ 
+        ...prevState, 
+        showInfoModal: true 
+      }));
+    },
+
+    closeInfoModal: () => {
+      logger.log("Closing info modal");
+      set(prevState => ({ 
+        ...prevState, 
+        showInfoModal: false 
+      }));
     },
 
     testEnding: async () => {

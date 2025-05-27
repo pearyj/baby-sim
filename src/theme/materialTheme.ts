@@ -66,10 +66,11 @@ export const materialTheme = createTheme({
   },
   typography: {
     fontFamily: [
-      'Roboto',
+      'Inter',
       '"Noto Sans SC"', // Chinese font support
       '"Microsoft YaHei"',
       '"PingFang SC"',
+      'system-ui',
       'sans-serif'
     ].join(','),
     // Use standard Material-UI typography variants

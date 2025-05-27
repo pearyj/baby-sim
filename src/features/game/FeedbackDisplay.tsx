@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { PlayArrow, Flag, Start } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { TextDisplay } from '../../components/ui/TextDisplay';
 import { StreamingTextDisplay } from '../../components/ui/StreamingTextDisplay';
 import { logger } from '../../utils/logger';
@@ -68,6 +69,7 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
   isStreaming = false,
   streamingContent = '',
 }) => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -111,16 +113,16 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
   // Determine button text and styling
   const buttonText = 
     isStreaming
-      ? '生成中...'
+      ? t('actions.generating')
       : isLoadingFirstQuestion && isFirstQuestion 
-        ? '加载中...'
+        ? t('actions.loading')
         : isEnding 
-          ? '结束游戏' 
+          ? t('actions.endGame')
           : isFirstQuestion && childName
-            ? `开始养育${childName}`
+            ? t('actions.startRaisingChild', { childName })
           : isFirstQuestion
-            ? '开始养育'
-            : '继续';
+            ? t('actions.startRaising')
+            : t('actions.continue');
 
   const getButtonIcon = () => {
     if (isStreaming) return null;
@@ -150,7 +152,7 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       }
     } catch (err) {
       logger.error("Error in handleContinue:", err);
-      alert('很抱歉，继续游戏时遇到问题。');
+      alert(t('messages.continueError'));
     }
   };
   
@@ -180,7 +182,7 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
                     isStreaming={isStreaming}
                     isComplete={!isStreaming}
                     showTypewriter={true}
-                    placeholder="正在生成结果..."
+                    placeholder={t('intro.generatingResult')}
                     onStreamingStart={() => {
                       // Scroll to the top of the new feedback block
                       setTimeout(() => {
