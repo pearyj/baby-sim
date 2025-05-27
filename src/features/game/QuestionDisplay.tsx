@@ -12,9 +12,9 @@ import {
   Fade
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import type { Question } from '../types/game';
-import { TextDisplay } from './TextDisplay';
-import { StreamingTextDisplay } from './StreamingTextDisplay';
+import type { Question } from '../../types/game';
+import { TextDisplay } from '../../components/ui/TextDisplay';
+import { StreamingTextDisplay } from '../../components/ui/StreamingTextDisplay';
 
 interface QuestionDisplayProps {
   question: Question | null;
@@ -89,18 +89,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [customOption, setCustomOption] = useState('');
   
-  // Auto scroll to this component when it mounts
-  useEffect(() => {
-    if (containerRef.current) {
-      setTimeout(() => {
-        containerRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-          inline: 'nearest'
-        });
-      }, 200);
-    }
-  }, []);
+  // Scrolling removed for QuestionDisplay to prevent unwanted auto-scrolling
 
   // Reset custom option when question changes
   useEffect(() => {
@@ -135,6 +124,9 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                   isComplete={false}
                   showTypewriter={true}
                   placeholder="正在生成问题..."
+                  onStreamingStart={() => {
+                    // Scrolling removed for QuestionDisplay
+                  }}
                 />
               </CardContent>
             </StyledCard>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getCurrentModel, switchProvider } from '../services/gptService';
+import { getCurrentModel, switchProvider } from '../../services/gptServiceUnified';
 
 interface ModelSwitcherProps {
   className?: string;

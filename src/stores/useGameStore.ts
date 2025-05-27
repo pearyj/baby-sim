@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 // import { persist, createJSONStorage } from 'zustand/middleware'; // Removed unused import
-import * as gptService from '../services/gptService';
-import * as streamingService from '../services/gptServiceStreaming';
-import type { InitialStateType } from '../services/gptService'; // Ensured type-only import
+import * as gptService from '../services/gptServiceUnified';
+import type { InitialStateType } from '../services/gptServiceUnified'; // Ensured type-only import
 import * as storageService from '../services/storageService';
 import type { GameState as ApiGameState, Player, Child, HistoryEntry, Question as ApiQuestionType } from '../types/game';
 import { clearState } from '../services/storageService'; // Keep clearState, remove loadState and saveState as they are used via storageService.* methods
@@ -247,15 +246,13 @@ const useGameStore = create<GameStoreState>((set, get) => {
           initialScenarioState = await performanceMonitor.timeAsync(
             'generate-initial-state-streaming', 
             'api', 
-            () => streamingService.generateInitialStateStreaming(
-              options?.specialRequirements,
-              (partialContent) => {
-                set(prevState => ({ 
-                  ...prevState, 
-                  streamingContent: partialContent 
-                }));
-              }
-            ),
+            async () => {
+              // For now, use non-streaming version for initial state
+              return await gptService.generateInitialState({
+                specialRequirements: options?.specialRequirements,
+                preloadedState: options?.preloadedState
+              });
+            },
             { isStreaming: true }
           );
           
@@ -627,14 +624,17 @@ const useGameStore = create<GameStoreState>((set, get) => {
         
         logger.log("Making streaming API call to fetch question for age:", child.age);
         
-        const question = await streamingService.generateQuestionStreaming(
+        const question = await gptService.generateQuestion(
           fullGameStateForApi,
-          (partialContent) => {
-            // Update streaming content as it comes in
-            set(prevState => ({ 
-              ...prevState, 
-              streamingContent: partialContent 
-            }));
+          {
+            streaming: true,
+            onProgress: (partialContent: string) => {
+              // Update streaming content as it comes in
+              set(prevState => ({ 
+                ...prevState, 
+                streamingContent: partialContent 
+              }));
+            }
           }
         );
         
@@ -969,16 +969,19 @@ const useGameStore = create<GameStoreState>((set, get) => {
           endingSummaryText: est_store,
         };
         
-        const result = await streamingService.generateOutcomeAndNextQuestionStreaming(
+        const result = await gptService.generateOutcomeAndNextQuestion(
           fullGameStateForApi,
           currentQuestion.question,
           selectedOption.text,
-          (partialContent) => {
-            // Update streaming content as it comes in
-            set(prevState => ({ 
-              ...prevState, 
-              streamingContent: partialContent 
-            }));
+          {
+            streaming: true,
+            onProgress: (partialContent: string) => {
+              // Update streaming content as it comes in
+              set(prevState => ({ 
+                ...prevState, 
+                streamingContent: partialContent 
+              }));
+            }
           }
         );
         

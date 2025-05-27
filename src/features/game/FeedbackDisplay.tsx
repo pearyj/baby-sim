@@ -11,9 +11,9 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { PlayArrow, Flag, Start } from '@mui/icons-material';
-import { TextDisplay } from './TextDisplay';
-import { StreamingTextDisplay } from './StreamingTextDisplay';
-import { logger } from '../utils/logger';
+import { TextDisplay } from '../../components/ui/TextDisplay';
+import { StreamingTextDisplay } from '../../components/ui/StreamingTextDisplay';
+import { logger } from '../../utils/logger';
 
 interface FeedbackDisplayProps {
   feedback: string;
@@ -77,18 +77,36 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
     return () => clearTimeout(timer);
   }, []);
   
-  // Auto scroll to this component
+  // Auto scroll to this component only for initial feedback (not when transitioning from questions)
   useEffect(() => {
-    if (isVisible && containerRef.current) {
-      setTimeout(() => {
+    if (isVisible && containerRef.current && isFirstQuestion) {
+      // Only auto-scroll for the first question feedback, not for regular feedback
+      const timer = setTimeout(() => {
         containerRef.current?.scrollIntoView({
           behavior: 'smooth',
           block: 'start',
           inline: 'nearest'
         });
-      }, 300);
+      }, 150);
+      
+      return () => clearTimeout(timer);
     }
-  }, [isVisible]);
+  }, [isVisible, isFirstQuestion]);
+  
+  // Scroll to top when streaming content begins
+  useEffect(() => {
+    if (isStreaming && streamingContent && containerRef.current) {
+      const timer = setTimeout(() => {
+        containerRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isStreaming, streamingContent]);
   
   // Determine button text and styling
   const buttonText = 
@@ -163,6 +181,16 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
                     isComplete={!isStreaming}
                     showTypewriter={true}
                     placeholder="正在生成结果..."
+                    onStreamingStart={() => {
+                      // Scroll to the top of the new feedback block
+                      setTimeout(() => {
+                        containerRef.current?.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'start',
+                          inline: 'nearest'
+                        });
+                      }, 50);
+                    }}
                     onStreamingComplete={() => {
                       // Force a re-render to show the static content when streaming completes
                       // This helps ensure proper transition from streaming to static display

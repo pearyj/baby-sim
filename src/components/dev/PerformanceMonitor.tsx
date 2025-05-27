@@ -24,7 +24,7 @@ import {
   Computer as ComputerIcon,
   Palette as PaletteIcon
 } from '@mui/icons-material';
-import { performanceMonitor } from '../utils/performanceMonitor';
+import { performanceMonitor } from '../../utils/performanceMonitor';
 
 interface PerformanceMonitorProps {
   autoRefresh?: boolean;

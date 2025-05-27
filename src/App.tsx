@@ -1,10 +1,9 @@
-import { Header } from './components/Header'
-import { QuestionDisplay } from './components/QuestionDisplay'
-import { FeedbackDisplay } from './components/FeedbackDisplay'
-import { TimelineProvider } from './components/TimelineProvider'
+import { Header } from './components/layout/Header'
+import { QuestionDisplay, FeedbackDisplay } from './features/game'
+import { TimelineProvider } from './features/timeline'
 import { WelcomeScreen } from './pages'
-import { PerformanceMonitor } from './components/PerformanceMonitor'
-import { StreamingTextDisplay } from './components/StreamingTextDisplay'
+import { PerformanceMonitor } from './components/dev'
+import { StreamingTextDisplay } from './components/ui/StreamingTextDisplay'
 import ReactMarkdown from 'react-markdown'
 import { 
   Box, 
@@ -194,7 +193,19 @@ function App() {
                     isComplete={false}
                     showTypewriter={true}
                     placeholder="正在生成游戏设定..."
-                    
+                    onStreamingStart={() => {
+                      // Scroll to the top of the new content when initialization begins
+                      const container = document.querySelector('.MuiCard-root');
+                      if (container) {
+                        setTimeout(() => {
+                          container.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start',
+                            inline: 'nearest'
+                          });
+                        }, 50);
+                      }
+                    }}
                   />
                 </Box>
               )}
@@ -365,7 +376,7 @@ function App() {
               <CardContent>
                 <CircularProgress size={40} sx={{ mb: 2 }} />
                 <Typography variant="h6" color="text.secondary">
-                  你的养育之旅开始了...
+                  养娃进行时...
                 </Typography>
               </CardContent>
             </LoadingCard>

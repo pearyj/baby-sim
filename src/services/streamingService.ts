@@ -1,6 +1,6 @@
 import { logger } from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
-import { getActiveProvider } from './gptService';
+import { getActiveProvider } from './gptServiceUnified';
 
 // Types for streaming
 export interface StreamChunk {

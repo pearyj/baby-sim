@@ -19,7 +19,7 @@ import { styled } from '@mui/material/styles';
 import { PlayArrow, Refresh, Psychology, Timeline, AutoAwesome } from '@mui/icons-material';
 import useGameStore from '../stores/useGameStore';
 import { loadState } from '../services/storageService';
-import type { InitialStateType } from '../services/gptService';
+import type { InitialStateType } from '../services/gptServiceUnified';
 import { logger } from '../utils/logger';
 
 interface WelcomeScreenProps {

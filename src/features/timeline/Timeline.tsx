@@ -12,8 +12,8 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
-import { getTimelineIcon, getCurrentAgeColor, DEVELOPMENTAL_STAGES } from '../constants/timelineIcons';
-import type { GameState } from '../types/game';
+import { getTimelineIcon, getCurrentAgeColor, DEVELOPMENTAL_STAGES } from '../../constants/timelineIcons';
+import type { GameState } from '../../types/game';
 
 interface TimelineProps {
   history: GameState['history'];
