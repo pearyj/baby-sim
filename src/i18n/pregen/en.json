@@ -3,7 +3,7 @@
       "player": { "gender": "female", "age": 29 },
       "child":  { "name": "Ava", "gender": "female", "age": 0 },
       "playerDescription": "You were a back-end engineer at a top FAANG company in Silicon Valley. After maternity leave you walked in to a mass lay-off: stock options worthless, three months of severance, mortgage still due. LinkedIn refresh and LeetCode practice now fill the night shift.",
-      "childDescription": "Ava was born five weeks early and spent her first month in the NICU. She needs specialist check-ups and a pricey hypoallergenic formula. Every medical bill forces a choice between job hunting time and insurance coverage."
+      "childDescription": "Ava was born five weeks early and spent her first month in the NICU. She needs specialist check-ups and a pricey hypoallergenic formula. Every medical bill forces a choice between a better job opportunity and immediately-available insurance coverage."
     },
     {
       "player": { "gender": "male", "age": 37 },
@@ -14,8 +14,8 @@
     {
       "player": { "gender": "female", "age": 31 },
       "child":  { "name": "Grace", "gender": "female", "age": 0 },
-      "playerDescription": "You are an Air Force logistics officer and just received orders for your fifth base move—Alaska in three months. Your spouse works out-of-state and child-care waitlists never keep up.",
-      "childDescription": "Grace is healthy, curious, and soon to learn that every few months her crib and climate change. You juggle on-base day-care slots, deployment drills, and a growing pile of cardboard boxes."
+      "playerDescription": "You are an Air Force logistics officer and just received orders for your fifth base move: Alaska in three months. Your spouse works out-of-state and child-care waitlists never keep up.",
+      "childDescription": "Grace is healthy, curious, and soon to learn that every few months her crib and the climate change. You juggle on-base day-care slots, deployment drills, and a growing pile of cardboard boxes."
     },
     {
       "player": { "gender": "male", "age": 26 },
@@ -26,19 +26,19 @@
     {
       "player": { "gender": "male", "age": 38 },
       "child":  { "name": "Elliot", "gender": "male", "age": 0 },
-      "playerDescription": "You are a Manhattan hedge-fund quant, clocking 80-hour weeks. After an amicable divorce you fly Elliot to his curator mom in L.A. every Friday evening—markets close, boarding gate opens.",
+      "playerDescription": "You are a Manhattan hedge-fund quant, clocking 80-hour weeks. After an amicable divorce you fly Elliot to his curator mom in L.A. every Friday evening - markets close, boarding gate opens.",
       "childDescription": "Elliot has severe dairy and egg allergies. Your tight spreadsheets fund elite early-education, while his mother insists on open-ended art play. Two time zones, two parenting philosophies."
     },
     {
       "player": { "gender": "female", "age": 27 },
       "child":  { "name": "Bella", "gender": "female", "age": 0 },
       "playerDescription": "You and your husband stream luxury life from a glass tower in Miami, earning six figures a month in sponsorships. Every moment is content unless you press 'end live'.",
-      "childDescription": "Bella’s birth was live-blogged to a million followers. Camera lights make her squint and cry, but brands want daily clips. Privacy or revenue—the algorithm doesn’t care."
+      "childDescription": "Bella’s birth was live-blogged to a million followers. Camera lights make her squint and cry, but brands want daily clips. Privacy or revenue - the algorithm doesn’t care."
     },
     {
       "player": { "gender": "male", "age": 33 },
       "child":  { "name": "Rose", "gender": "female", "age": 0 },
-      "playerDescription": "You drive long-haul trucks across I-80, home maybe four days a month. Grandma handles diapers while you FaceTime from rest stops.",
+      "playerDescription": "You drive long-haul trucks across I-80, home four days a month, maybe. Grandma handles diapers while you FaceTime from rest stops.",
       "childDescription": "Rose is quiet yet wary around you. Experts say consistent presence builds attachment, but freight deadlines and mileage bonuses say otherwise."
     },
     {
@@ -50,8 +50,8 @@
     {
       "player": { "gender": "female", "age": 34 },
       "child":  { "name": "Mei", "gender": "female", "age": 0 },
-      "playerDescription": "You are a Chinese-American product manager in the Bay Area. Your H-1B-holder husband’s start-up just folded, so you took unpaid leave to keep the household steady while grandparents visit on tourist visas.",
-      "childDescription": "Mei has fierce colic and sleeps only when walked. Grandparents swear by rice water; the pediatrician says specialty formula. Every 3 a.m. hallway debate mixes Mandarin, Cantonese, and exhaustion."
+      "playerDescription": "You are a Chinese-American product manager in the Bay Area. Your H-1B holder husband’s start-up just folded, so you took unpaid leave to keep the household steady while grandparents visit on tourist visas.",
+      "childDescription": "Mei has fierce colic and sleeps only when walked. Grandparents swear by rice water; the pediatrician says specialty formula. Every 3 a.m. hallway debate mixes Mandarin, Shanghainese, and exhaustion."
     },
     {
       "player": { "gender": "female", "age": 32 },
@@ -62,14 +62,14 @@
     {
       "player": { "gender": "male", "age": 36 },
       "child":  { "name": "Frieda", "gender": "female", "age": 0 },
-      "playerDescription": "You founded a Berlin climate-tech start-up; your lead investor just pulled out and payroll funds run dry in 90 days.",
-      "childDescription": "Frieda loves cargo-bike rides but carries an EpiPen for severe peanut allergy. Investor calls compete with daycare pickup and reading ingredient labels in four languages."
+      "playerDescription": "You founded a Berlin climate-tech start-up; you thought you were saved when you signed the terms for your next round, but your lead investor just pulled out and payroll funds run dry in 90 days.",
+      "childDescription": "Frieda loves cargo-bike rides but carries an EpiPen for severe peanut allergy. Fundraising calls compete with daycare pickup."
     },
     {
       "player": { "gender": "female", "age": 30 },
       "child":  { "name": "Nils", "gender": "male", "age": 0 },
       "playerDescription": "You are a software designer in Stockholm starting your 240-day paid parental leave swap with your partner. High taxes cover most costs, but you still freelance to keep skills fresh.",
-      "childDescription": "Nils hit a sleep regression—now four night wakings. In a screen-free minimalist flat you cycle through white-noise machines, pacifiers, and Nordic patience."
+      "childDescription": "Nils hit a sleep regression: now four night wakings. In a screen-free minimalist flat you cycle through white-noise machines, pacifiers, and Nordic patience."
     },
     {
       "player": { "gender": "female", "age": 28 },

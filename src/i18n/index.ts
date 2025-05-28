@@ -1,6 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import { getPreferredLanguage, detectSystemLanguage } from '../utils/languageDetection';
 
 // Import translation files
 import enTranslations from './locales/en.json';
@@ -19,12 +20,34 @@ const resources = {
   }
 };
 
+// Custom language detector that implements our specific requirements
+const customLanguageDetector = {
+  name: 'customDetector',
+  lookup() {
+    // Use our custom language detection logic
+    return getPreferredLanguage();
+  },
+  cacheUserLanguage(lng: string) {
+    // Cache the language preference in localStorage
+    try {
+      localStorage.setItem('i18nextLng', lng);
+    } catch (error) {
+      console.warn('Failed to cache language preference:', error);
+    }
+  }
+};
+
+// Create a language detector instance and add our custom detector
+const languageDetector = new LanguageDetector();
+languageDetector.addDetector(customLanguageDetector);
+
 i18n
-  .use(LanguageDetector)
+  .use(languageDetector)
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'zh', // Default to Chinese since that seems to be the primary language
+    // Set fallback to English as per requirements
+    fallbackLng: 'en',
     debug: process.env.NODE_ENV === 'development',
     
     interpolation: {
@@ -32,9 +55,21 @@ i18n
     },
     
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage'],
+      // Use our custom detector first, then fallback to standard detectors
+      order: ['customDetector', 'localStorage', 'navigator', 'htmlTag'],
+      caches: ['localStorage']
     },
   });
+
+// Log the detected language for debugging
+if (process.env.NODE_ENV === 'development') {
+  const systemLang = detectSystemLanguage();
+  const finalLang = i18n.language;
+  console.log(`🌐 Language Detection Summary:
+    System Language: ${navigator.language || 'unknown'}
+    Detected Language: ${systemLang}
+    Final Language: ${finalLang}
+  `);
+}
 
 export default i18n; 

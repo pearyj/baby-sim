@@ -1,14 +1,15 @@
 import i18n from '../i18n';
 import type { GameState } from '../types/game';
 import { logger } from '../utils/logger';
+import { isSupportedLanguage, type SupportedLanguage } from '../utils/languageDetection';
 
 // Import prompt files
 import zhPrompts from '../i18n/prompts/zh.json';
 import enPrompts from '../i18n/prompts/en.json';
 
-interface PromptResources {
-  [key: string]: any;
-}
+type PromptResources = {
+  [key in SupportedLanguage]: any;
+};
 
 const promptResources: PromptResources = {
   zh: zhPrompts,
@@ -16,12 +17,18 @@ const promptResources: PromptResources = {
 };
 
 /**
- * Get the current language from i18n
+ * Get the current language from i18n with proper fallback
  */
-const getCurrentLanguage = (): string => {
+const getCurrentLanguage = (): SupportedLanguage => {
   const currentLang = i18n.language;
-  // Ensure we have a supported language, fallback to 'zh'
-  return promptResources[currentLang] ? currentLang : 'zh';
+  
+  // Ensure we have a supported language, fallback to English (as per requirements)
+  if (isSupportedLanguage(currentLang)) {
+    return currentLang;
+  }
+  
+  logger.warn(`Unsupported language '${currentLang}' detected, falling back to English`);
+  return 'en';
 };
 
 /**
@@ -329,9 +336,9 @@ export const formatEndingResult = (result: any): string => {
 /**
  * Check for missing prompts in a language
  */
-export const checkMissingPrompts = (targetLang: string = 'en'): string[] => {
+export const checkMissingPrompts = (targetLang: SupportedLanguage = 'en'): string[] => {
   const missing: string[] = [];
-  const referenceLang = targetLang === 'zh' ? 'en' : 'zh';
+  const referenceLang: SupportedLanguage = targetLang === 'zh' ? 'en' : 'zh';
   
   const checkObject = (obj: any, refObj: any, path: string = '') => {
     for (const key in refObj) {

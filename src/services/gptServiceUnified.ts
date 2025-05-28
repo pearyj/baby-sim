@@ -65,34 +65,36 @@ let globalTokenUsage: TokenUsageStats = {
 export const getActiveProvider = (): ModelProvider => {
   const provider = API_CONFIG.ACTIVE_PROVIDER;
   
+  // Since we're using serverless mode only, we don't need actual API keys/URLs
+  // These are just for identification purposes
   switch (provider) {
     case 'openai':
       return {
         name: 'openai',
-        apiUrl: API_CONFIG.OPENAI_API_URL,
-        apiKey: API_CONFIG.OPENAI_API_KEY,
-        model: API_CONFIG.OPENAI_MODEL,
+        apiUrl: 'https://api.openai.com/v1/chat/completions',
+        apiKey: '', // Not used in serverless mode
+        model: 'gpt-4o-mini',
       };
     case 'deepseek':
       return {
         name: 'deepseek',
-        apiUrl: API_CONFIG.DEEPSEEK_API_URL,
-        apiKey: API_CONFIG.DEEPSEEK_API_KEY,
-        model: API_CONFIG.DEEPSEEK_MODEL,
+        apiUrl: 'https://api.deepseek.com/v1/chat/completions',
+        apiKey: '', // Not used in serverless mode
+        model: 'deepseek-chat',
       };
     case 'volcengine':
       return {
         name: 'volcengine',
-        apiUrl: API_CONFIG.VOLCENGINE_API_URL,
-        apiKey: API_CONFIG.VOLCENGINE_API_KEY,
-        model: API_CONFIG.VOLCENGINE_MODEL,
+        apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+        apiKey: '', // Not used in serverless mode
+        model: 'deepseek-v3-250324',
       };
     default:
       return {
         name: 'volcengine',
-        apiUrl: API_CONFIG.VOLCENGINE_API_URL,
-        apiKey: API_CONFIG.VOLCENGINE_API_KEY,
-        model: API_CONFIG.VOLCENGINE_MODEL,
+        apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+        apiKey: '', // Not used in serverless mode
+        model: 'deepseek-v3-250324',
       };
   }
 };
@@ -204,9 +206,60 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
   
   const cleanedMessages = JSON.parse(JSON.stringify(messages));
   
+  // Check if we should use direct API mode (for development)
+  const useDirectAPI = API_CONFIG.DIRECT_API_MODE;
+  
+  if (useDirectAPI) {
+    // Legacy direct API call (for development only)
+    return makeDirectAPIRequest(messages, provider);
+  }
+  
+  // Use serverless function
+  try {
+    const response = await fetch(API_CONFIG.SERVERLESS_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messages: cleanedMessages,
+        provider: API_CONFIG.ACTIVE_PROVIDER,
+        streaming: false
+      })
+    });
+
+    const responseText = await response.text();
+    if (!response.ok) {
+      performanceMonitor.endTiming(`API-${provider.name}-request`);
+      logger.error(`❌ Serverless API Error:`, response.status, responseText);
+      throw new Error(`Failed serverless request: ${response.statusText || responseText}`);
+    }
+
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      performanceMonitor.endTiming(`API-${provider.name}-request`);
+      logger.error(`Failed to parse serverless response as JSON: ${responseText}`);
+      throw new Error(`Serverless function returned invalid JSON: ${e}`);
+    }
+    
+    const duration = performanceMonitor.endTiming(`API-${provider.name}-request`);
+    logger.info(`✅ Successful serverless response received in ${duration?.toFixed(2)}ms`);
+    
+    return data as OpenAIResponse;
+  } catch (error) {
+    performanceMonitor.endTiming(`API-${provider.name}-request`);
+    logger.error(`❌ Exception in serverless API call:`, error);
+    throw error;
+  }
+};
+
+// Legacy direct API function (for development only)
+const makeDirectAPIRequest = async (messages: ChatMessage[], provider: ModelProvider): Promise<OpenAIResponse> => {
   let requestBody: any = {
     model: provider.model,
-    messages: cleanedMessages,
+    messages: messages,
     temperature: 0.7,
   };
   
@@ -221,41 +274,22 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
     };
   }
   
-  try {
-    const response = await fetch(provider.apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${provider.apiKey}`
-      },
-      body: JSON.stringify(requestBody)
-    });
+  const response = await fetch(provider.apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${provider.apiKey}`
+    },
+    body: JSON.stringify(requestBody)
+  });
 
-    const responseText = await response.text();
-    if (!response.ok) {
-      performanceMonitor.endTiming(`API-${provider.name}-request`);
-      logger.error(`❌ API Error from ${provider.name}:`, response.status, responseText);
-      throw new Error(`Failed API request to ${provider.name}: ${response.statusText || responseText}`);
-    }
-
-    let data;
-    try {
-      data = JSON.parse(responseText);
-    } catch (e) {
-      performanceMonitor.endTiming(`API-${provider.name}-request`);
-      logger.error(`Failed to parse response as JSON: ${responseText}`);
-      throw new Error(`${provider.name} returned invalid JSON: ${e}`);
-    }
-    
-    const duration = performanceMonitor.endTiming(`API-${provider.name}-request`);
-    logger.info(`✅ Successful ${provider.name} response received in ${duration?.toFixed(2)}ms`);
-    
-    return data as OpenAIResponse;
-  } catch (error) {
-    performanceMonitor.endTiming(`API-${provider.name}-request`);
-    logger.error(`❌ Exception in API call to ${provider.name}:`, error);
-    throw error;
+  const responseText = await response.text();
+  if (!response.ok) {
+    logger.error(`❌ Direct API Error from ${provider.name}:`, response.status, responseText);
+    throw new Error(`Failed direct API request to ${provider.name}: ${response.statusText || responseText}`);
   }
+
+  return JSON.parse(responseText) as OpenAIResponse;
 };
 
 const logTokenUsage = (functionName: string, data: OpenAIResponse): void => {
@@ -654,8 +688,6 @@ const generateOutcomeAndNextQuestionStreaming = async (
     });
   });
 };
-
-
 
 const generateEndingStreaming = async (
   gameState: GameState,

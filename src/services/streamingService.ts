@@ -1,6 +1,7 @@
 import { logger } from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
-import { getActiveProvider } from './gptServiceUnified';
+import { getActiveProvider, type ModelProvider } from './gptServiceUnified';
+import { API_CONFIG } from '../config/api';
 
 // Types for streaming
 export interface StreamChunk {
@@ -15,6 +16,7 @@ export interface StreamChunk {
 
 export interface StreamOptions {
   onChunk: (chunk: StreamChunk) => void;
+  onProgress: (partialContent: string) => void;
   onComplete: (fullContent: string, usage?: any) => void;
   onError: (error: Error) => void;
 }
@@ -23,35 +25,6 @@ interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
-
-interface StreamingResponse {
-  choices: Array<{
-    delta: {
-      content?: string;
-      role?: string;
-    };
-    index: number;
-    finish_reason?: string;
-  }>;
-  usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
-}
-
-// Parse Server-Sent Events data
-const parseSSEData = (data: string): StreamingResponse | null => {
-  try {
-    if (data === '[DONE]') {
-      return null; // End of stream
-    }
-    return JSON.parse(data);
-  } catch (error) {
-    logger.warn('Failed to parse SSE data:', data, error);
-    return null;
-  }
-};
 
 // Make streaming request to the API
 export const makeStreamingRequest = async (
@@ -72,10 +45,124 @@ export const makeStreamingRequest = async (
   // Deep clone messages to avoid reference issues
   const cleanedMessages = JSON.parse(JSON.stringify(messages));
   
+  // Check if we should use direct API mode (for development)
+  const useDirectAPI = API_CONFIG.DIRECT_API_MODE;
+  
+  if (useDirectAPI) {
+    // Legacy direct streaming API call (for development only)
+    return makeDirectStreamingRequest(messages, provider, options);
+  }
+  
+  // Use serverless function for streaming
+  try {
+    logger.info(`Making streaming request to serverless function`);
+    
+    const response = await fetch(API_CONFIG.SERVERLESS_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messages: cleanedMessages,
+        provider: API_CONFIG.ACTIVE_PROVIDER,
+        streaming: true
+      })
+    });
+
+    if (!response.ok) {
+      performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
+      const errorText = await response.text();
+      logger.error(`❌ Streaming Serverless API Error:`, response.status, errorText);
+      throw new Error(`Failed streaming serverless request: ${response.statusText || errorText}`);
+    }
+
+    if (!response.body) {
+      throw new Error('No response body available for streaming');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullContent = '';
+    let buffer = '';
+    let usage: any = undefined;
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) {
+          logger.info('📥 Streaming completed');
+          break;
+        }
+
+        const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
+        
+        // Process complete lines
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete line in buffer
+        
+        for (const line of lines) {
+          if (line.trim() === '') continue;
+          
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            
+            if (data === '[DONE]') {
+              logger.info('📥 Received [DONE] signal');
+              continue;
+            }
+            
+            try {
+              const parsed = JSON.parse(data);
+              
+              if (parsed.usage) {
+                usage = parsed.usage;
+              }
+              
+              if (parsed.choices && parsed.choices[0] && parsed.choices[0].delta && parsed.choices[0].delta.content) {
+                const content = parsed.choices[0].delta.content;
+                fullContent += content;
+                options.onProgress(fullContent);
+              }
+            } catch (e) {
+              logger.warn('Failed to parse streaming chunk:', data);
+            }
+          }
+        }
+      }
+      
+      const duration = performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
+      logger.info(`✅ Streaming completed in ${duration?.toFixed(2)}ms`);
+      
+      options.onComplete(fullContent, usage);
+      
+    } finally {
+      reader.releaseLock();
+    }
+    
+  } catch (error) {
+    performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
+    logger.error(`❌ Exception in streaming serverless API call:`, error);
+    
+    if (error instanceof Error) {
+      options.onError(error);
+    } else {
+      options.onError(new Error('Unknown streaming error'));
+    }
+  }
+};
+
+// Legacy direct streaming function (for development only)
+const makeDirectStreamingRequest = async (
+  messages: ChatMessage[],
+  provider: ModelProvider,
+  options: StreamOptions
+): Promise<void> => {
   // Create the request body based on provider
   let requestBody: any = {
     model: provider.model,
-    messages: cleanedMessages,
+    messages: messages,
     temperature: 0.7,
     stream: true, // Enable streaming
   };
@@ -98,136 +185,82 @@ export const makeStreamingRequest = async (
     logger.info("Using OpenAI streaming request format");
   }
 
+  const response = await fetch(provider.apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${provider.apiKey}`,
+      'Accept': 'text/event-stream',
+    },
+    body: JSON.stringify(requestBody)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    logger.error(`❌ Direct Streaming API Error from ${provider.name}:`, response.status, errorText);
+    throw new Error(`Failed direct streaming request to ${provider.name}: ${response.statusText || errorText}`);
+  }
+
+  if (!response.body) {
+    throw new Error('No response body available for streaming');
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let fullContent = '';
+  let buffer = '';
+  let usage: any = undefined;
+
   try {
-    logger.info(`Making streaming request to ${provider.apiUrl}`);
-    
-    const response = await fetch(provider.apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${provider.apiKey}`,
-        'Accept': 'text/event-stream',
-      },
-      body: JSON.stringify(requestBody)
-    });
+    while (true) {
+      const { done, value } = await reader.read();
+      
+      if (done) {
+        logger.info('📥 Direct streaming completed');
+        break;
+      }
 
-    if (!response.ok) {
-      performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
-      const errorText = await response.text();
-      logger.error(`❌ Streaming API Error from ${provider.name}:`, response.status, errorText);
-      throw new Error(`Failed streaming request to ${provider.name}: ${response.statusText || errorText}`);
-    }
-
-    if (!response.body) {
-      throw new Error('No response body available for streaming');
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let fullContent = '';
-    let buffer = '';
-    let usage: any = undefined;
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
+      const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk;
+      
+      // Process complete lines
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || ''; // Keep incomplete line in buffer
+      
+      for (const line of lines) {
+        if (line.trim() === '') continue;
         
-        if (done) {
-          break;
-        }
-
-        // Decode the chunk and add to buffer
-        buffer += decoder.decode(value, { stream: true });
-        
-        // Process complete lines
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || ''; // Keep incomplete line in buffer
-
-        for (const line of lines) {
-          const trimmedLine = line.trim();
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
           
-          if (trimmedLine === '') continue;
-          if (trimmedLine === 'data: [DONE]') {
-            // Stream completed
-            logger.info('✅ Streaming completed');
-            const duration = performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
-            logger.info(`✅ Streaming response completed in ${duration?.toFixed(2)}ms`);
-            
-            options.onChunk({
-              content: '',
-              isComplete: true,
-              usage
-            });
-            options.onComplete(fullContent, usage);
-            return;
+          if (data === '[DONE]') {
+            logger.info('📥 Received [DONE] signal');
+            continue;
           }
           
-          if (trimmedLine.startsWith('data: ')) {
-            const dataStr = trimmedLine.slice(6); // Remove 'data: ' prefix
-            const parsed = parseSSEData(dataStr);
+          try {
+            const parsed = JSON.parse(data);
             
-            if (parsed) {
-              const choice = parsed.choices?.[0];
-              
-              if (choice?.delta?.content) {
-                const chunkContent = choice.delta.content;
-                fullContent += chunkContent;
-                
-                options.onChunk({
-                  content: chunkContent,
-                  isComplete: false
-                });
-              }
-              
-              // Store usage info if available
-              if (parsed.usage) {
-                usage = parsed.usage;
-              }
-              
-              // Check for completion
-              if (choice?.finish_reason) {
-                logger.info('✅ Streaming completed with finish_reason:', choice.finish_reason);
-                const duration = performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
-                logger.info(`✅ Streaming response completed in ${duration?.toFixed(2)}ms`);
-                
-                options.onChunk({
-                  content: '',
-                  isComplete: true,
-                  usage
-                });
-                options.onComplete(fullContent, usage);
-                return;
-              }
+            if (parsed.usage) {
+              usage = parsed.usage;
             }
+            
+            if (parsed.choices && parsed.choices[0] && parsed.choices[0].delta && parsed.choices[0].delta.content) {
+              const content = parsed.choices[0].delta.content;
+              fullContent += content;
+              options.onProgress(fullContent);
+            }
+          } catch (e) {
+            logger.warn('Failed to parse streaming chunk:', data);
           }
         }
       }
-      
-      // If we exit the loop without a proper completion, treat as complete
-      logger.info('✅ Streaming ended (no explicit completion signal)');
-      const duration = performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
-      logger.info(`✅ Streaming response ended in ${duration?.toFixed(2)}ms`);
-      
-      options.onChunk({
-        content: '',
-        isComplete: true,
-        usage
-      });
-      options.onComplete(fullContent, usage);
-      
-    } finally {
-      reader.releaseLock();
     }
-
-  } catch (error) {
-    performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
-    logger.error(`❌ Exception in streaming API call to ${provider.name}:`, error);
     
-    if (error instanceof Error) {
-      options.onError(error);
-    } else {
-      options.onError(new Error('Unknown streaming error'));
-    }
+    options.onComplete(fullContent, usage);
+    
+  } finally {
+    reader.releaseLock();
   }
 };
 
@@ -343,6 +376,10 @@ export const makeStreamingJSONRequest = async (
           }
         }
       }
+    },
+    onProgress: (partialContent) => {
+      // Pass through progress updates
+      options.onProgress(partialContent);
     },
     onComplete: (fullContent, usage) => {
       // This is a backup - should already be handled in onChunk when isComplete=true

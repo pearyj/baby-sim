@@ -1,6 +1,7 @@
 import React from 'react';
 import { IconButton, Tooltip, Box } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { getLanguageFlag, getLanguageDisplayName, type SupportedLanguage } from '../../utils/languageDetection';
 
 export const LanguageToggle: React.FC = () => {
   const { i18n } = useTranslation();
@@ -11,11 +12,15 @@ export const LanguageToggle: React.FC = () => {
   };
 
   const getCurrentFlag = () => {
-    return i18n.language === 'en' ? '🇺🇸' : '🇨🇳';
+    return getLanguageFlag(i18n.language as SupportedLanguage);
   };
 
   const getTooltipText = () => {
-    return i18n.language === 'en' ? 'Switch to 中文' : 'Switch to English';
+    const currentLang = i18n.language as SupportedLanguage;
+    const targetLang = currentLang === 'en' ? 'zh' : 'en';
+    const targetLangName = getLanguageDisplayName(targetLang);
+    
+    return `Switch to ${targetLangName}`;
   };
 
   return (

@@ -7,8 +7,8 @@ This document describes the internationalization setup for the Baby Raising Simu
 The app uses `react-i18next` for internationalization, providing:
 - Language toggle between English (en) and Chinese (zh)
 - Persistent language preference in localStorage
-- Automatic browser language detection
-- Fallback to Chinese as the default language
+- **Automatic system language detection with intelligent fallback**
+- **Defaults to English for unsupported languages (as per requirements)**
 
 ## Setup
 
@@ -20,11 +20,32 @@ The app uses `react-i18next` for internationalization, providing:
 ### Configuration
 The i18n configuration is located in `src/i18n/index.ts` and is automatically initialized when the app starts.
 
+## Language Detection Logic
+
+The app implements a sophisticated language detection system that follows this priority order:
+
+1. **Saved User Preference**: Previously saved language in localStorage
+2. **System Language Detection**: Automatically detects the user's system language
+   - If system language is Chinese (zh, zh-CN, zh-TW, etc.) → Use Chinese
+   - If system language is English (en, en-US, en-GB, etc.) → Use English
+   - **If system language is any other language → Default to English**
+3. **Fallback**: English (en) if detection fails
+
+### Custom Language Detection Utility
+
+The language detection is handled by `src/utils/languageDetection.ts` which provides:
+
+- `detectSystemLanguage()`: Detects system language with fallback logic
+- `getPreferredLanguage()`: Gets the preferred language considering saved preferences
+- `isSupportedLanguage()`: Checks if a language is supported
+- `getLanguageDisplayName()`: Gets display name for a language
+- `getLanguageFlag()`: Gets flag emoji for a language
+
 ## Translation Files
 
 Translation files are located in `src/i18n/locales/`:
-- `zh.json` - Chinese translations (default)
-- `en.json` - English translations
+- `zh.json` - Chinese translations
+- `en.json` - English translations (default fallback)
 
 ### Structure
 ```json
@@ -142,14 +163,25 @@ const labels = getGameLabels(); // Object with all formatted labels
 
 ## Language Detection
 
+**New Enhanced Detection Logic:**
+
 The app detects language in this order:
 1. Previously saved language in localStorage
-2. Browser language preference
-3. Fallback to Chinese (zh)
+2. **System language detection with intelligent fallback:**
+   - Chinese system language → Chinese interface
+   - English system language → English interface
+   - **Any other system language → English interface (default)**
+3. Fallback to English if all detection methods fail
+
+**Examples:**
+- User with Chinese system (zh-CN) → App loads in Chinese
+- User with English system (en-US) → App loads in English  
+- User with French system (fr-FR) → App loads in English (fallback)
+- User with Spanish system (es-ES) → App loads in English (fallback)
 
 ## Switching Languages
 
-Users can switch languages using the language toggle in the header. The preference is automatically saved and will persist across browser sessions.
+Users can switch languages using the language toggle in the header. The preference is automatically saved and will persist across browser sessions, overriding system language detection.
 
 ## Migration Guide
 
