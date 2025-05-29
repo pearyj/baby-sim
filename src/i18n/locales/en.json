@@ -43,7 +43,7 @@
     "childGrowing": "{{childName}} is growing up...",
     "timelineEmpty": "Every precious moment of raising your child will be recorded here.",
     "timelineTitle": "Growth Timeline",
-    "journeyStart": "Starting from age 0, you will face various parenting choices that will affect your child's growth and your family relationship.",
+    "journeyStart": "Starting from age 1, you will face various parenting choices that will affect your child's growth and your family relationship.",
     "readyToBegin": "Are you ready to begin this journey?",
     "currentAge": "Current Age",
     "situation": "Situation:",
@@ -124,7 +124,7 @@
   },
   "messages": {
     "error": "An error occurred",
-    "journeyComplete": "Parenting Journey Complete",
+    "journeyComplete": "Cyber-Parenting Journey Complete",
     "childGrownUp": "{{childName}} has grown up and is now 18 years old",
     "endingGenerating": "Generating ending...",
     "endingComplete": "Ending review complete.",
@@ -135,7 +135,11 @@
     "lookToFuture": "Looking forward to {{childName}}'s bright future",
     "gameInProgress": "Parenting in progress...",
     "gameStateUnclear": "Please wait, game state ({{gamePhase}}) is not clearly handled.",
-    "continueError": "Sorry, there was a problem continuing the game."
+    "continueError": "Sorry, there was a problem continuing the game.",
+    "sharePromotionText": "Raise your own baby at babysim.fun!",
+    "downloadingImage": "Downloading image...",
+    "downloadComplete": "Image downloaded successfully!",
+    "downloadError": "Failed to download image. Please try again."
   },
   "welcome": {
     "title": "Baby Simulator",
@@ -159,7 +163,7 @@
     "readyToStart": "Ready to take on the challenge to become a parent?"
   },
   "intro": {
-    "birthStory": "After fierce competition among 300 million sperm, difficult competition among dozens of follicles, plus a long and arduous ten-month pregnancy, your baby has finally decided to come into the world, ready to challenge you with the sweetest yet most painful experience!",
+    "birthStory": "After fierce competition among 300 million sperm and dozens of follicles, plus a long and arduous ten-month pregnancy, your baby has finally decided to come into the world, ready to challenge you with the sweetest yet most painful experience!",
     "generatingSettings": "Generating initial settings...",
     "generatingGameSettings": "Generating game settings...",
     "generatingResult": "Generating result..."
@@ -167,6 +171,8 @@
   "info": {
     "title": "Information Center",
     "close": "Close",
+    "wordsFromDevelopers": "Words from developers",
+    "wordsFromDevelopersContent": "Hi there!\n\nThank you for playing The Baby Simulator. I created this simple text-based game after watching many of my friends - people my own age - embark on parenthood and face firsthand the joys, surprises, and challenges of raising a child. Through this simulator, I hope to give players a small glimpse into the difficult choices, sweet milestones, and sometimes unexpected hurdles that come with caring for a little one.\n\nIt's also extra fun to play with someone else! Debating each tough question together can be a fast (and often hilarious) way to discover whether you'd make great co-parents in real life.\n\nI poured my own curiosity, respect, and a touch of empathy into every scenario, and I hope the experience helps you appreciate the real-world journey of parenthood a bit more, whether you're already a parent, planning to be one, or just curious about what it's like. Your feedback and stories are what keep this project growing, so please don't hesitate to share your thoughts or suggestions.\n\nHappy parenting (in simulation),\n— pearyj",
     "privacyPolicy": "Privacy Policy",
     "privacyContent": "1. Information We Collect\n\nNo personal data: We do not collect or store names, emails, IP addresses, or any other personally identifying information.\n\nAnonymous usage data: We may collect aggregate statistics and anonymous crash reports solely to improve stability.\n\n2. How We Use Information\n\nTo diagnose and fix bugs.\n\nTo understand overall usage patterns (e.g. how many sessions per day).\n\n3. Cookies & Tracking\nWe do not use cookies or third-party trackers.\n\n4. Data Retention\nAnonymous logs and crash reports are retained for the duration needed to help improve and maintain the Game.\n\n5. Third-Party Services\nWe do not share any data with third parties.\n\n6. Children's Privacy\nWe do not knowingly collect information from anyone under 13. If you are under 13, please play with parental guidance.\n\n7. Your Rights\nBecause we collect no personal data, there are no personal-data requests to submit.\n\n8. Changes to This Policy\nWe may update this Policy; changes take effect when posted.",
     "privacyDescription": "Last updated: May 27, 2025",

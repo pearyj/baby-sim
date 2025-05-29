@@ -1,10 +1,23 @@
+// Centralised runtime configuration for API access.
+// Values can be overridden via Vite env variables so we do **not** need to change code
+// when we switch between local-development and production deployments.
+//
+// ──  Available environment variables  ─────────────────────────────────────────
+// VITE_SERVERLESS_API_URL   – full URL to your deployed Vercel Function. Falls back to "/api/chat".
+// VITE_DIRECT_API_MODE      – "true" to enable direct calls to the model provider (development only).
+// VITE_OPENAI_API_KEY       – Optional provider keys for local direct mode.
+// VITE_DEEPSEEK_API_KEY     – 〃
+// VITE_VOLCENGINE_API_KEY   – 〃
+// VITE_ACTIVE_PROVIDER      – Force a provider (openai | deepseek | volcengine).
+// ───────────────────────────────────────────────────────────────────────────────
+
 export const API_CONFIG = {
-  // Serverless function endpoint (will be your Vercel domain)
-  SERVERLESS_API_URL: '/api/chat',
-  
-  // Current active model selection
-  ACTIVE_PROVIDER: 'volcengine', // Options: 'openai', 'deepseek', or 'volcengine'
-  
-  // Force serverless mode for security - no direct API access
-  DIRECT_API_MODE: false,
+  // Serverless fallback (production)
+  SERVERLESS_API_URL: import.meta.env.VITE_SERVERLESS_API_URL || '/api/chat',
+
+  // Model provider in use (can be switched in dev via DevModelSwitcher)
+  ACTIVE_PROVIDER: (import.meta.env.VITE_ACTIVE_PROVIDER as 'openai' | 'deepseek' | 'volcengine') || 'volcengine',
+
+  // Local direct-to-provider mode (only enable while developing)
+  DIRECT_API_MODE: (import.meta.env.VITE_DIRECT_API_MODE === 'true') || import.meta.env.DEV,
 }; 

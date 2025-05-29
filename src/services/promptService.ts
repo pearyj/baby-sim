@@ -109,9 +109,9 @@ export const generateSystemPrompt = (): string => {
  * Generate question prompt
  */
 export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequirements: boolean = true): string => {
-  logger.info(`📝 Generating question prompt for child age ${gameState.child.age + 1}`);
+  logger.info(`📝 Generating question prompt for child age ${gameState.child.age}`);
   
-  const nextAge = gameState.child.age + 1;
+  const nextAge = gameState.child.age;
   
   // Prepare financial header
   let financialHeader = "";
@@ -251,7 +251,7 @@ export const generateOutcomeAndNextQuestionPrompt = (
   // Add format section based on whether next question is needed
   let formatSection: string;
   if (shouldGenerateNextQuestion) {
-    const nextAge = gameState.child.age + 1;
+    const nextAge = gameState.child.age + 2;
     const template = getPrompt('outcome.withNextQuestion');
     formatSection = interpolatePrompt(template, { nextAge });
   } else {

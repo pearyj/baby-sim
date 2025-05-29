@@ -65,38 +65,31 @@ let globalTokenUsage: TokenUsageStats = {
 export const getActiveProvider = (): ModelProvider => {
   const provider = API_CONFIG.ACTIVE_PROVIDER;
   
-  // Since we're using serverless mode only, we don't need actual API keys/URLs
-  // These are just for identification purposes
-  switch (provider) {
-    case 'openai':
-      return {
-        name: 'openai',
-        apiUrl: 'https://api.openai.com/v1/chat/completions',
-        apiKey: '', // Not used in serverless mode
-        model: 'gpt-4o-mini',
-      };
-    case 'deepseek':
-      return {
-        name: 'deepseek',
-        apiUrl: 'https://api.deepseek.com/v1/chat/completions',
-        apiKey: '', // Not used in serverless mode
-        model: 'deepseek-chat',
-      };
-    case 'volcengine':
-      return {
-        name: 'volcengine',
-        apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-        apiKey: '', // Not used in serverless mode
-        model: 'deepseek-v3-250324',
-      };
-    default:
-      return {
-        name: 'volcengine',
-        apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-        apiKey: '', // Not used in serverless mode
-        model: 'deepseek-v3-250324',
-      };
-  }
+  // Helper to read provider keys from Vite env ─ only needed for DIRECT_API_MODE=true.
+  const env = import.meta.env;
+
+  const providers: Record<string, ModelProvider> = {
+    openai: {
+      name: 'openai',
+      apiUrl: 'https://api.openai.com/v1/chat/completions',
+      apiKey: env.VITE_OPENAI_API_KEY || '',
+      model: 'gpt-4o-mini',
+    },
+    deepseek: {
+      name: 'deepseek',
+      apiUrl: 'https://api.deepseek.com/v1/chat/completions',
+      apiKey: env.VITE_DEEPSEEK_API_KEY || '',
+      model: 'deepseek-chat',
+    },
+    volcengine: {
+      name: 'volcengine',
+      apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+      apiKey: env.VITE_VOLCENGINE_API_KEY || '',
+      model: 'deepseek-v3-250324',
+    }
+  };
+
+  return providers[provider] || providers.volcengine;
 };
 
 export const switchProvider = (): ModelProvider => {
@@ -337,7 +330,7 @@ export interface InitialStateType {
   child: {
     name: string;
     gender: 'male' | 'female';
-    age: 0;
+    age: number;
   };
   playerDescription: string;
   childDescription: string;
@@ -575,6 +568,7 @@ const generateEndingSync = async (gameState: GameState): Promise<string> => {
 };
 
 // Streaming implementations
+
 const generateQuestionStreaming = async (
   gameState: GameState,
   onProgress: (partialContent: string) => void
@@ -726,4 +720,4 @@ const generateEndingStreaming = async (
       }
     });
   });
-}; 
+};

@@ -123,6 +123,13 @@ export const makeStreamingRequest = async (
               if (parsed.choices && parsed.choices[0] && parsed.choices[0].delta && parsed.choices[0].delta.content) {
                 const content = parsed.choices[0].delta.content;
                 fullContent += content;
+
+                // Emit detailed chunk information if consumer needs it
+                if (options.onChunk) {
+                  options.onChunk({ content, isComplete: false });
+                }
+
+                // Still forward aggregated progress to listeners that only care about text so far
                 options.onProgress(fullContent);
               }
             } catch (e) {
@@ -135,6 +142,11 @@ export const makeStreamingRequest = async (
       const duration = performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
       logger.info(`✅ Streaming completed in ${duration?.toFixed(2)}ms`);
       
+      // Notify listeners that the stream has finished
+      if (options.onChunk) {
+        options.onChunk({ content: '', isComplete: true, usage });
+      }
+
       options.onComplete(fullContent, usage);
       
     } finally {
@@ -248,6 +260,13 @@ const makeDirectStreamingRequest = async (
             if (parsed.choices && parsed.choices[0] && parsed.choices[0].delta && parsed.choices[0].delta.content) {
               const content = parsed.choices[0].delta.content;
               fullContent += content;
+
+              // Emit detailed chunk information if consumer needs it
+              if (options.onChunk) {
+                options.onChunk({ content, isComplete: false });
+              }
+
+              // Still forward aggregated progress to listeners that only care about text so far
               options.onProgress(fullContent);
             }
           } catch (e) {
@@ -257,6 +276,11 @@ const makeDirectStreamingRequest = async (
       }
     }
     
+    // Notify listeners that the stream has finished
+    if (options.onChunk) {
+      options.onChunk({ content: '', isComplete: true, usage });
+    }
+
     options.onComplete(fullContent, usage);
     
   } finally {

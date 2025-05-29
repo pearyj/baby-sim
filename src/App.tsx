@@ -1,23 +1,16 @@
-import { Header } from './components/layout/Header'
-import { QuestionDisplay, FeedbackDisplay } from './features/game'
-import { TimelineProvider } from './features/timeline'
-import { WelcomeScreen, InfoPage } from './pages'
-import { PerformanceMonitor } from './components/dev'
-import { StreamingTextDisplay } from './components/ui/StreamingTextDisplay'
-import { useTranslation } from 'react-i18next'
-import ReactMarkdown from 'react-markdown'
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  Button, 
-  CircularProgress,
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
   Card,
   CardContent,
+  CircularProgress,
   Chip,
-  Fade
-} from '@mui/material'
-import { styled } from '@mui/material/styles'
+  Fade,
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { useTranslation } from 'react-i18next';
 import './App.css'
 
 import useGameStore from './stores/useGameStore'
@@ -26,6 +19,15 @@ import { logger } from './utils/logger'
 import { performanceMonitor } from './utils/performanceMonitor'
 import { checkAllPrompts, testPromptGeneration } from './utils/promptChecker'
 import { useEffect } from 'react'
+import { ShareableEndingCard } from './components/ShareableEndingCard'
+import { QuestionDisplay } from './features/game/QuestionDisplay'
+import { FeedbackDisplay } from './features/game/FeedbackDisplay'
+import { WelcomeScreen } from './pages/WelcomeScreen'
+import { TimelineProvider } from './features/timeline/TimelineProvider'
+import { Header } from './components/layout/Header'
+import { InfoPage } from './pages/InfoPage'
+import { StreamingTextDisplay } from './components/ui/StreamingTextDisplay'
+import { PerformanceMonitor } from './components/dev/PerformanceMonitor'
 // Removed direct gptService and storageService imports
 // Removed Question, GameState, GameStateToStore type imports from local files if not used by App.tsx directly
 
@@ -66,8 +68,19 @@ const ErrorCard = styled(Card)(({ theme }) => ({
 }));
 
 const EndingCard = styled(Card)(({ theme }) => ({
-  background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.secondary.light} 100%)`,
+  background: `url('/endingbkgd.png')`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'bottom center',
+  backgroundRepeat: 'no-repeat',
   marginBottom: theme.spacing(3),
+  color: '#5D4037',
+  '& .MuiTypography-root': {
+    color: '#5D4037',
+  },
+  '& .MuiChip-root': {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    color: theme.palette.primary.main,
+  },
 }));
 
 function App() {
@@ -85,6 +98,8 @@ function App() {
     currentQuestion,
     feedbackText,
     endingSummaryText,
+    playerDescription,
+    childDescription,
     storeIsLoading,
     error,
     selectOption,
@@ -108,6 +123,8 @@ function App() {
     currentQuestion: state.currentQuestion,
     feedbackText: state.feedbackText,
     endingSummaryText: state.endingSummaryText,
+    playerDescription: state.playerDescription,
+    childDescription: state.childDescription,
     storeIsLoading: state.isLoading,
     error: state.error,
     startGame: state.startGame,
@@ -239,83 +256,84 @@ function App() {
         return (
           <Container maxWidth="md" sx={{ py: 3 }}>
             <Fade in timeout={500}>
-              <EndingCard elevation={3}>
-                <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h4" sx={{ 
-                    textAlign: 'center', 
-                    mb: 3, 
-                    fontWeight: 600,
-                    background: 'linear-gradient(45deg, #6750A4 30%, #7D5260 90%)',
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}>
-                    {t('messages.journeyComplete')}
-                  </Typography>
-                  
-                  <Box sx={{ textAlign: 'center', mb: 3 }}>
-                    <Chip 
-                      label={t('messages.childGrownUp', { childName: child?.name || t('game.childName') })}
-                      color="primary"
-                      variant="outlined"
-                      sx={{ fontSize: '1rem', py: 1 }}
-                    />
-                  </Box>
-                  
-                  <Box sx={{ mb: 4 }}>
-                    <Typography variant="body1" component="div" sx={{ lineHeight: 1.7 }}>
-                      <ReactMarkdown>{endingSummaryText || (isLoading && gamePhase === 'ending_game' ? t('messages.endingGenerating') : t('messages.endingComplete'))}</ReactMarkdown>
-                    </Typography>
-                  </Box>
-                  
-                  {/* Show loading encouragement instead of restart button while results are loading */}
-                  {isLoading && gamePhase === 'ending_game' ? (
-                    <Box sx={{ textAlign: 'center', mb: 3 }}>
-                      <Box sx={{ mb: 2 }}>
-                        <CircularProgress size={30} />
+              <Box>
+                {/* Show loading encouragement instead of shareable card while results are loading */}
+                {isLoading && gamePhase === 'ending_game' ? (
+                  <EndingCard elevation={3}>
+                    <CardContent sx={{ p: 4 }}>
+                      <Typography variant="h4" sx={{ 
+                        textAlign: 'center', 
+                        mb: 3, 
+                        fontWeight: 600,
+                        background: 'linear-gradient(45deg, #8D6E63 30%, #5D4037 90%)',
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        textShadow: '0px 2px 4px rgba(255, 255, 255, 0.3), 0px 4px 8px rgba(255, 255, 255, 0.2)',
+                        filter: 'drop-shadow(0px 2px 4px rgba(255, 255, 255, 0.3))',
+                      }}>
+                        {t('messages.journeyComplete')}
+                      </Typography>
+                      
+                      <Box sx={{ textAlign: 'center', mb: 3 }}>
+                        <Chip 
+                          label={t('messages.childGrownUp', { childName: child?.name || t('game.childName') })}
+                          color="primary"
+                          variant="outlined"
+                          sx={{ fontSize: '1rem', py: 1 }}
+                        />
                       </Box>
-                      <Typography variant="h6" sx={{ 
-                        mb: 2,
-                        fontWeight: 500,
-                        color: 'primary.main'
-                      }}>
-                        {t('messages.generatingReport')}
-                      </Typography>
-                      <Typography variant="body2" sx={{ 
-                        fontStyle: 'italic',
-                        color: 'text.secondary',
-                        mb: 2,
-                        lineHeight: 1.6
-                      }}>
-                        {t('messages.reviewJourney', { childName: child?.name || t('game.childName') })}<br/>
-                        {t('messages.analyzeDecisions')}<br/>
-                        {t('messages.evaluateGrowth')}<br/>
-                        {t('messages.lookToFuture', { childName: child?.name || t('game.childName') })}
-                      </Typography>
-                      <Typography variant="body2" sx={{ 
-                        color: 'primary.dark',
-                        fontWeight: 500
-                      }}>
-                      </Typography>
-                    </Box>
-                  ) : (
-                    <>
                       
-                      
+                      <Box sx={{ textAlign: 'center', mb: 3 }}>
+                        <Box sx={{ mb: 2 }}>
+                          <CircularProgress size={30} />
+                        </Box>
+                        <Typography variant="h6" sx={{ 
+                          mb: 2,
+                          fontWeight: 500,
+                          color: '#5D4037',
+                          textShadow: '1px 1px 2px rgba(255, 255, 255, 0.8)',
+                        }}>
+                          {t('messages.generatingReport')}
+                        </Typography>
+                        <Typography variant="body2" sx={{ 
+                          fontStyle: 'italic',
+                          color: '#8D6E63',
+                          mb: 2,
+                          lineHeight: 1.6,
+                          textShadow: '1px 1px 2px rgba(255, 255, 255, 0.8)',
+                        }}>
+                          {t('messages.reviewJourney', { childName: child?.name || t('game.childName') })}<br/>
+                          {t('messages.analyzeDecisions')}<br/>
+                          {t('messages.evaluateGrowth')}<br/>
+                          {t('messages.lookToFuture', { childName: child?.name || t('game.childName') })}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </EndingCard>
+                ) : (
+                  <>
+                    <ShareableEndingCard
+                      childName={child?.name || t('game.childName')}
+                      endingSummaryText={endingSummaryText || t('messages.endingComplete')}
+                      playerDescription={playerDescription || undefined}
+                      childDescription={childDescription || undefined}
+                    />
+                    
+                    <Box sx={{ mt: 3, textAlign: 'center' }}>
                       <Button
                         onClick={(e) => { e.preventDefault(); resetToWelcome(); }}
                         variant="contained"
                         color="primary"
-                        fullWidth
                         size="large"
-                        sx={{ py: 1.5, fontSize: '1.1rem' }}
+                        sx={{ py: 1.5, fontSize: '1.1rem', minWidth: 200 }}
                       >
                         {t('actions.restartNewJourney')}
                       </Button>
-                    </>
-                  )}
-                </CardContent>
-              </EndingCard>
+                    </Box>
+                  </>
+                )}
+              </Box>
             </Fade>
           </Container>
         );

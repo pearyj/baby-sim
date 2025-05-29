@@ -21,6 +21,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 import GavelIcon from '@mui/icons-material/Gavel';
 import WarningIcon from '@mui/icons-material/Warning';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
@@ -90,8 +91,37 @@ export const InfoPage: React.FC<InfoPageProps> = ({ open, onClose }) => {
 
       <DialogContent sx={{ padding: 0 }}>
         <Box sx={{ p: 2 }}>
-          {/* Privacy Policy Section */}
+          {/* Words from developers Section */}
           <Accordion defaultExpanded>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="developers-content"
+              id="developers-header"
+            >
+              <SectionIcon>
+                <FavoriteIcon color="primary" />
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  {t('info.wordsFromDevelopers')}
+                </Typography>
+              </SectionIcon>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Box sx={{ p: 2 }}>
+                <Typography 
+                  variant="body2" 
+                  color="text.primary"
+                  sx={{ whiteSpace: 'pre-line', textAlign: 'left', lineHeight: 1.6 }}
+                >
+                  {t('info.wordsFromDevelopersContent')}
+                </Typography>
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+
+          <Divider sx={{ my: 2 }} />
+
+          {/* Privacy Policy Section */}
+          <Accordion>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="privacy-content"

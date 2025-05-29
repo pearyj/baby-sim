@@ -155,7 +155,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
     financialBurden: 0, // Initialize financialBurden
     isBankrupt: false, // Initialize isBankrupt
     
-    currentAge: 0,
+    currentAge: 1,
     currentQuestion: null,
     nextQuestion: null,
     isLoading: false,
@@ -246,7 +246,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
           playerDescription: null,
           childDescription: null,
           initialGameNarrative: null,
-          currentAge: 0,
+          currentAge: 1,
           currentQuestion: null,
           nextQuestion: null,
           showFeedback: false,
@@ -329,10 +329,10 @@ const useGameStore = create<GameStoreState>((set, get) => {
 
           const narrative = generateNarrative(initialScenarioState);
 
-          // Initial history entry for game start (age 0, before first question)
+          // Initial history entry for game start (age 1, before first question)
           const readyToBeginText = i18n.t('ui.readyToBegin');
           const initialHistoryEntry: HistoryEntry = {
-            age: 0,
+            age: 1,
             question: i18n.language === 'en' ? "Game Start" : "游戏开始",
             choice: i18n.language === 'en' ? "Begin parenting journey" : "开始养育旅程",
             outcome: narrative.substring(0, narrative.lastIndexOf(`\n\n${readyToBeginText}`)) // Get only the descriptive part
@@ -340,13 +340,13 @@ const useGameStore = create<GameStoreState>((set, get) => {
 
           return {
             player: initialScenarioState.player,
-            child: { ...initialScenarioState.child, age: 0 }, // Ensure child age starts at 0
+            child: { ...initialScenarioState.child, age: 1 }, // Change initial age from 0 to 1
             playerDescription: initialScenarioState.playerDescription,
             childDescription: initialScenarioState.childDescription,
             wealthTier: initialScenarioState.wealthTier || 'middle', // Persist wealthTier
             financialBurden: calculatedFinancialBurden, // Persist calculated financialBurden
             isBankrupt: false, // Initialize isBankrupt for a new game
-            currentAge: 0, // Current display age starts at 0
+            currentAge: 1, // Change current display age from 0 to 1
             history: [initialHistoryEntry],
             initialGameNarrative: narrative, 
             feedbackText: narrative, 
@@ -393,8 +393,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
     startGame: (player: Player, child: Child, playerDescription: string, childDescription: string) => {
       const currentPhase = get().gamePhase;
       if (currentPhase === 'uninitialized' || currentPhase === 'initialization_failed') {
-        // Correctly set child age to 0 for preloadedState and add default wealthTier
-        get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 0 }, playerDescription, childDescription, wealthTier: 'middle' } });
+        // Correctly set child age to 1 for preloadedState and add default wealthTier
+        get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 1 }, playerDescription, childDescription, wealthTier: 'middle' } });
       } else if (currentPhase === 'welcome') {
         if (get().initialGameNarrative) {
            const newState = {
@@ -407,8 +407,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
            set(prevState => ({ ...prevState, ...newState }));
            saveGameState(get());
         } else {
-          // Correctly set child age to 0 for preloadedState and add default wealthTier
-          get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 0 }, playerDescription, childDescription, wealthTier: 'middle' } }); 
+          // Correctly set child age to 1 for preloadedState and add default wealthTier
+          get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 1 }, playerDescription, childDescription, wealthTier: 'middle' } }); 
         }
       } else {
         logger.warn("startGame called in an unexpected phase:", get().gamePhase);
@@ -540,7 +540,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
         logger.log("Preparing game state for API call");
         const fullGameStateForApi: ApiGameState = {
             player: player!,
-            child: child!, // child.age is the current age (e.g., 0 for first question set)
+            child: child!, // child.age is the current age (e.g., 1 for first question set)
             playerDescription: playerDescription!,
             childDescription: childDescription!,
             history: history,
@@ -553,11 +553,10 @@ const useGameStore = create<GameStoreState>((set, get) => {
         };
         
         logger.log("Making API call to fetch question for age:", child.age);
-        // fetchQuestion service is expected to ask for child.age (e.g. 0-th year events)
-        // or child.age+1 (e.g. events for 1-year-old if child.age is 0)
-        // The gptService.generateQuestionPrompt uses `gameState.child.age + 1`.
-        // So if child.age is 0 (meaning currently 0 years old), it will ask for events for a 1-year-old.
-        // This seems acceptable; the game narrative can adapt. The history will record event at age 0.
+        // fetchQuestion service is expected to ask for child.age (e.g. 1-year-old events)
+        // The gptService.generateQuestionPrompt uses `gameState.child.age`.
+        // So if child.age is 1 (meaning currently 1 years old), it will ask for events for a 1-year-old.
+        // This is now correct with the new age progression system.
         let question;
         try {
           question = await gptService.generateQuestion(fullGameStateForApi);
@@ -1083,11 +1082,11 @@ const useGameStore = create<GameStoreState>((set, get) => {
       logger.log("Continue game called. Current age:", currentChildAge, "History entries:", history.length);
 
       // Special handling for initial game state - when we have just initialized the game
-      // and we're showing the initial narrative (at age 0)
+      // and we're showing the initial narrative (at age 1)
       if (history.length === 1 && history[0].question === "游戏开始") { 
           logger.log("DEBUG: Entered initial narrative block in continueGame"); // New Log
           logger.log("Continuing from initial narrative to first question");
-          // Load first question (for age 0)
+          // Load first question (for age 1)
           try {
             // Reset player and child in localStorage to make sure we're working with the most up-to-date data
             const newState = { 
@@ -1173,8 +1172,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
         }
       } else {
         // Not ending, advance age and load next question.
-        logger.log("Advancing to next age:", currentChildAge + 1);
-        const nextAge = currentChildAge + 1;
+        logger.log("Advancing to next age:", currentChildAge + 2);
+        const nextAge = currentChildAge + 2;
         const newState = {
             showFeedback: false, 
             feedbackText: null,
@@ -1224,7 +1223,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
         history: [],
         feedbackText: null,
         endingSummaryText: null,
-        currentAge: 0,
+        currentAge: 1,
         currentQuestion: null,
         nextQuestion: null,
         isLoading: false,
@@ -1290,7 +1289,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
       
       const mockHistory: HistoryEntry[] = [
         {
-          age: 0,
+          age: 1,
           question: "游戏开始",
           choice: "开始养育",
           outcome: "你的养育之旅开始了。"
@@ -1302,19 +1301,19 @@ const useGameStore = create<GameStoreState>((set, get) => {
           outcome: "你的耐心让孩子逐渐安静下来，建立了良好的亲子关系。"
         },
         {
-          age: 5,
+          age: 3,
           question: "孩子想要一个昂贵的玩具，但家庭预算紧张。",
           choice: "解释情况，提供替代方案",
           outcome: "孩子理解了家庭情况，学会了理财观念。"
         },
         {
-          age: 10,
+          age: 5,
           question: "孩子在学校成绩不好，你如何应对？",
           choice: "与孩子一起制定学习计划",
           outcome: "通过共同努力，孩子的成绩有了显著提升。"
         },
         {
-          age: 15,
+          age: 7,
           question: "孩子开始叛逆，经常与你发生冲突。",
           choice: "尊重孩子的独立性，同时保持沟通",
           outcome: "你们的关系在理解和尊重中得到了改善。"

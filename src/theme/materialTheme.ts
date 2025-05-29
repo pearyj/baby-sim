@@ -1,25 +1,25 @@
 import { createTheme } from '@mui/material/styles';
 
-// Material Design 3 color tokens for a warm, family-friendly app
+// Autumn Sunrise color scheme for a warm, family-friendly app
 export const materialTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#6750A4', // Material Design 3 primary purple
-      light: '#9A82DB',
-      dark: '#4F378B',
+      main: '#FF6B35', // Vibrant orange for main call-to-actions
+      light: '#FF8A5B',
+      dark: '#E55A2B',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#625B71', // Material Design 3 secondary
-      light: '#8B8199',
-      dark: '#483F56',
-      contrastText: '#FFFFFF',
+      main: '#FFB997', // Soft apricot for buttons/links
+      light: '#FFC7A6',
+      dark: '#E6A688',
+      contrastText: '#333333',
     },
     tertiary: {
-      main: '#7D5260', // Warm tertiary for baby theme
-      light: '#A87C8E',
-      dark: '#633B48',
+      main: '#E09F3E', // Mustard gold for highlights (badges, icons)
+      light: '#E6B05C',
+      dark: '#CC8F35',
       contrastText: '#FFFFFF',
     },
     error: {
@@ -29,39 +29,39 @@ export const materialTheme = createTheme({
       contrastText: '#FFFFFF',
     },
     warning: {
-      main: '#7D5700',
-      light: '#A6770B',
-      dark: '#5E4200',
+      main: '#E09F3E', // Using accent color for warnings
+      light: '#E6B05C',
+      dark: '#CC8F35',
       contrastText: '#FFFFFF',
     },
     info: {
-      main: '#006397',
-      light: '#4F8BC4',
-      dark: '#004771',
+      main: '#FF6B35', // Using primary color for info
+      light: '#FF8A5B',
+      dark: '#E55A2B',
       contrastText: '#FFFFFF',
     },
     success: {
-      main: '#006E1C',
-      light: '#4D8F47',
-      dark: '#005314',
+      main: '#4CAF50', // Keeping a green for success
+      light: '#66BB6A',
+      dark: '#388E3C',
       contrastText: '#FFFFFF',
     },
     background: {
-      default: '#FEF7FF', // Material Design 3 surface
+      default: '#F5F5F5', // Neutral background
       paper: '#FFFFFF',
     },
     surface: {
-      main: '#FEF7FF',
-      variant: '#E7E0EC',
+      main: '#F5F5F5',
+      variant: '#EEEEEE',
     },
     outline: {
-      main: '#79747E',
-      variant: '#CAC4D0',
+      main: '#CCCCCC',
+      variant: '#E0E0E0',
     },
     text: {
-      primary: '#1D1B20',
-      secondary: '#49454F',
-      disabled: '#C7C5CA',
+      primary: '#333333', // Neutral text
+      secondary: '#666666',
+      disabled: '#AAAAAA',
     },
   },
   typography: {
