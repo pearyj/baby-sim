@@ -172,7 +172,7 @@
     "title": "Information Center",
     "close": "Close",
     "wordsFromDevelopers": "Words from developers",
-    "wordsFromDevelopersContent": "Hi there!\n\nThank you for playing The Baby Simulator. I created this simple text-based game after watching many of my friends - people my own age - embark on parenthood and face firsthand the joys, surprises, and challenges of raising a child. Through this simulator, I hope to give players a small glimpse into the difficult choices, sweet milestones, and sometimes unexpected hurdles that come with caring for a little one.\n\nIt's also extra fun to play with someone else! Debating each tough question together can be a fast (and often hilarious) way to discover whether you'd make great co-parents in real life.\n\nI poured my own curiosity, respect, and a touch of empathy into every scenario, and I hope the experience helps you appreciate the real-world journey of parenthood a bit more, whether you're already a parent, planning to be one, or just curious about what it's like. Your feedback and stories are what keep this project growing, so please don't hesitate to share your thoughts or suggestions.\n\nHappy parenting (in simulation),\n— pearyj",
+    "wordsFromDevelopersContent": "Hi there!\nThank you for playing The Baby Simulator. I created this simple text-based game after watching many of my friends - people my own age - embark on parenthood and face firsthand the joys, surprises, and challenges of raising a child. Through this simulator, I hope to give players a small glimpse into the difficult choices, sweet milestones, and sometimes unexpected hurdles that come with caring for a little one.\nIt's also extra fun to play with someone else! Debating each tough question together can be a fast (and often hilarious) way to discover whether you'd make great co-parents in real life.\nI poured my own curiosity, respect, and a touch of empathy into every scenario, and your feedback and stories are what keep this project growing, so please don't hesitate to share your thoughts or suggestions.\nHappy parenting (in simulation),\n— pearyj",
     "privacyPolicy": "Privacy Policy",
     "privacyContent": "1. Information We Collect\n\nNo personal data: We do not collect or store names, emails, IP addresses, or any other personally identifying information.\n\nAnonymous usage data: We may collect aggregate statistics and anonymous crash reports solely to improve stability.\n\n2. How We Use Information\n\nTo diagnose and fix bugs.\n\nTo understand overall usage patterns (e.g. how many sessions per day).\n\n3. Cookies & Tracking\nWe do not use cookies or third-party trackers.\n\n4. Data Retention\nAnonymous logs and crash reports are retained for the duration needed to help improve and maintain the Game.\n\n5. Third-Party Services\nWe do not share any data with third parties.\n\n6. Children's Privacy\nWe do not knowingly collect information from anyone under 13. If you are under 13, please play with parental guidance.\n\n7. Your Rights\nBecause we collect no personal data, there are no personal-data requests to submit.\n\n8. Changes to This Policy\nWe may update this Policy; changes take effect when posted.",
     "privacyDescription": "Last updated: May 27, 2025",
@@ -181,6 +181,15 @@
     "termsDescription": "Last updated: May 27, 2025",
     "disclaimer": "Disclaimer",
     "disclaimerContent": "Entertainment Only\nThe Baby Simulator is an interactive experience for entertainment purposes only. It is not professional parenting, medical, legal, or psychological advice.\n\n\"As-Is\" Provision\nThe Game is provided \"as-is\" and \"as-available.\" We make no guarantees about its accuracy, reliability, or suitability for any purpose.\n\nLimitation of Liability\nWe shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of the Game.\n\nAge Guidance\nRecommended for ages 13+. Some scenarios may reference caregiving stress or emotional challenges.\n\nThird-Party Links\nIf the Game links to external sites, we are not responsible for their content or privacy practices.",
-    "disclaimerDescription": "Last updated: May 27, 2025"
+    "disclaimerDescription": "Last updated: May 27, 2025",
+    "subscribePlaceholder": "Your email for updates...",
+    "subscribeButton": "Subscribe",
+    "subscribeSuccess": "Subscribed!",
+    "subscribeThanks": "Thank you for subscribing!",
+    "subscribeEmailRequired": "Please enter your email.",
+    "subscribeInvalidEmail": "Please enter a valid email address (e.g., name@example.com).",
+    "subscribeMustAgree": "You must agree to the Privacy Policy and Terms of Service.",
+    "subscribeError": "Subscription failed. Please try again later.",
+    "subscribeAgreement": "I agree to the Privacy Policy and Terms of Service."
   }
 } 

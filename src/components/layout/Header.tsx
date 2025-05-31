@@ -1,7 +1,6 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box, Switch, FormControlLabel, Tooltip, IconButton } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, Switch, FormControlLabel, Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import InfoIcon from '@mui/icons-material/Info';
 import { DevModelSwitcher } from '../dev';
 import { LanguageToggle } from '../ui';
 import { useTranslation } from 'react-i18next';
@@ -19,11 +18,10 @@ const StyledTitle = styled(Typography)(({ theme }) => ({
 
 export const Header: React.FC = () => {
   const { t } = useTranslation();
-  const { enableStreaming, toggleStreaming, isStreaming, openInfoModal } = useGameStore(state => ({
+  const { enableStreaming, toggleStreaming, isStreaming } = useGameStore(state => ({
     enableStreaming: state.enableStreaming,
     toggleStreaming: state.toggleStreaming,
     isStreaming: state.isStreaming,
-    openInfoModal: state.openInfoModal,
   }));
 
   return (
@@ -41,21 +39,6 @@ export const Header: React.FC = () => {
         <Box sx={{ position: 'absolute', right: 16, display: 'flex', gap: 2, alignItems: 'center' }}>
           {/* Language Toggle */}
           <LanguageToggle />
-          
-          {/* Info icon */}
-          <Tooltip title={t('header.infoCenter')}>
-            <IconButton
-              onClick={openInfoModal}
-              sx={{
-                color: 'white',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                },
-              }}
-            >
-              <InfoIcon />
-            </IconButton>
-          </Tooltip>
           
           {/* Only show streaming toggle in development mode */}
           {import.meta.env.DEV && (

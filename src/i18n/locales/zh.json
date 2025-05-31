@@ -181,6 +181,15 @@
     "termsDescription": "最后更新：2025年5月27日",
     "disclaimer": "免责声明",
     "disclaimerContent": "仅供娱乐\n《养娃模拟器》是一个仅供娱乐的互动体验。它不是专业的育儿、医疗、法律或心理建议。\n\n\\\"按原样\\\"提供\n游戏按\\\"原样\\\"和\\\"可用\\\"提供。我们不对其准确性、可靠性或任何用途的适用性做出保证。\n\n责任限制\n我们不对因您使用游戏而产生的任何直接、间接、偶然或后果性损害承担责任。\n\n年龄指导\n建议13岁以上。某些场景可能涉及育儿压力或情感挑战。\n\n第三方链接\n如果游戏链接到外部网站，我们不对其内容或隐私做法负责。",
-    "disclaimerDescription": "最后更新：2025年5月27日"
+    "disclaimerDescription": "最后更新：2025年5月27日",
+    "subscribePlaceholder": "输入邮箱订阅更新...",
+    "subscribeButton": "订阅",
+    "subscribeSuccess": "已订阅！",
+    "subscribeThanks": "感谢订阅！",
+    "subscribeEmailRequired": "请输入邮箱。",
+    "subscribeInvalidEmail": "请输入有效的邮箱地址（例如：name@example.com）。",
+    "subscribeMustAgree": "请同意隐私政策和服务条款。",
+    "subscribeError": "订阅失败，请稍后再试。",
+    "subscribeAgreement": "我已阅读并同意隐私政策和服务条款"
   }
 } 

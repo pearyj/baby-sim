@@ -28,6 +28,7 @@ import { Header } from './components/layout/Header'
 import { InfoPage } from './pages/InfoPage'
 import { StreamingTextDisplay } from './components/ui/StreamingTextDisplay'
 import { PerformanceMonitor } from './components/dev/PerformanceMonitor'
+import { FeedbackButton } from './components/ui/FeedbackButton'
 // Removed direct gptService and storageService imports
 // Removed Question, GameState, GameStateToStore type imports from local files if not used by App.tsx directly
 
@@ -492,9 +493,10 @@ function App() {
           </Container>
         </MainContentArea>
       </ContentArea>
+      <FeedbackButton />
       
       {/* Show performance monitor in development mode */}
-      {isDevelopment && <PerformanceMonitor autoRefresh={true} />}
+      {isDevelopment && <PerformanceMonitor />}
       
       {/* Info Modal */}
       <InfoPage open={showInfoModal} onClose={closeInfoModal} />

@@ -18,6 +18,6 @@ export const API_CONFIG = {
   // Model provider in use (can be switched in dev via DevModelSwitcher)
   ACTIVE_PROVIDER: (import.meta.env.VITE_ACTIVE_PROVIDER as 'openai' | 'deepseek' | 'volcengine') || 'volcengine',
 
-  // Local direct-to-provider mode (only enable while developing)
-  DIRECT_API_MODE: (import.meta.env.VITE_DIRECT_API_MODE === 'true') || import.meta.env.DEV,
+  // Local direct-to-provider mode (only enable when explicitly set)
+  DIRECT_API_MODE: import.meta.env.VITE_DIRECT_API_MODE === 'true',
 }; 

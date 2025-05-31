@@ -26,28 +26,28 @@ const getProvider = (providerName: string): ModelProvider => {
       return {
         name: 'openai',
         apiUrl: 'https://api.openai.com/v1/chat/completions',
-        apiKey: process.env.OPENAI_API_KEY || '',
+        apiKey: process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '',
         model: 'gpt-4o-mini',
       };
     case 'deepseek':
       return {
         name: 'deepseek',
         apiUrl: 'https://api.deepseek.com/v1/chat/completions',
-        apiKey: process.env.DEEPSEEK_API_KEY || '',
+        apiKey: process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY || '',
         model: 'deepseek-chat',
       };
     case 'volcengine':
       return {
         name: 'volcengine',
         apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-        apiKey: process.env.VOLCENGINE_API_KEY || '',
+        apiKey: process.env.VOLCENGINE_API_KEY || process.env.VITE_VOLCENGINE_API_KEY || '',
         model: 'deepseek-v3-250324',
       };
     default:
       return {
         name: 'volcengine',
         apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-        apiKey: process.env.VOLCENGINE_API_KEY || '',
+        apiKey: process.env.VOLCENGINE_API_KEY || process.env.VITE_VOLCENGINE_API_KEY || '',
         model: 'deepseek-v3-250324',
       };
   }

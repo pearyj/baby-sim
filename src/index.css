@@ -66,3 +66,55 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.floating-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1000;
+}
+
+/* Development mode specific positioning */
+.floating-container.dev-mode {
+  bottom: 80px; /* Position above the performance monitor */
+}
+
+.floating-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #ff8c00;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+.floating-btn.info-btn {
+  background-color: #2196f3;
+}
+
+.floating-btn:hover,
+.floating-btn:focus {
+  background-color: #e67e00;
+}
+
+.floating-btn.info-btn:hover,
+.floating-btn.info-btn:focus {
+  background-color: #1976d2;
+}
+
+.floating-btn svg {
+  fill: #fff;
+  width: 24px;
+  height: 24px;
+}
