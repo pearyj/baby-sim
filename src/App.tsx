@@ -29,6 +29,7 @@ import { InfoPage } from './pages/InfoPage'
 import { StreamingTextDisplay } from './components/ui/StreamingTextDisplay'
 import { PerformanceMonitor } from './components/dev/PerformanceMonitor'
 import { FeedbackButton } from './components/ui/FeedbackButton'
+import { AdTestPage } from './pages/AdTestPage'
 // Removed direct gptService and storageService imports
 // Removed Question, GameState, GameStateToStore type imports from local files if not used by App.tsx directly
 
@@ -207,6 +208,13 @@ function App() {
 
   const renderMainContent = () => {
     return performanceMonitor.timeSync('render-main-content', 'ui', () => {
+      // Add development mode test pages
+      if (isDevelopment) {
+        if (gamePhase === 'test_ending') {
+          return <AdTestPage />;
+        }
+      }
+
       if (gamePhase === 'initializing') {
         return (
           <LoadingCard>

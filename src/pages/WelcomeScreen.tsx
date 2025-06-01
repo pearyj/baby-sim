@@ -6,7 +6,6 @@ import {
   Button,
   TextField,
   Box,
-  Alert,
   List,
   ListItem,
   ListItemText,
@@ -296,12 +295,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                     </List>
                   </CardContent>
                 </FeatureCard>
-                
-                <Alert severity="info" sx={{ mb: 3 }}>
-                  <Typography variant="body1">
-                    {t('welcome.startGameInfo')}
-                  </Typography>
-                </Alert>
                 
                 {renderSpecialRequirementsInput()}
               </Box>

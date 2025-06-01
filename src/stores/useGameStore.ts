@@ -1,3 +1,7 @@
+// ────────────────────────────────────────────────────────────────────────────────
+// |                                   TYPES                                        |
+// ────────────────────────────────────────────────────────────────────────────────
+
 import { create } from 'zustand';
 // import { persist, createJSONStorage } from 'zustand/middleware'; // Removed unused import
 import * as gptService from '../services/gptServiceUnified';
@@ -25,7 +29,8 @@ type GamePhase =
   | 'generating_outcome' // Added for clarity
   | 'ending_game'        // Added for clarity when generating summary
   | 'ended'              // Game has concluded (e.g., ran out of questions)
-  | 'summary';           // Showing final game summary
+  | 'summary'            // Showing the final summary
+  | 'test_ending';       // Development mode for testing the ending screen
 
 interface GameStoreState {
   gamePhase: GamePhase; // Replaces gameState for more clarity
@@ -83,6 +88,10 @@ interface GameStoreState {
   closeInfoModal: () => void; // Close the info modal
 }
 
+// ────────────────────────────────────────────────────────────────────────────────
+// |                            HELPERS & PERSISTENCE                                |
+// ────────────────────────────────────────────────────────────────────────────────
+
 // Helper function to generate narrative with translations
 const generateNarrative = (scenarioState: {
   player: { gender: 'male' | 'female'; age: number };
@@ -135,59 +144,61 @@ const saveGameState = (state: GameStoreState) => {
   storageService.saveState(stateToStore);
 };
 
+// ────────────────────────────────────────────────────────────────────────────────
+// |                          ZUSTAND STORE CREATION                                |
+// ────────────────────────────────────────────────────────────────────────────────
+
 const useGameStore = create<GameStoreState>((set, get) => {
   // Try to load initial state from localStorage
   const savedState = storageService.loadState();
   logger.log("Loaded state from localStorage:", savedState);
   
-  const initialState: GameStoreState = {
-    // Initial State
+  // ─────────────────────────────────────────────────────────────────────────────
+  // SECTION 1: DEFAULT / INITIAL STATE
+  // ─────────────────────────────────────────────────────────────────────────────
+  
+  // Define a type for just the data properties
+  type GameStoreData = Omit<GameStoreState, 
+    'initializeGame' | 'startGame' | 'continueSavedGame' | 'loadQuestion' | 
+    'loadQuestionStreaming' | 'selectOption' | 'selectOptionStreaming' | 
+    'continueGame' | 'resetToWelcome' | 'testEnding' | 'toggleStreaming' | 
+    'openInfoModal' | 'closeInfoModal'
+  >;
+  
+  const initialState: GameStoreData = {
+    // ——— 1.1) GLOBAL / UI / INITIALIZATION ————————————————————————————————
     gamePhase: 'uninitialized',
+    isLoading: false,
+    error: null,
+    showInfoModal: false,
+    initialGameNarrative: null,
+
+    // ——— 1.2) CURRENT PLAYER & CHILD —————————————————————————————————
     player: null,
     child: null,
     playerDescription: null,
     childDescription: null,
-    initialGameNarrative: null,
+    wealthTier: null,
+    financialBurden: 0,
+    isBankrupt: false,
+    currentAge: 1,
+
+    // ——— 1.3) GAME FLOW & HISTORY —————————————————————————————————————
+    currentQuestion: null,
+    nextQuestion: null,
     history: [],
     feedbackText: null,
     endingSummaryText: null,
-    wealthTier: null, // Initialize wealthTier
-    financialBurden: 0, // Initialize financialBurden
-    isBankrupt: false, // Initialize isBankrupt
-    
-    currentAge: 1,
-    currentQuestion: null,
-    nextQuestion: null,
-    isLoading: false,
-    error: null,
     showFeedback: false,
     isEnding: false,
     showEndingSummary: false,
     pendingChoice: null,
-    
-    // Streaming state
+
+    // ——— 1.4) STREAMING STATE ————————————————————————————————————————
     isStreaming: false,
     streamingContent: '',
     streamingType: null,
-    enableStreaming: true, // Enable streaming by default
-    
-    // UI state
-    showInfoModal: false,
-    
-    // Define all required functions up front with unused parameters prefixed
-    initializeGame: async (_options?: { specialRequirements?: string; preloadedState?: InitialStateType }) => { logger.log("initializeGame stub called") },
-    startGame: (_player: Player, _child: Child, _playerDescription: string, _childDescription: string) => { logger.log("startGame stub called") },
-    continueSavedGame: () => { logger.log("continueSavedGame stub called") },
-    loadQuestion: async () => { logger.log("loadQuestion stub called") },
-    loadQuestionStreaming: async () => { logger.log("loadQuestionStreaming stub called") },
-    selectOption: async () => { logger.log("selectOption stub called") },
-    selectOptionStreaming: async () => { logger.log("selectOptionStreaming stub called") },
-    continueGame: async () => { logger.log("continueGame stub called") },
-    resetToWelcome: () => { logger.log("resetToWelcome stub called") },
-    testEnding: async () => { logger.log("testEnding stub called") },
-    toggleStreaming: () => { logger.log("toggleStreaming stub called") },
-    openInfoModal: () => { logger.log("openInfoModal stub called") },
-    closeInfoModal: () => { logger.log("closeInfoModal stub called") },
+    enableStreaming: true,
   };
 
   // If there's saved state, use it to initialize
@@ -196,17 +207,15 @@ const useGameStore = create<GameStoreState>((set, get) => {
     initialState.player = {
       gender: savedState.player.gender,
       age: savedState.player.age,
-      // Add any missing properties that might be required
-      name: savedState.child.name, // Player might need a name property
-      profile: {}, // Add empty objects for any expected properties
+      name: savedState.child.name,
+      profile: {},
       traits: [],
     };
     initialState.child = {
       name: savedState.child.name,
       gender: savedState.child.gender,
       age: savedState.child.age,
-      // Add any missing properties that might be required
-      profile: {}, // Add empty objects for any expected properties
+      profile: {},
       traits: [],
     };
     initialState.playerDescription = savedState.player.description;
@@ -217,6 +226,10 @@ const useGameStore = create<GameStoreState>((set, get) => {
     
     logger.log("Initialized game with saved state:", initialState);
   }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // SECTION 2: ACTION METHODS
+  // ─────────────────────────────────────────────────────────────────────────────
 
   const actions = {
     initializeGame: async (options?: { specialRequirements?: string; preloadedState?: InitialStateType }) => {
@@ -529,543 +542,6 @@ const useGameStore = create<GameStoreState>((set, get) => {
       }
     },
 
-    loadQuestion: async () => {
-      const { child, player, playerDescription, childDescription, history, wealthTier, financialBurden, currentQuestion: cQ_store, feedbackText: ft_store, endingSummaryText: est_store, isBankrupt } = get();
-      if (!child || !player) {
-          set(prevState => ({ ...prevState, error: "Cannot load question: Player or child data is missing.", gamePhase: 'initialization_failed', isLoading: false }));
-          return;
-      }
-      set(prevState => ({ ...prevState, gamePhase: 'loading_question', isLoading: true, error: null, currentQuestion: null }));
-      try {
-        logger.log("Preparing game state for API call");
-        const fullGameStateForApi: ApiGameState = {
-            player: player!,
-            child: child!, // child.age is the current age (e.g., 1 for first question set)
-            playerDescription: playerDescription!,
-            childDescription: childDescription!,
-            history: history,
-            wealthTier: wealthTier || 'middle', // Provide default if null
-            financialBurden: financialBurden || 0, // Provide default if null
-            currentQuestion: cQ_store,
-            feedbackText: ft_store,
-            endingSummaryText: est_store,
-            isBankrupt: isBankrupt || false, // Pass isBankrupt state
-        };
-        
-        logger.log("Making API call to fetch question for age:", child.age);
-        // fetchQuestion service is expected to ask for child.age (e.g. 1-year-old events)
-        // The gptService.generateQuestionPrompt uses `gameState.child.age`.
-        // So if child.age is 1 (meaning currently 1 years old), it will ask for events for a 1-year-old.
-        // This is now correct with the new age progression system.
-        let question;
-        try {
-          question = await gptService.generateQuestion(fullGameStateForApi);
-          logger.log("Successfully received question from API:", question);
-        } catch (apiError) {
-          logger.error("API error when fetching question:", apiError);
-          // Create a fallback question if the API fails
-          question = {
-            id: `fallback-${Date.now()}`,
-            question: `你的${child.age}岁孩子${child.name}正在成长，现在需要你的指导。`,
-            options: [
-              { id: "option1", text: "耐心倾听并理解孩子的需求", cost: 0 },
-              { id: "option2", text: "给予适当的引导和建议", cost: 0 },
-              { id: "option3", text: "鼓励孩子独立思考解决问题", cost: 0 }
-            ],
-            isExtremeEvent: false
-          };
-          logger.log("Using fallback question:", question);
-        }
-        
-        const newState = {
-          currentQuestion: question,
-          nextQuestion: null, 
-          isLoading: false,
-          showFeedback: false,
-          feedbackText: null,
-          gamePhase: 'playing' as GamePhase,
-          error: null, // Clear any previous errors
-        };
-        set(prevState => ({ ...prevState, ...newState }));
-        saveGameState(get());
-      } catch (err) {
-          logger.error('Error in loadQuestion function:', err);
-          const errorMessage = err instanceof Error ? err.message : 'Failed to load question.';
-          set(prevState => ({ 
-            ...prevState,
-            gamePhase: 'playing', 
-            error: errorMessage, 
-            isLoading: false,
-            // Add a fallback question
-            currentQuestion: {
-              id: `error-${Date.now()}`,
-              question: "加载问题时发生错误，请选择如何继续",
-              options: [
-                { id: "retry", text: "重新尝试", cost: 0 },
-                { id: "reload", text: "刷新页面", cost: 0 }
-              ],
-              isExtremeEvent: false
-            }
-          })); 
-      }
-    },
-
-    loadQuestionStreaming: async () => {
-      const { child, player, playerDescription, childDescription, history, wealthTier, financialBurden, currentQuestion: cQ_store, feedbackText: ft_store, endingSummaryText: est_store, isBankrupt, enableStreaming } = get();
-      
-      console.log('🚀 loadQuestionStreaming called! enableStreaming:', enableStreaming);
-      logger.log(`🚀 loadQuestionStreaming called with enableStreaming: ${enableStreaming}`);
-      
-      if (!enableStreaming) {
-        console.log('⚠️ Streaming disabled, falling back to regular loadQuestion');
-        // Fall back to regular loading if streaming is disabled
-        return get().loadQuestion();
-      }
-      
-      if (!child || !player) {
-        set(prevState => ({ ...prevState, error: "Cannot load question: Player or child data is missing.", gamePhase: 'initialization_failed', isLoading: false }));
-        return;
-      }
-      
-      // Set streaming state
-      set(prevState => ({ 
-        ...prevState, 
-        gamePhase: 'loading_question', 
-        isLoading: true, 
-        isStreaming: true,
-        streamingContent: '',
-        streamingType: 'question',
-        error: null, 
-        currentQuestion: null 
-      }));
-      
-      try {
-        logger.log("Preparing game state for streaming API call");
-        const fullGameStateForApi: ApiGameState = {
-          player: player!,
-          child: child!,
-          playerDescription: playerDescription!,
-          childDescription: childDescription!,
-          history: history,
-          wealthTier: wealthTier || 'middle',
-          financialBurden: financialBurden || 0,
-          currentQuestion: cQ_store,
-          feedbackText: ft_store,
-          endingSummaryText: est_store,
-          isBankrupt: isBankrupt || false,
-        };
-        
-        logger.log("Making streaming API call to fetch question for age:", child.age);
-        
-        const question = await gptService.generateQuestion(
-          fullGameStateForApi,
-          {
-            streaming: true,
-            onProgress: (partialContent: string) => {
-              // Update streaming content as it comes in
-              set(prevState => ({ 
-                ...prevState, 
-                streamingContent: partialContent 
-              }));
-            }
-          }
-        );
-        
-        logger.log("Successfully received streaming question from API:", question);
-        
-        // Set final state with complete question
-        const newState = {
-          currentQuestion: question,
-          nextQuestion: null,
-          isLoading: false,
-          isStreaming: false,
-          streamingContent: '',
-          streamingType: null,
-          showFeedback: false,
-          feedbackText: null,
-          gamePhase: 'playing' as GamePhase,
-          error: null,
-        };
-        set(prevState => ({ ...prevState, ...newState }));
-        saveGameState(get());
-        
-      } catch (err) {
-        logger.error('Error in loadQuestionStreaming function:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load question.';
-        
-        // Clear streaming state and show error
-        set(prevState => ({ 
-          ...prevState,
-          gamePhase: 'playing', 
-          error: errorMessage, 
-          isLoading: false,
-          isStreaming: false,
-          streamingContent: '',
-          streamingType: null,
-          currentQuestion: {
-            id: `error-${Date.now()}`,
-            question: "加载问题时发生错误，请选择如何继续",
-            options: [
-              { id: "retry", text: "重新尝试", cost: 0 },
-              { id: "reload", text: "刷新页面", cost: 0 }
-            ],
-            isExtremeEvent: false
-          }
-        })); 
-      }
-    },
-
-    selectOption: async (optionId: string) => {
-      const { currentQuestion, player, child, playerDescription, childDescription, history, wealthTier, financialBurden, feedbackText: ft_store, endingSummaryText: est_store } = get();
-      if (!currentQuestion || !player || !child) {
-        set(prevState => ({ ...prevState, error: "Cannot select option: Missing data.", gamePhase: 'playing', isLoading: false }));
-        return;
-      }
-      
-      // Special handling for recovery options
-      if (optionId === "retry") {
-        // This is a special option to retry the last pending choice
-        logger.log("User selected to retry the last pending choice");
-        // Clear error state and reload question
-        set(prevState => ({ ...prevState, error: null, isLoading: false }));
-        get().loadQuestion();
-        return;
-      } else if (optionId === "reload") {
-        // This is a special option to reload the game
-        logger.log("User selected to reload the game");
-        window.location.reload();
-        return;
-      }
-      
-      // Handle custom options
-      let selectedOption = currentQuestion.options.find(opt => opt.id === optionId);
-      
-      // Check if this is a custom option
-      if (!selectedOption && optionId.startsWith('custom_')) {
-        // Retrieve the custom option from window
-        const customOption = (window as any).lastCustomOption;
-        if (customOption && customOption.id === optionId) {
-          selectedOption = customOption;
-          logger.log("Using custom option:", selectedOption);
-          // Clean up after use
-          delete (window as any).lastCustomOption;
-        }
-      }
-      
-      if (!selectedOption) {
-          set(prevState => ({ ...prevState, error: "Invalid option selected.", gamePhase: 'playing', isLoading: false }));
-          return;
-      }
-
-      // Update financial burden based on selected option cost
-      const newFinancialBurden = (financialBurden || 0) + (selectedOption.cost || 0);
-      let newIsBankrupt = get().isBankrupt; // Preserve existing bankruptcy state unless changed
-
-      // Check for bankruptcy recovery: if player is currently bankrupt and chooses an option with isRecovery flag
-      if (get().isBankrupt && (selectedOption as any).isRecovery) {
-        newIsBankrupt = false;
-        logger.info(`🎉 Player recovered from bankruptcy! Financial burden reduced significantly.`);
-        // Significantly reduce financial burden on recovery (but not to zero)
-        const recoveredBurden = Math.max(20, newFinancialBurden - 35); // Reduce by 35, minimum 20
-        logger.info(`Financial burden reduced from ${newFinancialBurden} to ${recoveredBurden}`);
-        const finalFinancialBurden = recoveredBurden;
-        
-        set(prevState => ({ 
-          ...prevState, 
-          financialBurden: finalFinancialBurden,
-          isBankrupt: newIsBankrupt,
-          gamePhase: 'generating_outcome', 
-          isLoading: true, 
-          error: null 
-        }));
-        logger.log(`Bankruptcy recovery: Financial burden set to ${finalFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
-      } else {
-        // Normal financial burden logic
-        if (newFinancialBurden >= 50) {
-          newIsBankrupt = true;
-          logger.warn(`Bankruptcy threshold reached! Financial Burden: ${newFinancialBurden}`);
-        }
-
-        set(prevState => ({ 
-          ...prevState, 
-          financialBurden: newFinancialBurden,
-          isBankrupt: newIsBankrupt, // Set the bankruptcy state
-          gamePhase: 'generating_outcome', 
-          isLoading: true, 
-          error: null 
-        }));
-        logger.log(`Financial burden updated: ${financialBurden} + ${selectedOption.cost || 0} = ${newFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
-      }
-
-      // Save this intermediate state to localStorage so we can recover if needed
-      const intermediateState = {
-        ...get(), // Get the most recent state AFTER setting newFinancialBurden
-        pendingChoice: {
-          questionId: currentQuestion.id,
-          optionId: selectedOption.id,
-          questionText: currentQuestion.question,
-          optionText: selectedOption.text
-        }
-      };
-      // Explicitly set financialBurden in intermediateState for saving, as get() might be async otherwise
-      // Actually, the set above should be synchronous for the next get(), but to be safe:
-      // intermediateState.financialBurden = newFinancialBurden; 
-      // No, the set call updates the store, get() after it will have the new value.
-      saveGameState(intermediateState);
-      
-      try {
-        const eventAge = child.age; 
-        const currentState = get(); // Get the current state to get the updated financial burden
-        const fullGameStateForApi: ApiGameState = {
-          player: player!,
-          child: child!,
-          playerDescription: playerDescription!,
-          childDescription: childDescription!,
-          history: history,
-          wealthTier: wealthTier || 'middle',
-          financialBurden: currentState.financialBurden, // Use the updated financial burden from state
-          isBankrupt: currentState.isBankrupt, // Use the updated bankruptcy state
-          currentQuestion: currentQuestion, // currentQuestion from selectOption scope
-          feedbackText: ft_store,
-          endingSummaryText: est_store,
-        };
-        const result = await gptService.generateOutcomeAndNextQuestion(
-          fullGameStateForApi,
-          currentQuestion.question,
-          selectedOption.text
-        );
-        const newHistoryEntry: HistoryEntry = {
-          age: eventAge, 
-          question: currentQuestion.question,
-          choice: selectedOption.text,
-          outcome: result.outcome,
-        };
-        
-        // Filter out any existing entries for the same age and add the new one
-        const updatedHistory = history
-          .filter(entry => entry.age !== eventAge) // Remove entries with the same age
-          .concat(newHistoryEntry) // Add the new entry
-          .sort((a, b) => a.age - b.age); // Sort by age
-        
-        logger.log(`Updated history: Removed entry for age ${eventAge} if it existed, added new entry`);
-        
-        const newState = {
-          feedbackText: result.outcome,
-          nextQuestion: result.nextQuestion || null,
-          isEnding: result.isEnding || false,
-          history: updatedHistory,
-          // Child's age does not advance here; it advances in continueGame
-          currentQuestion: null, 
-          showFeedback: true,
-          gamePhase: 'feedback' as GamePhase,
-          isLoading: false,
-          pendingChoice: null, // Clear the pending choice since we got a result
-        };
-        set(prevState => ({ ...prevState, ...newState }));
-        saveGameState(get());
-      } catch (err) {
-        logger.error('Error generating outcome in store:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to process selection.';
-        set(prevState => ({ 
-          ...prevState,
-          gamePhase: 'feedback', 
-          error: errorMessage, 
-          isLoading: false, 
-          showFeedback: true, 
-          feedbackText: "很抱歉，在处理您的选择时遇到了技术问题。您可以尝试重新选择或刷新页面。错误详情：" + errorMessage
-        }));
-      }
-    },
-
-    selectOptionStreaming: async (optionId: string) => {
-      const { currentQuestion, player, child, playerDescription, childDescription, history, wealthTier, financialBurden, feedbackText: ft_store, endingSummaryText: est_store, enableStreaming } = get();
-      
-      console.log('🚀 selectOptionStreaming called! optionId:', optionId, 'enableStreaming:', enableStreaming);
-      logger.log(`🚀 selectOptionStreaming called with optionId: ${optionId}, enableStreaming: ${enableStreaming}`);
-      
-      if (!enableStreaming) {
-        console.log('⚠️ Streaming disabled, falling back to regular selectOption');
-        // Fall back to regular selectOption if streaming is disabled
-        return get().selectOption(optionId);
-      }
-      
-      if (!currentQuestion || !player || !child) {
-        set(prevState => ({ ...prevState, error: "Cannot select option: Missing data.", gamePhase: 'playing', isLoading: false }));
-        return;
-      }
-      
-      // Special handling for recovery options
-      if (optionId === "retry") {
-        logger.log("User selected to retry the last pending choice");
-        set(prevState => ({ ...prevState, error: null, isLoading: false }));
-        get().loadQuestionStreaming();
-        return;
-      } else if (optionId === "reload") {
-        logger.log("User selected to reload the game");
-        window.location.reload();
-        return;
-      }
-      
-      // Handle custom options
-      let selectedOption = currentQuestion.options.find(opt => opt.id === optionId);
-      
-      if (!selectedOption && optionId.startsWith('custom_')) {
-        const customOption = (window as any).lastCustomOption;
-        if (customOption && customOption.id === optionId) {
-          selectedOption = customOption;
-          logger.log("Using custom option:", selectedOption);
-          delete (window as any).lastCustomOption;
-        }
-      }
-      
-      if (!selectedOption) {
-        set(prevState => ({ ...prevState, error: "Invalid option selected.", gamePhase: 'playing', isLoading: false }));
-        return;
-      }
-
-      // Update financial burden
-      const newFinancialBurden = (financialBurden || 0) + (selectedOption.cost || 0);
-      let newIsBankrupt = get().isBankrupt;
-
-      // Check for bankruptcy recovery: if player is currently bankrupt and chooses an option with isRecovery flag
-      if (get().isBankrupt && (selectedOption as any).isRecovery) {
-        newIsBankrupt = false;
-        logger.info(`🎉 Player recovered from bankruptcy! Financial burden reduced significantly.`);
-        // Significantly reduce financial burden on recovery (but not to zero)
-        const recoveredBurden = Math.max(20, newFinancialBurden - 35); // Reduce by 35, minimum 20
-        logger.info(`Financial burden reduced from ${newFinancialBurden} to ${recoveredBurden}`);
-        const finalFinancialBurden = recoveredBurden;
-        
-        // Set streaming state
-        set(prevState => ({ 
-          ...prevState, 
-          financialBurden: finalFinancialBurden,
-          isBankrupt: newIsBankrupt,
-          gamePhase: 'generating_outcome', 
-          isLoading: true,
-          isStreaming: true,
-          streamingContent: '',
-          streamingType: 'outcome',
-          error: null 
-        }));
-        
-        logger.log(`Bankruptcy recovery: Financial burden set to ${finalFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
-      } else {
-        // Normal financial burden logic
-        if (newFinancialBurden >= 50) {
-          newIsBankrupt = true;
-          logger.warn(`Bankruptcy threshold reached! Financial Burden: ${newFinancialBurden}`);
-        }
-
-        // Set streaming state
-        set(prevState => ({ 
-          ...prevState, 
-          financialBurden: newFinancialBurden,
-          isBankrupt: newIsBankrupt,
-          gamePhase: 'generating_outcome', 
-          isLoading: true,
-          isStreaming: true,
-          streamingContent: '',
-          streamingType: 'outcome',
-          error: null 
-        }));
-        
-        logger.log(`Financial burden updated: ${financialBurden} + ${selectedOption.cost || 0} = ${newFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
-      }
-
-      // Save intermediate state
-      const intermediateState = {
-        ...get(),
-        pendingChoice: {
-          questionId: currentQuestion.id,
-          optionId: selectedOption.id,
-          questionText: currentQuestion.question,
-          optionText: selectedOption.text
-        }
-      };
-      saveGameState(intermediateState);
-      
-      try {
-        const eventAge = child.age; 
-        const currentState = get(); // Get the current state to get the updated financial burden
-        const fullGameStateForApi: ApiGameState = {
-          player: player!,
-          child: child!,
-          playerDescription: playerDescription!,
-          childDescription: childDescription!,
-          history: history,
-          wealthTier: wealthTier || 'middle',
-          financialBurden: currentState.financialBurden, // Use the updated financial burden from state
-          isBankrupt: currentState.isBankrupt, // Use the updated bankruptcy state
-          currentQuestion: currentQuestion,
-          feedbackText: ft_store,
-          endingSummaryText: est_store,
-        };
-        
-        const result = await gptService.generateOutcomeAndNextQuestion(
-          fullGameStateForApi,
-          currentQuestion.question,
-          selectedOption.text,
-          {
-            streaming: true,
-            onProgress: (partialContent: string) => {
-              // Update streaming content as it comes in
-              set(prevState => ({ 
-                ...prevState, 
-                streamingContent: partialContent 
-              }));
-            }
-          }
-        );
-        
-        const newHistoryEntry: HistoryEntry = {
-          age: eventAge, 
-          question: currentQuestion.question,
-          choice: selectedOption.text,
-          outcome: result.outcome,
-        };
-        
-        const updatedHistory = history
-          .filter(entry => entry.age !== eventAge)
-          .concat(newHistoryEntry)
-          .sort((a, b) => a.age - b.age);
-        
-        logger.log(`Updated history: Removed entry for age ${eventAge} if it existed, added new entry`);
-        
-        const newState = {
-          feedbackText: result.outcome,
-          nextQuestion: result.nextQuestion || null,
-          isEnding: result.isEnding || false,
-          history: updatedHistory,
-          currentQuestion: null, 
-          showFeedback: true,
-          gamePhase: 'feedback' as GamePhase,
-          isLoading: false,
-          isStreaming: false,
-          streamingContent: '',
-          streamingType: null,
-          pendingChoice: null,
-        };
-        set(prevState => ({ ...prevState, ...newState }));
-        saveGameState(get());
-        
-      } catch (err) {
-        logger.error('Error generating outcome in streaming store:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to process selection.';
-        set(prevState => ({ 
-          ...prevState,
-          gamePhase: 'feedback', 
-          error: errorMessage, 
-          isLoading: false,
-          isStreaming: false,
-          streamingContent: '',
-          streamingType: null,
-          showFeedback: true, 
-          feedbackText: "很抱歉，在处理您的选择时遇到了技术问题。您可以尝试重新选择或刷新页面。错误详情：" + errorMessage
-        }));
-      }
-    },
-
     continueGame: async () => {
       const { isEnding, gamePhase, child, player, playerDescription, childDescription, history, nextQuestion: preloadedNextQuestion, wealthTier, financialBurden, currentQuestion: cQ_store, feedbackText: ft_store, endingSummaryText: est_store, isBankrupt } = get();
       
@@ -1172,8 +648,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
         }
       } else {
         // Not ending, advance age and load next question.
-        logger.log("Advancing to next age:", currentChildAge + 2);
-        const nextAge = currentChildAge + 2;
+        logger.log("Advancing to next age:", currentChildAge + 1);
+        const nextAge = currentChildAge + 1;
         const newState = {
             showFeedback: false, 
             feedbackText: null,
@@ -1403,31 +879,533 @@ const useGameStore = create<GameStoreState>((set, get) => {
         }));
       }
     },
+
+    loadQuestion: async () => {
+      const { child, player, playerDescription, childDescription, history, wealthTier, financialBurden, currentQuestion: cQ_store, feedbackText: ft_store, endingSummaryText: est_store, isBankrupt } = get();
+      if (!child || !player) {
+          set(prevState => ({ ...prevState, error: "Cannot load question: Player or child data is missing.", gamePhase: 'initialization_failed', isLoading: false }));
+          return;
+      }
+      set(prevState => ({ ...prevState, gamePhase: 'loading_question', isLoading: true, error: null, currentQuestion: null }));
+      try {
+        logger.log("Preparing game state for API call");
+        const fullGameStateForApi: ApiGameState = {
+            player: player!,
+            child: child!,
+            playerDescription: playerDescription!,
+            childDescription: childDescription!,
+            history: history,
+            wealthTier: wealthTier || 'middle',
+            financialBurden: financialBurden || 0,
+            currentQuestion: cQ_store,
+            feedbackText: ft_store,
+            endingSummaryText: est_store,
+            isBankrupt: isBankrupt || false,
+        };
+        
+        logger.log("Making API call to fetch question for age:", child.age);
+        let question;
+        try {
+          question = await gptService.generateQuestion(fullGameStateForApi);
+          logger.log("Successfully received question from API:", question);
+        } catch (apiError) {
+          logger.error("API error when fetching question:", apiError);
+          question = {
+            id: `fallback-${Date.now()}`,
+            question: `你的${child.age}岁孩子${child.name}正在成长，现在需要你的指导。`,
+            options: [
+              { id: "option1", text: "耐心倾听并理解孩子的需求", cost: 0 },
+              { id: "option2", text: "给予适当的引导和建议", cost: 0 },
+              { id: "option3", text: "鼓励孩子独立思考解决问题", cost: 0 }
+            ],
+            isExtremeEvent: false
+          };
+          logger.log("Using fallback question:", question);
+        }
+        
+        const newState = {
+          currentQuestion: question,
+          nextQuestion: null, 
+          isLoading: false,
+          showFeedback: false,
+          feedbackText: null,
+          gamePhase: 'playing' as GamePhase,
+          error: null,
+        };
+        set(prevState => ({ ...prevState, ...newState }));
+        saveGameState(get());
+      } catch (err) {
+          logger.error('Error in loadQuestion function:', err);
+          const errorMessage = err instanceof Error ? err.message : 'Failed to load question.';
+          set(prevState => ({ 
+            ...prevState,
+            gamePhase: 'playing', 
+            error: errorMessage, 
+            isLoading: false,
+            currentQuestion: {
+              id: `error-${Date.now()}`,
+              question: "加载问题时发生错误，请选择如何继续",
+              options: [
+                { id: "retry", text: "重新尝试", cost: 0 },
+                { id: "reload", text: "刷新页面", cost: 0 }
+              ],
+              isExtremeEvent: false
+            }
+          })); 
+      }
+    },
+
+    selectOption: async (optionId: string) => {
+      const { currentQuestion, player, child, playerDescription, childDescription, history, wealthTier, financialBurden, feedbackText: ft_store, endingSummaryText: est_store } = get();
+      if (!currentQuestion || !player || !child) {
+        set(prevState => ({ ...prevState, error: "Cannot select option: Missing data.", gamePhase: 'playing', isLoading: false }));
+        return;
+      }
+      
+      // Special handling for recovery options
+      if (optionId === "retry") {
+        logger.log("User selected to retry the last pending choice");
+        set(prevState => ({ ...prevState, error: null, isLoading: false }));
+        get().loadQuestion();
+        return;
+      } else if (optionId === "reload") {
+        logger.log("User selected to reload the game");
+        window.location.reload();
+        return;
+      }
+      
+      // Handle custom options
+      let selectedOption = currentQuestion.options.find(opt => opt.id === optionId);
+      
+      if (!selectedOption && optionId.startsWith('custom_')) {
+        const customOption = (window as any).lastCustomOption;
+        if (customOption && customOption.id === optionId) {
+          selectedOption = customOption;
+          logger.log("Using custom option:", selectedOption);
+          delete (window as any).lastCustomOption;
+        }
+      }
+      
+      if (!selectedOption) {
+          set(prevState => ({ ...prevState, error: "Invalid option selected.", gamePhase: 'playing', isLoading: false }));
+          return;
+      }
+
+      // Update financial burden based on selected option cost
+      const newFinancialBurden = (financialBurden || 0) + (selectedOption.cost || 0);
+      let newIsBankrupt = get().isBankrupt;
+
+      // Check for bankruptcy recovery
+      if (get().isBankrupt && (selectedOption as any).isRecovery) {
+        newIsBankrupt = false;
+        logger.info(`🎉 Player recovered from bankruptcy! Financial burden reduced significantly.`);
+        const recoveredBurden = Math.max(20, newFinancialBurden - 35);
+        logger.info(`Financial burden reduced from ${newFinancialBurden} to ${recoveredBurden}`);
+        const finalFinancialBurden = recoveredBurden;
+        
+        set(prevState => ({ 
+          ...prevState, 
+          financialBurden: finalFinancialBurden,
+          isBankrupt: newIsBankrupt,
+          gamePhase: 'generating_outcome', 
+          isLoading: true, 
+          error: null 
+        }));
+        logger.log(`Bankruptcy recovery: Financial burden set to ${finalFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+      } else {
+        if (newFinancialBurden >= 50) {
+          newIsBankrupt = true;
+          logger.warn(`Bankruptcy threshold reached! Financial Burden: ${newFinancialBurden}`);
+        }
+
+        set(prevState => ({ 
+          ...prevState, 
+          financialBurden: newFinancialBurden,
+          isBankrupt: newIsBankrupt,
+          gamePhase: 'generating_outcome', 
+          isLoading: true, 
+          error: null 
+        }));
+        logger.log(`Financial burden updated: ${financialBurden} + ${selectedOption.cost || 0} = ${newFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+      }
+
+      // Save intermediate state
+      const intermediateState = {
+        ...get(),
+        pendingChoice: {
+          questionId: currentQuestion.id,
+          optionId: selectedOption.id,
+          questionText: currentQuestion.question,
+          optionText: selectedOption.text
+        }
+      };
+      saveGameState(intermediateState);
+      
+      try {
+        const eventAge = child.age; 
+        const currentState = get();
+        const fullGameStateForApi: ApiGameState = {
+          player: player!,
+          child: child!,
+          playerDescription: playerDescription!,
+          childDescription: childDescription!,
+          history: history,
+          wealthTier: wealthTier || 'middle',
+          financialBurden: currentState.financialBurden,
+          isBankrupt: currentState.isBankrupt,
+          currentQuestion: currentQuestion,
+          feedbackText: ft_store,
+          endingSummaryText: est_store,
+        };
+        const result = await gptService.generateOutcomeAndNextQuestion(
+          fullGameStateForApi,
+          currentQuestion.question,
+          selectedOption.text
+        );
+        const newHistoryEntry: HistoryEntry = {
+          age: eventAge, 
+          question: currentQuestion.question,
+          choice: selectedOption.text,
+          outcome: result.outcome,
+        };
+        
+        const updatedHistory = history
+          .filter(entry => entry.age !== eventAge)
+          .concat(newHistoryEntry)
+          .sort((a, b) => a.age - b.age);
+        
+        logger.log(`Updated history: Removed entry for age ${eventAge} if it existed, added new entry`);
+        
+        const newState = {
+          feedbackText: result.outcome,
+          nextQuestion: result.nextQuestion || null,
+          isEnding: result.isEnding || false,
+          history: updatedHistory,
+          currentQuestion: null, 
+          showFeedback: true,
+          gamePhase: 'feedback' as GamePhase,
+          isLoading: false,
+          pendingChoice: null,
+        };
+        set(prevState => ({ ...prevState, ...newState }));
+        saveGameState(get());
+      } catch (err) {
+        logger.error('Error generating outcome in store:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Failed to process selection.';
+        set(prevState => ({ 
+          ...prevState,
+          gamePhase: 'feedback', 
+          error: errorMessage, 
+          isLoading: false, 
+          showFeedback: true, 
+          feedbackText: "很抱歉，在处理您的选择时遇到了技术问题。您可以尝试重新选择或刷新页面。错误详情：" + errorMessage
+        }));
+      }
+    },
+
+    loadQuestionStreaming: async () => {
+      const { child, player, playerDescription, childDescription, history, wealthTier, financialBurden, currentQuestion: cQ_store, feedbackText: ft_store, endingSummaryText: est_store, isBankrupt, enableStreaming } = get();
+      
+      console.log('🚀 loadQuestionStreaming called! enableStreaming:', enableStreaming);
+      logger.log(`🚀 loadQuestionStreaming called with enableStreaming: ${enableStreaming}`);
+      
+      if (!enableStreaming) {
+        console.log('⚠️ Streaming disabled, falling back to regular loadQuestion');
+        return get().loadQuestion();
+      }
+      
+      if (!child || !player) {
+        set(prevState => ({ ...prevState, error: "Cannot load question: Player or child data is missing.", gamePhase: 'initialization_failed', isLoading: false }));
+        return;
+      }
+      
+      set(prevState => ({ 
+        ...prevState, 
+        gamePhase: 'loading_question', 
+        isLoading: true, 
+        isStreaming: true,
+        streamingContent: '',
+        streamingType: 'question',
+        error: null, 
+        currentQuestion: null 
+      }));
+      
+      try {
+        logger.log("Preparing game state for streaming API call");
+        const fullGameStateForApi: ApiGameState = {
+          player: player!,
+          child: child!,
+          playerDescription: playerDescription!,
+          childDescription: childDescription!,
+          history: history,
+          wealthTier: wealthTier || 'middle',
+          financialBurden: financialBurden || 0,
+          currentQuestion: cQ_store,
+          feedbackText: ft_store,
+          endingSummaryText: est_store,
+          isBankrupt: isBankrupt || false,
+        };
+        
+        logger.log("Making streaming API call to fetch question for age:", child.age);
+        
+        const question = await gptService.generateQuestion(
+          fullGameStateForApi,
+          {
+            streaming: true,
+            onProgress: (partialContent: string) => {
+              set(prevState => ({ 
+                ...prevState, 
+                streamingContent: partialContent 
+              }));
+            }
+          }
+        );
+        
+        logger.log("Successfully received streaming question from API:", question);
+        
+        const newState = {
+          currentQuestion: question,
+          nextQuestion: null,
+          isLoading: false,
+          isStreaming: false,
+          streamingContent: '',
+          streamingType: null,
+          showFeedback: false,
+          feedbackText: null,
+          gamePhase: 'playing' as GamePhase,
+          error: null,
+        };
+        set(prevState => ({ ...prevState, ...newState }));
+        saveGameState(get());
+        
+      } catch (err) {
+        logger.error('Error in loadQuestionStreaming function:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load question.';
+        
+        set(prevState => ({ 
+          ...prevState,
+          gamePhase: 'playing', 
+          error: errorMessage, 
+          isLoading: false,
+          isStreaming: false,
+          streamingContent: '',
+          streamingType: null,
+          currentQuestion: {
+            id: `error-${Date.now()}`,
+            question: "加载问题时发生错误，请选择如何继续",
+            options: [
+              { id: "retry", text: "重新尝试", cost: 0 },
+              { id: "reload", text: "刷新页面", cost: 0 }
+            ],
+            isExtremeEvent: false
+          }
+        })); 
+      }
+    },
+
+    selectOptionStreaming: async (optionId: string) => {
+      const { currentQuestion, player, child, playerDescription, childDescription, history, wealthTier, financialBurden, feedbackText: ft_store, endingSummaryText: est_store, enableStreaming } = get();
+      
+      console.log('🚀 selectOptionStreaming called! optionId:', optionId, 'enableStreaming:', enableStreaming);
+      logger.log(`🚀 selectOptionStreaming called with optionId: ${optionId}, enableStreaming: ${enableStreaming}`);
+      
+      if (!enableStreaming) {
+        console.log('⚠️ Streaming disabled, falling back to regular selectOption');
+        return get().selectOption(optionId);
+      }
+      
+      if (!currentQuestion || !player || !child) {
+        set(prevState => ({ ...prevState, error: "Cannot select option: Missing data.", gamePhase: 'playing', isLoading: false }));
+        return;
+      }
+      
+      // Special handling for recovery options
+      if (optionId === "retry") {
+        logger.log("User selected to retry the last pending choice");
+        set(prevState => ({ ...prevState, error: null, isLoading: false }));
+        get().loadQuestionStreaming();
+        return;
+      } else if (optionId === "reload") {
+        logger.log("User selected to reload the game");
+        window.location.reload();
+        return;
+      }
+      
+      // Handle custom options
+      let selectedOption = currentQuestion.options.find(opt => opt.id === optionId);
+      
+      if (!selectedOption && optionId.startsWith('custom_')) {
+        const customOption = (window as any).lastCustomOption;
+        if (customOption && customOption.id === optionId) {
+          selectedOption = customOption;
+          logger.log("Using custom option:", selectedOption);
+          delete (window as any).lastCustomOption;
+        }
+      }
+      
+      if (!selectedOption) {
+        set(prevState => ({ ...prevState, error: "Invalid option selected.", gamePhase: 'playing', isLoading: false }));
+        return;
+      }
+
+      // Update financial burden
+      const newFinancialBurden = (financialBurden || 0) + (selectedOption.cost || 0);
+      let newIsBankrupt = get().isBankrupt;
+
+      // Check for bankruptcy recovery
+      if (get().isBankrupt && (selectedOption as any).isRecovery) {
+        newIsBankrupt = false;
+        logger.info(`🎉 Player recovered from bankruptcy! Financial burden reduced significantly.`);
+        const recoveredBurden = Math.max(20, newFinancialBurden - 35);
+        logger.info(`Financial burden reduced from ${newFinancialBurden} to ${recoveredBurden}`);
+        const finalFinancialBurden = recoveredBurden;
+        
+        set(prevState => ({ 
+          ...prevState, 
+          financialBurden: finalFinancialBurden,
+          isBankrupt: newIsBankrupt,
+          gamePhase: 'generating_outcome', 
+          isLoading: true,
+          isStreaming: true,
+          streamingContent: '',
+          streamingType: 'outcome',
+          error: null 
+        }));
+        
+        logger.log(`Bankruptcy recovery: Financial burden set to ${finalFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+      } else {
+        if (newFinancialBurden >= 50) {
+          newIsBankrupt = true;
+          logger.warn(`Bankruptcy threshold reached! Financial Burden: ${newFinancialBurden}`);
+        }
+
+        set(prevState => ({ 
+          ...prevState, 
+          financialBurden: newFinancialBurden,
+          isBankrupt: newIsBankrupt,
+          gamePhase: 'generating_outcome', 
+          isLoading: true,
+          isStreaming: true,
+          streamingContent: '',
+          streamingType: 'outcome',
+          error: null 
+        }));
+        
+        logger.log(`Financial burden updated: ${financialBurden} + ${selectedOption.cost || 0} = ${newFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+      }
+
+      // Save intermediate state
+      const intermediateState = {
+        ...get(),
+        pendingChoice: {
+          questionId: currentQuestion.id,
+          optionId: selectedOption.id,
+          questionText: currentQuestion.question,
+          optionText: selectedOption.text
+        }
+      };
+      saveGameState(intermediateState);
+      
+      try {
+        const eventAge = child.age; 
+        const currentState = get();
+        const fullGameStateForApi: ApiGameState = {
+          player: player!,
+          child: child!,
+          playerDescription: playerDescription!,
+          childDescription: childDescription!,
+          history: history,
+          wealthTier: wealthTier || 'middle',
+          financialBurden: currentState.financialBurden,
+          isBankrupt: currentState.isBankrupt,
+          currentQuestion: currentQuestion,
+          feedbackText: ft_store,
+          endingSummaryText: est_store,
+        };
+        
+        const result = await gptService.generateOutcomeAndNextQuestion(
+          fullGameStateForApi,
+          currentQuestion.question,
+          selectedOption.text,
+          {
+            streaming: true,
+            onProgress: (partialContent: string) => {
+              set(prevState => ({ 
+                ...prevState, 
+                streamingContent: partialContent 
+              }));
+            }
+          }
+        );
+        
+        const newHistoryEntry: HistoryEntry = {
+          age: eventAge, 
+          question: currentQuestion.question,
+          choice: selectedOption.text,
+          outcome: result.outcome,
+        };
+        
+        const updatedHistory = history
+          .filter(entry => entry.age !== eventAge)
+          .concat(newHistoryEntry)
+          .sort((a, b) => a.age - b.age);
+        
+        logger.log(`Updated history: Removed entry for age ${eventAge} if it existed, added new entry`);
+        
+        const newState = {
+          feedbackText: result.outcome,
+          nextQuestion: result.nextQuestion || null,
+          isEnding: result.isEnding || false,
+          history: updatedHistory,
+          currentQuestion: null, 
+          showFeedback: true,
+          gamePhase: 'feedback' as GamePhase,
+          isLoading: false,
+          isStreaming: false,
+          streamingContent: '',
+          streamingType: null,
+          pendingChoice: null,
+        };
+        set(prevState => ({ ...prevState, ...newState }));
+        saveGameState(get());
+        
+      } catch (err) {
+        logger.error('Error generating outcome in streaming store:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Failed to process selection.';
+        set(prevState => ({ 
+          ...prevState,
+          gamePhase: 'feedback', 
+          error: errorMessage, 
+          isLoading: false,
+          isStreaming: false,
+          streamingContent: '',
+          streamingType: null,
+          showFeedback: true, 
+          feedbackText: "很抱歉，在处理您的选择时遇到了技术问题。您可以尝试重新选择或刷新页面。错误详情：" + errorMessage
+        }));
+      }
+    },
   };
 
-  logger.log("DEBUG: typeof actions.continueGame IN STORE SETUP:", typeof actions.continueGame); // New Log
-  const finalStoreObject = {
-    ...initialState, 
-    ...actions,      
+  // Set initial state and merge with actions to return complete store state
+  return {
+    ...initialState,
+    ...actions,
   };
-  logger.log("DEBUG: finalStoreObject.continueGame IN STORE SETUP:", typeof finalStoreObject.continueGame); // New Log
-  // console.log("DEBUG: Store state immediately after creation (get()):", get()); // This would cause infinite loop here, call after
-
-  return finalStoreObject;
 });
 
 // Log the state after the store is fully created
-// We need to do this outside the create callback to avoid issues with `get()` during initialization
 setTimeout(() => {
   if (typeof useGameStore.getState === 'function') {
     logger.log("DEBUG: Store state (getState().continueGame) shortly after creation:", typeof useGameStore.getState().continueGame);
-    // console.log("DEBUG: Full store state (getState()) shortly after creation:", useGameStore.getState());
   } else {
     logger.log("DEBUG: useGameStore.getState is not yet a function after timeout");
   }
 }, 0);
 
 export default useGameStore;
-// Placeholder for QuestionType if not already defined elsewhere
-// export type { QuestionType };
-export type { Player, Child, HistoryEntry, QuestionType, GamePhase }; // Exporting for use in components 
+export type { Player, Child, HistoryEntry, QuestionType, GamePhase };
+
+// ────────────────────────────────────────────────────────────────────────────────
+// |                            END OF useGameStore.ts                             |
+// ────────────────────────────────────────────────────────────────────────────────
