@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import useGameStore from '../stores/useGameStore';
 import { loadState } from '../services/storageService';
 import type { InitialStateType } from '../services/gptServiceUnified';
-import { logger } from '../utils/logger';
+import logger from '../utils/logger';
 import pregenStatesZh from '../i18n/pregen/zh.json';
 import pregenStatesEn from '../i18n/pregen/en.json';
 

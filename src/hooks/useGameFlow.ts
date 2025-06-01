@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import useGameStore from '../stores/useGameStore';
-import { logger } from '../utils/logger';
+import logger from '../utils/logger';
 
 /**
  * Custom hook to manage the overall game flow, initialization, 

@@ -15,7 +15,7 @@ import './App.css'
 
 import useGameStore from './stores/useGameStore'
 import { useGameFlow } from './hooks/useGameFlow'
-import { logger } from './utils/logger'
+import logger from './utils/logger'
 import { performanceMonitor } from './utils/performanceMonitor'
 import { checkAllPrompts, testPromptGeneration } from './utils/promptChecker'
 import { useEffect } from 'react'
@@ -209,10 +209,8 @@ function App() {
   const renderMainContent = () => {
     return performanceMonitor.timeSync('render-main-content', 'ui', () => {
       // Add development mode test pages
-      if (isDevelopment) {
-        if (gamePhase === 'test_ending') {
-          return <AdTestPage />;
-        }
+      if (import.meta.env.DEV && gamePhase === 'test_ending') {
+        return <AdTestPage />;
       }
 
       if (gamePhase === 'initializing') {

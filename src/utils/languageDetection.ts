@@ -4,7 +4,7 @@
  * If the user uses a different language from ZH or EN, default to EN."
  */
 
-import { logger } from './logger';
+import logger from './logger';
 
 export type SupportedLanguage = 'zh' | 'en';
 

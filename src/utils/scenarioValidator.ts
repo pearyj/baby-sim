@@ -1,4 +1,4 @@
-import { logger } from './logger';
+import logger from './logger';
 
 function validateScenarios(scenarios: any[]): boolean {
   logger.info('Validating scenarios...');

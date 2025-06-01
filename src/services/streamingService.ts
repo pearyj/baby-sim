@@ -1,4 +1,4 @@
-import { logger } from '../utils/logger';
+import logger from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
 import { getActiveProvider, type ModelProvider } from './gptServiceUnified';
 import { API_CONFIG } from '../config/api';
@@ -32,7 +32,7 @@ export const makeStreamingRequest = async (
   options: StreamOptions
 ): Promise<void> => {
   const provider = getActiveProvider();
-  console.log(`📤 makeStreamingRequest called! Provider: ${provider.name}, Model: ${provider.model}`);
+  logger.debug(`📤 makeStreamingRequest called! Provider: ${provider.name}, Model: ${provider.model}`);
   logger.info(`📤 Sending streaming API request to ${provider.name} provider using ${provider.model}`);
   
   // Start timing the API request
@@ -371,10 +371,10 @@ export const makeStreamingJSONRequest = async (
             try {
               const parsed = JSON.parse(cleanedContent);
               lastValidJSON = parsed;
-              logger.log('Successfully parsed partial JSON during streaming');
+              logger.debug('Successfully parsed partial JSON during streaming');
             } catch (parseError) {
               // JSON not ready yet, but don't stop streaming
-              logger.log('JSON not ready for parsing yet, continuing stream...');
+              logger.debug('JSON not ready for parsing yet, continuing stream...');
             }
           }
         } catch (error) {

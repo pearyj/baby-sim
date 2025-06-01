@@ -14,7 +14,7 @@ import { PlayArrow, Flag, Start } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { TextDisplay } from '../../components/ui/TextDisplay';
 import { StreamingTextDisplay } from '../../components/ui/StreamingTextDisplay';
-import { logger } from '../../utils/logger';
+import logger from '../../utils/logger';
 
 interface FeedbackDisplayProps {
   feedback: string;
@@ -133,8 +133,8 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
   };
   
   const handleContinue = () => {
-    logger.log("DEBUG: FeedbackDisplay handleContinue - TOP");
-    logger.log("Continue button clicked in FeedbackDisplay", {
+    logger.debug("DEBUG: FeedbackDisplay handleContinue - TOP");
+    logger.debug("Continue button clicked in FeedbackDisplay", {
       isEnding,
       isFirstQuestion,
       onContinueType: typeof onContinue,
@@ -155,6 +155,13 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       alert(t('messages.continueError'));
     }
   };
+  
+  useEffect(() => {
+    if (feedback) {
+      logger.debug('Feedback text updated:', feedback);
+      logger.debug('Current streaming state:', { isStreaming, streamingContent });
+    }
+  }, [feedback, isStreaming, streamingContent]);
   
   return (
     <Box sx={{ width: '100%', px: { xs: 2, sm: 3 } }} ref={containerRef}>

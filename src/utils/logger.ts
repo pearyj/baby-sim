@@ -1,34 +1,41 @@
-const isDevelopment = import.meta.env.DEV;
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface Logger {
-  log: (...args: any[]) => void;
+  [key: string]: (...args: any[]) => void;
+  debug: (...args: any[]) => void;
+  info: (...args: any[]) => void;
   warn: (...args: any[]) => void;
   error: (...args: any[]) => void;
-  info: (...args: any[]) => void;
 }
 
-export const logger: Logger = {
-  log: (...args: any[]) => {
-    if (isDevelopment) {
-      console.log(...args);
-    }
-  },
-  warn: (...args: any[]) => {
-    if (isDevelopment) {
-      console.warn(...args);
-    }
-  },
-  error: (...args: any[]) => {
-    if (isDevelopment) {
-      console.error(...args);
-    }
-  },
-  info: (...args: any[]) => {
-    if (isDevelopment) {
-      console.info(...args);
-    }
-  },
+const createLogger = (level: LogLevel, ...args: any[]): void => {
+  switch (level) {
+    case 'debug':
+      if (isDevelopment) {
+        console.log('🔍', ...args);
+      }
+      break;
+    case 'info':
+      if (isDevelopment) {
+        console.log('ℹ️', ...args);
+      }
+      break;
+    case 'warn':
+      console.warn('⚠️', ...args);
+      break;
+    case 'error':
+      console.error('❌', ...args);
+      break;
+  }
 };
 
-// For backwards compatibility, export individual functions
-export const { log, warn, error, info } = logger; 
+const logger: Logger = {
+  debug: (...args: any[]) => createLogger('debug', ...args),
+  info: (...args: any[]) => createLogger('info', ...args),
+  warn: (...args: any[]) => createLogger('warn', ...args),
+  error: (...args: any[]) => createLogger('error', ...args)
+};
+
+export default logger; 

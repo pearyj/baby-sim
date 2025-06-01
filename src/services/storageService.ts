@@ -1,5 +1,5 @@
 import type { Question } from '../types/game'; // Import Question type
-import { logger } from '../utils/logger';
+import logger from '../utils/logger';
 
 const CHILD_SIM_GAME_STATE_KEY = 'childSimGameState';
 const CURRENT_STORAGE_VERSION = 1;
@@ -68,9 +68,9 @@ export const saveState = (state: GameStateToStore): void => {
     };
     const serializedState = JSON.stringify(stateToStore);
     localStorage.setItem(CHILD_SIM_GAME_STATE_KEY, serializedState);
-    logger.log(`Successfully saved state to localStorage (${serializedState.length} bytes)`);
+    logger.debug('Game state saved successfully');
   } catch (error) {
-    logger.error('Error saving state to localStorage:', error);
+    logger.error('Error saving game state:', error);
     if (error instanceof DOMException && error.name === 'QuotaExceededError') {
       logger.error('LocalStorage quota exceeded. Cannot save game state.');
     }
@@ -86,11 +86,11 @@ export const loadState = (): GameStateToStore | null => {
   try {
     const serializedState = localStorage.getItem(CHILD_SIM_GAME_STATE_KEY);
     if (serializedState === null) {
-      logger.log('No saved game state found in localStorage');
-      return null; 
+      logger.debug('No saved game state found');
+      return null;
     }
 
-    logger.log(`Found saved state in localStorage (${serializedState.length} bytes)`);
+    logger.debug(`Found saved state in localStorage (${serializedState.length} bytes)`);
     const storedState: StoredState = JSON.parse(serializedState);
 
     if (storedState.version !== CURRENT_STORAGE_VERSION) {
@@ -101,10 +101,10 @@ export const loadState = (): GameStateToStore | null => {
       return null;
     }
 
-    logger.log('Successfully loaded and parsed saved game state', storedState.data);
+    logger.debug('Game state loaded successfully');
     return storedState.data;
   } catch (error) {
-    logger.error('Error loading state from localStorage:', error);
+    logger.error('Error loading game state:', error);
     clearState();
     return null;
   }
@@ -118,7 +118,8 @@ export const clearState = (): void => {
 
   try {
     localStorage.removeItem(CHILD_SIM_GAME_STATE_KEY);
+    logger.debug('Game state cleared successfully');
   } catch (error) {
-    logger.error('Error clearing state from localStorage:', error);
+    logger.error('Error clearing game state:', error);
   }
 }; 

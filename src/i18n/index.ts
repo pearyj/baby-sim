@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { getPreferredLanguage, detectSystemLanguage } from '../utils/languageDetection';
+import logger from '../utils/logger';
 
 // Import translation files
 import enTranslations from './locales/en.json';
@@ -71,5 +72,14 @@ if (process.env.NODE_ENV === 'development') {
     Final Language: ${finalLang}
   `);
 }
+
+export const detectLanguage = () => {
+  const browserLang = navigator.language;
+  logger.debug(`🌐 Language Detection Summary:
+    Browser Language: ${browserLang}
+    Detected Language: ${browserLang.startsWith('zh') ? 'zh' : 'en'}
+    Using Language: ${i18n.language}`);
+  return browserLang.startsWith('zh') ? 'zh' : 'en';
+};
 
 export default i18n; 

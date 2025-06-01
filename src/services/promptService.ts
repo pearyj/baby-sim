@@ -1,6 +1,6 @@
 import i18n from '../i18n';
 import type { GameState } from '../types/game';
-import { logger } from '../utils/logger';
+import logger from '../utils/logger';
 import { isSupportedLanguage, type SupportedLanguage } from '../utils/languageDetection';
 
 // Import prompt files
@@ -127,7 +127,10 @@ export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequ
     const historyPrefix = getPrompt('question.historyPrefix');
     const historyItemTemplate = getPrompt('question.historyItem');
     
-    const historyItems = gameState.history.map(h => 
+    // Only include the most recent 5 entries to prevent exceeding character limit
+    const recentHistory = gameState.history.slice(-5);
+    
+    const historyItems = recentHistory.map(h => 
       interpolatePrompt(historyItemTemplate, {
         age: h.age,
         question: h.question,
@@ -216,7 +219,10 @@ export const generateOutcomeAndNextQuestionPrompt = (
     const historyPrefix = getPrompt('question.historyPrefix');
     const historyItemTemplate = getPrompt('question.historyItem');
     
-    const historyItems = gameState.history.map(h => 
+    // Only include the most recent 5 entries to prevent exceeding character limit
+    const recentHistory = gameState.history.slice(-5);
+    
+    const historyItems = recentHistory.map(h => 
       interpolatePrompt(historyItemTemplate, {
         age: h.age,
         question: h.question,
@@ -292,14 +298,31 @@ export const generateEndingPrompt = (gameState: GameState): string => {
     const historyPrefix = getPrompt('question.historyPrefix');
     const historyItemTemplate = getPrompt('question.historyItem');
     
-    const historyItems = gameState.history.map(h => 
-      interpolatePrompt(historyItemTemplate, {
+    // Get all history entries for questions and choices
+    const allHistory = gameState.history;
+    
+    // Get the last 5 entries for detailed outcomes
+    const recentHistory = gameState.history.slice(-5);
+    const recentAges = new Set(recentHistory.map(h => h.age));
+    
+    const historyItems = allHistory.map(h => {
+      // For recent entries (last 5 years), include full details
+      if (recentAges.has(h.age)) {
+        return interpolatePrompt(historyItemTemplate, {
+          age: h.age,
+          question: h.question,
+          choice: h.choice,
+          outcome: h.outcome
+        });
+      }
+      // For older entries, only include question and choice
+      return interpolatePrompt(historyItemTemplate, {
         age: h.age,
         question: h.question,
         choice: h.choice,
-        outcome: h.outcome
-      })
-    ).join('\n\n');
+        outcome: "..." // Placeholder for older outcomes
+      });
+    }).join('\n\n');
     
     historyContext = historyPrefix + historyItems;
   }

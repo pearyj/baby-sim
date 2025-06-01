@@ -1,6 +1,6 @@
 import { API_CONFIG } from '../config/api';
 import type { Question, GameState } from '../types/game';
-import { logger } from '../utils/logger';
+import logger from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
 import { makeStreamingJSONRequest } from './streamingService';
 import {

@@ -1,3 +1,7 @@
+import logger from './logger';
+
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 interface PerformanceMetric {
   name: string;
   startTime: number;
@@ -21,14 +25,14 @@ class PerformanceMonitor {
     };
     
     this.activeTimers.set(name, metric);
-    console.log(`⏱️ Started timing: ${name} (${category})`);
+    logger.debug(`Started timing: ${name} (${category})`);
   }
 
   // End timing a metric
   endTiming(name: string): number | null {
     const metric = this.activeTimers.get(name);
     if (!metric) {
-      console.warn(`⚠️ No active timer found for: ${name}`);
+      logger.warn(`No active timer found for: ${name}`);
       return null;
     }
 
@@ -38,7 +42,7 @@ class PerformanceMonitor {
     this.metrics.push(metric);
     this.activeTimers.delete(name);
     
-    console.log(`✅ Completed timing: ${name} - ${metric.duration.toFixed(2)}ms (${metric.category})`);
+    logger.debug(`Completed timing: ${name} - ${metric.duration.toFixed(2)}ms (${metric.category})`);
     return metric.duration;
   }
 
@@ -54,12 +58,35 @@ class PerformanceMonitor {
 
   // Get summary of performance by category
   getSummary(): { api: number; local: number; ui: number; total: number } {
-    const summary = { api: 0, local: 0, ui: 0, total: 0 };
+    if (!isDevelopment) return { api: 0, local: 0, ui: 0, total: 0 };
+    
+    const summary = {
+      api: 0,
+      local: 0,
+      ui: 0,
+      total: 0
+    };
     
     this.metrics.forEach(metric => {
       if (metric.duration) {
         summary[metric.category] += metric.duration;
         summary.total += metric.duration;
+      }
+    });
+
+    logger.debug('Summary by category:');
+    logger.debug(`  🌐 API calls: ${summary.api.toFixed(2)}ms`);
+    logger.debug(`  🖥️ Local processing: ${summary.local.toFixed(2)}ms`);
+    logger.debug(`  🎨 UI rendering: ${summary.ui.toFixed(2)}ms`);
+    logger.debug(`  📊 Total: ${summary.total.toFixed(2)}ms`);
+    
+    logger.debug('\nDetailed metrics:');
+    this.metrics.forEach(metric => {
+      if (metric.duration) {
+        logger.debug(`  ${metric.category === 'api' ? '🌐' : metric.category === 'local' ? '🖥️' : '🎨'} ${metric.name}: ${metric.duration.toFixed(2)}ms`);
+        if (metric.details) {
+          logger.debug(`    Details:`, metric.details);
+        }
       }
     });
 
@@ -92,7 +119,7 @@ class PerformanceMonitor {
   clear(): void {
     this.metrics = [];
     this.activeTimers.clear();
-    console.log('🧹 Performance metrics cleared');
+    logger.debug('🧹 Performance metrics cleared');
   }
 
   // Helper method to time async functions

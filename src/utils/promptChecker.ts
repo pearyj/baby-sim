@@ -1,5 +1,5 @@
 import promptService from '../services/promptService';
-import { logger } from './logger';
+import logger from './logger';
 
 /**
  * Check for missing prompts in all languages

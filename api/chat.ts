@@ -98,8 +98,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!['system', 'user', 'assistant'].includes(message.role)) {
         return res.status(400).json({ error: 'Invalid message role' });
       }
-      if (typeof message.content !== 'string' || message.content.length > 10000) {
-        return res.status(400).json({ error: 'Message content must be a string under 10000 characters' });
+      if (typeof message.content !== 'string' || message.content.length > 20000) {
+        return res.status(400).json({ error: 'Message content must be a string under 20000 characters' });
       }
     }
 

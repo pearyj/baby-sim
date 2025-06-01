@@ -15,9 +15,10 @@ declare global {
 export const AdDisplay: React.FC<AdDisplayProps> = ({ currentAge }) => {
   const { t } = useTranslation();
   const adRef = useRef<HTMLDivElement>(null);
+  const isDevelopment = import.meta.env.DEV;
 
-  // Only show ads when age is over 7
-  if (currentAge <= 7) {
+  // Only show ads when age is over 7 and in development mode
+  if (currentAge <= 7 || !isDevelopment) {
     return null;
   }
 
