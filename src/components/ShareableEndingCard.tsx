@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
+import { track } from '@vercel/analytics';
 
 interface ShareableEndingCardProps {
   childName: string;
@@ -153,6 +154,7 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
         if (blob) {
           const fileName = `${childName}-parenting-journey-${new Date().getTime()}.png`;
           saveAs(blob, fileName);
+          track('Ending Image Saved')
           setSnackbar({
             open: true,
             message: t('messages.downloadComplete'),
