@@ -24,15 +24,19 @@ interface ShareableEndingCardProps {
   childDescription?: string;
 }
 
-const ShareableCard = styled(Card)(() => ({
+const ShareableCard = styled(Card)(({ theme }) => ({
   background: `url('${window.location.origin}/endingbkgd.png')`,
   backgroundSize: 'cover',
   backgroundPosition: 'bottom center',
   backgroundRepeat: 'no-repeat',
   position: 'relative',
-  maxWidth: '600px',
+  maxWidth: '1200px',
+  width: '100%',
   margin: '0 auto',
   color: '#5D4037',
+  [theme.breakpoints.up('sm')]: {
+    maxWidth: '600px',
+  },
   '& .MuiTypography-root:not(.MuiChip-label)': {
     color: '#5D4037',
   },

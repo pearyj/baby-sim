@@ -13,6 +13,7 @@ import type { GameStateToStore } from '../services/storageService'; // Import Ga
 import logger from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
 import i18n from '../i18n';
+import { track } from '@vercel/analytics';
 
 // Define a placeholder type for Question. This can be refined later.
 interface QuestionType extends ApiQuestionType {}
@@ -612,6 +613,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
 
       // Logic for subsequent continues (after actual game questions)
       if (isEnding || currentChildAge >= 17) { // Game ends after age 17 event (becomes 18)
+        track('Game Completed')
         logger.debug("Ending the game and generating summary");
         set(prevState => ({ ...prevState, gamePhase: 'ending_game', isLoading: true, error: null, showFeedback: false, feedbackText: null }));
         try {

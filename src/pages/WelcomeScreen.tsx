@@ -23,6 +23,7 @@ import type { InitialStateType } from '../services/gptServiceUnified';
 import logger from '../utils/logger';
 import pregenStatesZh from '../i18n/pregen/zh.json';
 import pregenStatesEn from '../i18n/pregen/en.json';
+import { track } from '@vercel/analytics';
 
 interface WelcomeScreenProps {
   onStartLoading?: () => void;
@@ -87,6 +88,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
 
   // Handle starting a new game
   const handleStartNewGame = async () => {
+    track('Game Started')
     if (!specialRequirements) {
       try {
         logger.info("No special requirements, loading pre-generated states...");

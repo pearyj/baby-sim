@@ -146,7 +146,7 @@ export const Timeline: React.FC<TimelineProps> = ({
             <TimelineItem key={`timeline-${event.age}-${index}`} sx={{ 
               paddingBottom: isLast ? 0 : 2 
             }}>
-              <AdDisplay currentAge={event.age} />
+              {import.meta.env.DEV && <AdDisplay currentAge={event.age} />}
               <Tooltip 
                 title={`${event.age} ${t('game.yearsOld')} - ${iconConfig.description} (${developmentalStage})`}
                 placement="left"
