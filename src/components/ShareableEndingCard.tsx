@@ -31,12 +31,12 @@ const ShareableCard = styled(Card)(({ theme }) => ({
   backgroundPosition: 'bottom center',
   backgroundRepeat: 'no-repeat',
   position: 'relative',
-  maxWidth: '1200px',
+  maxWidth: '2000px', // Base width for mobile
   width: '100%',
   margin: '0 auto',
   color: '#5D4037',
   [theme.breakpoints.up('sm')]: {
-    maxWidth: '600px',
+    maxWidth: '600px', // Original width on larger screens
   },
   '& .MuiTypography-root:not(.MuiChip-label)': {
     color: '#5D4037',
@@ -44,6 +44,19 @@ const ShareableCard = styled(Card)(({ theme }) => ({
   '& .MuiChip-root': {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
   },
+  // Adjust text container width based on language
+  '& .MuiCardContent-root': {
+    '& > div': {
+      maxWidth: '100%',
+      wordBreak: 'break-word',
+      overflowWrap: 'break-word',
+    },
+    '& p': {
+      maxWidth: '100%',
+      wordBreak: 'break-word',
+      overflowWrap: 'break-word',
+    }
+  }
 }));
 
 const ActionButtonsContainer = styled(Box)(({ theme }) => ({
