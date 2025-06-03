@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import './App.css'
 
 import useGameStore from './stores/useGameStore'
@@ -89,7 +89,6 @@ const EndingCard = styled(Card)(({ theme }) => ({
 function App() {
   useGameFlow() // Initialize game flow logic
   const { t } = useTranslation();
-  const navigate = useNavigate();
   
   // Determine if in development mode
   const isDevelopment = import.meta.env.DEV;
