@@ -1,24 +1,16 @@
 import React from 'react';
 import InfoIcon from '@mui/icons-material/Info';
-import useGameStore from '../../stores/useGameStore';
+import { useNavigate } from 'react-router-dom';
 
 export const FeedbackButton: React.FC = () => {
   const isDevelopment = import.meta.env.DEV;
-  const { openInfoModal, showInfoModal } = useGameStore(state => ({
-    openInfoModal: state.openInfoModal,
-    showInfoModal: state.showInfoModal,
-  }));
-
-  // Don't render the buttons when the info modal is open
-  if (showInfoModal) {
-    return null;
-  }
+  const navigate = useNavigate();
 
   return (
     <div className={`floating-container ${isDevelopment ? 'dev-mode' : ''}`}>
       {/* Info Button */}
       <button
-        onClick={openInfoModal}
+        onClick={() => navigate('/info')}
         className="floating-btn info-btn"
         title="Information Center"
         aria-label="Open Information Center"

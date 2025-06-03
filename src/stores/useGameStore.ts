@@ -62,9 +62,6 @@ interface GameStoreState {
   streamingType: 'question' | 'outcome' | 'initial' | null; // What type of content is streaming
   enableStreaming: boolean; // User preference for streaming mode
   
-  // UI state
-  showInfoModal: boolean; // Whether the info modal is open
-  
   // Store the pending choice to recover from refreshes during API calls
   pendingChoice?: {
     questionId?: string;
@@ -85,8 +82,6 @@ interface GameStoreState {
   resetToWelcome: () => void; // New function to reset to the welcome screen
   testEnding: () => Promise<void>; // Dev function to test ending screen
   toggleStreaming: () => void; // Toggle streaming mode
-  openInfoModal: () => void; // Open the info modal
-  closeInfoModal: () => void; // Close the info modal
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
@@ -162,8 +157,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
   type GameStoreData = Omit<GameStoreState, 
     'initializeGame' | 'startGame' | 'continueSavedGame' | 'loadQuestion' | 
     'loadQuestionStreaming' | 'selectOption' | 'selectOptionStreaming' | 
-    'continueGame' | 'resetToWelcome' | 'testEnding' | 'toggleStreaming' | 
-    'openInfoModal' | 'closeInfoModal'
+    'continueGame' | 'resetToWelcome' | 'testEnding' | 'toggleStreaming'
   >;
   
   const initialState: GameStoreData = {
@@ -171,7 +165,6 @@ const useGameStore = create<GameStoreState>((set, get) => {
     gamePhase: 'uninitialized',
     isLoading: false,
     error: null,
-    showInfoModal: false,
     initialGameNarrative: null,
 
     // ——— 1.2) CURRENT PLAYER & CHILD —————————————————————————————————
@@ -728,22 +721,6 @@ const useGameStore = create<GameStoreState>((set, get) => {
       
       // Add a visual confirmation
       console.log(`🔄 Streaming mode is now: ${!enableStreaming ? 'ENABLED ✅' : 'DISABLED ❌'}`);
-    },
-
-    openInfoModal: () => {
-      logger.debug("Opening info modal");
-      set(prevState => ({ 
-        ...prevState, 
-        showInfoModal: true 
-      }));
-    },
-
-    closeInfoModal: () => {
-      logger.debug("Closing info modal");
-      set(prevState => ({ 
-        ...prevState, 
-        showInfoModal: false 
-      }));
     },
 
     testEnding: async () => {

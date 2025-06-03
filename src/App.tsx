@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css'
 
 import useGameStore from './stores/useGameStore'
@@ -88,6 +89,7 @@ const EndingCard = styled(Card)(({ theme }) => ({
 function App() {
   useGameFlow() // Initialize game flow logic
   const { t } = useTranslation();
+  const navigate = useNavigate();
   
   // Determine if in development mode
   const isDevelopment = import.meta.env.DEV;
@@ -114,8 +116,6 @@ function App() {
     streamingType,
     enableStreaming,
     toggleStreaming, // Used only in development mode
-    showInfoModal,
-    closeInfoModal,
   } = useGameStore(state => ({
     gamePhase: state.gamePhase,
     player: state.player,
@@ -140,8 +140,6 @@ function App() {
     streamingType: state.streamingType,
     enableStreaming: state.enableStreaming,
     toggleStreaming: state.toggleStreaming,
-    showInfoModal: state.showInfoModal,
-    closeInfoModal: state.closeInfoModal,
   }))
 
   // Suppress unused variable warnings for production-only variables
@@ -209,7 +207,7 @@ function App() {
   const renderMainContent = () => {
     return performanceMonitor.timeSync('render-main-content', 'ui', () => {
       // Add development mode test pages
-      if (import.meta.env.DEV && gamePhase === 'test_ending') {
+      if (import.meta.env.DEV && gamePhase === 'welcome') {
         return <AdTestPage />;
       }
 
@@ -455,57 +453,59 @@ function App() {
       <Header />
       <ContentArea>
         <MainContentArea>
-          <Container component="main" maxWidth="lg" sx={{ 
-            px: { xs: 1, sm: 1.5 }, 
-            flex: 1, 
-            display: 'flex', 
-            flexDirection: 'column' 
-          }}>
-            <Box sx={{ flex: 1 }} />
-            <Box sx={{ py: 3, pb: 6, maxWidth: '48rem', mx: 'auto', width: '100%' }}>
-              {child?.name && showTimeline && (
-                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center' }}>
-                  <Button
-                    onClick={() => {
-                      if (typeof resetToWelcome === 'function') {
-                        resetToWelcome();
-                      } else {
-                        logger.error("resetToWelcome is not a function:", resetToWelcome);
-                        window.location.reload();
-                      }
-                    }}
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    sx={{ borderRadius: 3 }}
-                  >
-                    {t('actions.giveUpAndRestart', { childName: child.name })}
-                  </Button>
+          <Routes>
+            <Route path="/info" element={<InfoPage />} />
+            <Route path="/" element={
+              <Container component="main" maxWidth="lg" sx={{ 
+                px: { xs: 1, sm: 1.5 }, 
+                flex: 1, 
+                display: 'flex', 
+                flexDirection: 'column' 
+              }}>
+                <Box sx={{ flex: 1 }} />
+                <Box sx={{ py: 3, pb: 6, maxWidth: '48rem', mx: 'auto', width: '100%' }}>
+                  {child?.name && showTimeline && (
+                    <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center' }}>
+                      <Button
+                        onClick={() => {
+                          if (typeof resetToWelcome === 'function') {
+                            resetToWelcome();
+                          } else {
+                            logger.error("resetToWelcome is not a function:", resetToWelcome);
+                            window.location.reload();
+                          }
+                        }}
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        sx={{ borderRadius: 3 }}
+                      >
+                        {t('actions.giveUpAndRestart', { childName: child.name })}
+                      </Button>
+                    </Box>
+                  )}
+                  
+                  {showTimeline && (
+                    <TimelineProvider 
+                      history={history}
+                      currentAge={currentAge}
+                      childGender={child?.gender || 'male'}
+                      isVisible={true}
+                      hideLatest={(isFeedbackPhase || isGeneratingOutcomePhase) && !(child?.age && child.age >= 17)} 
+                    />
+                  )}
+                  
+                  {renderMainContent()}
                 </Box>
-              )}
-              
-              {showTimeline && (
-                <TimelineProvider 
-                  history={history}
-                  currentAge={currentAge}
-                  childGender={child?.gender || 'male'}
-                  isVisible={true}
-                  hideLatest={(isFeedbackPhase || isGeneratingOutcomePhase) && !(child?.age && child.age >= 17)} 
-                />
-              )}
-              
-              {renderMainContent()}
-            </Box>
-          </Container>
+              </Container>
+            } />
+          </Routes>
         </MainContentArea>
       </ContentArea>
       <FeedbackButton />
       
       {/* Show performance monitor in development mode */}
       {isDevelopment && <PerformanceMonitor />}
-      
-      {/* Info Modal */}
-      <InfoPage open={showInfoModal} onClose={closeInfoModal} />
     </MainContainer>
   );
 }

@@ -5,6 +5,7 @@ import { DevModelSwitcher } from '../dev';
 import { LanguageToggle } from '../ui';
 import { useTranslation } from 'react-i18next';
 import useGameStore from '../../stores/useGameStore';
+import { useNavigate } from 'react-router-dom';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
@@ -14,10 +15,15 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
 const StyledTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
   color: theme.palette.primary.contrastText,
+  cursor: 'pointer',
+  '&:hover': {
+    opacity: 0.9,
+  },
 }));
 
 export const Header: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { enableStreaming, toggleStreaming, isStreaming } = useGameStore(state => ({
     enableStreaming: state.enableStreaming,
     toggleStreaming: state.toggleStreaming,
@@ -28,10 +34,14 @@ export const Header: React.FC = () => {
     <StyledAppBar position="fixed" elevation={2}>
       <Toolbar sx={{ maxWidth: '3xl', mx: 'auto', width: '100%', px: 2 }}>
         <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-          <StyledTitle variant="h4" sx={{ 
-            fontSize: { xs: '1.5rem', sm: '2rem' },
-            textAlign: 'center'
-          }}>
+          <StyledTitle 
+            variant="h4" 
+            sx={{ 
+              fontSize: { xs: '1.5rem', sm: '2rem' },
+              textAlign: 'center'
+            }}
+            onClick={() => navigate('/')}
+          >
             {t('header.title')}
           </StyledTitle>
         </Box>
@@ -48,52 +58,18 @@ export const Header: React.FC = () => {
                   <Switch
                     checked={enableStreaming}
                     onChange={toggleStreaming}
+                    disabled={isStreaming}
                     color="default"
-                    sx={{
-                      '& .MuiSwitch-switchBase.Mui-checked': {
-                        color: 'white',
-                        '&:hover': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                        },
-                      },
-                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                      },
-                      '& .MuiSwitch-track': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                      },
-                    }}
                   />
                 }
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Typography variant="body2" sx={{ color: 'white', fontSize: '0.875rem' }}>
-                      {t('header.streaming')}
-                    </Typography>
-                    {isStreaming && (
-                      <Box
-                        sx={{
-                          width: 6,
-                          height: 6,
-                          borderRadius: '50%',
-                          backgroundColor: '#4CAF50',
-                          animation: 'pulse 1.5s infinite',
-                          '@keyframes pulse': {
-                            '0%': { opacity: 1 },
-                            '50%': { opacity: 0.5 },
-                            '100%': { opacity: 1 },
-                          },
-                        }}
-                      />
-                    )}
-                  </Box>
-                }
-                labelPlacement="start"
-                sx={{ m: 0 }}
+                label={t('header.streaming')}
+                sx={{ color: 'white' }}
               />
             </Tooltip>
           )}
-          <DevModelSwitcher />
+          
+          {/* Dev Model Switcher */}
+          {import.meta.env.DEV && <DevModelSwitcher />}
         </Box>
       </Toolbar>
     </StyledAppBar>
