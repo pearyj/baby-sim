@@ -31,6 +31,9 @@ export interface GameStateToStore {
   history: HistoryEntry[];
   currentYear: number; 
   activeQuestion: Question | null; 
+  finance: number; // Finance level 0-10 (0=bankrupt, 10=wealthy)
+  marital: number; // Marital relationship level 0-10 (0=partner left, 10=excellent)
+  isSingleParent: boolean; // Single parent status
   pendingChoice?: {
     questionId?: string;
     optionId: string;

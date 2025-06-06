@@ -166,13 +166,21 @@ const safeJsonParse = (content: string): any => {
     .trim();                     // Remove extra whitespace
   
   try {
-    // Clean JSON content of illegal control characters
+    // More aggressive JSON content cleaning
     jsonContent = jsonContent
+      // Remove illegal control characters
       .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '')
+      // Fix common escape sequence issues
       .replace(/\\u0000|\\u0001|\\u0002|\\u0003|\\u0004|\\u0005|\\u0006|\\u0007|\\b|\\v|\\f|\\u000e|\\u000f/g, '')
       .replace(/\\u0010|\\u0011|\\u0012|\\u0013|\\u0014|\\u0015|\\u0016|\\u0017/g, '')
       .replace(/\\u0018|\\u0019|\\u001a|\\u001b|\\u001c|\\u001d|\\u001e|\\u001f/g, '')
-      .replace(/\]\s*$/g, '}');
+      // Fix malformed escape sequences in strings
+      .replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\') // Fix invalid escape sequences
+      // Fix unescaped quotes within strings (this is tricky, but we'll try a basic approach)
+      .replace(/"([^"\\]*)\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})([^"]*?)"/g, '"$1\\\\$2"')
+      // Remove any trailing incomplete structures
+      .replace(/,\s*$/, '') // Remove trailing commas
+      .replace(/\]\s*$/g, '}'); // Fix incomplete arrays/objects
     
     logger.info("🧹 Cleaned JSON content for parsing");
     
@@ -181,7 +189,28 @@ const safeJsonParse = (content: string): any => {
     return parsed;
   } catch (error) {
     logger.error('❌ JSON parsing error:', error);
-    logger.error('Attempted to parse content:', jsonContent);
+    logger.error('Original content:', content.substring(0, 1000));
+    logger.error('Cleaned content:', jsonContent.substring(0, 1000));
+    
+    // Try a fallback approach - extract JSON manually if possible
+    try {
+      // Look for JSON-like structure in the response
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const fallbackJson = jsonMatch[0]
+          .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '')
+          .replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\')
+          .replace(/,\s*([}\]])/g, '$1'); // Remove trailing commas before closing
+        
+        logger.info("🔧 Attempting fallback JSON parsing");
+        const fallbackParsed = JSON.parse(fallbackJson);
+        logger.info("✅ Fallback JSON parsing successful");
+        return fallbackParsed;
+      }
+    } catch (fallbackError) {
+      logger.error('❌ Fallback JSON parsing also failed:', fallbackError);
+    }
+    
     throw error;
   }
 };
@@ -237,8 +266,7 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
       throw new Error(`Serverless function returned invalid JSON: ${e}`);
     }
     
-    const duration = performanceMonitor.endTiming(`API-${provider.name}-request`);
-    logger.info(`✅ Successful serverless response received in ${duration?.toFixed(2)}ms`);
+    performanceMonitor.endTiming(`API-${provider.name}-request`);
     
     return data as OpenAIResponse;
   } catch (error) {
@@ -334,7 +362,9 @@ export interface InitialStateType {
   };
   playerDescription: string;
   childDescription: string;
-  wealthTier: 'poor' | 'middle' | 'wealthy';
+  finance?: number;
+  marital?: number;
+  isSingleParent: boolean;
 }
 
 interface GenerateInitialStateOptions {
@@ -389,9 +419,8 @@ export const generateInitialState = async (
         currentQuestion: null,
         feedbackText: null,
         endingSummaryText: null,
-        wealthTier: preloadedState.wealthTier,
-        financialBurden: 0,
-        isBankrupt: false,
+        finance: preloadedState.finance || 5,
+        isSingleParent: preloadedState.isSingleParent || false,
       } as GameState;
     });
   }
@@ -417,9 +446,21 @@ const generateQuestionSync = async (gameState: GameState): Promise<Question & { 
   logger.info(`🚀 Function called: generateQuestion(child.age=${gameState.child.age})`);
   
   return performanceMonitor.timeAsync('generateQuestion', 'api', async () => {
+    const systemPrompt = generateSystemPrompt();
+    const userPrompt = generateQuestionPrompt(gameState, true);
+    
+    // 🐛 COMPREHENSIVE LOGGING - FULL PROMPTS
+    console.log('\n🔍 ===== GENERATE QUESTION DEBUG =====');
+    console.log('🎯 SYSTEM PROMPT (FULL):');
+    console.log(systemPrompt);
+    console.log('\n📝 USER PROMPT (FULL):');
+    console.log(userPrompt);
+    console.log('\n📊 GAME STATE SENT TO LLM:');
+    console.log(JSON.stringify(gameState, null, 2));
+    
     const messages: ChatMessage[] = [
-      { role: 'system', content: generateSystemPrompt() },
-      { role: 'user', content: generateQuestionPrompt(gameState, true) }
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
     ];
 
     try {
@@ -429,11 +470,31 @@ const generateQuestionSync = async (gameState: GameState): Promise<Question & { 
       logTokenUsage('generateQuestion', data);
       
       const content = data.choices[0].message.content;
+      
+      // 🐛 COMPREHENSIVE LOGGING - FULL RESPONSE
+      console.log('\n📦 LLM RESPONSE (FULL):');
+      console.log(content);
+      console.log('\n🔄 PARSING RESPONSE...');
+      
       logger.info('📄 API response content (question):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
       
       const result = performanceMonitor.timeSync('safeJsonParse-question', 'local', () => {
         return safeJsonParse(content);
       });
+      
+      // 🐛 LOG PARSED RESULT
+      console.log('\n✅ PARSED RESULT:');
+      console.log(JSON.stringify(result, null, 2));
+      console.log('\n📋 EXTRACTED OPTIONS WITH DELTAS:');
+      if (result.options) {
+        result.options.forEach((opt: any, index: number) => {
+          console.log(`Option ${index + 1}: ${opt.text}`);
+          console.log(`  - financeDelta: ${opt.financeDelta || 0}`);
+          console.log(`  - maritalDelta: ${opt.maritalDelta || 0}`);
+          console.log(`  - cost (legacy): ${opt.cost || 0}`);
+        });
+      }
+      console.log('🔍 ===== END GENERATE QUESTION DEBUG =====\n');
       
       const question: Question & { isExtremeEvent: boolean } = {
         id: `q_${Date.now()}`,
@@ -464,9 +525,25 @@ const generateOutcomeAndNextQuestionSync = async (
   const shouldGenerateNextQuestion = gameState.child.age < 17;
   
   return performanceMonitor.timeAsync('generateOutcomeAndNextQuestion', 'api', async () => {
+    const systemPrompt = generateSystemPrompt();
+    const userPrompt = generateOutcomeAndNextQuestionPrompt(gameState, question, choice, shouldGenerateNextQuestion);
+    
+    // 🐛 COMPREHENSIVE LOGGING - FULL PROMPTS
+    console.log('\n🔍 ===== GENERATE OUTCOME DEBUG =====');
+    console.log('🎯 SYSTEM PROMPT (FULL):');
+    console.log(systemPrompt);
+    console.log('\n📝 USER PROMPT (FULL):');
+    console.log(userPrompt);
+    console.log('\n📊 GAME STATE SENT TO LLM:');
+    console.log(JSON.stringify(gameState, null, 2));
+    console.log('\n🎯 SELECTED CHOICE:');
+    console.log(`Question: ${question}`);
+    console.log(`Choice: ${choice}`);
+    console.log(`Should generate next question: ${shouldGenerateNextQuestion}`);
+    
     const messages: ChatMessage[] = [
-      { role: 'system', content: generateSystemPrompt() },
-      { role: 'user', content: generateOutcomeAndNextQuestionPrompt(gameState, question, choice, shouldGenerateNextQuestion) }
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
     ];
 
     try {
@@ -476,11 +553,31 @@ const generateOutcomeAndNextQuestionSync = async (
       logTokenUsage('generateOutcomeAndNextQuestion', data);
       
       const content = data.choices[0].message.content;
+      
+      // 🐛 COMPREHENSIVE LOGGING - FULL RESPONSE
+      console.log('\n📦 LLM RESPONSE (FULL):');
+      console.log(content);
+      console.log('\n🔄 PARSING RESPONSE...');
+      
       logger.info('📄 API response content (outcome):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
       
       const result = performanceMonitor.timeSync('safeJsonParse-outcome', 'local', () => {
         return safeJsonParse(content);
       });
+      
+      // 🐛 LOG PARSED RESULT
+      console.log('\n✅ PARSED RESULT:');
+      console.log(JSON.stringify(result, null, 2));
+      console.log('\n📋 NEXT QUESTION OPTIONS (if any):');
+      if (result.nextQuestion && result.nextQuestion.options) {
+        result.nextQuestion.options.forEach((opt: any, index: number) => {
+          console.log(`Option ${index + 1}: ${opt.text}`);
+          console.log(`  - financeDelta: ${opt.financeDelta || 0}`);
+          console.log(`  - maritalDelta: ${opt.maritalDelta || 0}`);
+          console.log(`  - cost (legacy): ${opt.cost || 0}`);
+        });
+      }
+      console.log('🔍 ===== END GENERATE OUTCOME DEBUG =====\n');
       
       const response: {
         outcome: string;

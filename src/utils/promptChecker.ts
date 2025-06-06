@@ -38,29 +38,29 @@ export const testPromptGeneration = (): void => {
   const sampleGameState = {
     player: {
       gender: 'female' as const,
-      age: 28
+      age: 32,
     },
     child: {
-      name: 'Emma',
+      name: '小雨',
       gender: 'female' as const,
-      age: 3
+      age: 3,
     },
-    playerDescription: 'A working mother with a stable job in marketing',
-    childDescription: 'A curious and energetic toddler who loves books',
-    wealthTier: 'middle' as const,
+    playerDescription: '你是一名中学语文老师，温柔耐心，注重孩子的人文素养培养。',
+    childDescription: '小雨是一个聪明好学的女孩，喜欢阅读和绘画。',
+    finance: 5,
+    marital: 6,
+    isSingleParent: false,
     history: [
       {
         age: 1,
-        question: 'Should you start daycare?',
-        choice: 'Start part-time daycare',
-        outcome: 'Emma adapted well to daycare and made friends'
+        question: '孩子总是哭闹，你会怎么办？',
+        choice: '耐心安抚并寻找原因',
+        outcome: '通过你的耐心，孩子逐渐安静下来，你们的关系更加亲密。'
       }
     ],
-    financialBurden: 5,
-    isBankrupt: false,
     currentQuestion: null,
-    feedbackText: '',
-    endingSummaryText: ''
+    feedbackText: '这是一个样本反馈。',
+    endingSummaryText: '这是样本结局。',
   };
   
   try {

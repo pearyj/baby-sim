@@ -43,9 +43,9 @@ interface GameStoreState {
   history: HistoryEntry[];
   feedbackText: string | null;
   endingSummaryText: string | null;
-  wealthTier: 'poor' | 'middle' | 'wealthy' | null; // Added from previous step
-  financialBurden: number; // Added for financial tracking
-  isBankrupt: boolean; // Added for bankruptcy state
+  finance: number; // Finance level 0-10 (0=bankrupt, 10=wealthy)
+  marital: number; // Marital relationship level 0-10 (0=partner left, 10=excellent)
+  isSingleParent: boolean; // Added for single parent status
 
   currentAge: number; // This might be derived from child.age later
   currentQuestion: QuestionType | null;
@@ -119,6 +119,13 @@ const saveGameState = (state: GameStoreState) => {
     return; // Don't save if essential data is missing
   }
   
+  // Ensure currentAge and child.age are synchronized
+  const syncedAge = state.child.age;
+  const currentState = state.currentAge;
+  if (currentState !== syncedAge) {
+    logger.warn(`Age mismatch detected: currentAge=${currentState}, child.age=${syncedAge}. Using child.age as source of truth.`);
+  }
+  
   const stateToStore: GameStateToStore = {
     player: {
       gender: state.player.gender,
@@ -132,8 +139,12 @@ const saveGameState = (state: GameStoreState) => {
       description: state.childDescription || '',
     },
     history: state.history,
-    currentYear: state.currentAge,
+    currentYear: syncedAge, // Use child.age as the authoritative source
     activeQuestion: state.currentQuestion,
+    finance: state.finance,
+    marital: state.marital,
+    isSingleParent: state.isSingleParent,
+    pendingChoice: state.pendingChoice,
   };
   
   logger.debug("Saving game state to localStorage:", stateToStore);
@@ -172,9 +183,10 @@ const useGameStore = create<GameStoreState>((set, get) => {
     child: null,
     playerDescription: null,
     childDescription: null,
-    wealthTier: null,
-    financialBurden: 0,
-    isBankrupt: false,
+    endingSummaryText: null,
+    finance: 5, // Start with middle-class finance level (0=bankrupt, 10=wealthy)
+    marital: 5, // Start with middle-class marital relationship level (0=partner left, 10=excellent)
+    isSingleParent: false,
     currentAge: 1,
 
     // ——— 1.3) GAME FLOW & HISTORY —————————————————————————————————————
@@ -182,7 +194,6 @@ const useGameStore = create<GameStoreState>((set, get) => {
     nextQuestion: null,
     history: [],
     feedbackText: null,
-    endingSummaryText: null,
     showFeedback: false,
     isEnding: false,
     showEndingSummary: false,
@@ -197,6 +208,14 @@ const useGameStore = create<GameStoreState>((set, get) => {
 
   // If there's saved state, use it to initialize
   if (savedState && savedState.player && savedState.child) {
+    // Ensure age consistency - use child.age as authoritative source
+    const authorizedAge = savedState.child.age;
+    const savedCurrentYear = savedState.currentYear;
+    
+    if (authorizedAge !== savedCurrentYear) {
+      logger.warn(`Age inconsistency in saved state: child.age=${authorizedAge}, currentYear=${savedCurrentYear}. Using child.age as authoritative.`);
+    }
+    
     initialState.gamePhase = 'welcome';
     initialState.player = {
       gender: savedState.player.gender,
@@ -208,15 +227,18 @@ const useGameStore = create<GameStoreState>((set, get) => {
     initialState.child = {
       name: savedState.child.name,
       gender: savedState.child.gender,
-      age: savedState.child.age,
+      age: authorizedAge,
       profile: {},
       traits: [],
     };
     initialState.playerDescription = savedState.player.description;
     initialState.childDescription = savedState.child.description;
     initialState.history = savedState.history;
-    initialState.currentAge = savedState.currentYear;
+    initialState.currentAge = authorizedAge; // Use child.age as authoritative source
     initialState.currentQuestion = savedState.activeQuestion;
+    initialState.finance = savedState.finance ?? 5; // Load finance from saved state
+    initialState.marital = savedState.marital ?? 5; // Load marital relationship level from saved state
+    initialState.isSingleParent = savedState.isSingleParent ?? false; // Load isSingleParent from saved state
     
     logger.debug("Initialized game with saved state:", initialState);
   }
@@ -260,9 +282,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
           isEnding: false,
           showEndingSummary: false,
           pendingChoice: null, // Make sure to clear pendingChoice as well
-          wealthTier: null, // Clear wealthTier
-          financialBurden: 0, // Reset financialBurden
-          isBankrupt: false, // Reset isBankrupt
+          isSingleParent: false, // Clear isSingleParent
         }));
       });
       
@@ -328,11 +348,11 @@ const useGameStore = create<GameStoreState>((set, get) => {
 
         // Process the initial state (local processing)
         const processedState = performanceMonitor.timeSync('process-initial-state', 'local', () => {
-          const tierMap = { poor: 0, middle: 10, wealthy: 30 };
-          const B = tierMap[initialScenarioState.wealthTier || 'middle']; // Default to middle if not present
-          const calculatedFinancialBurden = -B;
+          // Use finance from the initial scenario state, or default to 5 for LLM-generated states
+          const calculatedFinance = initialScenarioState.finance ?? 5;
 
-          logger.debug(`Scenario wealthTier: ${initialScenarioState.wealthTier}, Initial financialBurden: ${calculatedFinancialBurden}`);
+          logger.debug(`Initial finance: ${calculatedFinance}`);
+          logger.debug(`Single parent status: ${initialScenarioState.isSingleParent} (LLM-generated)`);
 
           const narrative = generateNarrative(initialScenarioState);
 
@@ -350,9 +370,10 @@ const useGameStore = create<GameStoreState>((set, get) => {
             child: { ...initialScenarioState.child, age: 1 }, // Change initial age from 0 to 1
             playerDescription: initialScenarioState.playerDescription,
             childDescription: initialScenarioState.childDescription,
-            wealthTier: initialScenarioState.wealthTier || 'middle', // Persist wealthTier
-            financialBurden: calculatedFinancialBurden, // Persist calculated financialBurden
-            isBankrupt: false, // Initialize isBankrupt for a new game
+            endingSummaryText: narrative, 
+            finance: calculatedFinance, // Use the calculated finance value
+            marital: initialScenarioState.marital ?? 5, // Use LLM-generated marital relationship level
+            isSingleParent: initialScenarioState.isSingleParent || false, // Use LLM-generated value
             currentAge: 1, // Change current display age from 0 to 1
             history: [initialHistoryEntry],
             initialGameNarrative: narrative, 
@@ -365,7 +386,6 @@ const useGameStore = create<GameStoreState>((set, get) => {
             showFeedback: true, 
             isEnding: false,
             showEndingSummary: false,
-            endingSummaryText: null,
           };
         });
         
@@ -400,8 +420,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
     startGame: (player: Player, child: Child, playerDescription: string, childDescription: string) => {
       const currentPhase = get().gamePhase;
       if (currentPhase === 'uninitialized' || currentPhase === 'initialization_failed') {
-        // Correctly set child age to 1 for preloadedState and add default wealthTier
-        get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 1 }, playerDescription, childDescription, wealthTier: 'middle' } });
+        // Correctly set child age to 1 for preloadedState
+        get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 1 }, playerDescription, childDescription, isSingleParent: false } });
       } else if (currentPhase === 'welcome') {
         if (get().initialGameNarrative) {
            const newState = {
@@ -414,8 +434,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
            set(prevState => ({ ...prevState, ...newState }));
            saveGameState(get());
         } else {
-          // Correctly set child age to 1 for preloadedState and add default wealthTier
-          get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 1 }, playerDescription, childDescription, wealthTier: 'middle' } }); 
+          // Correctly set child age to 1 for preloadedState
+          get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 1 }, playerDescription, childDescription, isSingleParent: false } }); 
         }
       } else {
         logger.warn("startGame called in an unexpected phase:", get().gamePhase);
@@ -426,13 +446,23 @@ const useGameStore = create<GameStoreState>((set, get) => {
     continueSavedGame: () => {
       logger.debug("Continuing saved game with state:", get());
       
-      // Check if we're in an error state with "Failed to fetch" error
+      // Check if we're in an error state with any API-related error
       const currentError = get().error;
       const pendingChoice = get().pendingChoice;
       
+      // Check for various types of API errors that need recovery
+      const isAPIError = currentError && (
+        currentError.includes("Failed to fetch") ||
+        currentError.includes("Failed to parse JSON") ||
+        currentError.includes("SyntaxError") ||
+        currentError.includes("Bad escaped character") ||
+        currentError.includes("Failed serverless request") ||
+        currentError.includes("Failed direct API request")
+      );
+      
       // If there was a pending choice and an error occurred (API likely failed)
-      if (pendingChoice && currentError && currentError.includes("Failed to fetch")) {
-        logger.debug("Detected pending choice with 'Failed to fetch' error, returning to question state");
+      if (pendingChoice && isAPIError) {
+        logger.debug("Detected pending choice with API error, returning to question state:", currentError);
         // We need to reload the question so the user can try again
         const { child, player } = get();
         
@@ -462,9 +492,9 @@ const useGameStore = create<GameStoreState>((set, get) => {
           // Update handler for selectOption to handle the recovery options
           return;
         }
-      } else if (currentError && currentError.includes("Failed to fetch")) {
-        logger.debug("Detected 'Failed to fetch' error after refresh, resetting to question state");
-        // If we have a current age but encountered a fetch error, we need to reset to the question state
+      } else if (isAPIError) {
+        logger.debug("Detected API error after refresh, resetting to question state:", currentError);
+        // If we have a current age but encountered an API error, we need to reset to the question state
         const { child, player } = get();
         
         if (child && player) {
@@ -498,7 +528,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
       // If we have feedback text to show but no question (and it's not an error message)
       else if (get().feedbackText && 
                typeof get().feedbackText === 'string' && 
-               !(get().feedbackText as string).includes("Failed to fetch")) {
+               !isAPIError) {
         set(prevState => ({
           ...prevState,
           gamePhase: 'feedback' as GamePhase,
@@ -514,16 +544,45 @@ const useGameStore = create<GameStoreState>((set, get) => {
         const initialStoryEntry = get().history.find(h => h.question === "游戏开始" || h.question === "Game Start");
         
         if (initialStoryEntry) {
-          // Set feedback to show the initial story
-          const newState = {
-            gamePhase: 'feedback' as GamePhase,
-            showFeedback: true,
-            feedbackText: initialStoryEntry.outcome,
-            isLoading: false,
-            error: null // Clear any errors
-          };
-          set(prevState => ({ ...prevState, ...newState }));
-          logger.debug("Continuing with initial narrative");
+          // When showing the initial story, ensure we preserve the saved age information
+          // Don't reset to age 1 if we have a saved game with a higher age
+          const currentState = get();
+          const shouldShowInitialStory = currentState.history.length === 1 && initialStoryEntry.age === 1;
+          
+          if (shouldShowInitialStory) {
+            // This is truly the beginning of the game - show initial narrative
+            const newState = {
+              gamePhase: 'feedback' as GamePhase,
+              showFeedback: true,
+              feedbackText: initialStoryEntry.outcome,
+              isLoading: false,
+              error: null // Clear any errors
+            };
+            set(prevState => ({ ...prevState, ...newState }));
+            logger.debug("Continuing with initial narrative for new game");
+          } else {
+            // This is a saved game with progress - determine appropriate feedback or question
+            // Look for the most recent history entry to show appropriate feedback
+            const mostRecentEntry = currentState.history[currentState.history.length - 1];
+            
+            if (mostRecentEntry && mostRecentEntry.outcome) {
+              // Show the most recent outcome as feedback
+              const newState = {
+                gamePhase: 'feedback' as GamePhase,
+                showFeedback: true,
+                feedbackText: mostRecentEntry.outcome,
+                isLoading: false,
+                error: null // Clear any errors
+              };
+              set(prevState => ({ ...prevState, ...newState }));
+              logger.debug(`Continuing saved game with most recent feedback for age ${mostRecentEntry.age}`);
+            } else {
+              // No feedback available, load question for current age
+              logger.debug("No recent feedback found - loading question for current age");
+              set(prevState => ({ ...prevState, error: null }));
+              get().loadQuestion();
+            }
+          }
         } else {
           // Need to get a question - transition to playing
           logger.debug("No narratives or questions found - loading question for current age");
@@ -537,7 +596,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
     },
 
     continueGame: async () => {
-      const { isEnding, gamePhase, child, player, playerDescription, childDescription, history, nextQuestion: preloadedNextQuestion, wealthTier, financialBurden, currentQuestion: cQ_store, feedbackText: ft_store, endingSummaryText: est_store, isBankrupt } = get();
+      const { isEnding, gamePhase, child, player, playerDescription, childDescription, history, nextQuestion: preloadedNextQuestion, endingSummaryText: est_store, isSingleParent, currentQuestion: cQ_store, feedbackText: ft_store } = get();
       
       if (gamePhase !== 'feedback') {
           logger.warn("continueGame called in an unexpected phase:", gamePhase);
@@ -617,12 +676,12 @@ const useGameStore = create<GameStoreState>((set, get) => {
             playerDescription: playerDescription!,
             childDescription: childDescription!,
             history: history,
-            wealthTier: wealthTier || 'middle',
-            financialBurden: financialBurden || 0,
-            isBankrupt: isBankrupt || false, // Pass isBankrupt state
+            endingSummaryText: est_store,
+            isSingleParent: isSingleParent,
             currentQuestion: cQ_store,
             feedbackText: ft_store,
-            endingSummaryText: est_store,
+            finance: get().finance,
+            marital: get().marital,
           };
           const summary = await gptService.generateEnding(fullGameStateForApi);
           const newState = {
@@ -654,6 +713,15 @@ const useGameStore = create<GameStoreState>((set, get) => {
             isLoading: true
         };
         set(prevState => ({ ...prevState, ...newState }));
+        
+        // Apply automatic finance recovery after advancing age if below 7
+        const currentFinance = get().finance;
+        if (currentFinance < 7) {
+          const newFinance = Math.min(10, currentFinance + 1);
+          logger.info(`💰 Auto-recovery (age advance): Finance increased from ${currentFinance} to ${newFinance} (below 7 threshold)`);
+          set(prevState => ({ ...prevState, finance: newFinance }));
+        }
+        
         saveGameState(get());
 
         if (preloadedNextQuestion) {
@@ -796,9 +864,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
         history: mockHistory,
         currentAge: 18,
         isEnding: true,
-        wealthTier: 'middle' as const,
-        financialBurden: 5,
-        isBankrupt: false,
+        endingSummaryText: 'middle',
+        isSingleParent: false,
       }));
       
       // Generate a mock ending summary
@@ -809,12 +876,12 @@ const useGameStore = create<GameStoreState>((set, get) => {
           playerDescription: "你是一位35岁的职业女性，在事业和家庭之间努力平衡。你重视教育和家庭价值观，希望给孩子最好的成长环境。",
           childDescription: "小测试是一个聪明活泼的男孩，天生好奇心强，喜欢探索新事物。他有着温和的性格，但也有自己的主见。",
           history: mockHistory,
-          wealthTier: 'middle',
-          financialBurden: 5,
-          isBankrupt: false,
+          endingSummaryText: 'middle',
+          isSingleParent: false,
           currentQuestion: null,
           feedbackText: null,
-          endingSummaryText: null,
+          finance: 5,
+          marital: 5,
         };
         
         const summary = await gptService.generateEnding(fullGameStateForApi);
@@ -860,11 +927,12 @@ const useGameStore = create<GameStoreState>((set, get) => {
     },
 
     loadQuestion: async () => {
-      const { child, player, playerDescription, childDescription, history, wealthTier, financialBurden, currentQuestion: cQ_store, feedbackText: ft_store, endingSummaryText: est_store, isBankrupt } = get();
+      const { child, player, playerDescription, childDescription, history, endingSummaryText: est_store, currentQuestion: cQ_store, feedbackText: ft_store, isSingleParent } = get();
       if (!child || !player) {
           set(prevState => ({ ...prevState, error: "Cannot load question: Player or child data is missing.", gamePhase: 'initialization_failed', isLoading: false }));
           return;
       }
+      
       set(prevState => ({ ...prevState, gamePhase: 'loading_question', isLoading: true, error: null, currentQuestion: null }));
       try {
         logger.debug("Preparing game state for API call");
@@ -874,12 +942,12 @@ const useGameStore = create<GameStoreState>((set, get) => {
             playerDescription: playerDescription!,
             childDescription: childDescription!,
             history: history,
-            wealthTier: wealthTier || 'middle',
-            financialBurden: financialBurden || 0,
+            endingSummaryText: est_store,
             currentQuestion: cQ_store,
             feedbackText: ft_store,
-            endingSummaryText: est_store,
-            isBankrupt: isBankrupt || false,
+            isSingleParent: isSingleParent,
+            finance: get().finance,
+            marital: get().marital,
         };
         
         logger.debug("Making API call to fetch question for age:", child.age);
@@ -935,7 +1003,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
     },
 
     selectOption: async (optionId: string) => {
-      const { currentQuestion, player, child, playerDescription, childDescription, history, wealthTier, financialBurden, feedbackText: ft_store, endingSummaryText: est_store } = get();
+      const { currentQuestion, player, child, playerDescription, childDescription, history, endingSummaryText: est_store, currentQuestion: cQ_store, feedbackText: ft_store, isSingleParent } = get();
       if (!currentQuestion || !player || !child) {
         set(prevState => ({ ...prevState, error: "Cannot select option: Missing data.", gamePhase: 'playing', isLoading: false }));
         return;
@@ -970,42 +1038,59 @@ const useGameStore = create<GameStoreState>((set, get) => {
           return;
       }
 
-      // Update financial burden based on selected option cost
-      const newFinancialBurden = (financialBurden || 0) + (selectedOption.cost || 0);
-      let newIsBankrupt = get().isBankrupt;
+      // Update financial burden and marital relationship
+      const currentFinance = get().finance;
+      const currentMarital = get().marital;
+      
+      // Apply deltas from the selected option
+      const financeDelta = selectedOption.financeDelta || selectedOption.cost || 0;
+      const maritalDelta = selectedOption.maritalDelta || 0;
+      
+      const newFinance = Math.max(0, Math.min(10, currentFinance + financeDelta));
+      const newMarital = Math.max(0, Math.min(10, currentMarital + maritalDelta));
+      
+      const wasBankrupt = currentFinance === 0;
+      const isNowBankrupt = newFinance === 0;
+
+      logger.info(`💰 Finance: ${currentFinance} + ${financeDelta} = ${newFinance}`);
+      logger.info(`💕 Marital: ${currentMarital} + ${maritalDelta} = ${newMarital}`);
 
       // Check for bankruptcy recovery
-      if (get().isBankrupt && (selectedOption as any).isRecovery) {
-        newIsBankrupt = false;
-        logger.info(`🎉 Player recovered from bankruptcy! Financial burden reduced significantly.`);
-        const recoveredBurden = Math.max(20, newFinancialBurden - 35);
-        logger.info(`Financial burden reduced from ${newFinancialBurden} to ${recoveredBurden}`);
-        const finalFinancialBurden = recoveredBurden;
+      if (wasBankrupt && (selectedOption as any).isRecovery) {
+        const recoveredFinance = Math.max(3, newFinance + 2); // Recover to at least level 3
+        logger.info(`🎉 Player recovered from bankruptcy! Finance improved from ${newFinance} to ${recoveredFinance}`);
         
         set(prevState => ({ 
           ...prevState, 
-          financialBurden: finalFinancialBurden,
-          isBankrupt: newIsBankrupt,
+          finance: recoveredFinance,
+          marital: newMarital, // Still apply marital delta during recovery
           gamePhase: 'generating_outcome', 
-          isLoading: true, 
+          isLoading: true,
+          isStreaming: true,
+          streamingContent: '',
+          streamingType: 'outcome',
           error: null 
         }));
-        logger.debug(`Bankruptcy recovery: Financial burden set to ${finalFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+        
+        logger.debug(`Bankruptcy recovery: Finance set to ${recoveredFinance}, Marital set to ${newMarital}`);
       } else {
-        if (newFinancialBurden >= 50) {
-          newIsBankrupt = true;
-          logger.warn(`Bankruptcy threshold reached! Financial Burden: ${newFinancialBurden}`);
+        if (newFinance === 0 && !wasBankrupt) {
+          logger.warn(`Bankruptcy reached! Finance dropped to 0`);
         }
 
         set(prevState => ({ 
           ...prevState, 
-          financialBurden: newFinancialBurden,
-          isBankrupt: newIsBankrupt,
+          finance: newFinance,
+          marital: newMarital,
           gamePhase: 'generating_outcome', 
-          isLoading: true, 
+          isLoading: true,
+          isStreaming: true,
+          streamingContent: '',
+          streamingType: 'outcome',
           error: null 
         }));
-        logger.debug(`Financial burden updated: ${financialBurden} + ${selectedOption.cost || 0} = ${newFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+        
+        logger.debug(`Finance updated: ${currentFinance} + ${financeDelta} = ${newFinance}. Marital updated: ${currentMarital} + ${maritalDelta} = ${newMarital}. Is Bankrupt: ${isNowBankrupt}`);
       }
 
       // Save intermediate state
@@ -1022,19 +1107,18 @@ const useGameStore = create<GameStoreState>((set, get) => {
       
       try {
         const eventAge = child.age; 
-        const currentState = get();
         const fullGameStateForApi: ApiGameState = {
           player: player!,
           child: child!,
           playerDescription: playerDescription!,
           childDescription: childDescription!,
           history: history,
-          wealthTier: wealthTier || 'middle',
-          financialBurden: currentState.financialBurden,
-          isBankrupt: currentState.isBankrupt,
-          currentQuestion: currentQuestion,
-          feedbackText: ft_store,
           endingSummaryText: est_store,
+          currentQuestion: cQ_store,
+          feedbackText: ft_store,
+          isSingleParent: isSingleParent,
+          finance: get().finance,
+          marital: get().marital,
         };
         const result = await gptService.generateOutcomeAndNextQuestion(
           fullGameStateForApi,
@@ -1083,7 +1167,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
     },
 
     loadQuestionStreaming: async () => {
-      const { child, player, playerDescription, childDescription, history, wealthTier, financialBurden, currentQuestion: cQ_store, feedbackText: ft_store, endingSummaryText: est_store, isBankrupt, enableStreaming } = get();
+      const { child, player, playerDescription, childDescription, history, endingSummaryText: est_store, currentQuestion: cQ_store, feedbackText: ft_store, isSingleParent, enableStreaming } = get();
       
       console.log('🚀 loadQuestionStreaming called! enableStreaming:', enableStreaming);
       logger.debug(`🚀 loadQuestionStreaming called with enableStreaming: ${enableStreaming}`);
@@ -1117,12 +1201,12 @@ const useGameStore = create<GameStoreState>((set, get) => {
           playerDescription: playerDescription!,
           childDescription: childDescription!,
           history: history,
-          wealthTier: wealthTier || 'middle',
-          financialBurden: financialBurden || 0,
+          endingSummaryText: est_store,
           currentQuestion: cQ_store,
           feedbackText: ft_store,
-          endingSummaryText: est_store,
-          isBankrupt: isBankrupt || false,
+          isSingleParent: isSingleParent,
+          finance: get().finance,
+          marital: get().marital,
         };
         
         logger.debug("Making streaming API call to fetch question for age:", child.age);
@@ -1183,7 +1267,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
     },
 
     selectOptionStreaming: async (optionId: string) => {
-      const { currentQuestion, player, child, playerDescription, childDescription, history, wealthTier, financialBurden, feedbackText: ft_store, endingSummaryText: est_store, enableStreaming } = get();
+      const { currentQuestion, player, child, playerDescription, childDescription, history, endingSummaryText: est_store, currentQuestion: cQ_store, feedbackText: ft_store, isSingleParent, enableStreaming } = get();
       
       console.log('🚀 selectOptionStreaming called! optionId:', optionId, 'enableStreaming:', enableStreaming);
       logger.debug(`🚀 selectOptionStreaming called with optionId: ${optionId}, enableStreaming: ${enableStreaming}`);
@@ -1227,22 +1311,32 @@ const useGameStore = create<GameStoreState>((set, get) => {
         return;
       }
 
-      // Update financial burden
-      const newFinancialBurden = (financialBurden || 0) + (selectedOption.cost || 0);
-      let newIsBankrupt = get().isBankrupt;
+      // Update financial burden and marital relationship
+      const currentFinance = get().finance;
+      const currentMarital = get().marital;
+      
+      // Apply deltas from the selected option
+      const financeDelta = selectedOption.financeDelta || selectedOption.cost || 0;
+      const maritalDelta = selectedOption.maritalDelta || 0;
+      
+      const newFinance = Math.max(0, Math.min(10, currentFinance + financeDelta));
+      const newMarital = Math.max(0, Math.min(10, currentMarital + maritalDelta));
+      
+      const wasBankrupt = currentFinance === 0;
+      const isNowBankrupt = newFinance === 0;
+
+      logger.info(`💰 Finance: ${currentFinance} + ${financeDelta} = ${newFinance}`);
+      logger.info(`💕 Marital: ${currentMarital} + ${maritalDelta} = ${newMarital}`);
 
       // Check for bankruptcy recovery
-      if (get().isBankrupt && (selectedOption as any).isRecovery) {
-        newIsBankrupt = false;
-        logger.info(`🎉 Player recovered from bankruptcy! Financial burden reduced significantly.`);
-        const recoveredBurden = Math.max(20, newFinancialBurden - 35);
-        logger.info(`Financial burden reduced from ${newFinancialBurden} to ${recoveredBurden}`);
-        const finalFinancialBurden = recoveredBurden;
+      if (wasBankrupt && (selectedOption as any).isRecovery) {
+        const recoveredFinance = Math.max(3, newFinance + 2); // Recover to at least level 3
+        logger.info(`🎉 Player recovered from bankruptcy! Finance improved from ${newFinance} to ${recoveredFinance}`);
         
         set(prevState => ({ 
           ...prevState, 
-          financialBurden: finalFinancialBurden,
-          isBankrupt: newIsBankrupt,
+          finance: recoveredFinance,
+          marital: newMarital, // Still apply marital delta during recovery
           gamePhase: 'generating_outcome', 
           isLoading: true,
           isStreaming: true,
@@ -1251,17 +1345,16 @@ const useGameStore = create<GameStoreState>((set, get) => {
           error: null 
         }));
         
-        logger.debug(`Bankruptcy recovery: Financial burden set to ${finalFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+        logger.debug(`Bankruptcy recovery: Finance set to ${recoveredFinance}, Marital set to ${newMarital}`);
       } else {
-        if (newFinancialBurden >= 50) {
-          newIsBankrupt = true;
-          logger.warn(`Bankruptcy threshold reached! Financial Burden: ${newFinancialBurden}`);
+        if (newFinance === 0 && !wasBankrupt) {
+          logger.warn(`Bankruptcy reached! Finance dropped to 0`);
         }
 
         set(prevState => ({ 
           ...prevState, 
-          financialBurden: newFinancialBurden,
-          isBankrupt: newIsBankrupt,
+          finance: newFinance,
+          marital: newMarital,
           gamePhase: 'generating_outcome', 
           isLoading: true,
           isStreaming: true,
@@ -1270,7 +1363,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
           error: null 
         }));
         
-        logger.debug(`Financial burden updated: ${financialBurden} + ${selectedOption.cost || 0} = ${newFinancialBurden}. Is Bankrupt: ${newIsBankrupt}`);
+        logger.debug(`Finance updated: ${currentFinance} + ${financeDelta} = ${newFinance}. Marital updated: ${currentMarital} + ${maritalDelta} = ${newMarital}. Is Bankrupt: ${isNowBankrupt}`);
       }
 
       // Save intermediate state
@@ -1287,19 +1380,18 @@ const useGameStore = create<GameStoreState>((set, get) => {
       
       try {
         const eventAge = child.age; 
-        const currentState = get();
         const fullGameStateForApi: ApiGameState = {
           player: player!,
           child: child!,
           playerDescription: playerDescription!,
           childDescription: childDescription!,
           history: history,
-          wealthTier: wealthTier || 'middle',
-          financialBurden: currentState.financialBurden,
-          isBankrupt: currentState.isBankrupt,
-          currentQuestion: currentQuestion,
-          feedbackText: ft_store,
           endingSummaryText: est_store,
+          currentQuestion: cQ_store,
+          feedbackText: ft_store,
+          isSingleParent: isSingleParent,
+          finance: get().finance,
+          marital: get().marital,
         };
         
         const result = await gptService.generateOutcomeAndNextQuestion(
@@ -1375,12 +1467,10 @@ const useGameStore = create<GameStoreState>((set, get) => {
 
 // Log the state after the store is fully created
 setTimeout(() => {
-  if (typeof useGameStore.getState === 'function') {
-    logger.debug("DEBUG: Store state (getState().continueGame) shortly after creation:", typeof useGameStore.getState().continueGame);
-  } else {
-    logger.debug("DEBUG: useGameStore.getState is not yet a function after timeout");
+  if (typeof useGameStore.getState !== 'function') {
+    // Remove this line: logger.debug("DEBUG: useGameStore.getState is not yet a function after timeout");
   }
-}, 0);
+}, 100);
 
 export default useGameStore;
 export type { Player, Child, HistoryEntry, QuestionType, GamePhase };

@@ -113,12 +113,22 @@ export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequ
   
   const nextAge = gameState.child.age;
   
-  // Prepare financial header
-  let financialHeader = "";
-  if (typeof gameState.financialBurden === 'number') {
-    const headerTemplate = getPrompt('variables.financialHeader');
-    financialHeader = interpolatePrompt(headerTemplate, { financialBurden: gameState.financialBurden });
-    logger.info(`Prepending financial header: ${financialHeader.trim()}`);
+  // Prepare numerical header with both finance and relationship status
+  let numericalHeader = "";
+  if (typeof gameState.finance === 'number' && typeof gameState.isSingleParent === 'boolean') {
+    const headerTemplate = getPrompt('variables.numericalHeader');
+    numericalHeader = interpolatePrompt(headerTemplate, { 
+      finance: gameState.finance, 
+      marital: gameState.isSingleParent ? 0 : 5 // Convert boolean to marital number for template compatibility
+    });
+    logger.info(`Prepending numerical header: ${numericalHeader.trim()}`);
+  } else {
+    // Fallback to old financial header for backward compatibility
+    if (typeof gameState.finance === 'number') {
+      const headerTemplate = getPrompt('variables.financialHeader');
+      numericalHeader = interpolatePrompt(headerTemplate, { financialBurden: gameState.finance });
+      logger.info(`Fallback: Prepending financial header: ${numericalHeader.trim()}`);
+    }
   }
   
   // Prepare history context
@@ -155,7 +165,7 @@ export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequ
   // Get base prompt and interpolate
   const baseTemplate = getPrompt('question.base');
   const basePrompt = interpolatePrompt(baseTemplate, {
-    financialHeader,
+    numericalHeader,
     playerGender,
     playerAge: gameState.player.age,
     playerDescription: gameState.playerDescription,
@@ -190,27 +200,54 @@ export const generateOutcomeAndNextQuestionPrompt = (
 ): string => {
   logger.info(`📝 Generating outcome${shouldGenerateNextQuestion ? ' and next question' : ''} prompt for child age ${gameState.child.age}`);
   
-  // Prepare financial header
-  let financialHeader = "";
-  if (typeof gameState.financialBurden === 'number') {
-    const headerTemplate = getPrompt('variables.financialHeader');
-    financialHeader = interpolatePrompt(headerTemplate, { financialBurden: gameState.financialBurden });
+  // Prepare numerical header with both finance and relationship status
+  let numericalHeader = "";
+  if (typeof gameState.finance === 'number' && typeof gameState.isSingleParent === 'boolean') {
+    const headerTemplate = getPrompt('variables.numericalHeader');
+    numericalHeader = interpolatePrompt(headerTemplate, { 
+      finance: gameState.finance, 
+      marital: gameState.isSingleParent ? 0 : 5 // Convert boolean to marital number for template compatibility
+    });
+  } else {
+    // Fallback to old financial header for backward compatibility
+    if (typeof gameState.finance === 'number') {
+      const headerTemplate = getPrompt('variables.financialHeader');
+      numericalHeader = interpolatePrompt(headerTemplate, { financialBurden: gameState.finance });
+    }
   }
   
-  // Handle bankruptcy case
-  if (gameState.isBankrupt) {
-    logger.info("🚨 Bankruptcy detected! Generating bankruptcy-specific prompt.");
+  // Handle crisis scenarios separately
+  if (gameState.finance === 0 && gameState.isSingleParent) {
+    // Both crises - prioritize financial crisis but mention single parent situation
+    logger.info("🚨 Double crisis detected! Generating bankruptcy prompt with single parent context.");
     const bankruptcyTemplate = getPrompt('outcome.bankruptcy');
     const childGender = getPrompt(`question.childGender.${gameState.child.gender}`);
     
     return interpolatePrompt(bankruptcyTemplate, {
-      financialHeader,
+      numericalHeader,
       childName: gameState.child.name,
       childAge: gameState.child.age,
       childGender,
       question,
       choice
     });
+  } else if (gameState.finance === 0) {
+    // Financial crisis only
+    logger.info("🚨 Financial crisis detected! Generating bankruptcy prompt.");
+    const bankruptcyTemplate = getPrompt('outcome.bankruptcy');
+    const childGender = getPrompt(`question.childGender.${gameState.child.gender}`);
+    
+    return interpolatePrompt(bankruptcyTemplate, {
+      numericalHeader,
+      childName: gameState.child.name,
+      childAge: gameState.child.age,
+      childGender,
+      question,
+      choice
+    });
+  } else if (gameState.isSingleParent) {
+    // Single parent situation - but not crisis since they remain single parent permanently
+    logger.info("📝 Single parent context noted for outcome generation.");
   }
   
   // Prepare history context
@@ -241,7 +278,7 @@ export const generateOutcomeAndNextQuestionPrompt = (
   // Get base prompt and interpolate
   const baseTemplate = getPrompt('outcome.base');
   const basePrompt = interpolatePrompt(baseTemplate, {
-    financialHeader,
+    numericalHeader,
     playerGender,
     playerAge: gameState.player.age,
     playerDescription: gameState.playerDescription,

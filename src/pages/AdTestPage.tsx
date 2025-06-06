@@ -1,9 +1,12 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 import { Timeline } from '../features/timeline/Timeline';
 import { AdDisplay } from '../components/ads/AdDisplay';
+import { useNavigate } from 'react-router-dom';
 
 export const AdTestPage: React.FC = () => {
+  const navigate = useNavigate();
+
   // Mock data for testing
   const mockHistory = [
     {
@@ -22,12 +25,26 @@ export const AdTestPage: React.FC = () => {
     }
   ];
 
+  const handleClearStorageAndGoToWelcome = () => {
+    localStorage.clear();
+    navigate('/');
+  };
+
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>
+      <Typography variant="h4" sx={{ mb: 1 }}>
         Ad Test Page
       </Typography>
       
+      <Button 
+        variant="contained" 
+        color="secondary" 
+        onClick={handleClearStorageAndGoToWelcome}
+        sx={{ mb: 3 }}
+      >
+        Clear Local Storage & Go to Welcome
+      </Button>
+
       <Typography variant="body1" sx={{ mb: 2 }}>
         This page is for testing ads in development mode. It shows the timeline with ages 7 and 8 to test ad display.
       </Typography>

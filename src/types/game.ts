@@ -1,7 +1,9 @@
 export interface Option {
   id: string;
   text: string;
-  cost: number;
+  cost?: number; // Keep for backward compatibility during transition
+  financeDelta?: number; // New: impact on finance (-10 to +10)
+  maritalDelta?: number; // New: impact on marital relationship (-10 to +10)
 }
 
 export interface Question {
@@ -37,9 +39,9 @@ export interface GameState {
   }[];
   playerDescription: string;
   childDescription: string;
-  wealthTier: 'poor' | 'middle' | 'wealthy';
-  financialBurden: number;
-  isBankrupt: boolean;
+  finance: number; // Finance level 0-10 (0=bankrupt, 10=wealthy)
+  marital: number; // Marital relationship level 0-10 (0=partner left, 10=excellent)
+  isSingleParent: boolean; // Single parent status
   pendingChoice?: {
     questionId?: string;
     optionId: string;

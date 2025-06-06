@@ -19,7 +19,9 @@
     "start": "开始",
     "finish": "结束",
     "loading": "加载中...",
-    "yearsOld": "岁"
+    "yearsOld": "岁",
+    "year": "第{{year}}年",
+    "checkFinance": "查看当前财务状况"
   },
   "wealth": {
     "poor": "贫困",

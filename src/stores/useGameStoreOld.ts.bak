@@ -1418,13 +1418,10 @@ const useGameStore = create<GameStoreState>((set, get) => {
 // Log the state after the store is fully created
 // We need to do this outside the create callback to avoid issues with `get()` during initialization
 setTimeout(() => {
-  if (typeof useGameStore.getState === 'function') {
-    logger.debug("DEBUG: Store state (getState().continueGame) shortly after creation:", typeof useGameStore.getState().continueGame);
-    // console.log("DEBUG: Full store state (getState()) shortly after creation:", useGameStore.getState());
-  } else {
-    logger.debug("DEBUG: useGameStore.getState is not yet a function after timeout");
+  if (typeof useGameStore.getState !== 'function') {
+    // Remove this line: logger.debug("DEBUG: useGameStore.getState is not yet a function after timeout");
   }
-}, 0);
+}, 100);
 
 export default useGameStore;
 // Placeholder for QuestionType if not already defined elsewhere

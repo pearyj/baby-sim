@@ -24,6 +24,7 @@ import logger from '../utils/logger';
 import pregenStatesZh from '../i18n/pregen/zh.json';
 import pregenStatesEn from '../i18n/pregen/en.json';
 import { track } from '@vercel/analytics';
+import { useNavigate } from 'react-router-dom';
 
 interface WelcomeScreenProps {
   onStartLoading?: () => void;
@@ -65,6 +66,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
   // In Vite, use import.meta.env.DEV for development mode check
   const isDevelopment = import.meta.env.DEV;
   const { t } = useTranslation();
+  const navigate = useNavigate();
   
   // Add state for special requirements input
   const [specialRequirements, setSpecialRequirements] = useState('');
@@ -347,6 +349,18 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   sx={{ mt: 2 }}
                 >
                   {t('actions.testEnding')}
+                </Button>
+              )}
+              {isDevelopment && (
+                <Button
+                  fullWidth
+                  variant="text"
+                  color="info"
+                  onClick={() => navigate('/ad-test-page')}
+                  size="small"
+                  sx={{ mt: 1 }}
+                >
+                  {t('actions.testAdTimeline')}
                 </Button>
               )}
             </Stack>

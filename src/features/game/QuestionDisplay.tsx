@@ -9,13 +9,18 @@ import {
   CircularProgress,
   Backdrop,
   Stack,
-  Fade
+  Fade,
+  Tooltip,
+  Chip
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import type { Question } from '../../types/game';
 import { TextDisplay } from '../../components/ui/TextDisplay';
 import { StreamingTextDisplay } from '../../components/ui/StreamingTextDisplay';
+import useGameStore from '../../stores/useGameStore';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import { DEVELOPMENTAL_STAGE_KEYS } from '../../constants/timelineIcons';
 
 interface QuestionDisplayProps {
   question: Question | null;
@@ -90,8 +95,20 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [customOption, setCustomOption] = useState('');
-  
-  // Scrolling removed for QuestionDisplay to prevent unwanted auto-scrolling
+  const [showFinanceStatus, setShowFinanceStatus] = useState(false);
+  const { finance, currentAge } = useGameStore(state => ({
+    finance: state.finance,
+    currentAge: state.currentAge
+  }));
+
+  const getFinanceStatus = (finance: number) => {
+    if (finance <= 0) return { text: 'BANKRUPTCY', color: 'error' };
+    if (finance <= 2) return { text: 'Poor', color: 'warning' };
+    if (finance <= 4) return { text: 'Struggling', color: 'warning' };
+    if (finance <= 6) return { text: 'Middle', color: 'info' };
+    if (finance <= 8) return { text: 'Wealthy', color: 'success' };
+    return { text: 'Very Wealthy', color: 'success' };
+  };
 
   // Reset custom option when question changes
   useEffect(() => {
@@ -157,6 +174,9 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
     );
   }
 
+  const stageKey = DEVELOPMENTAL_STAGE_KEYS[currentAge as keyof typeof DEVELOPMENTAL_STAGE_KEYS];
+  const developmentalStage = stageKey ? t(`developmentalStages.${stageKey}`) : t('ui.growthStage');
+
   return (
     <Box sx={{ width: '100%', px: { xs: 2, sm: 3 } }} ref={containerRef}>
       <Box sx={{ maxWidth: '48rem', mx: 'auto' }}>
@@ -172,6 +192,60 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
             </LoadingOverlay>
             
             <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                mb: 2
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Chip 
+                    label={`${currentAge} ${t('game.yearsOld')}`} 
+                    color="primary" 
+                    size="small"
+                    variant="filled"
+                  />
+                  <Chip 
+                    label={developmentalStage}
+                    size="small"
+                    variant="outlined"
+                    sx={{ 
+                      borderColor: 'primary.main',
+                      color: 'primary.main'
+                    }}
+                  />
+                  <Tooltip title={t('game.checkFinance')}>
+                    <Chip
+                      icon={<AttachMoneyIcon />}
+                      {...(showFinanceStatus ? { label: getFinanceStatus(finance).text } : {})}
+                      color={showFinanceStatus ? getFinanceStatus(finance).color as any : 'default'}
+                      variant={showFinanceStatus ? 'filled' : 'outlined'}
+                      size="small"
+                      onClick={() => setShowFinanceStatus(!showFinanceStatus)}
+                      sx={{ 
+                        '&:hover': { 
+                          backgroundColor: showFinanceStatus ? undefined : 'action.hover',
+                          cursor: 'pointer'
+                        },
+                        minWidth: showFinanceStatus ? 'auto' : '32px',
+                        '& .MuiChip-label': {
+                          display: showFinanceStatus ? 'block' : 'none'
+                        },
+                        ...(!showFinanceStatus && {
+                          '& .MuiChip-icon': {
+                            margin: 0
+                          },
+                          justifyContent: 'center',
+                          '& > *': {
+                            justifyContent: 'center'
+                          }
+                        })
+                      }}
+                    />
+                  </Tooltip>
+                </Box>
+              </Box>
+
               <Box sx={{ mb: 4, textAlign: 'left' }}>
                 <Typography component="div" sx={{ 
                   fontWeight: 400,

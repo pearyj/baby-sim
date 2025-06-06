@@ -19,7 +19,9 @@
     "start": "Start",
     "finish": "Finish",
     "loading": "Loading...",
-    "yearsOld": "years old"
+    "yearsOld": "years old",
+    "year": "Year {{year}}",
+    "checkFinance": "Check current financial status"
   },
   "wealth": {
     "poor": "Poor",
@@ -115,6 +117,7 @@
     "generating": "Generating...",
     "loading": "Loading...",
     "testEnding": "(Dev) Test Ending Page",
+    "testAdTimeline": "(Dev) Test Ad Timeline",
     "selectThisOption": "I'll do this"
   },
   "header": {

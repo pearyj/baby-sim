@@ -1,5 +1,3 @@
-import logger from './logger';
-
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 interface PerformanceMetric {
@@ -25,14 +23,12 @@ class PerformanceMonitor {
     };
     
     this.activeTimers.set(name, metric);
-    logger.debug(`Started timing: ${name} (${category})`);
   }
 
   // End timing a metric
   endTiming(name: string): number | null {
     const metric = this.activeTimers.get(name);
     if (!metric) {
-      logger.warn(`No active timer found for: ${name}`);
       return null;
     }
 
@@ -42,7 +38,6 @@ class PerformanceMonitor {
     this.metrics.push(metric);
     this.activeTimers.delete(name);
     
-    logger.debug(`Completed timing: ${name} - ${metric.duration.toFixed(2)}ms (${metric.category})`);
     return metric.duration;
   }
 
@@ -74,22 +69,6 @@ class PerformanceMonitor {
       }
     });
 
-    logger.debug('Summary by category:');
-    logger.debug(`  🌐 API calls: ${summary.api.toFixed(2)}ms`);
-    logger.debug(`  🖥️ Local processing: ${summary.local.toFixed(2)}ms`);
-    logger.debug(`  🎨 UI rendering: ${summary.ui.toFixed(2)}ms`);
-    logger.debug(`  📊 Total: ${summary.total.toFixed(2)}ms`);
-    
-    logger.debug('\nDetailed metrics:');
-    this.metrics.forEach(metric => {
-      if (metric.duration) {
-        logger.debug(`  ${metric.category === 'api' ? '🌐' : metric.category === 'local' ? '🖥️' : '🎨'} ${metric.name}: ${metric.duration.toFixed(2)}ms`);
-        if (metric.details) {
-          logger.debug(`    Details:`, metric.details);
-        }
-      }
-    });
-
     return summary;
   }
 
@@ -98,20 +77,7 @@ class PerformanceMonitor {
     console.group('📊 Performance Report');
     
     const summary = this.getSummary();
-    console.log('Summary by category:');
-    console.log(`  🌐 API calls: ${summary.api.toFixed(2)}ms`);
-    console.log(`  🖥️ Local processing: ${summary.local.toFixed(2)}ms`);
-    console.log(`  🎨 UI rendering: ${summary.ui.toFixed(2)}ms`);
-    console.log(`  📊 Total: ${summary.total.toFixed(2)}ms`);
-    
-    console.log('\nDetailed metrics:');
-    this.metrics.forEach(metric => {
-      console.log(`  ${metric.category === 'api' ? '🌐' : metric.category === 'local' ? '🖥️' : '🎨'} ${metric.name}: ${metric.duration?.toFixed(2)}ms`);
-      if (metric.details) {
-        console.log(`    Details:`, metric.details);
-      }
-    });
-    
+    console.log('Summary:', summary);
     console.groupEnd();
   }
 
@@ -119,7 +85,6 @@ class PerformanceMonitor {
   clear(): void {
     this.metrics = [];
     this.activeTimers.clear();
-    logger.debug('🧹 Performance metrics cleared');
   }
 
   // Helper method to time async functions
@@ -199,11 +164,10 @@ if (typeof window !== 'undefined') {
       });
       // Async test
       performanceMonitor.timeAsync('console-test-api', 'api', async () => {
-        await new Promise(resolve => setTimeout(resolve, 75)); // 75ms
+        await new Promise(resolve => setTimeout(resolve, 50)); // 50ms async
+      }).then(() => {
+        console.log('✅ Test metrics added! Use perf.summary() to see results.');
       });
-      console.log('✅ Test metrics added. Check summary with perf.summary()');
     }
   };
-  
-  console.log('🔧 Performance monitor loaded. Use perf.test() to add test metrics, perf.summary() to check results.');
 } 

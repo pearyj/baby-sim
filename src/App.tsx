@@ -29,6 +29,7 @@ import { Header } from './components/layout/Header'
 import { InfoPage } from './pages/InfoPage'
 import { StreamingTextDisplay } from './components/ui/StreamingTextDisplay'
 import { PerformanceMonitor } from './components/dev/PerformanceMonitor'
+import { DebugNumericalValues } from './components/dev/DebugNumericalValues'
 import { FeedbackButton } from './components/ui/FeedbackButton'
 import { AdTestPage } from './pages/AdTestPage'
 // Removed direct gptService and storageService imports
@@ -205,11 +206,6 @@ function App() {
 
   const renderMainContent = () => {
     return performanceMonitor.timeSync('render-main-content', 'ui', () => {
-      // Add development mode test pages
-      if (import.meta.env.DEV && gamePhase === 'welcome') {
-        return <AdTestPage />;
-      }
-
       if (gamePhase === 'initializing') {
         return (
           <LoadingCard>
@@ -454,6 +450,8 @@ function App() {
         <MainContentArea>
           <Routes>
             <Route path="/info" element={<InfoPage />} />
+            {/* Add dedicated route for AdTestPage in development */} 
+            {isDevelopment && <Route path="/ad-test-page" element={<AdTestPage />} />}
             <Route path="/" element={
               <Container component="main" maxWidth="lg" sx={{ 
                 px: { xs: 1, sm: 1.5 }, 
@@ -505,6 +503,9 @@ function App() {
       
       {/* Show performance monitor in development mode */}
       {isDevelopment && <PerformanceMonitor />}
+      
+      {/* Show debug numerical values in development mode */}
+      {isDevelopment && <DebugNumericalValues />}
     </MainContainer>
   );
 }

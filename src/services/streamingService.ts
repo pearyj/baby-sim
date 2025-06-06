@@ -91,7 +91,6 @@ export const makeStreamingRequest = async (
         const { done, value } = await reader.read();
         
         if (done) {
-          logger.info('📥 Streaming completed');
           break;
         }
 
@@ -109,7 +108,6 @@ export const makeStreamingRequest = async (
             const data = line.slice(6);
             
             if (data === '[DONE]') {
-              logger.info('📥 Received [DONE] signal');
               continue;
             }
             
@@ -139,8 +137,7 @@ export const makeStreamingRequest = async (
         }
       }
       
-      const duration = performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
-      logger.info(`✅ Streaming completed in ${duration?.toFixed(2)}ms`);
+      performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
       
       // Notify listeners that the stream has finished
       if (options.onChunk) {
@@ -228,7 +225,6 @@ const makeDirectStreamingRequest = async (
       const { done, value } = await reader.read();
       
       if (done) {
-        logger.info('📥 Direct streaming completed');
         break;
       }
 
@@ -246,7 +242,6 @@ const makeDirectStreamingRequest = async (
           const data = line.slice(6);
           
           if (data === '[DONE]') {
-            logger.info('📥 Received [DONE] signal');
             continue;
           }
           
