@@ -141,7 +141,17 @@
     "sharePromotionText": "来babysim.fun亲自养娃👶",
     "downloadingImage": "正在下载图片...",
     "downloadComplete": "图片下载成功！",
-    "downloadError": "下载图片失败，请重试。"
+    "downloadError": "下载图片失败，请重试。",
+    "generateImage": "生成{{childName}}的图片",
+    "generatingImage": "正在为{{childName}}生成图片...",
+    "imageGenerated": "图片生成成功！",
+    "imageGenerationFailed": "图片生成失败，请重试。",
+    "imageGenerationOptional": "可选：为您的养育之旅生成个性化AI图片"
+  },
+  "share": {
+    "title": "我在《养娃模拟器》把{{childName}}养到18岁啦！",
+    "text": "我把{{childName}}养到了18岁，{{childName}}太棒了！来babysim.fun亲自体验养娃吧！",
+    "linkCopied": "已复制分享文本"
   },
   "welcome": {
     "title": "养娃模拟器",

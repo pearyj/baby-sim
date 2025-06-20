@@ -144,7 +144,17 @@
     "sharePromotionText": "Raise your own baby at babysim.fun!",
     "downloadingImage": "Downloading image...",
     "downloadComplete": "Image downloaded successfully!",
-    "downloadError": "Failed to download image. Please try again."
+    "downloadError": "Failed to download image. Please try again.",
+    "generateImage": "See {{childName}} in an Image",
+    "generatingImage": "Generating {{childName}}'s image...",
+    "imageGenerated": "Image generated successfully!",
+    "imageGenerationFailed": "Failed to generate image. Please try again.",
+    "imageGenerationOptional": "Optional: Generate a personalized AI image for your journey"
+  },
+  "share": {
+    "title": "I've raised {{childName}} to 18 at the Baby Simulator!",
+    "text": "I've raised {{childName}} to year 18 and {{childName}} turned out great! Join me and try raising a baby yourself at babysim.fun!",
+    "linkCopied": "Share text copied to clipboard!"
   },
   "welcome": {
     "title": "The Baby Simulator",

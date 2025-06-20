@@ -8,6 +8,11 @@ interface Logger {
   info: (...args: any[]) => void;
   warn: (...args: any[]) => void;
   error: (...args: any[]) => void;
+  /**
+   * Debug function specifically for image generation prompts.
+   * Always logs the full prompt regardless of environment for debugging purposes.
+   */
+  debugImagePrompt: (prompt: string, options?: any) => void;
 }
 
 const createLogger = (level: LogLevel, ...args: any[]): void => {
@@ -35,7 +40,18 @@ const logger: Logger = {
   debug: (...args: any[]) => createLogger('debug', ...args),
   info: (...args: any[]) => createLogger('info', ...args),
   warn: (...args: any[]) => createLogger('warn', ...args),
-  error: (...args: any[]) => createLogger('error', ...args)
+  error: (...args: any[]) => createLogger('error', ...args),
+  debugImagePrompt: (prompt: string, options?: any) => {
+    // Always log image prompts regardless of environment for debugging purposes
+    console.group('🖼️ IMAGE GENERATION DEBUG - Full Prompt');
+    console.log('📝 Full Image Prompt:');
+    console.log(prompt);
+    if (options) {
+      console.log('⚙️ Generation Options:', options);
+    }
+    console.log('📏 Prompt Length:', prompt.length, 'characters');
+    console.groupEnd();
+  }
 };
 
 export default logger; 

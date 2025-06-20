@@ -115,7 +115,11 @@ function App() {
     streamingContent,
     streamingType,
     enableStreaming,
-    toggleStreaming, // Used only in development mode
+    toggleStreaming,
+    player,
+    finance,
+    marital,
+    isSingleParent,
   } = useGameStore(state => ({
     gamePhase: state.gamePhase,
     player: state.player,
@@ -140,6 +144,9 @@ function App() {
     streamingType: state.streamingType,
     enableStreaming: state.enableStreaming,
     toggleStreaming: state.toggleStreaming,
+    finance: state.finance,
+    marital: state.marital,
+    isSingleParent: state.isSingleParent,
   }))
 
   // Suppress unused variable warnings for production-only variables
@@ -318,6 +325,20 @@ function App() {
                       endingSummaryText={endingSummaryText || t('messages.endingComplete')}
                       playerDescription={playerDescription || undefined}
                       childDescription={childDescription || undefined}
+                      gameState={player && child ? {
+                        player,
+                        child,
+                        history,
+                        playerDescription: playerDescription || '',
+                        childDescription: childDescription || '',
+                        finance,
+                        marital,
+                        isSingleParent,
+                        pendingChoice: null,
+                        currentQuestion: null,
+                        feedbackText: null,
+                        endingSummaryText: endingSummaryText || null
+                      } : undefined}
                     />
                     
                     <Box sx={{ mt: 3, textAlign: 'center' }}>

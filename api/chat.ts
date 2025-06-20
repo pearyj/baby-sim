@@ -21,6 +21,17 @@ interface RequestBody {
 
 // Provider configurations - using environment variables
 const getProvider = (providerName: string): ModelProvider => {
+  // Debug: Log all Volcano Engine env vars at startup
+  if (providerName === 'volcengine') {
+    console.log('🔍 ENV DEBUG - LLM Keys:');
+    console.log('  VOLCENGINE_LLM_API_KEY:', process.env.VOLCENGINE_LLM_API_KEY?.substring(0, 8) + '...' || 'MISSING');
+    console.log('  VITE_VOLCENGINE_LLM_API_KEY:', process.env.VITE_VOLCENGINE_LLM_API_KEY?.substring(0, 8) + '...' || 'MISSING');
+    console.log('🔍 ENV DEBUG - Visual Keys:');
+    console.log('  VOLCENGINE_VISUAL_API_KEY:', process.env.VOLCENGINE_VISUAL_API_KEY?.substring(0, 8) + '...' || 'MISSING');
+    console.log('  VOLCENGINE_VISUAL_SECRET_KEY:', process.env.VOLCENGINE_VISUAL_SECRET_KEY?.substring(0, 8) + '...' || 'MISSING');
+    console.log('  VITE_VOLCENGINE_VISUAL_API_KEY:', process.env.VITE_VOLCENGINE_VISUAL_API_KEY?.substring(0, 8) + '...' || 'MISSING');
+  }
+
   switch (providerName) {
     case 'openai':
       return {
@@ -40,14 +51,14 @@ const getProvider = (providerName: string): ModelProvider => {
       return {
         name: 'volcengine',
         apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-        apiKey: process.env.VOLCENGINE_API_KEY || process.env.VITE_VOLCENGINE_API_KEY || '',
+        apiKey: process.env.VOLCENGINE_LLM_API_KEY || process.env.VITE_VOLCENGINE_LLM_API_KEY || '',
         model: 'deepseek-v3-250324',
       };
     default:
       return {
         name: 'volcengine',
         apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-        apiKey: process.env.VOLCENGINE_API_KEY || process.env.VITE_VOLCENGINE_API_KEY || '',
+        apiKey: process.env.VOLCENGINE_LLM_API_KEY || process.env.VITE_VOLCENGINE_LLM_API_KEY || '',
         model: 'deepseek-v3-250324',
       };
   }
@@ -109,6 +120,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const providerConfig = getProvider(provider);
+    
+    console.log('LLM key prefix', providerConfig.apiKey.slice(0,8));
     
     if (!providerConfig.apiKey) {
       return res.status(500).json({ error: `API key not configured for ${provider}` });

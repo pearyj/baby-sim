@@ -1,3 +1,6 @@
 {
-  "type": "commonjs"
-} 
+  "type": "commonjs",
+  "dependencies": {
+    "@volcengine/openapi": "^1.30.2"
+  }
+}

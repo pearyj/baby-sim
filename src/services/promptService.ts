@@ -370,7 +370,7 @@ export const generateEndingPrompt = (gameState: GameState): string => {
   
   // Get base template and interpolate
   const baseTemplate = getPrompt('ending.base');
-  return interpolatePrompt(baseTemplate, {
+  const promptBase = interpolatePrompt(baseTemplate, {
     playerGender,
     playerAge: gameState.player.age,
     playerDescription: gameState.playerDescription,
@@ -379,6 +379,11 @@ export const generateEndingPrompt = (gameState: GameState): string => {
     childDescription: gameState.childDescription,
     historyContext
   });
+  
+  // Instruct the LLM to provide an additional field "story_style" describing an illustrative art style (max 40 chars)
+  const styleInstruction = `\n\nPlease also provide a field \"story_style\" (string, <=40 characters) summarizing an appropriate visual art style that matches the overall tone of the story (e.g., \"watercolor pastel\", \"cyberpunk neon\", \"童话插画\"). Return all fields in JSON format.`;
+  
+  return promptBase + styleInstruction;
 };
 
 /**
@@ -386,11 +391,18 @@ export const generateEndingPrompt = (gameState: GameState): string => {
  */
 export const formatEndingResult = (result: any): string => {
   const template = getPrompt('ending.formatPrefix');
-  return interpolatePrompt(template, {
+  const summaryMarkdown = interpolatePrompt(template, {
     childStatus: result.child_status_at_18,
     parentEvaluation: result.parent_evaluation,
     futureOutlook: result.future_outlook
   });
+
+  // If the model provided a recommended art style, embed it in an HTML comment so it is hidden in markdown
+  if (result.story_style && typeof result.story_style === 'string') {
+    return `${summaryMarkdown}\n\n<!-- story_style: ${result.story_style.trim()} -->`;
+  }
+
+  return summaryMarkdown;
 };
 
 /**

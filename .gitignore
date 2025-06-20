@@ -30,3 +30,4 @@ dist-ssr
 # Cursor IDE
 .cursor/
 .vercel
+.env*.local

@@ -63,6 +63,11 @@ let globalTokenUsage: TokenUsageStats = {
 
 // Provider management functions
 export const getActiveProvider = (): ModelProvider => {
+  // Debug: Log client-side Volcano Engine env vars
+  console.log('🔍 CLIENT ENV DEBUG - Volcano Engine Keys:');
+  console.log('  VITE_VOLCENGINE_LLM_API_KEY:', import.meta.env.VITE_VOLCENGINE_LLM_API_KEY?.substring(0, 8) + '...' || 'MISSING');
+  console.log('  VITE_VOLCENGINE_VISUAL_API_KEY:', import.meta.env.VITE_VOLCENGINE_VISUAL_API_KEY?.substring(0, 8) + '...' || 'MISSING');
+
   const provider = API_CONFIG.ACTIVE_PROVIDER;
   
   // Helper to read provider keys from Vite env ─ only needed for DIRECT_API_MODE=true.
@@ -84,7 +89,7 @@ export const getActiveProvider = (): ModelProvider => {
     volcengine: {
       name: 'volcengine',
       apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-      apiKey: env.VITE_VOLCENGINE_API_KEY || '',
+      apiKey: env.VITE_VOLCENGINE_LLM_API_KEY || '',
       model: 'deepseek-v3-250324',
     }
   };

@@ -793,61 +793,34 @@ const useGameStore = create<GameStoreState>((set, get) => {
 
     testEnding: async () => {
       logger.debug("Testing ending screen");
-      // Create mock game data to test the ending screen
+      
+      // Import i18n to get current language
+      const { default: i18n } = await import('../i18n');
+      const { mockGameStates } = await import('../data/mockData');
+      
+      // Use language-appropriate mock data
+      const isChineseLanguage = i18n.language === 'zh';
+      const selectedMockData = isChineseLanguage ? mockGameStates.chinese : mockGameStates.english;
+      
+      // Extract data from the selected mock data
       const mockPlayer: Player = {
-        gender: 'female',
-        age: 35,
-        name: '测试妈妈',
-        profile: {},
-        traits: [],
+        gender: selectedMockData.player.gender,
+        age: selectedMockData.player.age,
+        name: selectedMockData.player.name || (isChineseLanguage ? '测试妈妈' : 'Test Mom'),
+        profile: selectedMockData.player.profile || {},
+        traits: selectedMockData.player.traits || [],
       };
       
       const mockChild: Child = {
-        name: '小测试',
-        gender: 'male',
+        name: selectedMockData.child.name,
+        gender: selectedMockData.child.gender,
         age: 18,
-        profile: {},
-        traits: [],
+        profile: selectedMockData.child.profile || {},
+        traits: selectedMockData.child.traits || [],
       };
       
-      const mockHistory: HistoryEntry[] = [
-        {
-          age: 1,
-          question: "游戏开始",
-          choice: "开始养育",
-          outcome: "你的养育之旅开始了。"
-        },
-        {
-          age: 1,
-          question: "孩子总是哭闹，你会怎么办？",
-          choice: "耐心安抚孩子",
-          outcome: "你的耐心让孩子逐渐安静下来，建立了良好的亲子关系。"
-        },
-        {
-          age: 3,
-          question: "孩子想要一个昂贵的玩具，但家庭预算紧张。",
-          choice: "解释情况，提供替代方案",
-          outcome: "孩子理解了家庭情况，学会了理财观念。"
-        },
-        {
-          age: 5,
-          question: "孩子在学校成绩不好，你如何应对？",
-          choice: "与孩子一起制定学习计划",
-          outcome: "通过共同努力，孩子的成绩有了显著提升。"
-        },
-        {
-          age: 7,
-          question: "孩子开始叛逆，经常与你发生冲突。",
-          choice: "尊重孩子的独立性，同时保持沟通",
-          outcome: "你们的关系在理解和尊重中得到了改善。"
-        },
-        {
-          age: 17,
-          question: "孩子即将成年，对未来感到迷茫。",
-          choice: "给予支持和建议，但让孩子自己做决定",
-          outcome: "孩子在你的支持下找到了人生方向，准备迎接成年生活。"
-        }
-      ];
+      // Use the history from mock data
+      const mockHistory: HistoryEntry[] = selectedMockData.history;
       
       // Set the state to simulate reaching the ending
       set(prevState => ({
@@ -859,13 +832,13 @@ const useGameStore = create<GameStoreState>((set, get) => {
         feedbackText: null,
         player: mockPlayer,
         child: mockChild,
-        playerDescription: "你是一位35岁的职业女性，在事业和家庭之间努力平衡。你重视教育和家庭价值观，希望给孩子最好的成长环境。",
-        childDescription: "小测试是一个聪明活泼的男孩，天生好奇心强，喜欢探索新事物。他有着温和的性格，但也有自己的主见。",
+        playerDescription: selectedMockData.playerDescription,
+        childDescription: selectedMockData.childDescription,
         history: mockHistory,
         currentAge: 18,
         isEnding: true,
         endingSummaryText: 'middle',
-        isSingleParent: false,
+        isSingleParent: selectedMockData.isSingleParent,
       }));
       
       // Generate a mock ending summary
@@ -873,15 +846,15 @@ const useGameStore = create<GameStoreState>((set, get) => {
         const fullGameStateForApi: ApiGameState = {
           player: mockPlayer,
           child: mockChild,
-          playerDescription: "你是一位35岁的职业女性，在事业和家庭之间努力平衡。你重视教育和家庭价值观，希望给孩子最好的成长环境。",
-          childDescription: "小测试是一个聪明活泼的男孩，天生好奇心强，喜欢探索新事物。他有着温和的性格，但也有自己的主见。",
+          playerDescription: selectedMockData.playerDescription,
+          childDescription: selectedMockData.childDescription,
           history: mockHistory,
           endingSummaryText: 'middle',
-          isSingleParent: false,
+          isSingleParent: selectedMockData.isSingleParent,
           currentQuestion: null,
           feedbackText: null,
-          finance: 5,
-          marital: 5,
+          finance: selectedMockData.finance,
+          marital: selectedMockData.marital,
         };
         
         const summary = await gptService.generateEnding(fullGameStateForApi);
@@ -896,24 +869,37 @@ const useGameStore = create<GameStoreState>((set, get) => {
         set(prevState => ({ ...prevState, ...newState }));
       } catch (err) {
         logger.error('Error generating test ending summary:', err);
-        // Provide a fallback mock ending
-        const mockEndingSummary = `## 最终章：当 小测试 长大成人
+        // Provide a fallback mock ending - use the ending from mock data if available
+        const mockEndingSummary = selectedMockData.endingSummaryText || 
+          (isChineseLanguage ? 
+            `## 最终章：当 ${mockChild.name} 长大成人
 
-**十八岁的 小测试：**
-经过18年的精心养育，小测试已经成长为一个自信、独立且富有同理心的年轻人。他在学业上表现优秀，更重要的是，他拥有正确的价值观和良好的人际关系能力。
+**十八岁的 ${mockChild.name}：**
+经过18年的精心养育，${mockChild.name}已经成长为一个自信、独立且富有同理心的年轻人。他在学业上表现优秀，更重要的是，他拥有正确的价值观和良好的人际关系能力。
 
 **为人父母的你：**
-作为一位母亲，你在这18年中展现了极大的智慧和耐心。你成功地在给予孩子自由和设定边界之间找到了平衡，培养了一个既独立又有责任感的孩子。
+作为一位${mockPlayer.gender === 'female' ? '母亲' : '父亲'}，你在这18年中展现了极大的智慧和耐心。你成功地在给予孩子自由和设定边界之间找到了平衡，培养了一个既独立又有责任感的孩子。
 
 **未来的序曲：**
-小测试对未来充满信心和期待。他已经准备好迎接成年生活的挑战，并且知道无论遇到什么困难，都有你的支持和爱作为坚强的后盾。
-
-**岁月回响：**
-这18年的养育之旅充满了挑战和喜悦。从最初的不安和摸索，到后来的从容和智慧，你和孩子一起成长，共同创造了美好的回忆。每一个决定都塑造了今天的小测试，也让你成为了更好的自己。
+${mockChild.name}对未来充满信心和期待。他已经准备好迎接成年生活的挑战，并且知道无论遇到什么困难，都有你的支持和爱作为坚强的后盾。
 
 感谢你的养育，这段旅程就此告一段落。
 
-*(这是一个测试结局，用于开发调试)*`;
+*(这是一个测试结局，用于开发调试)*` :
+            `## Final Chapter: ${mockChild.name} Reaches Adulthood
+
+**${mockChild.name} at Eighteen:**
+After 18 years of careful nurturing, ${mockChild.name} has grown into a confident, independent, and empathetic young adult. ${mockChild.gender === 'male' ? 'He' : 'She'} excels academically and, more importantly, possesses strong values and excellent interpersonal skills.
+
+**Your Journey as a Parent:**
+As a ${mockPlayer.gender === 'female' ? 'mother' : 'father'}, you have shown tremendous wisdom and patience throughout these 18 years. You successfully balanced giving your child freedom while setting boundaries, raising someone who is both independent and responsible.
+
+**Looking Forward:**
+${mockChild.name} is confident and excited about the future. ${mockChild.gender === 'male' ? 'He' : 'She'} is ready to face the challenges of adult life, knowing that your support and love will always be there as a strong foundation.
+
+Thank you for your dedication. This parenting journey has come to a beautiful conclusion.
+
+*(This is a test ending for development debugging)*`);
         
         set(prevState => ({
           ...prevState,

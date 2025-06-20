@@ -37,6 +37,28 @@
     "base": "基于以下信息：\n玩家：{{playerGender}}（{{playerAge}}岁）\n玩家背景：{{playerDescription}}\n孩子：{{childName}}（{{childGender}}，现在18岁）\n孩子背景：{{childDescription}}\n\n{{historyContext}}\n\n请生成一个深刻而感人的结局，总结这18年的养育历程。结局应该：\n1. 描述孩子18岁时的状况和成就\n2. 评价玩家作为父母的表现\n3. 展望孩子的未来\n4. 让玩家反思自己的选择和成长\n\n返回格式：\n{\n  \"child_status_at_18\": \"孩子18岁时的详细状况描述...\",\n  \"parent_evaluation\": \"对玩家养育方式的评价...\",\n  \"future_outlook\": \"对孩子未来的展望...\"\n}",
     "formatPrefix": "**孩子18岁时的状况：**\n{{childStatus}}\n\n**对你养育方式的评价：**\n{{parentEvaluation}}\n\n**未来展望：**\n{{futureOutlook}}"
   },
+  "image": {
+    "templates": {
+      "future_vision": "一个人的画像，{childStatusforImage}作为18岁{childGender}展望未来。背景巧妙地展示了从童年到成年的历程。"
+    },
+    "genderLabels": {
+      "childMale": "男孩",
+      "childFemale": "女孩",
+      "parentMale": "父亲",
+      "parentFemale": "母亲"
+    },
+    "relationshipDynamics": {
+      "close": "亲密和谐的关系",
+      "understanding": "相互理解和支持",
+      "default": "深厚的亲子关系"
+    },
+    "futureOutlooks": {
+      "successful": "他们已经准备好迎接成功的未来",
+      "confident": "他们充满自信，准备独立面对世界",
+      "default": "他们对未来充满希望"
+    },
+    "defaultArtStyle": "漫画"
+  },
   "variables": {
     "financialHeader": "$F{{financialBurden}}\n\n",
     "numericalHeader": "[F{{finance}}/M{{marital}}] "

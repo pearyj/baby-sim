@@ -7,7 +7,7 @@
 // VITE_DIRECT_API_MODE      – "true" to enable direct calls to the model provider (development only).
 // VITE_OPENAI_API_KEY       – Optional provider keys for local direct mode.
 // VITE_DEEPSEEK_API_KEY     – 〃
-// VITE_VOLCENGINE_API_KEY   – 〃
+// VITE_VOLCENGINE_LLM_API_KEY – LLM provider key
 // VITE_ACTIVE_PROVIDER      – Force a provider (openai | deepseek | volcengine).
 // ───────────────────────────────────────────────────────────────────────────────
 

@@ -17,13 +17,22 @@ import ReactMarkdown from 'react-markdown';
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
 import { track } from '@vercel/analytics';
+import { AIImageGenerator } from './AIImageGenerator';
+import type { GameState } from '../types/game';
+import type { ImageGenerationResult } from '../services/imageGenerationService';
 
 interface ShareableEndingCardProps {
   childName: string;
   endingSummaryText: string;
   playerDescription?: string;
   childDescription?: string;
+  gameState?: GameState; // Optional: for AI image generation
 }
+
+// Utility function to remove story_style comments from display text
+const cleanEndingSummaryForDisplay = (text: string): string => {
+  return text.replace(/<!--\s*story_style:\s*[^>]+?-->/gi, '').trim();
+};
 
 const ShareableCard = styled(Card)(({ theme }) => ({
   background: `url('${window.location.origin}/endingbkgd.png')`,
@@ -96,9 +105,11 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
   endingSummaryText,
   playerDescription,
   childDescription,
+  gameState,
 }) => {
   const { t } = useTranslation();
   const cardRef = useRef<HTMLDivElement>(null);
+  const [generatedImageResult, setGeneratedImageResult] = useState<ImageGenerationResult | null>(null);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -134,6 +145,21 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
         element.style.display = 'block';
       });
 
+      // === NEW: Temporarily enlarge the card so the exported image is wider ===
+      const ORIGINAL_STYLES = {
+        width: cardRef.current.style.width,
+        maxWidth: cardRef.current.style.maxWidth,
+      } as const;
+
+      // We aim for ~3× the typical mobile width (≈360px → 1080px)
+      const EXPORT_WIDTH_PX = 1080;
+      cardRef.current.style.width = `${EXPORT_WIDTH_PX}px`;
+      cardRef.current.style.maxWidth = `${EXPORT_WIDTH_PX}px`;
+
+      // Force a reflow so the browser recognises the new size before snapshot
+      await new Promise((r) => requestAnimationFrame(r));
+      // === END NEW ===
+
       const canvas = await html2canvas(cardRef.current, {
         backgroundColor: null,
         scale: 2,
@@ -151,6 +177,11 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
           }
         },
       });
+
+      // === NEW: Restore original card sizing after snapshot ===
+      cardRef.current.style.width = ORIGINAL_STYLES.width;
+      cardRef.current.style.maxWidth = ORIGINAL_STYLES.maxWidth;
+      // === END NEW ===
 
       // Show the action buttons and chip again
       if (actionButtons) {
@@ -189,9 +220,9 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: t('messages.journeyComplete'),
-          text: t('messages.childGrownUp', { childName }),
-          url: 'https://babysim.fun',
+          title: t('share.title', { childName }),
+          text: t('share.text', { childName }),
+          url: 'https://babysim.fun', // Provide explicit URL to enable rich preview
         });
       } catch (error) {
         console.error('Error sharing:', error);
@@ -199,10 +230,11 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
     } else {
       // Fallback: copy URL to clipboard
       try {
-        await navigator.clipboard.writeText('https://babysim.fun');
+        const shareText = t('share.text', { childName });
+        await navigator.clipboard.writeText(shareText);
         setSnackbar({
           open: true,
-          message: 'Link copied to clipboard!',
+          message: t('share.linkCopied'),
           severity: 'success',
         });
       } catch (error) {
@@ -213,6 +245,17 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
+  };
+
+  const handleImageGenerated = (imageResult: ImageGenerationResult) => {
+    if (imageResult.success) {
+      setGeneratedImageResult(imageResult);
+      setSnackbar({
+        open: true,
+        message: t('messages.imageGenerated'),
+        severity: 'success',
+      });
+    }
   };
 
   return (
@@ -311,9 +354,51 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
             },
           }}>
             <Typography variant="body1" component="div" sx={{ lineHeight: 1.7, color: '#5D4037', textAlign: 'left' }}>
-              <ReactMarkdown>{endingSummaryText || t('messages.endingComplete')}</ReactMarkdown>
+              <ReactMarkdown>{cleanEndingSummaryForDisplay(endingSummaryText || t('messages.endingComplete'))}</ReactMarkdown>
             </Typography>
           </Box>
+
+          {/* Generated AI Image - Show in both view and export if available */}
+          {generatedImageResult && generatedImageResult.success && (
+            <Box sx={{ 
+              mb: 4, 
+              textAlign: 'center',
+              p: 2,
+              backgroundColor: 'rgba(255, 255, 255, 0.3)', 
+              borderRadius: 2, 
+              backdropFilter: 'blur(10px)',
+            }}>
+              <Box sx={{
+                display: 'inline-block',
+                maxWidth: '100%',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              }}>
+                <img 
+                  src={generatedImageResult.imageUrl || (generatedImageResult.imageBase64 ? `data:image/png;base64,${generatedImageResult.imageBase64}` : '')}
+                  alt={`AI generated image for ${childName}'s parenting journey`}
+                  style={{
+                    display: 'block',
+                    width: 'auto',
+                    height: 'auto',
+                    maxWidth: '100%',
+                    maxHeight: '400px',
+                  }}
+                />
+              </Box>
+            </Box>
+          )}
+
+          {/* AI Image Generator - Only show if gameState is available */}
+          {gameState && (
+                          <AIImageGenerator
+                gameState={gameState}
+                endingSummary={endingSummaryText}
+                onImageGenerated={handleImageGenerated}
+                className="hide-in-export"
+              />
+          )}
 
           <PromotionText className="show-in-export-only" sx={{ display: 'none' }}>
             {t('messages.sharePromotionText')}
