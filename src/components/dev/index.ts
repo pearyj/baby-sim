@@ -1,4 +1,4 @@
+export { DebugNumericalValues } from './DebugNumericalValues';
 export { PerformanceMonitor } from './PerformanceMonitor';
 export { default as DevModelSwitcher } from './DevModelSwitcher';
-export { default as ModelSwitcher } from './ModelSwitcher';
-export { DebugNumericalValues } from './DebugNumericalValues'; 
+export { default as ModelSwitcher } from './ModelSwitcher'; 

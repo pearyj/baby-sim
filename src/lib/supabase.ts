@@ -1,6 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://xjrzbtzbdvyirtnupraz.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqcnpidHpiZHZ5aXJ0bnVwcmF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1OTExNjAsImV4cCI6MjA2NDE2NzE2MH0.lqa4YXSRy1wdboSJEBv9NjEmF62cW5OR9f90Qiic-fA';
+// Use Vite environment variables (exposed with VITE_ prefix). These should be
+// provided at build time via .env files or your hosting provider's dashboard.
+const supabaseUrl: string | undefined = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey: string | undefined = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey); 
+if (!supabaseUrl || !supabaseAnonKey) {
+  // Fail fast so that invalid deployments are caught early.
+  throw new Error('Supabase credentials are missing. Please define VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.');
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);

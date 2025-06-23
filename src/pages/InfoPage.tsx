@@ -17,7 +17,6 @@ import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 import GavelIcon from '@mui/icons-material/Gavel';
 import WarningIcon from '@mui/icons-material/Warning';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
 const SectionIcon = styled(Box)(({ theme }) => ({
@@ -62,8 +61,18 @@ export const InfoPage: React.FC = () => {
     }
     setSubmitting(true);
     try {
-      const { error: supabaseError } = await supabase.from('subscribers').insert([{ email }]);
-      if (supabaseError) throw supabaseError;
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        const { error: serverError } = await response.json();
+        throw new Error(serverError || 'unknown');
+      }
       setSuccess(true);
       setEmail('');
     } catch (e: any) {

@@ -18,6 +18,7 @@ import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
 import { track } from '@vercel/analytics';
 import { AIImageGenerator } from './AIImageGenerator';
+import { PaywallGate } from './payment/PaywallGate';
 import type { GameState } from '../types/game';
 import type { ImageGenerationResult } from '../services/imageGenerationService';
 
@@ -390,14 +391,16 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
             </Box>
           )}
 
-          {/* AI Image Generator - Only show if gameState is available */}
+          {/* AI Image Generator with Paywall wrapper */}
           {gameState && (
-                          <AIImageGenerator
+            <PaywallGate childName={childName} onCreditConsumed={() => { /* optional: could show message */ }}>
+              <AIImageGenerator
                 gameState={gameState}
                 endingSummary={endingSummaryText}
                 onImageGenerated={handleImageGenerated}
                 className="hide-in-export"
               />
+            </PaywallGate>
           )}
 
           <PromotionText className="show-in-export-only" sx={{ display: 'none' }}>

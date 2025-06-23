@@ -5,7 +5,7 @@
   "question": {
     "base": "{{numericalHeader}}Based on the following:\nPlayer: {{playerGender}} ({{playerAge}} years old)\nPlayer background: {{playerDescription}}\nChild: {{childName}} ({{childGender}}, {{childAge}} years old)\nChild background: {{childDescription}}\n\n{{historyContext}}\n\nPlease generate a parenting question for when the child is {{nextAge}} years old. The question should:\n1. Reflect real challenges that might be encountered at this age{{detailedRequirements}}\n2. Provide 4 options, each with pros and cons, without an obvious \"correct\" answer{{costRequirements}}\n3. Be coherent with previous choices and results{{continuityRequirements}}{{extremeEventNote}}",
     "detailedRequirements": ", with challenges that are clearly different from previously encountered challenges.",
-    "costRequirements": ". Each option should include \"financeDelta\" and \"maritalDelta\" attributes (integers from -2 to +2). financeDelta affects financial situation (negative = costs money, positive = earns money). maritalDelta affects relationship with partner (negative = strains relationship, positive = improves relationship). Consider realistic impacts and keep deltas moderate.",
+    "costRequirements": ". Each option should include \"financeDelta\" and \"maritalDelta\" attributes (integers from -2 to +2). financeDelta is the cost relative to the current financial situation (-2 = recurrent spending that is a significant financial burden, +2 = earning that can visibly improve family wealth). maritalDelta affects relationship with partner (negative = strains relationship, positive = improves relationship). Consider realistic impacts.",
     "continuityRequirements": ", considering the child's personality development trajectory and changes in family circumstances",
     "extremeEventNote": "\n4. From time to time include emergencies or difficult choices",
     "formatDetailed": "Return format must strictly follow this JSON structure:\n\n{\n  \"question\": \"Question description\",\n  \"options\": [\n    {\"id\": \"A\", \"text\": \"Option A\", \"financeDelta\": 0, \"maritalDelta\": 0},\n    {\"id\": \"B\", \"text\": \"Option B\", \"financeDelta\": -2, \"maritalDelta\": 0},\n    {\"id\": \"C\", \"text\": \"Option C\", \"financeDelta\": -1, \"maritalDelta\": 0},\n    {\"id\": \"D\", \"text\": \"Option D\", \"financeDelta\": 1, \"maritalDelta\": 0}\n  ],\n  \"isExtremeEvent\": true/false\n}",
@@ -57,7 +57,7 @@
       "confident": "They are confident and ready to face the world independently",
       "default": "They are filled with hope for the future"
     },
-    "defaultArtStyle": "Comic"
+    "defaultArtStyle": "Watercolor"
   },
   "variables": {
     "financialHeader": "$F{{financialBurden}}\n\n",

@@ -54,10 +54,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       secretKey: process.env.VOLCENGINE_VISUAL_SECRET_KEY || '',
     };
 
-    // Debug: Log visual service keys at request time
-    console.log('🔍 VISUAL API DEBUG:');
-    console.log('  VOLCENGINE_VISUAL_API_KEY:', volcengineConfig.apiKey?.substring(0, 8) + '...' || 'MISSING');
-    console.log('  VOLCENGINE_VISUAL_SECRET_KEY:', volcengineConfig.secretKey?.substring(0, 8) + '...' || 'MISSING');
+    // Debug: Log visual service keys at request time (development only)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 VISUAL API DEBUG:');
+      console.log('  VOLCENGINE_VISUAL_API_KEY:', volcengineConfig.apiKey?.substring(0, 8) + '...' || 'MISSING');
+      console.log('  VOLCENGINE_VISUAL_SECRET_KEY:', volcengineConfig.secretKey?.substring(0, 8) + '...' || 'MISSING');
+    }
 
     if (!volcengineConfig.apiKey || !volcengineConfig.secretKey) {
       console.error('Volcano Engine credentials not configured');
@@ -82,23 +84,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     client.setAccessKeyId(volcengineConfig.apiKey);
     client.setSecretKey(volcengineConfig.secretKey);
 
-    console.log(`🎨 Making image generation request to Volcano Engine Text-to-Image API`);
-    console.log(`📝 Prompt (truncated): ${prompt.substring(0, 100)}...`);
-    console.log(`📏 Size: ${width}x${height}, Quality: ${quality}`);
-    
-    // Debug: Log full prompt for debugging purposes
-    console.group('🖼️ IMAGE GENERATION API DEBUG - Full Prompt');
-    console.log('📝 Full Image Prompt:');
-    console.log(prompt);
-    console.log('📏 Prompt Length:', prompt.length, 'characters');
-    console.log('⚙️ Generation Parameters:', {
-      width,
-      height,
-      scale,
-      size,
-      quality
-    });
-    console.groupEnd();
+    // Log basic info (production safe)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🎨 Making image generation request to Volcano Engine Text-to-Image API`);
+      console.log(`📝 Prompt (truncated): ${prompt.substring(0, 100)}...`);
+      console.log(`📏 Size: ${width}x${height}, Quality: ${quality}`);
+      
+      // Debug: Log full prompt for debugging purposes (development only)
+      console.group('🖼️ IMAGE GENERATION API DEBUG - Full Prompt');
+      console.log('📝 Full Image Prompt:');
+      console.log(prompt);
+      console.log('📏 Prompt Length:', prompt.length, 'characters');
+      console.log('⚙️ Generation Parameters:', {
+        width,
+        height,
+        scale,
+        size,
+        quality
+      });
+      console.groupEnd();
+    }
 
     // Make request using fetchOpenAPI for proper URL handling
     const response = await client.fetchOpenAPI({
@@ -118,7 +123,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     });
 
-    console.log('✅ Received image generation response');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Received image generation response');
+    }
 
     // Extract image data from response
     let imageBase64: string | undefined;

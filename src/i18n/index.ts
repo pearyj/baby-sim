@@ -33,7 +33,9 @@ const customLanguageDetector = {
     try {
       localStorage.setItem('i18nextLng', lng);
     } catch (error) {
-      console.warn('Failed to cache language preference:', error);
+      if (import.meta.env.DEV) {
+    console.warn('Failed to cache language preference:', error);
+  }
     }
   }
 };
@@ -66,11 +68,13 @@ i18n
 if (process.env.NODE_ENV === 'development') {
   const systemLang = detectSystemLanguage();
   const finalLang = i18n.language;
-  console.log(`🌐 Language Detection Summary:
+  if (import.meta.env.DEV) {
+    console.log(`🌐 Language Detection Summary:
     System Language: ${navigator.language || 'unknown'}
     Detected Language: ${systemLang}
     Final Language: ${finalLang}
   `);
+  }
 }
 
 export const detectLanguage = () => {

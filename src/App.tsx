@@ -32,8 +32,8 @@ import { PerformanceMonitor } from './components/dev/PerformanceMonitor'
 import { DebugNumericalValues } from './components/dev/DebugNumericalValues'
 import { FeedbackButton } from './components/ui/FeedbackButton'
 import { AdTestPage } from './pages/AdTestPage'
-// Removed direct gptService and storageService imports
-// Removed Question, GameState, GameStateToStore type imports from local files if not used by App.tsx directly
+import { PaymentTestPage } from './pages/PaymentTestPage'
+import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
 
 const MainContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
@@ -473,6 +473,8 @@ function App() {
             <Route path="/info" element={<InfoPage />} />
             {/* Add dedicated route for AdTestPage in development */} 
             {isDevelopment && <Route path="/ad-test-page" element={<AdTestPage />} />}
+            <Route path="/test/payment" element={<PaymentTestPage />} />
+            <Route path="/payment/success" element={<PaymentSuccessPage />} />
             <Route path="/" element={
               <Container component="main" maxWidth="lg" sx={{ 
                 px: { xs: 1, sm: 1.5 }, 

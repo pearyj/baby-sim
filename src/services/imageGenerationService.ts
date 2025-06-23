@@ -9,6 +9,9 @@ import i18n from '../i18n';
 import zhPrompts from '../i18n/prompts/zh.json';
 import enPrompts from '../i18n/prompts/en.json';
 
+// Security: Maximum length for custom art style to prevent jailbreaking
+const MAX_CUSTOM_ART_STYLE_LENGTH = 100;
+
 type PromptResources = {
   [key in SupportedLanguage]: any;
 };
@@ -21,7 +24,7 @@ const promptResources: PromptResources = {
 // Image generation interfaces
 export interface ImageGenerationOptions {
   /**
-   * Optional free-form art style description supplied by the user (e.g., "Comic", "Oil painting", "赛博朋克").
+   * Optional free-form art style description supplied by the user (e.g., "Watercolor", "Oil painting", "赛博朋克").
    * When provided it will be appended to the prompt as "Style: {customArtStyle}.".
    */
   customArtStyle?: string;
@@ -103,6 +106,32 @@ const getPromptByPath = (obj: any, path: string): string | null => {
 };
 
 /**
+ * Validate and sanitize custom art style input
+ */
+const validateAndSanitizeCustomArtStyle = (customArtStyle?: string): string | undefined => {
+  if (!customArtStyle) return undefined;
+  
+  // Trim whitespace
+  const trimmed = customArtStyle.trim();
+  
+  // Check length limit
+  if (trimmed.length > MAX_CUSTOM_ART_STYLE_LENGTH) {
+    logger.warn(`Custom art style too long (${trimmed.length} chars), truncating to ${MAX_CUSTOM_ART_STYLE_LENGTH}`);
+    return trimmed.substring(0, MAX_CUSTOM_ART_STYLE_LENGTH);
+  }
+  
+  // Basic sanitization - remove potentially dangerous characters
+  const sanitized = trimmed.replace(/[<>{}]/g, '');
+  
+  if (sanitized.length === 0) {
+    logger.warn('Custom art style is empty after sanitization');
+    return undefined;
+  }
+  
+  return sanitized;
+};
+
+/**
  * Generate image prompt based on game state and ending summary
  */
 const generateImagePrompt = (
@@ -134,8 +163,8 @@ const generateImagePrompt = (
   // Get template from i18n (only future_vision template now)
   const template = getPrompt('image.templates.future_vision');
   
-  // Determine art style (use i18n default if not provided)
-  let resolvedArtStyle = customArtStyle?.trim();
+  // Validate and sanitize custom art style
+  let resolvedArtStyle = validateAndSanitizeCustomArtStyle(customArtStyle);
   if (!resolvedArtStyle || resolvedArtStyle.length === 0) {
     resolvedArtStyle = getPrompt('image.defaultArtStyle');
   }
@@ -358,6 +387,15 @@ export const generateEndingImage = async (
   
   return performanceMonitor.timeAsync('generateEndingImage', 'api', async () => {
     try {
+      // Validate options first
+      if (!validateImageGenerationOptions(options)) {
+        logger.error("❌ Invalid image generation options provided");
+        return {
+          success: false,
+          error: 'Invalid image generation options'
+        };
+      }
+      
       // Generate the image prompt
       const prompt = generateImagePrompt(gameState, endingSummary, options);
       
@@ -402,6 +440,24 @@ export const validateImageGenerationOptions = (options: ImageGenerationOptions):
   if (options.quality && !validQualities.includes(options.quality)) {
     logger.warn('Invalid image quality provided:', options.quality);
     return false;
+  }
+  
+  // Validate custom art style
+  if (options.customArtStyle) {
+    const trimmed = options.customArtStyle.trim();
+    
+    // Check length limit
+    if (trimmed.length > MAX_CUSTOM_ART_STYLE_LENGTH) {
+      logger.warn(`Custom art style too long (${trimmed.length} chars), exceeds limit of ${MAX_CUSTOM_ART_STYLE_LENGTH}`);
+      return false;
+    }
+    
+    // Check for potentially dangerous characters
+    const dangerousChars = /[<>{}]/;
+    if (dangerousChars.test(trimmed)) {
+      logger.warn('Custom art style contains potentially dangerous characters');
+      return false;
+    }
   }
   
   return true;

@@ -714,12 +714,14 @@ const useGameStore = create<GameStoreState>((set, get) => {
         };
         set(prevState => ({ ...prevState, ...newState }));
         
-        // Apply automatic finance recovery after advancing age if below 7
+        // Apply automatic finance recovery after advancing age if below 7 and child is older than 5
         const currentFinance = get().finance;
-        if (currentFinance < 7) {
+        if (currentFinance < 7 && nextAge > 5) {
           const newFinance = Math.min(10, currentFinance + 1);
-          logger.info(`💰 Auto-recovery (age advance): Finance increased from ${currentFinance} to ${newFinance} (below 7 threshold)`);
+          logger.info(`💰 Auto-recovery (age advance): Finance increased from ${currentFinance} to ${newFinance} (below 7 threshold, child age ${nextAge})`);
           set(prevState => ({ ...prevState, finance: newFinance }));
+        } else if (currentFinance < 7 && nextAge <= 5) {
+          logger.debug(`Skipping auto-recovery because child age (${nextAge}) ≤ 5`);
         }
         
         saveGameState(get());
@@ -788,7 +790,9 @@ const useGameStore = create<GameStoreState>((set, get) => {
       }));
       
       // Add a visual confirmation
-      console.log(`🔄 Streaming mode is now: ${!enableStreaming ? 'ENABLED ✅' : 'DISABLED ❌'}`);
+      if (import.meta.env.DEV) {
+    console.log(`🔄 Streaming mode is now: ${!enableStreaming ? 'ENABLED ✅' : 'DISABLED ❌'}`);
+  }
     },
 
     testEnding: async () => {
@@ -1024,22 +1028,24 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
           return;
       }
 
-      // Update financial burden and marital relationship
-      const currentFinance = get().finance;
-      const currentMarital = get().marital;
-      
-      // Apply deltas from the selected option
-      const financeDelta = selectedOption.financeDelta || selectedOption.cost || 0;
+      // Compute the raw finance change (cost or gain) for the chosen option
+      let financeDelta = selectedOption.financeDelta || selectedOption.cost || 0;
+
+      // Prevent wealth deduction (negative financeDelta) until the child is older than 5
+      if (child.age <= 5 && financeDelta < 0) {
+        logger.debug(`Skipping finance deduction of ${financeDelta} because child age (${child.age}) ≤ 5`);
+        financeDelta = 0;
+      }
       const maritalDelta = selectedOption.maritalDelta || 0;
       
-      const newFinance = Math.max(0, Math.min(10, currentFinance + financeDelta));
-      const newMarital = Math.max(0, Math.min(10, currentMarital + maritalDelta));
+      const newFinance = Math.max(0, Math.min(10, get().finance + financeDelta));
+      const newMarital = Math.max(0, Math.min(10, get().marital + maritalDelta));
       
-      const wasBankrupt = currentFinance === 0;
+      const wasBankrupt = get().finance === 0;
       const isNowBankrupt = newFinance === 0;
 
-      logger.info(`💰 Finance: ${currentFinance} + ${financeDelta} = ${newFinance}`);
-      logger.info(`💕 Marital: ${currentMarital} + ${maritalDelta} = ${newMarital}`);
+      logger.info(`💰 Finance: ${get().finance} + ${financeDelta} = ${newFinance}`);
+      logger.info(`💕 Marital: ${get().marital} + ${maritalDelta} = ${newMarital}`);
 
       // Check for bankruptcy recovery
       if (wasBankrupt && (selectedOption as any).isRecovery) {
@@ -1076,7 +1082,7 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
           error: null 
         }));
         
-        logger.debug(`Finance updated: ${currentFinance} + ${financeDelta} = ${newFinance}. Marital updated: ${currentMarital} + ${maritalDelta} = ${newMarital}. Is Bankrupt: ${isNowBankrupt}`);
+        logger.debug(`Finance updated: ${get().finance} + ${financeDelta} = ${newFinance}. Marital updated: ${get().marital} + ${maritalDelta} = ${newMarital}. Is Bankrupt: ${isNowBankrupt}`);
       }
 
       // Save intermediate state
@@ -1155,11 +1161,15 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
     loadQuestionStreaming: async () => {
       const { child, player, playerDescription, childDescription, history, endingSummaryText: est_store, currentQuestion: cQ_store, feedbackText: ft_store, isSingleParent, enableStreaming } = get();
       
+      if (import.meta.env.DEV) {
       console.log('🚀 loadQuestionStreaming called! enableStreaming:', enableStreaming);
+    }
       logger.debug(`🚀 loadQuestionStreaming called with enableStreaming: ${enableStreaming}`);
       
       if (!enableStreaming) {
+        if (import.meta.env.DEV) {
         console.log('⚠️ Streaming disabled, falling back to regular loadQuestion');
+      }
         return get().loadQuestion();
       }
       
@@ -1255,11 +1265,15 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
     selectOptionStreaming: async (optionId: string) => {
       const { currentQuestion, player, child, playerDescription, childDescription, history, endingSummaryText: est_store, currentQuestion: cQ_store, feedbackText: ft_store, isSingleParent, enableStreaming } = get();
       
+      if (import.meta.env.DEV) {
       console.log('🚀 selectOptionStreaming called! optionId:', optionId, 'enableStreaming:', enableStreaming);
+    }
       logger.debug(`🚀 selectOptionStreaming called with optionId: ${optionId}, enableStreaming: ${enableStreaming}`);
       
       if (!enableStreaming) {
+        if (import.meta.env.DEV) {
         console.log('⚠️ Streaming disabled, falling back to regular selectOption');
+      }
         return get().selectOption(optionId);
       }
       
@@ -1297,22 +1311,24 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
         return;
       }
 
-      // Update financial burden and marital relationship
-      const currentFinance = get().finance;
-      const currentMarital = get().marital;
-      
-      // Apply deltas from the selected option
-      const financeDelta = selectedOption.financeDelta || selectedOption.cost || 0;
+      // Compute the raw finance change (cost or gain) for the chosen option
+      let financeDelta = selectedOption.financeDelta || selectedOption.cost || 0;
+
+      // Prevent wealth deduction (negative financeDelta) until the child is older than 5
+      if (child.age <= 5 && financeDelta < 0) {
+        logger.debug(`Skipping finance deduction of ${financeDelta} because child age (${child.age}) ≤ 5`);
+        financeDelta = 0;
+      }
       const maritalDelta = selectedOption.maritalDelta || 0;
       
-      const newFinance = Math.max(0, Math.min(10, currentFinance + financeDelta));
-      const newMarital = Math.max(0, Math.min(10, currentMarital + maritalDelta));
+      const newFinance = Math.max(0, Math.min(10, get().finance + financeDelta));
+      const newMarital = Math.max(0, Math.min(10, get().marital + maritalDelta));
       
-      const wasBankrupt = currentFinance === 0;
+      const wasBankrupt = get().finance === 0;
       const isNowBankrupt = newFinance === 0;
 
-      logger.info(`💰 Finance: ${currentFinance} + ${financeDelta} = ${newFinance}`);
-      logger.info(`💕 Marital: ${currentMarital} + ${maritalDelta} = ${newMarital}`);
+      logger.info(`💰 Finance: ${get().finance} + ${financeDelta} = ${newFinance}`);
+      logger.info(`💕 Marital: ${get().marital} + ${maritalDelta} = ${newMarital}`);
 
       // Check for bankruptcy recovery
       if (wasBankrupt && (selectedOption as any).isRecovery) {
@@ -1349,7 +1365,7 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
           error: null 
         }));
         
-        logger.debug(`Finance updated: ${currentFinance} + ${financeDelta} = ${newFinance}. Marital updated: ${currentMarital} + ${maritalDelta} = ${newMarital}. Is Bankrupt: ${isNowBankrupt}`);
+        logger.debug(`Finance updated: ${get().finance} + ${financeDelta} = ${newFinance}. Marital updated: ${get().marital} + ${maritalDelta} = ${newMarital}. Is Bankrupt: ${isNowBankrupt}`);
       }
 
       // Save intermediate state

@@ -121,7 +121,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const providerConfig = getProvider(provider);
     
-    console.log('LLM key prefix', providerConfig.apiKey.slice(0,8));
+    if (process.env.NODE_ENV === 'development') {
+      console.log('LLM key prefix', providerConfig.apiKey.slice(0,8));
+    }
     
     if (!providerConfig.apiKey) {
       return res.status(500).json({ error: `API key not configured for ${provider}` });

@@ -16,11 +16,19 @@ import { track } from '@vercel/analytics';
 import { generateEndingImage, type ImageGenerationOptions, type ImageGenerationResult } from '../services/imageGenerationService';
 import type { GameState } from '../types/game';
 
+// Security: Maximum length for art style input to prevent jailbreaking
+const MAX_ART_STYLE_LENGTH = 100;
+
 interface AIImageGeneratorProps {
   gameState: GameState;
   endingSummary: string;
   onImageGenerated?: (imageResult: ImageGenerationResult) => void;
   className?: string;
+  // Paywall integration props
+  onBeforeGenerate?: () => boolean;
+  hasCredits?: boolean;
+  creditsCount?: number;
+  isCheckingCredits?: boolean;
 }
 
 const GenerateImageContainer = styled(Box)(({ theme }) => ({
@@ -83,6 +91,10 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
   endingSummary,
   onImageGenerated,
   className,
+  onBeforeGenerate,
+  hasCredits = true,
+  creditsCount: _creditsCount = 0,
+  isCheckingCredits = false,
 }) => {
   const { t } = useTranslation();
   const [isGenerating, setIsGenerating] = useState(false);
@@ -95,22 +107,53 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
     if (!artStyleInput) {
       const match = endingSummary.match(/<!--\s*story_style:\s*([^>]+?)\s*-->/i);
       if (match && match[1]) {
-        setArtStyleInput(match[1].trim());
+        // Security: Limit length even from extracted style
+        const extractedStyle = match[1].trim();
+        setArtStyleInput(extractedStyle.length > MAX_ART_STYLE_LENGTH 
+          ? extractedStyle.substring(0, MAX_ART_STYLE_LENGTH) 
+          : extractedStyle);
       }
     }
   }, [endingSummary]);
 
+  // Security: Validate and sanitize art style input
+  const handleArtStyleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    
+    // Limit length to prevent jailbreaking
+    if (input.length > MAX_ART_STYLE_LENGTH) {
+      return; // Don't update if exceeds limit
+    }
+    
+    // Basic sanitization - remove potentially dangerous characters
+    const sanitized = input.replace(/[<>{}]/g, '').trim();
+    setArtStyleInput(sanitized);
+  };
+
   const handleGenerateImage = async () => {
+    if (onBeforeGenerate) {
+      const gateResult = onBeforeGenerate();
+      if (gateResult && typeof (gateResult as any).then === 'function') {
+        const allowed = await (gateResult as unknown as Promise<boolean>);
+        if (!allowed) return;
+      } else if (!gateResult) {
+        return;
+      }
+    }
+    
     setIsGenerating(true);
     setError(null);
     
     try {
       track('AI Image Generation Started');
       
+      // Final validation before sending
+      const sanitizedArtStyle = artStyleInput.trim().substring(0, MAX_ART_STYLE_LENGTH);
+      
       const options: ImageGenerationOptions = {
         size: '768x768',
         quality: 'standard',
-        ...(artStyleInput.trim() !== '' ? { customArtStyle: artStyleInput.trim() } : {})
+        ...(sanitizedArtStyle !== '' ? { customArtStyle: sanitizedArtStyle } : {})
       };
 
       const result = await generateEndingImage(gameState, endingSummary, options);
@@ -156,19 +199,34 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
           <TextField
             fullWidth
             variant="outlined"
-            placeholder={t('messages.artStylePlaceholder', { defaultValue: 'Comic / 漫画' }) as string}
+            placeholder={t('messages.artStylePlaceholder', { defaultValue: 'Watercolor' }) as string}
             value={artStyleInput}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setArtStyleInput(e.target.value)}
+            onChange={handleArtStyleChange}
+            inputProps={{ 
+              maxLength: MAX_ART_STYLE_LENGTH,
+              'aria-label': 'Art style input'
+            }}
+            helperText={`${artStyleInput.length}/${MAX_ART_STYLE_LENGTH} characters`}
             sx={{ marginBottom: 2 }}
           />
 
-          <GenerateButton
-            onClick={handleGenerateImage}
-            startIcon={<Image />}
-            disabled={isGenerating}
-          >
-            {t('messages.generateImage', { childName: gameState.child.name })}
-          </GenerateButton>
+          {isCheckingCredits ? (
+            <GenerateButton disabled startIcon={<CircularProgress size={20} />}>
+              {t('messages.checkingCredits', { defaultValue: 'Checking credits…' })}
+            </GenerateButton>
+          ) : (
+            <GenerateButton
+              onClick={handleGenerateImage}
+              startIcon={<Image />}
+              disabled={isGenerating}
+            >
+              {hasCredits 
+                ? t('messages.generateImage', { childName: gameState.child.name })
+                : (t('messages.supportSimulator', { childName: gameState.child.name }) || 
+                   `Support the Baby Simulator and see ${gameState.child.name} in a photo`)
+              }
+            </GenerateButton>
+          )}
         </GenerateImageContainer>
       )}
 

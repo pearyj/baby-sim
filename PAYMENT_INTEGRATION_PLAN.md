@@ -114,6 +114,28 @@ Supabase
 | **4** | Currency slider (read-only) + localisation. | — | Slider shows suggested donation; qty fixed. | Unit test for unit-math per locale. |
 | **5** | Harden & monitor; feature flag on. | Row-lock consume RPC, alerts, webhook retry tests. | Live UI copy, observe Supabase realtime. | Stripe CLI + load test. |
 
+### Vertical slice details
+
+#### Slice 1 (Test-mode Stripe → RAM credits)
+
+**Front-end ↔ RAM refresh contract**
+
+1. `PaywallUI` creates the Session with `embedded + redirect_on_completion=never`.
+2. `EmbeddedCheckout` listens for `stripe-session state:"complete"` (postMessage) **OR** Stripe's `onComplete` callback.
+3. On completion the component:
+   a. Displays a 2-second "Thank you / you now have N credits" mini-panel.
+   b. Fires `fetchCredits()` → `GET /api/credits?anonId=…`.
+   c. RAM store (`creditsStorage` Map in `api/paymentShared.ts`) now already holds the increment (webhook wrote it). The endpoint returns the fresh count.
+   d. Zustand `paymentStore` persists `{anonId, credits}` to localStorage.
+   e. Dialog closes ⇒ control returns to whatever React page invoked the paywall.
+4. First successful `AIImageGenerator.onImageGenerated` after that calls `consumeCredit()` which atomically decrements the in-memory store and updates localStorage.
+
+Edge-cases handled:
+• If webhook is slow, `fetchCredits` retries via PaywallGate when the user tries again.
+• If the user reloads the SPA, `paymentStore` rehydrates from localStorage and still shows the new balance.
+
+> No additional DB writes yet—still slice 1 RAM only.
+
 ---
 
 ## 8. QA & Launch Checklist
@@ -130,11 +152,10 @@ Supabase
 ---
 
 ## 9. Open Questions (trimmed)
-1. Donation slider wording & min/max.
-2. No Max donation limit
-3. Email provider (Supabase SMTP likely).
-4. Enable rate-limiting per anonId to prevent abuse of 0-credit check and to prevent going around our hook to generate their own pictures for other purposes?
-5. Need to update GDPR / PIPL compliance banners for personal data storage (but only if and when the data is actually prompted and collected so that there is minimum disruption to user flow)
+1. Donation slider wording: "Name your own price" & minimum 1 credit, no max limit
+2. Email provider (Supabase SMTP likely).
+3. Enable rate-limiting per anonId to prevent abuse of 0-credit check and to prevent going around our hook to generate their own pictures for other purposes?
+4. Need to update GDPR / PIPL compliance banners for personal data storage (but only if and when the data is actually prompted and collected so that there is minimum disruption to user flow)
 
 ---
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Typography, Paper, Chip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import useGameStore from '../../stores/useGameStore';
+import { usePaymentStore } from '../../stores/usePaymentStore';
 
 const DebugPanel = styled(Paper)(({ theme }) => ({
   position: 'fixed',
@@ -53,50 +54,58 @@ export const DebugNumericalValues: React.FC = () => {
     player: state.player,
   }));
 
+  const { credits } = usePaymentStore(state => ({ credits: state.credits }));
+
   // Track changes
   const prevValues = React.useRef({ finance: -1, marital: -1 });
 
-  // Debug logging to console with localStorage check
+  // Debug logging to console with localStorage check (development only)
   React.useEffect(() => {
-    console.log('🐛 Debug Component Values:', {
-      finance,
-      marital,
-      isSingleParent,
-      currentAge,
-      gamePhase,
-      hasPlayer: !!player,
-      timestamp: new Date().toISOString()
-    });
-    
-    if (prevValues.current.finance !== finance || prevValues.current.marital !== marital) {
-      if (prevValues.current.finance !== -1) { // Not first load
-        console.log('🔄 VALUE CHANGE DETECTED:');
-        console.log(`  Finance: ${prevValues.current.finance} → ${finance} (Δ${finance - prevValues.current.finance})`);
-        console.log(`  Marital: ${prevValues.current.marital} → ${marital} (Δ${marital - prevValues.current.marital})`);
+    if (import.meta.env.DEV) {
+      console.log('🐛 Debug Component Values:', {
+        finance,
+        marital,
+        isSingleParent,
+        currentAge,
+        gamePhase,
+        hasPlayer: !!player,
+        timestamp: new Date().toISOString()
+      });
+      
+      if (prevValues.current.finance !== finance || prevValues.current.marital !== marital) {
+        if (prevValues.current.finance !== -1) { // Not first load
+          console.log('🔄 VALUE CHANGE DETECTED:');
+          console.log(`  Finance: ${prevValues.current.finance} → ${finance} (Δ${finance - prevValues.current.finance})`);
+          console.log(`  Marital: ${prevValues.current.marital} → ${marital} (Δ${marital - prevValues.current.marital})`);
+        }
       }
-      prevValues.current = { finance, marital };
+      
+      // Also check what's in localStorage
+      try {
+        const stored = localStorage.getItem('childSimGameState');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          console.log('💾 LocalStorage values:', {
+            finance: parsed.data?.finance,
+            marital: parsed.data?.marital,
+            isSingleParent: parsed.data?.isSingleParent,
+            currentAge: parsed.data?.currentAge,
+            hasFinance: typeof parsed.data?.finance === 'number',
+            hasMarital: typeof parsed.data?.marital === 'number',
+            hasIsSingleParent: typeof parsed.data?.isSingleParent === 'boolean',
+            hasCurrentAge: typeof parsed.data?.currentAge === 'number'
+          });
+        } else {
+          console.log('💾 No localStorage data found');
+        }
+      } catch (e) {
+        console.log('💾 Error reading localStorage:', e);
+      }
     }
     
-    // Also check what's in localStorage
-    try {
-      const stored = localStorage.getItem('childSimGameState');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        console.log('💾 LocalStorage values:', {
-          finance: parsed.data?.finance,
-          marital: parsed.data?.marital,
-          isSingleParent: parsed.data?.isSingleParent,
-          currentAge: parsed.data?.currentAge,
-          hasFinance: typeof parsed.data?.finance === 'number',
-          hasMarital: typeof parsed.data?.marital === 'number',
-          hasIsSingleParent: typeof parsed.data?.isSingleParent === 'boolean',
-          hasCurrentAge: typeof parsed.data?.currentAge === 'number'
-        });
-      } else {
-        console.log('💾 No localStorage data found');
-      }
-    } catch (e) {
-      console.log('💾 Error reading localStorage:', e);
+    // Always update prevValues regardless of environment for component logic
+    if (prevValues.current.finance !== finance || prevValues.current.marital !== marital) {
+      prevValues.current = { finance, marital };
     }
   }, [finance, marital, isSingleParent, currentAge, gamePhase, player]);
 
@@ -147,6 +156,15 @@ export const DebugNumericalValues: React.FC = () => {
             sx={{ fontSize: '0.7rem', height: 20 }}
           />
         </Box>
+      </ValueRow>
+
+      <ValueRow>
+        <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>
+          Credits:
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'white', fontFamily: 'monospace' }}>
+          {credits}
+        </Typography>
       </ValueRow>
 
       {currentQuestion && (

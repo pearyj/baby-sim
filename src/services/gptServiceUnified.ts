@@ -63,10 +63,12 @@ let globalTokenUsage: TokenUsageStats = {
 
 // Provider management functions
 export const getActiveProvider = (): ModelProvider => {
-  // Debug: Log client-side Volcano Engine env vars
-  console.log('🔍 CLIENT ENV DEBUG - Volcano Engine Keys:');
-  console.log('  VITE_VOLCENGINE_LLM_API_KEY:', import.meta.env.VITE_VOLCENGINE_LLM_API_KEY?.substring(0, 8) + '...' || 'MISSING');
-  console.log('  VITE_VOLCENGINE_VISUAL_API_KEY:', import.meta.env.VITE_VOLCENGINE_VISUAL_API_KEY?.substring(0, 8) + '...' || 'MISSING');
+  // Debug: Log client-side Volcano Engine env vars (development only)
+  if (import.meta.env.DEV) {
+    console.log('🔍 CLIENT ENV DEBUG - Volcano Engine Keys:');
+    console.log('  VITE_VOLCENGINE_LLM_API_KEY:', import.meta.env.VITE_VOLCENGINE_LLM_API_KEY?.substring(0, 8) + '...' || 'MISSING');
+    console.log('  VITE_VOLCENGINE_VISUAL_API_KEY:', import.meta.env.VITE_VOLCENGINE_VISUAL_API_KEY?.substring(0, 8) + '...' || 'MISSING');
+  }
 
   const provider = API_CONFIG.ACTIVE_PROVIDER;
   
@@ -454,14 +456,16 @@ const generateQuestionSync = async (gameState: GameState): Promise<Question & { 
     const systemPrompt = generateSystemPrompt();
     const userPrompt = generateQuestionPrompt(gameState, true);
     
-    // 🐛 COMPREHENSIVE LOGGING - FULL PROMPTS
-    console.log('\n🔍 ===== GENERATE QUESTION DEBUG =====');
-    console.log('🎯 SYSTEM PROMPT (FULL):');
-    console.log(systemPrompt);
-    console.log('\n📝 USER PROMPT (FULL):');
-    console.log(userPrompt);
-    console.log('\n📊 GAME STATE SENT TO LLM:');
-    console.log(JSON.stringify(gameState, null, 2));
+    // 🐛 COMPREHENSIVE LOGGING - FULL PROMPTS (development only)
+    if (import.meta.env.DEV) {
+      console.log('\n🔍 ===== GENERATE QUESTION DEBUG =====');
+      console.log('🎯 SYSTEM PROMPT (FULL):');
+      console.log(systemPrompt);
+      console.log('\n📝 USER PROMPT (FULL):');
+      console.log(userPrompt);
+      console.log('\n📊 GAME STATE SENT TO LLM:');
+      console.log(JSON.stringify(gameState, null, 2));
+    }
     
     const messages: ChatMessage[] = [
       { role: 'system', content: systemPrompt },
@@ -476,10 +480,12 @@ const generateQuestionSync = async (gameState: GameState): Promise<Question & { 
       
       const content = data.choices[0].message.content;
       
-      // 🐛 COMPREHENSIVE LOGGING - FULL RESPONSE
-      console.log('\n📦 LLM RESPONSE (FULL):');
-      console.log(content);
-      console.log('\n🔄 PARSING RESPONSE...');
+      // 🐛 COMPREHENSIVE LOGGING - FULL RESPONSE (development only)
+      if (import.meta.env.DEV) {
+        console.log('\n📦 LLM RESPONSE (FULL):');
+        console.log(content);
+        console.log('\n🔄 PARSING RESPONSE...');
+      }
       
       logger.info('📄 API response content (question):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
       
@@ -487,19 +493,21 @@ const generateQuestionSync = async (gameState: GameState): Promise<Question & { 
         return safeJsonParse(content);
       });
       
-      // 🐛 LOG PARSED RESULT
-      console.log('\n✅ PARSED RESULT:');
-      console.log(JSON.stringify(result, null, 2));
-      console.log('\n📋 EXTRACTED OPTIONS WITH DELTAS:');
-      if (result.options) {
-        result.options.forEach((opt: any, index: number) => {
-          console.log(`Option ${index + 1}: ${opt.text}`);
-          console.log(`  - financeDelta: ${opt.financeDelta || 0}`);
-          console.log(`  - maritalDelta: ${opt.maritalDelta || 0}`);
-          console.log(`  - cost (legacy): ${opt.cost || 0}`);
-        });
+      // 🐛 LOG PARSED RESULT (development only)
+      if (import.meta.env.DEV) {
+        console.log('\n✅ PARSED RESULT:');
+        console.log(JSON.stringify(result, null, 2));
+        console.log('\n📋 EXTRACTED OPTIONS WITH DELTAS:');
+        if (result.options) {
+          result.options.forEach((opt: any, index: number) => {
+            console.log(`Option ${index + 1}: ${opt.text}`);
+            console.log(`  - financeDelta: ${opt.financeDelta || 0}`);
+            console.log(`  - maritalDelta: ${opt.maritalDelta || 0}`);
+            console.log(`  - cost (legacy): ${opt.cost || 0}`);
+          });
+        }
+        console.log('🔍 ===== END GENERATE QUESTION DEBUG =====\n');
       }
-      console.log('🔍 ===== END GENERATE QUESTION DEBUG =====\n');
       
       const question: Question & { isExtremeEvent: boolean } = {
         id: `q_${Date.now()}`,
@@ -533,18 +541,20 @@ const generateOutcomeAndNextQuestionSync = async (
     const systemPrompt = generateSystemPrompt();
     const userPrompt = generateOutcomeAndNextQuestionPrompt(gameState, question, choice, shouldGenerateNextQuestion);
     
-    // 🐛 COMPREHENSIVE LOGGING - FULL PROMPTS
-    console.log('\n🔍 ===== GENERATE OUTCOME DEBUG =====');
-    console.log('🎯 SYSTEM PROMPT (FULL):');
-    console.log(systemPrompt);
-    console.log('\n📝 USER PROMPT (FULL):');
-    console.log(userPrompt);
-    console.log('\n📊 GAME STATE SENT TO LLM:');
-    console.log(JSON.stringify(gameState, null, 2));
-    console.log('\n🎯 SELECTED CHOICE:');
-    console.log(`Question: ${question}`);
-    console.log(`Choice: ${choice}`);
-    console.log(`Should generate next question: ${shouldGenerateNextQuestion}`);
+    // 🐛 COMPREHENSIVE LOGGING - FULL PROMPTS (development only)
+    if (import.meta.env.DEV) {
+      console.log('\n🔍 ===== GENERATE OUTCOME DEBUG =====');
+      console.log('🎯 SYSTEM PROMPT (FULL):');
+      console.log(systemPrompt);
+      console.log('\n📝 USER PROMPT (FULL):');
+      console.log(userPrompt);
+      console.log('\n📊 GAME STATE SENT TO LLM:');
+      console.log(JSON.stringify(gameState, null, 2));
+      console.log('\n🎯 SELECTED CHOICE:');
+      console.log(`Question: ${question}`);
+      console.log(`Choice: ${choice}`);
+      console.log(`Should generate next question: ${shouldGenerateNextQuestion}`);
+    }
     
     const messages: ChatMessage[] = [
       { role: 'system', content: systemPrompt },
@@ -559,10 +569,12 @@ const generateOutcomeAndNextQuestionSync = async (
       
       const content = data.choices[0].message.content;
       
-      // 🐛 COMPREHENSIVE LOGGING - FULL RESPONSE
-      console.log('\n📦 LLM RESPONSE (FULL):');
-      console.log(content);
-      console.log('\n🔄 PARSING RESPONSE...');
+      // 🐛 COMPREHENSIVE LOGGING - FULL RESPONSE (development only)
+      if (import.meta.env.DEV) {
+        console.log('\n📦 LLM RESPONSE (FULL):');
+        console.log(content);
+        console.log('\n🔄 PARSING RESPONSE...');
+      }
       
       logger.info('📄 API response content (outcome):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
       
@@ -570,19 +582,21 @@ const generateOutcomeAndNextQuestionSync = async (
         return safeJsonParse(content);
       });
       
-      // 🐛 LOG PARSED RESULT
-      console.log('\n✅ PARSED RESULT:');
-      console.log(JSON.stringify(result, null, 2));
-      console.log('\n📋 NEXT QUESTION OPTIONS (if any):');
-      if (result.nextQuestion && result.nextQuestion.options) {
-        result.nextQuestion.options.forEach((opt: any, index: number) => {
-          console.log(`Option ${index + 1}: ${opt.text}`);
-          console.log(`  - financeDelta: ${opt.financeDelta || 0}`);
-          console.log(`  - maritalDelta: ${opt.maritalDelta || 0}`);
-          console.log(`  - cost (legacy): ${opt.cost || 0}`);
-        });
+      // 🐛 LOG PARSED RESULT (development only)
+      if (import.meta.env.DEV) {
+        console.log('\n✅ PARSED RESULT:');
+        console.log(JSON.stringify(result, null, 2));
+        console.log('\n📋 NEXT QUESTION OPTIONS (if any):');
+        if (result.nextQuestion && result.nextQuestion.options) {
+          result.nextQuestion.options.forEach((opt: any, index: number) => {
+            console.log(`Option ${index + 1}: ${opt.text}`);
+            console.log(`  - financeDelta: ${opt.financeDelta || 0}`);
+            console.log(`  - maritalDelta: ${opt.maritalDelta || 0}`);
+            console.log(`  - cost (legacy): ${opt.cost || 0}`);
+          });
+        }
+        console.log('🔍 ===== END GENERATE OUTCOME DEBUG =====\n');
       }
-      console.log('🔍 ===== END GENERATE OUTCOME DEBUG =====\n');
       
       const response: {
         outcome: string;

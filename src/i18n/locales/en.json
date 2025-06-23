@@ -149,7 +149,10 @@
     "generatingImage": "Generating {{childName}}'s image...",
     "imageGenerated": "Image generated successfully!",
     "imageGenerationFailed": "Failed to generate image. Please try again.",
-    "imageGenerationOptional": "Optional: Generate a personalized AI image for your journey"
+    "imageGenerationOptional": "Optional: Generate a personalized AI image for your journey",
+    "artStylePlaceholder": "Watercolor",
+    "checkingCredits": "Checking credits…",
+    "supportSimulator": "Support the Baby Simulator and see {{childName}} in a photo"
   },
   "share": {
     "title": "I've raised {{childName}} to 18 at the Baby Simulator!",
@@ -169,8 +172,8 @@
     "gameFeatures": "Game Features",
     "feature1": "AI-generated character backgrounds, parenting scenarios, and storylines",
     "feature2": "Every decision affects your child's path",
-    "feature3": "See a timeline of your parenting journey until your child reaches adulthood at 18",
-    "feature4": "Reflect on what kind of parent you are",
+    "feature3": "See a timeline of your parenting journey until your child reaches adulthood at 18, and reflect on what kind of parent you are",
+    "feature4": "[Updated + in Beta] Generate a photo of your 18-year-old child at a style of your liking",
     "startGameInfo": "Click start game to randomly generate a parent character and basic child information.",
     "specialRequirements": "Special Requirements (Optional)",
     "specialRequirementsPlaceholder": "I want an ugly cute kid",
@@ -205,6 +208,27 @@
     "subscribeInvalidEmail": "Please enter a valid email address (e.g., name@example.com).",
     "subscribeMustAgree": "You must agree to the Privacy Policy and Terms of Service.",
     "subscribeError": "Subscription failed. Please try again later.",
-    "subscribeAgreement": "I agree to the Privacy Policy and Terms of Service."
+    "subscribeAgreement": "I agree to the Privacy Policy and Terms of Service.",
+    "testPayment": "Test Payment"
+  },
+  "paywall": {
+    "title": "See {{childName}} in a photo",
+    "subtitle": "AI generations cost money! Donate at your own price to support the game and receive credits to generate personalized AI photos",
+    "email": "Email",
+    "emailRequired": "Email is required for receipts and for tracking your credits",
+    "emailInvalid": "Please enter a valid email address",
+    "checkCredits": "Check for Existing Credits",
+    "donationAmount": "Donation Amount:",
+    "getCredits": "Get {{count}} credit",
+    "getCredits_plural": "Get {{count}} credits",
+    "paymentSecure": "Payment securely processed by Stripe. Note that Stripe takes a 2.9% + 30 cents fee for each payment so please choose a higher amount in one transaction if you'd like to generate multiple times! You will be able to reuse them in the future with your email address.",
+    "cancel": "Cancel",
+    "continueAndPay": "Continue & Pay",
+    "processing": "Processing...",
+    "creditsFound": "You have {{count}} credit. You can generate your photo now.",
+    "creditsFound_plural": "You have {{count}} credits. You can generate your photo now.",
+    "noCreditsFound": "No credits found. Please donate to get credits.",
+    "checkCreditsFailed": "Failed to check credits",
+    "emailReceiptCopy": "Share your email for receipt and for recovering your image credits for future kids"
   }
 } 

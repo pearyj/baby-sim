@@ -17,4 +17,7 @@ const DevModelSwitcher: React.FC<DevModelSwitcherProps> = ({ className }) => {
   return <ModelSwitcher className={className} />;
 };
 
+// Named export for compatibility with "{ DevModelSwitcher }" import style
+export { DevModelSwitcher };
+
 export default DevModelSwitcher; 

@@ -42,15 +42,17 @@ const logger: Logger = {
   warn: (...args: any[]) => createLogger('warn', ...args),
   error: (...args: any[]) => createLogger('error', ...args),
   debugImagePrompt: (prompt: string, options?: any) => {
-    // Always log image prompts regardless of environment for debugging purposes
-    console.group('🖼️ IMAGE GENERATION DEBUG - Full Prompt');
-    console.log('📝 Full Image Prompt:');
-    console.log(prompt);
-    if (options) {
-      console.log('⚙️ Generation Options:', options);
+    // Only log image prompts in development environment
+    if (isDevelopment) {
+      console.group('🖼️ IMAGE GENERATION DEBUG - Full Prompt');
+      console.log('📝 Full Image Prompt:');
+      console.log(prompt);
+      if (options) {
+        console.log('⚙️ Generation Options:', options);
+      }
+      console.log('📏 Prompt Length:', prompt.length, 'characters');
+      console.groupEnd();
     }
-    console.log('📏 Prompt Length:', prompt.length, 'characters');
-    console.groupEnd();
   }
 };
 

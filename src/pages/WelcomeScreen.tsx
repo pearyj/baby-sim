@@ -235,7 +235,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                     </Stack>
                   </Card>
                   
-                  <Typography variant="body1">
+                  <Typography variant="body1" sx={{ mb: 2 }}>
                     {t('welcome.continueOrNew')}
                   </Typography>
                 </CardContent>
@@ -361,6 +361,18 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   sx={{ mt: 1 }}
                 >
                   {t('actions.testAdTimeline')}
+                </Button>
+              )}
+              {isDevelopment && (
+                <Button
+                  fullWidth
+                  variant="text"
+                  color="info"
+                  onClick={() => navigate('/payment-test-page')}
+                  size="small"
+                  sx={{ mt: 1 }}
+                >
+                  {t('actions.testPayment')}
                 </Button>
               )}
             </Stack>

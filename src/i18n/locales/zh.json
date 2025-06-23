@@ -146,7 +146,10 @@
     "generatingImage": "正在为{{childName}}生成图片...",
     "imageGenerated": "图片生成成功！",
     "imageGenerationFailed": "图片生成失败，请重试。",
-    "imageGenerationOptional": "可选：为您的养育之旅生成个性化AI图片"
+    "imageGenerationOptional": "可选：为您的养育之旅生成个性化AI图片",
+    "artStylePlaceholder": "水彩画",
+    "checkingCredits": "检查积分中…",
+    "supportSimulator": "支持养娃模拟器，生成{{childName}}的照片"
   },
   "share": {
     "title": "我在《养娃模拟器》把{{childName}}养到18岁啦！",
@@ -166,8 +169,8 @@
     "gameFeatures": "游戏特点",
     "feature1": "AI生成的角色背景、养育情境和故事线",
     "feature2": "每个决定都会影响娃的成长路径",
-    "feature3": "时间轴记录你的养育历程，直到18岁送娃成人",
-    "feature4": "查看娃的成长经历和自己是个什么样的父母",
+    "feature3": "时间轴记录你的养育历程，直到送娃18岁成人，并反思自己是个什么样的父母",
+    "feature4": "[更新 + 内测中] 生成您18岁孩子的照片，风格自选",
     "startGameInfo": "点击开始游戏，随机生成一位父亲/母亲的角色，以及娃的基本信息。",
     "specialRequirements": "特殊要求（可选）",
     "specialRequirementsPlaceholder": "我想养个邻居家的孩子",
@@ -202,6 +205,25 @@
     "subscribeInvalidEmail": "请输入有效的邮箱地址（例如：name@example.com）。",
     "subscribeMustAgree": "请同意隐私政策和服务条款。",
     "subscribeError": "订阅失败，请稍后再试。",
-    "subscribeAgreement": "我已阅读并同意隐私政策和服务条款"
+    "subscribeAgreement": "我已阅读并同意隐私政策和服务条款",
+    "testPayment": "测试支付"
+  },
+  "paywall": {
+    "title": "支持养娃模拟器，为孩子生成照片",
+    "subtitle": "AI生成有成本，选择您的捐赠金额来支持养娃模拟器，可获取积分以生成您专属的AI照片",
+    "email": "邮箱",
+    "emailRequired": "邮箱是必填项",
+    "emailInvalid": "请输入有效的邮箱地址",
+    "checkCredits": "查询积分",
+    "donationAmount": "捐赠金额：",
+    "getCredits": "获得 {{count}} 个积分",
+    "paymentSecure": "支付由Stripe安全处理。Stripe每次交易会收取手续费，如果您想多次生成照片，建议选择总金额一次性支付。您可以以后用您的邮箱地址继续生图。",
+    "cancel": "取消",
+    "continueAndPay": "继续支付",
+    "processing": "处理中...",
+    "creditsFound": "您有 {{count}} 个积分，可立即生成图片。",
+    "noCreditsFound": "没有找到积分，请捐赠以获得积分。",
+    "checkCreditsFailed": "查询积分失败",
+    "emailReceiptCopy": "邮箱以接受收据和并未来继续使用生图功能"
   }
 } 
