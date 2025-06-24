@@ -292,12 +292,14 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
             value={donatedUnits}
             onChange={handleSliderChange}
             min={1}
-            max={10}
+            max={20}
             step={1}
             marks={[
               { value: 1, label: '1x' },
               { value: 5, label: '5x' },
               { value: 10, label: '10x' },
+              { value: 15, label: '15x' },
+              { value: 20, label: '20x' },
             ]}
             valueLabelDisplay="auto"
             sx={{ mb: 2 }}

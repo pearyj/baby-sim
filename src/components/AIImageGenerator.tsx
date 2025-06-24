@@ -137,8 +137,8 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
       return; // Don't update if exceeds limit
     }
     
-    // Basic sanitization - remove potentially dangerous characters
-    const sanitized = input.replace(/[<>{}]/g, '').trim();
+    // Basic sanitization - remove potentially dangerous characters but keep spaces
+    const sanitized = input.replace(/[<>{}]/g, '');
     setArtStyleInput(sanitized);
   };
 
