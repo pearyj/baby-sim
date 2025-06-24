@@ -92,18 +92,29 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
 
   // Allow generation if credits available, but don't deduct yet.
   const handleGenerateImage = () => {
-    console.warn('🔍 PAYWALL DEBUG - handleGenerateImage called:', {
+    console.warn('🔍 PAYWALL DEBUG - PaywallGate handleGenerateImage called:', {
       hasEmail: !!email,
       credits,
       requiresCredits,
+      PAYWALL_VERSION,
       timestamp: new Date().toISOString()
     });
 
-    // Require email first
-    if (!email) {
-      console.warn('🔍 PAYWALL DEBUG - No email, showing paywall');
-      setShowPaywall(true);
-      return false;
+    // In production mode, enforce paywall logic
+    if (PAYWALL_VERSION === 'prod') {
+      // Require email first
+      if (!email) {
+        console.warn('🔍 PAYWALL DEBUG - PROD: No email, showing paywall');
+        setShowPaywall(true);
+        return false;
+      }
+
+      // If credits required and none available, show paywall
+      if (requiresCredits && credits <= 0) {
+        console.warn('🔍 PAYWALL DEBUG - PROD: No credits, showing paywall');
+        setShowPaywall(true);
+        return false;
+      }
     }
 
     // If credits already known and >0 allow, else open paywall / checker
@@ -215,13 +226,25 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
 
   // Clone children and inject the handleGenerateImage function if it's the AIImageGenerator
   const enhancedChildren = React.Children.map(children, (child) => {
-    if (React.isValidElement(child) && child.type && 
-        (child.type as any).name === 'AIImageGenerator') {
-      console.warn('🔍 PAYWALL DEBUG - Enhancing AIImageGenerator with paywall props');
-      return React.cloneElement(child as React.ReactElement<any>, {
-        ...createEnhancedProps(child.props),
-        isCheckingCredits: waitingForCredit && credits === 0,
+    if (React.isValidElement(child) && child.type) {
+      const componentName = (child.type as any).name || (child.type as any).displayName || 'Unknown';
+      const hasGameState = (child.props as any)?.gameState;
+      const hasEndingSummary = (child.props as any)?.endingSummary;
+      
+      console.warn('🔍 PAYWALL DEBUG - Checking child component:', {
+        componentName,
+        hasGameState: !!hasGameState,
+        hasEndingSummary: !!hasEndingSummary
       });
+      
+      // Check for AIImageGenerator by component name OR by having both gameState and endingSummary props
+      if (componentName === 'AIImageGenerator' || (hasGameState && hasEndingSummary)) {
+        console.warn('🔍 PAYWALL DEBUG - Enhancing AIImageGenerator with paywall props');
+        return React.cloneElement(child as React.ReactElement<any>, {
+          ...createEnhancedProps(child.props),
+          isCheckingCredits: waitingForCredit && credits === 0,
+        });
+      }
     }
     return child;
   });

@@ -340,4 +340,7 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
       )}
     </Box>
   );
-}; 
+};
+
+// Add displayName for production debugging
+AIImageGenerator.displayName = 'AIImageGenerator'; 
