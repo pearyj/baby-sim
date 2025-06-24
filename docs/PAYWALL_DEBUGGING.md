@@ -130,7 +130,7 @@ Look for:
 
 Check these in production:
 
-### Frontend (Browser)
+##️ Frontend (Browser)
 - `VITE_PAYWALL_VERSION`: Should be "prod" for production
 - `VITE_STRIPE_PUBLISHABLE_KEY`: Stripe public key
 

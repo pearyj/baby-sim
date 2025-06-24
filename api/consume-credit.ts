@@ -21,7 +21,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'anonId required' });
   }
 
-  const TABLE = process.env.CREDITS_TABLE || (process.env.VERCEL_ENV === 'production' ? 'credits' : 'credits_shadow');
+  // Determine table based on environment. Use real table for both "production" and "preview" deployments.
+  const env = process.env.VERCEL_ENV || 'development';
+  const TABLE = process.env.CREDITS_TABLE || ((env === 'production' || env === 'preview') ? 'credits' : 'credits_shadow');
 
   console.warn('🔍 PAYWALL DEBUG - Consuming credit from table:', {
     table: TABLE,

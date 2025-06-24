@@ -62,7 +62,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Determine which table to write to. By default we keep using the shadow table until
     // PAYWALL_PERSISTENCE is explicitly switched to "db" (slice 3+). This makes it
     // impossible to accidentally corrupt prod data while still allowing reads to work.
-    const CREDITS_TABLE = process.env.CREDITS_TABLE || (process.env.VERCEL_ENV === 'production' ? 'credits' : 'credits_shadow');
+    const env = process.env.VERCEL_ENV || 'development';
+    const CREDITS_TABLE = process.env.CREDITS_TABLE || ((env === 'production' || env === 'preview') ? 'credits' : 'credits_shadow');
 
     console.log('🗄️ Writing to table:', CREDITS_TABLE);
     
@@ -96,7 +97,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
           // Always insert a purchase record for auditing
-    const PURCHASES_TABLE = process.env.PURCHASES_TABLE || (process.env.VERCEL_ENV === 'production' ? 'purchases' : 'purchases_shadow');
+    const PURCHASES_TABLE = process.env.PURCHASES_TABLE || ((env === 'production' || env === 'preview') ? 'purchases' : 'purchases_shadow');
     await supabaseAdmin.from(PURCHASES_TABLE).insert({
         anon_id: anonId,
         email: session.metadata?.email || null,

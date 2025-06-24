@@ -33,7 +33,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   let credits = 0;
 
-  const TABLE = process.env.CREDITS_TABLE || (process.env.VERCEL_ENV === 'production' ? 'credits' : 'credits_shadow');
+  // Determine table based on environment. Treat both Vercel "production" and "preview" as real prod-like
+  // environments so that the preview deploys hit the actual production data instead of the *_shadow tables.
+  const env = process.env.VERCEL_ENV || 'development';
+  const TABLE = process.env.CREDITS_TABLE || ((env === 'production' || env === 'preview') ? 'credits' : 'credits_shadow');
   
   console.warn('🔍 PAYWALL DEBUG - Querying table:', {
     table: TABLE,
