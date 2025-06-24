@@ -65,6 +65,17 @@ const ActionButton = styled(Button)(({ theme }) => ({
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) => {
   // In Vite, use import.meta.env.DEV for development mode check
   const isDevelopment = import.meta.env.DEV;
+  
+  // Check for secret test ending URL parameter for production debugging
+  const urlParams = new URLSearchParams(window.location.search);
+  const secretTestEnding = urlParams.get('secretTestEnding') === 'yes';
+  const showTestButtons = isDevelopment || secretTestEnding;
+  
+  // Production debugging: Log if secret test ending is enabled
+  if (secretTestEnding) {
+    console.warn('🔍 PAYWALL DEBUG - WelcomeScreen: Secret test ending enabled via URL parameter');
+  }
+  
   const { t } = useTranslation();
   const navigate = useNavigate();
   
@@ -339,7 +350,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                 </ActionButton>
               )}
 
-              {isDevelopment && onTestEnding && (
+              {showTestButtons && onTestEnding && (
                 <Button
                   fullWidth
                   variant="text"
@@ -348,10 +359,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   size="small"
                   sx={{ mt: 2 }}
                 >
-                  {t('actions.testEnding')}
+                  {secretTestEnding ? '🔍 Secret Test Ending (Production Debug)' : t('actions.testEnding')}
                 </Button>
               )}
-              {isDevelopment && (
+              {showTestButtons && (
                 <Button
                   fullWidth
                   variant="text"
@@ -360,10 +371,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   size="small"
                   sx={{ mt: 1 }}
                 >
-                  {t('actions.testAdTimeline')}
+                  {secretTestEnding ? '🔍 Secret Ad Test (Production Debug)' : t('actions.testAdTimeline')}
                 </Button>
               )}
-              {isDevelopment && (
+              {showTestButtons && (
                 <Button
                   fullWidth
                   variant="text"
@@ -372,7 +383,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   size="small"
                   sx={{ mt: 1 }}
                 >
-                  {t('actions.testPayment')}
+                  {secretTestEnding ? '🔍 Secret Payment Test (Production Debug)' : t('actions.testPayment')}
                 </Button>
               )}
             </Stack>

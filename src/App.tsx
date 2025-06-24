@@ -94,6 +94,26 @@ function App() {
   // Determine if in development mode
   const isDevelopment = import.meta.env.DEV;
 
+  // Check for secret test ending URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const secretTestEnding = urlParams.get('secretTestEnding') === 'yes';
+  
+  // Production debugging: Log paywall configuration
+  useEffect(() => {
+    const paywallVersion = import.meta.env.VITE_PAYWALL_VERSION || 'test';
+    const skipPaywall = urlParams.get('skipPaywall') === 'yes';
+    
+    // Use console.warn so it won't be stripped in production
+    console.warn('🔍 PAYWALL DEBUG - Configuration:', {
+      paywallVersion,
+      skipPaywall,
+      secretTestEnding,
+      isDevelopment,
+      environment: import.meta.env.MODE,
+      timestamp: new Date().toISOString()
+    });
+  }, [secretTestEnding, urlParams]);
+
   const {
     gamePhase,
     child,
@@ -149,6 +169,14 @@ function App() {
     isSingleParent: state.isSingleParent,
   }))
 
+  // Secret test ending trigger - works in production
+  useEffect(() => {
+    if (secretTestEnding && gamePhase === 'uninitialized') {
+      console.warn('🔍 PAYWALL DEBUG - Triggering secret test ending');
+      testEnding();
+    }
+  }, [secretTestEnding, gamePhase, testEnding]);
+
   // Suppress unused variable warnings for production-only variables
   // These are used in development mode but not in production
   if (import.meta.env.DEV) {
@@ -177,6 +205,17 @@ function App() {
       testPromptGeneration();
     }
   }, []);
+
+  // Production debugging: Log game state changes
+  useEffect(() => {
+    console.warn('🔍 PAYWALL DEBUG - Game state:', {
+      gamePhase,
+      isEndingPhase,
+      hasChild: !!child,
+      hasGameState: !!(player && child),
+      timestamp: new Date().toISOString()
+    });
+  }, [gamePhase, isEndingPhase, child, player]);
 
   if (error && gamePhase !== 'welcome' && gamePhase !== 'playing' && gamePhase !== 'feedback') { // Show general error screen only if not in a phase that might have its own error display or content
     return (

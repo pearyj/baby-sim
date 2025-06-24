@@ -9,14 +9,15 @@ export default defineConfig({
     minify: 'terser',
     terserOptions: {
       compress: {
-        // Remove console logs in production
-        drop_console: true,
+        // Remove console.log and console.debug in production, but keep console.warn and console.error
+        drop_console: false, // Don't drop all console methods
+        pure_funcs: ['console.log', 'console.debug'], // Only drop specific console methods
         drop_debugger: true,
       },
     },
   },
   esbuild: {
-    // Remove console logs during development builds as well if needed
-    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+    // Only remove console.log and console.debug during development builds, keep console.warn and console.error
+    drop: process.env.NODE_ENV === 'production' ? ['debugger'] : [],
   },
 })

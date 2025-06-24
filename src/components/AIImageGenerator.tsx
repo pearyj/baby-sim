@@ -102,6 +102,18 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [artStyleInput, setArtStyleInput] = useState<string>('');
 
+  // Production debugging: Log AIImageGenerator initialization and props
+  useEffect(() => {
+    console.warn('🔍 PAYWALL DEBUG - AIImageGenerator initialized:', {
+      childName: gameState.child.name,
+      hasOnBeforeGenerate: !!onBeforeGenerate,
+      hasCredits,
+      creditsCount: _creditsCount,
+      isCheckingCredits,
+      timestamp: new Date().toISOString()
+    });
+  }, [gameState.child.name, onBeforeGenerate, hasCredits, _creditsCount, isCheckingCredits]);
+
   // On mount or when endingSummary changes, pre-fill art style if hidden comment present
   useEffect(() => {
     if (!artStyleInput) {
@@ -131,16 +143,29 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
   };
 
   const handleGenerateImage = async () => {
+    console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: handleGenerateImage called:', {
+      hasOnBeforeGenerate: !!onBeforeGenerate,
+      hasCredits,
+      isCheckingCredits,
+      timestamp: new Date().toISOString()
+    });
+
     if (onBeforeGenerate) {
+      console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: calling onBeforeGenerate');
       const gateResult = onBeforeGenerate();
+      console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: onBeforeGenerate result:', gateResult);
+      
       if (gateResult && typeof (gateResult as any).then === 'function') {
         const allowed = await (gateResult as unknown as Promise<boolean>);
+        console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: async gate result:', allowed);
         if (!allowed) return;
       } else if (!gateResult) {
+        console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: gate blocked generation');
         return;
       }
     }
     
+    console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: proceeding with image generation');
     setIsGenerating(true);
     setError(null);
     
@@ -159,15 +184,18 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
       const result = await generateEndingImage(gameState, endingSummary, options);
       
       if (result.success) {
+        console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: image generation successful');
         setGeneratedImage(result);
         onImageGenerated?.(result);
         track('AI Image Generation Success');
       } else {
+        console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: image generation failed:', result.error);
         setError(result.error || t('messages.imageGenerationFailed'));
         track('AI Image Generation Failed', { error: result.error ?? 'unknown-error' });
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t('messages.imageGenerationFailed');
+      console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: image generation error:', errorMessage);
       setError(errorMessage);
       track('AI Image Generation Error', { error: errorMessage || 'unknown-error' });
     } finally {
@@ -180,6 +208,15 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
     setGeneratedImage(null);
     handleGenerateImage();
   };
+
+  console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: rendering with state:', {
+    hasGeneratedImage: !!generatedImage,
+    isGenerating,
+    hasError: !!error,
+    hasCredits,
+    isCheckingCredits,
+    timestamp: new Date().toISOString()
+  });
 
   return (
     <Box className={className}>
