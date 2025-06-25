@@ -376,6 +376,24 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center' }}>
           {t('paywall.paymentSecure')}
         </Typography>
+
+        {/* Payment Test Notice - only show for English */}
+        {i18n.language === 'en' && (
+          <Alert severity="warning" sx={{ mt: 2, mb: 0 }}>
+            <Typography variant="body2" sx={{ color: 'red', fontWeight: 'bold' }}>
+              {t('paywall.paymenttestnotice')}
+            </Typography>
+          </Alert>
+        )}
+
+        {/* Payment Test Notice - only show for Chinese */}
+        {i18n.language === 'zh' && (
+          <Alert severity="warning" sx={{ mt: 2, mb: 0 }}>
+            <Typography variant="body2" sx={{ color: 'red', fontWeight: 'bold' }}>
+              {t('paywall.paymenttestnotice')}
+            </Typography>
+          </Alert>
+        )}
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 3 }}>

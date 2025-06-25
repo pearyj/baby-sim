@@ -36,7 +36,7 @@ export const PaymentSuccessPage: React.FC = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { anonId, kidId, fetchCredits, credits, isLoading, error } = usePaymentStore();
+  const { anonId, kidId, fetchCredits, isLoading, error } = usePaymentStore();
   const [hasVerified, setHasVerified] = useState(false);
 
   const sessionId = searchParams.get('session_id');
@@ -135,12 +135,7 @@ export const PaymentSuccessPage: React.FC = () => {
                 {i18n.language === 'zh' ? '感谢您的支持！' : 'Thank you for your support!'}
               </Typography>
               
-              <Typography variant="h6" sx={{ mb: 3, color: '#8D6E63' }}>
-                {i18n.language === 'zh' 
-                  ? `您现在拥有 ${credits} 个积分`
-                  : `You now have ${credits} credit${credits !== 1 ? 's' : ''}`
-                }
-              </Typography>
+
 
               <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
                 {i18n.language === 'zh'

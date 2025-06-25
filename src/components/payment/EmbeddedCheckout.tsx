@@ -52,7 +52,7 @@ export const EmbeddedCheckout: React.FC<EmbeddedCheckoutProps> = ({
   childName
 }) => {
   const { i18n } = useTranslation();
-  const { fetchCredits, credits } = usePaymentStore();
+  const { fetchCredits } = usePaymentStore();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
@@ -204,12 +204,7 @@ export const EmbeddedCheckout: React.FC<EmbeddedCheckoutProps> = ({
             {i18n.language === 'zh' ? '支付成功！' : 'Payment Successful!'}
           </Typography>
           
-          <Typography variant="h6" sx={{ mb: 3, color: '#4CAF50' }}>
-            {i18n.language === 'zh' 
-              ? `您现在拥有 ${credits} 个积分`
-              : `You now have ${credits} credit${credits !== 1 ? 's' : ''}`
-            }
-          </Typography>
+
 
           <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
             {i18n.language === 'zh'

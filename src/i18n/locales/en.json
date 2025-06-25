@@ -225,7 +225,7 @@
     "testPayment": "Test Payment"
   },
   "paywall": {
-    "title": "See {{childName}} in a photo",
+    "title": "Thank you for playing! See {{childName}} in a photo",
     "subtitle": "AI generations cost money! Donate at your own price to support the game and receive credits to generate personalized AI photos",
     "email": "Email",
     "emailRequired": "Email is required for receipts and for tracking your credits",
@@ -235,6 +235,7 @@
     "getCredits": "Get {{count}} credit",
     "getCredits_plural": "Get {{count}} credits",
     "paymentSecure": "Payment securely processed by Stripe. Note that Stripe takes a 2.9% + 30 cents fee for each payment so please choose a higher amount in one transaction if you'd like to generate multiple times! You will be able to reuse them in the future with your email address.",
+    "paymenttestnotice": "Note that as we are currently in testing and are giving away credits for free, please put in 4242424242424242 as the credit card number, and you will receive credits without charging your real card.",
     "cancel": "Cancel",
     "continueAndPay": "Continue & Pay",
     "processing": "Processing...",

@@ -222,7 +222,7 @@
     "testPayment": "测试支付"
   },
   "paywall": {
-    "title": "支持养娃模拟器，为孩子生成照片",
+    "title": "感谢游玩！生成{{childName}}的照片",
     "subtitle": "AI生成有成本，选择您的捐赠金额来支持养娃模拟器，可获取积分以生成您专属的AI照片",
     "email": "邮箱",
     "emailRequired": "邮箱是必填项",
@@ -231,6 +231,7 @@
     "donationAmount": "捐赠金额：",
     "getCredits": "获得 {{count}} 个积分",
     "paymentSecure": "支付由Stripe安全处理。Stripe每次交易会收取手续费，如果您想多次生成照片，建议选择总金额一次性支付。您可以以后用您的邮箱地址继续生图。",
+    "paymenttestnotice": "支付功能测试中，请直接点击继续微信扫码按照指示进行，无需真实付费。",
     "cancel": "取消",
     "continueAndPay": "继续支付",
     "processing": "处理中...",
