@@ -174,5 +174,165 @@
     "finance": 1,
     "marital": 5,
     "isSingleParent": false
+  },
+  {
+    "player": {
+      "gender": "male",
+      "age": 29
+    },
+    "child": {
+      "name": "可可",
+      "gender": "female",
+      "age": 1
+    },
+    "playerDescription": "你是一名在上海打拼的街舞编导，收入随着商演起伏不定。女友在国外深造，你决定独自照顾刚满周岁的女儿。你每天在排练室反复练动作，把可可放在婴儿背带里一起‘听拍子’。忙完彩排，深夜的出租屋里，你用折叠桌剪辑视频，为了攒钱给孩子报早教班，也为了证明街舞爸爸一样能撑起一个家。",
+    "childDescription": "可可大眼炯炯，总试图跟着音乐扭动小身子。她对节奏强烈的鼓点最敏感，咯咯笑声盖过音箱。虽然妈妈不在身边，但视频通话时她会猛挥小手，嘴里发出‘嘛—嘛—’的拉长音。",
+    "finance": 5,
+    "marital": 4,
+    "isSingleParent": true
+  },
+  {
+    "player": {
+      "gender": "female",
+      "age": 41
+    },
+    "child": {
+      "name": "Yusuf",
+      "gender": "male",
+      "age": 1
+    },
+    "playerDescription": "你是德国柏林一家新能源汽车独角兽公司的高级电池工程师，刚获得长期远程办公的机会。先生在故乡伊斯坦布尔照料老人，你一个人把儿子带到柏林郊外的被动式节能住宅。你热衷于用开源硬件改装婴儿监视器，追踪儿子的睡眠数据，并在母婴论坛发表极客风格的育儿日志。",
+    "childDescription": "Yusuf卷发浓密，皮肤黝黑，睡前一定要听你用土耳其语唱摇篮曲。他对彩色导线和LED灯流露出惊人兴趣，经常盯着闪烁的小灯咿呀自语，似乎在演算自己的宇宙。",
+    "finance": 8,
+    "marital": 6,
+    "isSingleParent": false
+  },
+  {
+    "player": {
+      "gender": "female",
+      "age": 24
+    },
+    "child": {
+      "name": "小草",
+      "gender": "female",
+      "age": 1
+    },
+    "playerDescription": "你是云南大理洱海边的民宿老板娘，大学毕业后返乡创业。丈夫常年巡演弹贝斯，你独自经营院子里的咖啡吧，一边抱娃，一边给背包客做手冲。旅游淡季收入微薄，你学会用野花扎头饰卖给游客，只为为女儿攒下一笔上学路费。",
+    "childDescription": "小草在海风里长大，黛青色眼珠倒映洱海。她对水声极其敏感，听到波浪便咯咯大笑，伸手去抓闪烁的粼粼波光；捧到脸上的总是一把湿沙。",
+    "finance": 4,
+    "marital": 5,
+    "isSingleParent": false
+  },
+  {
+    "player": {
+      "gender": "male",
+      "age": 37
+    },
+    "child": {
+      "name": "Oliver",
+      "gender": "male",
+      "age": 1
+    },
+    "playerDescription": "你是纽约华尔街的量化交易员，日夜盯盘、熬夜写算法，对风险厌恶极低。为了让儿子拥有‘胜者起跑线’，你把办公室空格改造成亲子角，边看K线边给他读股市新闻。妻子是一名剧场演员，厌倦了金融语境，你们在教育理念上常争锋相对。",
+    "childDescription": "Oliver金发细软，被闪烁的股票行情屏幕迷得眼花。你观察到他对绿色和红色光块比玩具更感兴趣；遇到市场大跌时，他反而拍手尖叫，似乎把父亲的心跳当作游戏节拍。",
+    "finance": 9,
+    "marital": 3,
+    "isSingleParent": false
+  },
+  {
+    "player": {
+      "gender": "female",
+      "age": 45
+    },
+    "child": {
+      "name": "梓梓",
+      "gender": "female",
+      "age": 1
+    },
+    "playerDescription": "你是一名在广州三甲医院工作的骨科主任医师，刚经历晚育。丈夫同为医生，值班表从不重合。你擅长手术刀，却首次拿奶瓶手忙脚乱。医院里，你在值班室批病例时偷偷挤奶；清晨下手术台，又急匆匆赶回家换尿布。面对产后复工压力，你坚持记录母婴心理变化，计划将来写一部医学科普育儿书。",
+    "childDescription": "梓梓出生时仅5.2斤，如今已长成圆润“小糯米团”。你发现她对白色口罩特别敏感，总想扯下来观察。听到手术推车的金属响，她却安静下来，似在熟悉妈妈的‘节奏’。",
+    "finance": 8,
+    "marital": 7,
+    "isSingleParent": false
+  },
+  {
+    "player": {
+      "gender": "male",
+      "age": 30
+    },
+    "child": {
+      "name": "Ирина",
+      "gender": "female",
+      "age": 1
+    },
+    "playerDescription": "你是莫斯科地铁的列车驾驶员，收入体面却班次极早。妻子是一位芭蕾舞者，大部分夜晚不上班。你们用厚纸卡片在冰箱上贴满‘交接班喂奶时间表’。下班后，你常抱女儿在地铁终点站静听车厢回声，把嗡鸣声当成她的催眠曲。",
+    "childDescription": "Ирина肤白如雪，对低频轰鸣声表现出奇妙安抚效果，只要列车开动就沉沉入睡。她抬头时常盯着车厢灯轨，像在追随父亲的轨迹。医生说她运动发育快，也许将来像妈妈一样喜欢舞蹈。",
+    "finance": 6,
+    "marital": 6,
+    "isSingleParent": false
+  },
+  {
+    "player": {
+      "gender": "female",
+      "age": 27
+    },
+    "child": {
+      "name": "Leo",
+      "gender": "male",
+      "age": 1
+    },
+    "playerDescription": "你是旧金山的独立游戏开发者，靠Steam分成维生。伴侣在硅谷初创公司忙得昏天黑地，你则把Crib旁塞满手办。为了赶项目Deadline，你一边调试Unity代码，一边用脚摇婴儿摇椅。你坚信早期交互能提升右脑创意，为此给Leo设计了像素风黑白卡片。",
+    "childDescription": "Leo头发卷曲如像素云朵，对RGB灯条特别着迷。夜里你打开电脑调试，他在键盘灯影中伸手抓光线，仿佛天生Alpha测试员。",
+    "finance": 5,
+    "marital": 5,
+    "isSingleParent": false
+  },
+  {
+    "player": {
+      "gender": "male",
+      "age": 53
+    },
+    "child": {
+      "name": "雨果",
+      "gender": "male",
+      "age": 1
+    },
+    "playerDescription": "你是贵阳苗寨的非遗银饰匠人，妻子早逝，决定在晚年独自抚养幼子。你的工坊与吊脚楼连通，打造摇篮的木料与雕刻银片同源。你卖出的手工头饰换来奶粉，却也担心视力衰退。村头广场上，你抱着雨果教他听侗族大歌，希望手艺和歌声一起传承。",
+    "childDescription": "雨果对银饰敲击声极为敏感，听到叮当便咧嘴。你发现他喜欢抓住反光的银片，映照自己的影子。医生提醒你注意铅锡安全，你便自制软布饰品让他啃咬。",
+    "finance": 3,
+    "marital": 2,
+    "isSingleParent": true
+  },
+  {
+    "player": {
+      "gender": "female",
+      "age": 35
+    },
+    "child": {
+      "name": "Aurora",
+      "gender": "female",
+      "age": 1
+    },
+    "playerDescription": "你是挪威北极圈内的极光向导，带游客追光赚钱。丈夫经营雪橇犬基地。冬季漫长黑暗，你把Aurora放进改装雪橇车，裹好羊毛一起出发巡线。你记录每次极光活动，打算等她长大再告诉她：她的名字来源于天空中最绚烂的绿光。",
+    "childDescription": "Aurora皮肤粉嫩，与雪地形成反差。她对寒冷适应惊人，却怕室内暖光刺眼。夜空下只要极光出现，她就停止哭闹，似乎与天象有天然默契。",
+    "finance": 6,
+    "marital": 8,
+    "isSingleParent": false
+  },
+  {
+    "player": {
+      "gender": "male",
+      "age": 31
+    },
+    "child": {
+      "name": "Luna",
+      "gender": "female",
+      "age": 1
+    },
+    "playerDescription": "你是墨西哥城的一位涂鸦艺术家，妻子是一名移民律师。你喜欢在城市天桥下创作，以缤纷壁画换来社区基金。带着Luna，你一手握喷漆，一手推婴儿车。你计划办一个“亲子墙”，邀请邻居孩子们留下手印，为女儿营造彩色童年。",
+    "childDescription": "Luna大眼闪亮，盯着缤纷墙面会咿呀拍手。她总试图抓住空中的喷漆雾气，嘴里发出兴奋尖叫。你给她戴上迷你口罩，却依旧能看到她对色彩的痴迷。",
+    "finance": 4,
+    "marital": 7,
+    "isSingleParent": false
   }
 ] 
