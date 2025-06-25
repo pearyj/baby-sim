@@ -388,6 +388,22 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
                   }}
                 />
               </Box>
+              
+              {/* Helper text for downloading - only show on website, not in export */}
+              <Typography 
+                variant="caption" 
+                className="hide-in-export"
+                sx={{ 
+                  display: 'block',
+                  mt: 1,
+                  color: '#8D6E63',
+                  fontSize: '0.75rem',
+                  fontStyle: 'italic',
+                  opacity: 0.8
+                }}
+              >
+                {t('messages.imageDownloadHelper')}
+              </Typography>
             </Box>
           )}
 

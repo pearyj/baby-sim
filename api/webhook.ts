@@ -107,6 +107,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         stripe_session: session.id,
       });
       console.log('✅ Supabase upsert successful');
+
+      // === Log checkout_completed event (non-blocking) ===
+      try {
+        const EVENTS_TABLE = process.env.EVENTS_TABLE || ((env === 'production' || env === 'preview') ? 'game_events' : 'game_events_shadow');
+        const SESSIONS_TABLE = process.env.SESSIONS_TABLE || ((env === 'production' || env === 'preview') ? 'game_sessions' : 'game_sessions_shadow');
+
+        // Fetch session_id via anon_id (may not exist if init failed, ignore error)
+        let sessionId: string | null = null;
+        const { data: sessions } = await supabaseAdmin
+          .from(SESSIONS_TABLE)
+          .select('id')
+          .eq('anon_id', anonId)
+          .limit(1);
+        if (sessions && sessions.length > 0) {
+          sessionId = sessions[0].id as string;
+        }
+
+        await supabaseAdmin.from(EVENTS_TABLE).insert({
+          session_id: sessionId,
+          anon_id: anonId,
+          type: 'checkout_completed',
+          payload: {
+            credits: add,
+            currency,
+            amount: session.amount_total || 0,
+            stripe_session: session.id,
+          },
+          occurred_at: new Date(),
+        });
+      } catch (evtErr) {
+        console.error('⚠️ Failed to log checkout_completed event:', evtErr);
+      }
+
+      // Also mark checkout_completed in game_sessions
+      try {
+        const SESSIONS_TABLE_FINAL = process.env.SESSIONS_TABLE || ((env === 'production' || env === 'preview') ? 'game_sessions' : 'game_sessions_shadow');
+        await supabaseAdmin
+          .from(SESSIONS_TABLE_FINAL)
+          .update({ checkout_completed: true })
+          .eq('anon_id', anonId);
+      } catch (flagErr) {
+        console.error('⚠️ Failed to set checkout_completed flag:', flagErr);
+      }
     } catch (e: any) {
       console.error(`❌ Supabase insert error into ${CREDITS_TABLE}:`, e?.message || e);
 

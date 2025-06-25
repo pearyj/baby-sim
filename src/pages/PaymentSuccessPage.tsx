@@ -13,6 +13,7 @@ import { styled } from '@mui/material/styles';
 import { CheckCircle, Home } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { usePaymentStore } from '../stores/usePaymentStore';
+import { updateSessionFlags, logEvent } from '../services/eventLogger';
 
 const SuccessContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
@@ -35,7 +36,7 @@ export const PaymentSuccessPage: React.FC = () => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { fetchCredits, credits, isLoading, error } = usePaymentStore();
+  const { anonId, kidId, fetchCredits, credits, isLoading, error } = usePaymentStore();
   const [hasVerified, setHasVerified] = useState(false);
 
   const sessionId = searchParams.get('session_id');
@@ -61,6 +62,14 @@ export const PaymentSuccessPage: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [hasVerified, isLoading]);
+
+  // Once verified and not loading, mark checkout completed (idempotent)
+  useEffect(() => {
+    if (hasVerified && !isLoading && anonId && kidId) {
+      updateSessionFlags(anonId, kidId, { checkoutCompleted: true });
+      logEvent(anonId, kidId, 'checkout_completed', { sessionId });
+    }
+  }, [hasVerified, isLoading, anonId, kidId, sessionId]);
 
   const handleGoHome = () => {
     navigate('/');

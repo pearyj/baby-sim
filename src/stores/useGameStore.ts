@@ -14,6 +14,8 @@ import logger from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
 import i18n from '../i18n';
 import { track } from '@vercel/analytics';
+import { logEvent } from '../services/eventLogger';
+import { usePaymentStore } from './usePaymentStore';
 
 // Define a placeholder type for Question. This can be refined later.
 interface QuestionType extends ApiQuestionType {}
@@ -482,8 +484,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
               options: [
                 { id: pendingChoice.optionId, text: pendingChoice.optionText, cost: 0 },
                 // Provide recovery options
-                { id: "retry", text: "重新尝试相同的选择", cost: 0 },
-                { id: "reload", text: "重新加载游戏", cost: 0 }
+                { id: "retry", text: i18n.t('messages.retryChoice'), cost: 0 },
+                { id: "reload", text: i18n.t('messages.reloadGame'), cost: 0 }
               ],
               isExtremeEvent: false
             },
@@ -643,10 +645,10 @@ const useGameStore = create<GameStoreState>((set, get) => {
               // Handle error but don't reload the page
               set(prevState => ({ 
                 ...prevState,
-                error: "加载首个问题时出现错误，请再次尝试。", 
+                error: i18n.t('messages.loadQuestionError'), 
                 isLoading: false, 
                 gamePhase: 'feedback' as GamePhase,
-                feedbackText: "很抱歉，在加载您的第一个问题时遇到了技术问题。请再次尝试。" 
+                feedbackText: i18n.t('messages.loadQuestionError') 
               }));
             }
           } catch (err) {
@@ -654,10 +656,10 @@ const useGameStore = create<GameStoreState>((set, get) => {
             // Don't reload the page, just show an error message to try again
             set(prevState => ({ 
               ...prevState,
-              error: "Failed to load first question. Please try again.", 
+              error: i18n.t('messages.loadQuestionError'), 
               isLoading: false, 
               gamePhase: 'feedback' as GamePhase,
-              feedbackText: "很抱歉，在加载您的第一个问题时遇到了技术问题。请再次尝试。"
+              feedbackText: i18n.t('messages.loadQuestionError')
             }));
           }
           return;
@@ -698,7 +700,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
         } catch (err) {
           logger.error('Error generating ending summary in store:', err);
           const errorMessage = err instanceof Error ? err.message : 'Failed to generate ending.';
-          set(prevState => ({ ...prevState, gamePhase: 'summary', error: errorMessage, isLoading: false, showEndingSummary: true, endingSummaryText: "Error: Could not generate summary." }));
+          set(prevState => ({ ...prevState, gamePhase: 'summary', error: errorMessage, isLoading: false, showEndingSummary: true, endingSummaryText: i18n.t('messages.errorGeneratingSummary') }));
         }
       } else {
         // Not ending, advance age and load next question.
@@ -949,11 +951,13 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
           logger.error("API error when fetching question:", apiError);
           question = {
             id: `fallback-${Date.now()}`,
-            question: `你的${child.age}岁孩子${child.name}正在成长，现在需要你的指导。`,
+            question: i18n.language === 'en' ? 
+              `Your ${child.age}-year-old child ${child.name} is growing up and needs your guidance now.` :
+              `你的${child.age}岁孩子${child.name}正在成长，现在需要你的指导。`,
             options: [
-              { id: "option1", text: "耐心倾听并理解孩子的需求", cost: 0 },
-              { id: "option2", text: "给予适当的引导和建议", cost: 0 },
-              { id: "option3", text: "鼓励孩子独立思考解决问题", cost: 0 }
+              { id: "option1", text: i18n.t('messages.listenToChild'), cost: 0 },
+              { id: "option2", text: i18n.t('messages.giveGuidance'), cost: 0 },
+              { id: "option3", text: i18n.t('messages.encourageThinking'), cost: 0 }
             ],
             isExtremeEvent: false
           };
@@ -981,10 +985,10 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
             isLoading: false,
             currentQuestion: {
               id: `error-${Date.now()}`,
-              question: "加载问题时发生错误，请选择如何继续",
+              question: i18n.t('messages.loadQuestionErrorGeneric'),
               options: [
-                { id: "retry", text: "重新尝试", cost: 0 },
-                { id: "reload", text: "刷新页面", cost: 0 }
+                { id: "retry", text: i18n.t('messages.retry'), cost: 0 },
+                { id: "reload", text: i18n.t('messages.refreshPage'), cost: 0 }
               ],
               isExtremeEvent: false
             }
@@ -1144,6 +1148,18 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
         };
         set(prevState => ({ ...prevState, ...newState }));
         saveGameState(get());
+
+        // Log choice event
+        const { anonId, kidId } = usePaymentStore.getState();
+        if (anonId && kidId) {
+          logEvent(anonId, kidId, 'choice', {
+            age: eventAge,
+            optionId: selectedOption.id,
+            question: currentQuestion.question,
+            choiceText: selectedOption.text,
+            customInstruction: selectedOption.text,
+          });
+        }
       } catch (err) {
         logger.error('Error generating outcome in store:', err);
         const errorMessage = err instanceof Error ? err.message : 'Failed to process selection.';
@@ -1153,7 +1169,7 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
           error: errorMessage, 
           isLoading: false, 
           showFeedback: true, 
-          feedbackText: "很抱歉，在处理您的选择时遇到了技术问题。您可以尝试重新选择或刷新页面。错误详情：" + errorMessage
+          feedbackText: i18n.t('messages.processChoiceError', { errorMessage })
         }));
       }
     },
@@ -1251,10 +1267,10 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
           streamingType: null,
           currentQuestion: {
             id: `error-${Date.now()}`,
-            question: "加载问题时发生错误，请选择如何继续",
+            question: i18n.t('messages.loadQuestionErrorGeneric'),
             options: [
-              { id: "retry", text: "重新尝试", cost: 0 },
-              { id: "reload", text: "刷新页面", cost: 0 }
+              { id: "retry", text: i18n.t('messages.retry'), cost: 0 },
+              { id: "reload", text: i18n.t('messages.refreshPage'), cost: 0 }
             ],
             isExtremeEvent: false
           }
@@ -1442,6 +1458,17 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
         set(prevState => ({ ...prevState, ...newState }));
         saveGameState(get());
         
+        // Log choice event
+        const { anonId: anonId2, kidId: kidId2 } = usePaymentStore.getState();
+        if (anonId2 && kidId2) {
+          logEvent(anonId2, kidId2, 'choice', {
+            age: eventAge,
+            optionId: selectedOption.id,
+            question: currentQuestion.question,
+            choiceText: selectedOption.text,
+            customInstruction: selectedOption.text,
+          });
+        }
       } catch (err) {
         logger.error('Error generating outcome in streaming store:', err);
         const errorMessage = err instanceof Error ? err.message : 'Failed to process selection.';
@@ -1454,7 +1481,7 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
           streamingContent: '',
           streamingType: null,
           showFeedback: true, 
-          feedbackText: "很抱歉，在处理您的选择时遇到了技术问题。您可以尝试重新选择或刷新页面。错误详情：" + errorMessage
+          feedbackText: i18n.t('messages.processChoiceError', { errorMessage })
         }));
       }
     },
@@ -1476,7 +1503,3 @@ setTimeout(() => {
 
 export default useGameStore;
 export type { Player, Child, HistoryEntry, QuestionType, GamePhase };
-
-// ────────────────────────────────────────────────────────────────────────────────
-// |                            END OF useGameStore.ts                             |
-// ────────────────────────────────────────────────────────────────────────────────

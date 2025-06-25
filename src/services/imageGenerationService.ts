@@ -9,8 +9,10 @@ import i18n from '../i18n';
 import zhPrompts from '../i18n/prompts/zh.json';
 import enPrompts from '../i18n/prompts/en.json';
 
-// Security: Maximum length for custom art style to prevent jailbreaking
-const MAX_CUSTOM_ART_STYLE_LENGTH = 100;
+// Security: Maximum length for custom art style to prevent jailbreaking (language-specific)
+const getMaxCustomArtStyleLength = (language: SupportedLanguage): number => {
+  return language === 'zh' ? 30 : 60; // 30 for Chinese, 60 for English
+};
 
 type PromptResources = {
   [key in SupportedLanguage]: any;
@@ -115,9 +117,10 @@ const validateAndSanitizeCustomArtStyle = (customArtStyle?: string): string | un
   const trimmed = customArtStyle.trim();
   
   // Check length limit
-  if (trimmed.length > MAX_CUSTOM_ART_STYLE_LENGTH) {
-    logger.warn(`Custom art style too long (${trimmed.length} chars), truncating to ${MAX_CUSTOM_ART_STYLE_LENGTH}`);
-    return trimmed.substring(0, MAX_CUSTOM_ART_STYLE_LENGTH);
+  const maxLength = getMaxCustomArtStyleLength(getCurrentLanguage());
+  if (trimmed.length > maxLength) {
+    logger.warn(`Custom art style too long (${trimmed.length} chars), truncating to ${maxLength}`);
+    return trimmed.substring(0, maxLength);
   }
   
   // Basic sanitization - remove potentially dangerous characters
@@ -447,8 +450,9 @@ export const validateImageGenerationOptions = (options: ImageGenerationOptions):
     const trimmed = options.customArtStyle.trim();
     
     // Check length limit
-    if (trimmed.length > MAX_CUSTOM_ART_STYLE_LENGTH) {
-      logger.warn(`Custom art style too long (${trimmed.length} chars), exceeds limit of ${MAX_CUSTOM_ART_STYLE_LENGTH}`);
+    const maxLength = getMaxCustomArtStyleLength(getCurrentLanguage());
+    if (trimmed.length > maxLength) {
+      logger.warn(`Custom art style too long (${trimmed.length} chars), exceeds limit of ${maxLength}`);
       return false;
     }
     

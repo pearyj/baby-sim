@@ -15,9 +15,13 @@ import { useTranslation } from 'react-i18next';
 import { track } from '@vercel/analytics';
 import { generateEndingImage, type ImageGenerationOptions, type ImageGenerationResult } from '../services/imageGenerationService';
 import type { GameState } from '../types/game';
+import { usePaymentStore } from '../stores/usePaymentStore';
+import { logEvent, updateSessionFlags } from '../services/eventLogger';
 
-// Security: Maximum length for art style input to prevent jailbreaking
-const MAX_ART_STYLE_LENGTH = 100;
+// Security: Maximum length for art style input to prevent jailbreaking (language-specific)
+const getMaxArtStyleLength = (language: string): number => {
+  return language === 'zh' ? 30 : 60; // 30 for Chinese, 60 for English
+};
 
 interface AIImageGeneratorProps {
   gameState: GameState;
@@ -96,11 +100,15 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
   creditsCount: _creditsCount = 0,
   isCheckingCredits = false,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { anonId, kidId } = usePaymentStore(state => ({ anonId: state.anonId, kidId: state.kidId }));
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<ImageGenerationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [artStyleInput, setArtStyleInput] = useState<string>('');
+
+  // Get current language from i18n
+  const currentLanguage = i18n.language;
 
   // Production debugging: Log AIImageGenerator initialization and props
   useEffect(() => {
@@ -121,19 +129,19 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
       if (match && match[1]) {
         // Security: Limit length even from extracted style
         const extractedStyle = match[1].trim();
-        setArtStyleInput(extractedStyle.length > MAX_ART_STYLE_LENGTH 
-          ? extractedStyle.substring(0, MAX_ART_STYLE_LENGTH) 
+        setArtStyleInput(extractedStyle.length > getMaxArtStyleLength(currentLanguage) 
+          ? extractedStyle.substring(0, getMaxArtStyleLength(currentLanguage)) 
           : extractedStyle);
       }
     }
-  }, [endingSummary]);
+  }, [endingSummary, currentLanguage, artStyleInput]);
 
   // Security: Validate and sanitize art style input
   const handleArtStyleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
     
     // Limit length to prevent jailbreaking
-    if (input.length > MAX_ART_STYLE_LENGTH) {
+    if (input.length > getMaxArtStyleLength(currentLanguage)) {
       return; // Don't update if exceeds limit
     }
     
@@ -173,7 +181,7 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
       track('AI Image Generation Started');
       
       // Final validation before sending
-      const sanitizedArtStyle = artStyleInput.trim().substring(0, MAX_ART_STYLE_LENGTH);
+      const sanitizedArtStyle = artStyleInput.trim().substring(0, getMaxArtStyleLength(currentLanguage));
       
       const options: ImageGenerationOptions = {
         size: '768x768',
@@ -187,7 +195,12 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
         console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: image generation successful');
         setGeneratedImage(result);
         onImageGenerated?.(result);
-        track('AI Image Generation Success');
+        track('Image Generated');
+        if (anonId && kidId) {
+          updateSessionFlags(anonId, kidId, { imageGenerated: true });
+          // still keep granular event for debugging
+          logEvent(anonId, kidId, 'image_generated', { size: options.size, artStyle: options.customArtStyle ?? null });
+        }
       } else {
         console.warn('🔍 PAYWALL DEBUG - AIImageGenerator: image generation failed:', result.error);
         setError(result.error || t('messages.imageGenerationFailed'));
@@ -240,10 +253,10 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
             value={artStyleInput}
             onChange={handleArtStyleChange}
             inputProps={{ 
-              maxLength: MAX_ART_STYLE_LENGTH,
+              maxLength: getMaxArtStyleLength(currentLanguage),
               'aria-label': 'Art style input'
             }}
-            helperText={`${artStyleInput.length}/${MAX_ART_STYLE_LENGTH} characters`}
+            helperText={`${artStyleInput.length}/${getMaxArtStyleLength(currentLanguage)} characters`}
             sx={{ marginBottom: 2 }}
           />
 

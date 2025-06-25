@@ -104,11 +104,19 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
     if (!validateEmail(email)) return;
     resetError();
     
+    const trimmedEmail = email.trim();
+
+    // Ensure email is recorded in subscribers table before payment flow starts
+    if (!hasSubscribed) {
+      await subscribeEmail(trimmedEmail);
+      setHasSubscribed(true);
+    }
+
     try {
       const useEmbedded = currency === 'USD';
 
       const result = await createCheckoutSession({
-        email: email.trim() || undefined,
+        email: trimmedEmail || undefined,
         lang: i18n.language,
         donatedUnits,
         embedded: useEmbedded,
@@ -117,7 +125,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
       if (result.success) {
         if (useEmbedded && result.clientSecret) {
           // USD flow – open embedded Checkout
-          setEmail(email.trim());
+          setEmail(trimmedEmail);
           setClientSecret(result.clientSecret);
           setShowEmbeddedCheckout(true);
         } else if (!useEmbedded && result.url) {
@@ -141,7 +149,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
                 intervalRef.current = null;
                 popupRef.current = null;
                 // Refresh credits and close dialog
-                await fetchCredits(email.trim());
+                await fetchCredits(trimmedEmail);
                 onClose();
               }
             }, 1000);
@@ -188,25 +196,56 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
     }
   };
 
+  /**
+   * Simple helper to send the email to the `/api/subscribe` endpoint so that it
+   * is inserted into the `subscribers` table. We ignore any errors (e.g.
+   * duplicates) because the user experience should not be affected if the email
+   * already exists.
+   */
+  const subscribeEmail = async (emailToSubscribe: string) => {
+    try {
+      await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailToSubscribe }),
+      });
+    } catch (e) {
+      // Silently fail – subscribing is a best-effort side effect
+      if (import.meta.env.DEV) {
+        console.warn('Subscribe email failed (ignored):', e);
+      }
+    }
+  };
+
+  // Track if we've already attempted to subscribe during this dialog session
+  const [hasSubscribed, setHasSubscribed] = useState(false);
+
   const handleCheckCredits = async () => {
     if (!validateEmail(email)) return;
     const trimmedEmail = email.trim();
-            if (import.meta.env.DEV) {
-          console.log('🔍 PaywallUI: Checking credits for email:', trimmedEmail);
-        }
+    if (import.meta.env.DEV) {
+      console.log('🔍 PaywallUI: Checking credits for email:', trimmedEmail);
+    }
+
+    // Try to add the email to the subscribers table (one-time per dialog open)
+    if (!hasSubscribed) {
+      await subscribeEmail(trimmedEmail);
+      setHasSubscribed(true);
+    }
+
     setEmail(trimmedEmail);
     setCheckingCredits(true);
     setCheckMessage(null);
     try {
       // Pass the email directly to ensure it's used for the lookup
-                if (import.meta.env.DEV) {
-            console.log('🔍 PaywallUI: Calling fetchCredits with email:', trimmedEmail);
-          }
+      if (import.meta.env.DEV) {
+        console.log('🔍 PaywallUI: Calling fetchCredits with email:', trimmedEmail);
+      }
       await fetchCredits(trimmedEmail);
       const c = usePaymentStore.getState().credits;
-                if (import.meta.env.DEV) {
-            console.log('🔍 PaywallUI: Credits result:', c);
-          }
+      if (import.meta.env.DEV) {
+        console.log('🔍 PaywallUI: Credits result:', c);
+      }
       if (c > 0) {
         setCheckMessage(t('paywall.creditsFound', { count: c }));
         // auto-close after brief delay
@@ -218,11 +257,11 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
         setCheckMessage(t('paywall.noCreditsFound'));
       }
     } catch (err) {
-              if (import.meta.env.DEV) {
-          console.error('🔍 PaywallUI: Credit check failed:', err);
-        } else {
-          console.error('Credit check failed:', err);
-        }
+      if (import.meta.env.DEV) {
+        console.error('🔍 PaywallUI: Credit check failed:', err);
+      } else {
+        console.error('Credit check failed:', err);
+      }
       setCheckMessage(t('paywall.checkCreditsFailed'));
     } finally {
       setCheckingCredits(false);
@@ -271,6 +310,15 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
           helperText={emailError}
           sx={{ mb: 2 }}
         />
+
+        {/* Agreement line */}
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ mb: 2, display: 'block' }}
+        >
+          {t('paywall.emailAgreement')}
+        </Typography>
 
         {/* Check Credits Button */}
         <Button variant="outlined" fullWidth onClick={handleCheckCredits} disabled={checkingCredits || !!emailError || !email} sx={{ mb: 2 }}>

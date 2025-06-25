@@ -8,7 +8,6 @@ import {
   Box,
   List,
   ListItem,
-  ListItemText,
   Chip,
   Stack,
   Fade,
@@ -25,6 +24,9 @@ import pregenStatesZh from '../i18n/pregen/zh.json';
 import pregenStatesEn from '../i18n/pregen/en.json';
 import { track } from '@vercel/analytics';
 import { useNavigate } from 'react-router-dom';
+import { setGameStyle as setGPTGameStyle } from '../services/gptServiceUnified';
+import { initSession } from '../services/eventLogger';
+import { usePaymentStore } from '../stores/usePaymentStore';
 
 interface WelcomeScreenProps {
   onStartLoading?: () => void;
@@ -76,11 +78,17 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
     console.warn('🔍 PAYWALL DEBUG - WelcomeScreen: Secret test ending enabled via URL parameter');
   }
   
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   
   // Add state for special requirements input
   const [specialRequirements, setSpecialRequirements] = useState('');
+  
+  // ─────────────────────────────────────────────
+  // Game style selection state
+  // ─────────────────────────────────────────────
+  type GameStyle = 'realistic' | 'fantasy' | 'cool';
+  const [gameStyle, setGameStyle] = useState<GameStyle>('realistic');
   
   // Get player and child data to check if we have a saved game
   const { gamePhase, initializeGame, continueSavedGame, resetToWelcome } = useGameStore(state => ({
@@ -99,9 +107,44 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
   
   logger.info("Welcome screen - Game phase:", gamePhase, "Has saved game:", hasSavedGame);
 
+  const {
+    anonId,
+    setKidId,
+    initializeAnonymousId,
+  } = usePaymentStore(state => ({ 
+    anonId: state.anonId, 
+    setKidId: state.setKidId, 
+    initializeAnonymousId: state.initializeAnonymousId,
+  }));
+
   // Handle starting a new game
   const handleStartNewGame = async () => {
-    track('Game Started')
+    // Ensure we have an anonymous ID before starting the session so that
+    // all subsequent choice events are properly logged.
+    let currentAnonId = anonId;
+    if (!currentAnonId) {
+      initializeAnonymousId();
+      currentAnonId = usePaymentStore.getState().anonId;
+    }
+
+    // Create a new kidId for this run
+    const kidId = globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : Math.random().toString(36).slice(2);
+    setKidId(kidId);
+
+    // Initialise session row in the database and wait for completion so that
+    // subsequent choice events & flag updates are guaranteed to have a matching row.
+    if (currentAnonId) {
+      try {
+        await initSession(currentAnonId, kidId, gameStyle, specialRequirements || null, { lang: i18n.language });
+      } catch (e) {
+        if (import.meta.env.DEV) {
+          console.warn('[WelcomeScreen] initSession failed (non-blocking)', e);
+        }
+      }
+    }
+    // Pass selected game style to GPT service
+    setGPTGameStyle(gameStyle);
+    track('Game Started');
     if (!specialRequirements) {
       try {
         logger.info("No special requirements, loading pre-generated states...");
@@ -226,7 +269,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                     </Typography>
                   </Box>
                   
-                  <Typography variant="body1" sx={{ mb: 3 }}>
+                  <Typography variant="body2" sx={{ mb: 3 }}>
                     {t('welcome.savedGameGreeting')}
                   </Typography>
                   
@@ -246,7 +289,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                     </Stack>
                   </Card>
                   
-                  <Typography variant="body1" sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
                     {t('welcome.continueOrNew')}
                   </Typography>
                 </CardContent>
@@ -277,10 +320,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                         {t('welcome.gameIntro')}
                       </Typography>
                     </Box>
-                    <Typography variant="body1" sx={{ mb: 2 }}>
+                    <Typography variant="body2" sx={{ mb: 2, textAlign: 'left' }}>
                       {t('welcome.gameIntroText1')}
                     </Typography>
-                    <Typography variant="body1">
+                    <Typography variant="body2" sx={{ textAlign: 'left' }}>
                       {t('welcome.gameIntroText2')}
                     </Typography>
                   </CardContent>
@@ -289,27 +332,54 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                 <FeatureCard elevation={1}>
                   <CardContent sx={{ p: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <AutoAwesome sx={{ mr: 1, color: 'secondary.main' }} />
-                      <Typography variant="h6" sx={{ fontWeight: 600, color: 'secondary.main' }}>
+                      <AutoAwesome sx={{ mr: 1, color: 'primary.main' }} />
+                      <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
                         {t('welcome.gameFeatures')}
                       </Typography>
                     </Box>
                     <List dense>
                       <ListItem disablePadding>
-                        <ListItemText primary={t('welcome.feature1')} />
+                        <Typography variant="body2" sx={{ mb: 1, textAlign: 'left' }}>
+                          {t('welcome.feature1')}
+                        </Typography>
                       </ListItem>
                       <ListItem disablePadding>
-                        <ListItemText primary={t('welcome.feature2')} />
+                        <Typography variant="body2" sx={{ mb: 1, textAlign: 'left' }}>
+                          {t('welcome.feature2')}
+                        </Typography>
                       </ListItem>
                       <ListItem disablePadding>
-                        <ListItemText primary={t('welcome.feature3')} />
+                        <Typography variant="body2" sx={{ mb: 1, textAlign: 'left' }}>
+                          {t('welcome.feature3')}
+                        </Typography>
                       </ListItem>
                       <ListItem disablePadding>
-                        <ListItemText primary={t('welcome.feature4')} />
+                        <Typography variant="body2" sx={{ textAlign: 'left' }}>
+                          {t('welcome.feature4')}
+                        </Typography>
                       </ListItem>
                     </List>
                   </CardContent>
                 </FeatureCard>
+                
+                {/* Game Style Selection */}
+                <Box sx={{ mb: 4 }}>
+                  <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', color: 'primary.main' }}>
+                    {t('actions.chooseGameStyle')}
+                  </Typography>
+                  <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
+                    {(['realistic', 'fantasy', 'cool'] as GameStyle[]).map(style => (
+                      <Button
+                        key={style}
+                        variant={gameStyle === style ? 'contained' : 'outlined'}
+                        color={gameStyle === style ? 'primary' : 'inherit'}
+                        onClick={() => setGameStyle(style)}
+                      >
+                        {t(`gameStyle.${style}`)}
+                      </Button>
+                    ))}
+                  </Stack>
+                </Box>
                 
                 {renderSpecialRequirementsInput()}
               </Box>

@@ -54,13 +54,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       secretKey: process.env.VOLCENGINE_VISUAL_SECRET_KEY || '',
     };
 
-    // Debug: Log visual service keys at request time (development only)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 VISUAL API DEBUG:');
-      console.log('  VOLCENGINE_VISUAL_API_KEY:', volcengineConfig.apiKey?.substring(0, 8) + '...' || 'MISSING');
-      console.log('  VOLCENGINE_VISUAL_SECRET_KEY:', volcengineConfig.secretKey?.substring(0, 8) + '...' || 'MISSING');
-    }
-
     if (!volcengineConfig.apiKey || !volcengineConfig.secretKey) {
       console.error('Volcano Engine credentials not configured');
       Object.entries(corsHeaders).forEach(([key, value]) => {

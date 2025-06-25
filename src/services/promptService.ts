@@ -7,6 +7,9 @@ import { isSupportedLanguage, type SupportedLanguage } from '../utils/languageDe
 import zhPrompts from '../i18n/prompts/zh.json';
 import enPrompts from '../i18n/prompts/en.json';
 
+// Import activeGameStyle from gptServiceUnified
+let activeGameStyle: GameStyle = 'realistic';
+
 type PromptResources = {
   [key in SupportedLanguage]: any;
 };
@@ -97,12 +100,24 @@ const interpolatePrompt = (template: string, variables: Record<string, any>): st
   return result;
 };
 
-/**
- * Generate system prompt
- */
-export const generateSystemPrompt = (): string => {
-  logger.info("📝 Generating system prompt");
-  return getPrompt('system.main');
+export type GameStyle = 'realistic' | 'fantasy' | 'cool';
+
+// Mapping of internal style keys to translations per language
+const styleTranslations: Record<GameStyle, { zh: string; en: string }> = {
+  realistic: { zh: '真实', en: 'realistic' },
+  fantasy: { zh: '魔幻', en: 'fantasy' },
+  cool: { zh: '爽', en: 'thrilling' },
+};
+
+export const generateSystemPrompt = (gameStyle: GameStyle = 'realistic'): string => {
+  logger.info(`📝 Generating system prompt with style ${gameStyle}`);
+
+  const template = getPrompt('system.main');
+
+  const currentLang = getCurrentLanguage();
+  const styleDesc = styleTranslations[gameStyle]?.[currentLang] || gameStyle;
+
+  return interpolatePrompt(template, { gameStyle: styleDesc });
 };
 
 /**
@@ -162,10 +177,15 @@ export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequ
   const continuityRequirements = includeDetailedRequirements ? getPrompt('question.continuityRequirements') : '';
   const extremeEventNote = !includeDetailedRequirements ? getPrompt('question.extremeEventNote') : '';
   
+  // Get game style translation
+  const currentLang = getCurrentLanguage();
+  const gameStyleDesc = styleTranslations[activeGameStyle]?.[currentLang] || activeGameStyle;
+  
   // Get base prompt and interpolate
   const baseTemplate = getPrompt('question.base');
   const basePrompt = interpolatePrompt(baseTemplate, {
     numericalHeader,
+    gameStyle: gameStyleDesc,
     playerGender,
     playerAge: gameState.player.age,
     playerDescription: gameState.playerDescription,
@@ -275,10 +295,15 @@ export const generateOutcomeAndNextQuestionPrompt = (
   const playerGender = getPrompt(`question.playerGender.${gameState.player.gender}`);
   const childGender = getPrompt(`question.childGender.${gameState.child.gender}`);
   
+  // Get game style translation
+  const currentLang = getCurrentLanguage();
+  const gameStyleDesc = styleTranslations[activeGameStyle]?.[currentLang] || activeGameStyle;
+  
   // Get base prompt and interpolate
   const baseTemplate = getPrompt('outcome.base');
   const basePrompt = interpolatePrompt(baseTemplate, {
     numericalHeader,
+    gameStyle: gameStyleDesc,
     playerGender,
     playerAge: gameState.player.age,
     playerDescription: gameState.playerDescription,
@@ -435,6 +460,11 @@ export const checkMissingPrompts = (targetLang: SupportedLanguage = 'en'): strin
   }
   
   return missing;
+};
+
+// Function to set the active game style (called from gptServiceUnified)
+export const setActiveGameStyle = (style: GameStyle) => {
+  activeGameStyle = style;
 };
 
 export default {

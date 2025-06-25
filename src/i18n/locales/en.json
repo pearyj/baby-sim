@@ -118,6 +118,7 @@
     "loading": "Loading...",
     "testEnding": "(Dev) Test Ending Page",
     "testAdTimeline": "(Dev) Test Ad Timeline",
+    "chooseGameStyle": "Choose Game Style",
     "selectThisOption": "I'll do this"
   },
   "header": {
@@ -152,7 +153,19 @@
     "imageGenerationOptional": "Optional: Generate a personalized AI image for your journey",
     "artStylePlaceholder": "Watercolor",
     "checkingCredits": "Checking credits…",
-    "supportSimulator": "Support the Baby Simulator and see {{childName}} in a photo"
+    "supportSimulator": "See {{childName}} in a photo",
+    "imageDownloadHelper": "Long press or right click to download picture",
+    "loadQuestionError": "Sorry, there was a technical issue loading your first question. Please try again.",
+    "processChoiceError": "Sorry, there was a technical issue processing your choice. You can try selecting again or refresh the page. Error details: {{errorMessage}}",
+    "loadQuestionErrorGeneric": "An error occurred while loading the question, please choose how to continue",
+    "retryChoice": "Retry the same choice",
+    "reloadGame": "Reload game",
+    "retry": "Retry",
+    "refreshPage": "Refresh page",
+    "listenToChild": "Listen patiently and understand the child's needs",
+    "giveGuidance": "Provide appropriate guidance and advice",
+    "encourageThinking": "Encourage the child to think and solve problems independently",
+    "errorGeneratingSummary": "Error: Could not generate summary."
   },
   "share": {
     "title": "I've raised {{childName}} to 18 at the Baby Simulator!",
@@ -229,6 +242,12 @@
     "creditsFound_plural": "You have {{count}} credits. You can generate your photo now.",
     "noCreditsFound": "No credits found. Please donate to get credits.",
     "checkCreditsFailed": "Failed to check credits",
-    "emailReceiptCopy": "Share your email for receipt and for recovering your image credits for future kids"
+    "emailReceiptCopy": "Share your email for receipt and for recovering your image credits for future kids",
+    "emailAgreement": "By sharing your email you agree to our Privacy Policy and Terms of Service."
+  },
+  "gameStyle": {
+    "realistic": "Realistic",
+    "fantasy": "Fantasy",
+    "cool": "Thrilling"
   }
 } 

@@ -115,6 +115,7 @@
     "generating": "生成中...",
     "loading": "加载中...",
     "testEnding": "(Dev) Test Ending Page",
+    "chooseGameStyle": "选择游戏风格",
     "selectThisOption": "选择这个方案"
   },
   "header": {
@@ -149,7 +150,19 @@
     "imageGenerationOptional": "可选：为您的养育之旅生成个性化AI图片",
     "artStylePlaceholder": "水彩画",
     "checkingCredits": "检查积分中…",
-    "supportSimulator": "支持养娃模拟器，生成{{childName}}的照片"
+    "supportSimulator": "生成{{childName}}的照片",
+    "imageDownloadHelper": "长按或右键点击图片下载",
+    "loadQuestionError": "很抱歉，在加载您的第一个问题时遇到了技术问题。请再次尝试。",
+    "processChoiceError": "很抱歉，在处理您的选择时遇到了技术问题。您可以尝试重新选择或刷新页面。错误详情：{{errorMessage}}",
+    "loadQuestionErrorGeneric": "加载问题时发生错误，请选择如何继续",
+    "retryChoice": "重新尝试相同的选择",
+    "reloadGame": "重新加载游戏",
+    "retry": "重新尝试",
+    "refreshPage": "刷新页面",
+    "listenToChild": "耐心倾听并理解孩子的需求",
+    "giveGuidance": "给予适当的引导和建议",
+    "encourageThinking": "鼓励孩子独立思考解决问题",
+    "errorGeneratingSummary": "错误：无法生成摘要。"
   },
   "share": {
     "title": "我在《养娃模拟器》把{{childName}}养到18岁啦！",
@@ -224,6 +237,12 @@
     "creditsFound": "您有 {{count}} 个积分，可立即生成图片。",
     "noCreditsFound": "没有找到积分，请捐赠以获得积分。",
     "checkCreditsFailed": "查询积分失败",
-    "emailReceiptCopy": "邮箱以接受收据和并未来继续使用生图功能"
+    "emailReceiptCopy": "邮箱以接受收据和并未来继续使用生图功能",
+    "emailAgreement": "输入邮箱即代表您同意我们的隐私政策和服务条款。"
+  },
+  "gameStyle": {
+    "realistic": "真实",
+    "fantasy": "魔幻",
+    "cool": "爽"
   }
 } 

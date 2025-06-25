@@ -2,9 +2,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import * as paymentService from '../services/paymentService';
 import type { CheckoutSessionRequest, CheckoutSessionResponse } from '../types/payment';
+import { updateSessionFlags, logEvent } from '../services/eventLogger';
 
 interface PaymentState {
   anonId: string;
+  kidId: string;
   email: string;
   credits: number;
   isLoading: boolean;
@@ -17,12 +19,14 @@ interface PaymentState {
   createCheckoutSession: (request: Omit<CheckoutSessionRequest, 'anonId'> & { embedded?: boolean }) => Promise<CheckoutSessionResponse>;
   consumeCredit: (email?: string) => Promise<boolean>;
   resetError: () => void;
+  setKidId: (kidId: string) => void;
 }
 
 export const usePaymentStore = create<PaymentState>()(
   persist(
     (set, get) => ({
       anonId: '',
+      kidId: '',
       email: '',
       credits: 0,
       isLoading: false,
@@ -104,6 +108,14 @@ export const usePaymentStore = create<PaymentState>()(
             hasClientSecret: !!result.clientSecret,
             timestamp: new Date().toISOString()
           });
+          const { kidId } = get();
+          if (kidId) {
+            updateSessionFlags(anonId, kidId, { checkoutInitiated: true });
+            logEvent(anonId, kidId, 'checkout_initiated', {
+              donatedUnits: request.donatedUnits,
+              embedded: request.embedded,
+            });
+          }
           set({ isLoading: false });
           return result;
         } catch (error) {
@@ -155,11 +167,14 @@ export const usePaymentStore = create<PaymentState>()(
         console.warn('🔍 PAYWALL DEBUG - PaymentStore: resetError called');
         set({ error: null });
       },
+
+      setKidId: (kidId: string) => set({ kidId }),
     }),
     {
       name: 'payment-store',
       partialize: (state) => ({ 
         anonId: state.anonId,
+        kidId: state.kidId,
         email: state.email,
       }),
     }

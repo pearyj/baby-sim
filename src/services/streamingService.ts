@@ -328,12 +328,17 @@ const isJSONPotentiallyComplete = (jsonStr: string): boolean => {
 // Helper function to clean content for JSON parsing
 const cleanJSONContent = (content: string): string => {
   return content
+    // Strip code-block delimiters
     .replace(/```(json)?/g, '')
     .replace(/```/g, '')
-    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '')
-    .replace(/[""]/g, '"')
-    .replace(/['']/g, "'")
+    // Remove ALL control chars 0x00-0x1F except tab (0x09) which JSON allows when escaped
+    .replace(/[\u0000-\u0008\u000A-\u001F]/g, '')
+    // Remove DEL & friends
+    .replace(/[\u007F-\u009F]/g, '')
+    // Remove zero-width chars
     .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    // Convert invalid \'+ sequences to plain single quotes
+    .replace(/\\'/g, "'")
     .trim();
 };
 

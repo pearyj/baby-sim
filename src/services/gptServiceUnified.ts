@@ -5,6 +5,8 @@ import { performanceMonitor } from '../utils/performanceMonitor';
 import { makeStreamingJSONRequest } from './streamingService';
 import {
   generateSystemPrompt as generateSystemPromptI18n,
+  type GameStyle,
+  setActiveGameStyle,
   generateQuestionPrompt as generateQuestionPromptI18n,
   generateOutcomeAndNextQuestionPrompt as generateOutcomeAndNextQuestionPromptI18n,
   generateInitialStatePrompt as generateInitialStatePromptI18n,
@@ -63,13 +65,6 @@ let globalTokenUsage: TokenUsageStats = {
 
 // Provider management functions
 export const getActiveProvider = (): ModelProvider => {
-  // Debug: Log client-side Volcano Engine env vars (development only)
-  if (import.meta.env.DEV) {
-    console.log('🔍 CLIENT ENV DEBUG - Volcano Engine Keys:');
-    console.log('  VITE_VOLCENGINE_LLM_API_KEY:', import.meta.env.VITE_VOLCENGINE_LLM_API_KEY?.substring(0, 8) + '...' || 'MISSING');
-    console.log('  VITE_VOLCENGINE_VISUAL_API_KEY:', import.meta.env.VITE_VOLCENGINE_VISUAL_API_KEY?.substring(0, 8) + '...' || 'MISSING');
-  }
-
   const provider = API_CONFIG.ACTIVE_PROVIDER;
   
   // Helper to read provider keys from Vite env ─ only needed for DIRECT_API_MODE=true.
@@ -130,9 +125,21 @@ export const resetTokenUsageStats = (): void => {
   logger.info('🔄 Token usage statistics have been reset');
 };
 
+// ─────────────────────────────────────────────────────────────
+// Game Style Handling
+// ─────────────────────────────────────────────────────────────
+
+let activeGameStyle: GameStyle = 'realistic';
+
+export const setGameStyle = (style: GameStyle) => {
+  activeGameStyle = style;
+  setActiveGameStyle(style);
+  logger.info(`🎨 Game style set to ${style}`);
+};
+
 // Shared prompt generation functions (now using i18n)
 export const generateSystemPrompt = (): string => {
-  return generateSystemPromptI18n();
+  return generateSystemPromptI18n(activeGameStyle);
 };
 
 export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequirements: boolean = true): string => {
@@ -227,6 +234,16 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
   const provider = getActiveProvider();
   logger.info(`📤 Sending API request to ${provider.name} provider using ${provider.model}`);
   
+  // ─────────────────────────────────────────────────────────────
+  // FULL PROMPT LOGGING - Log complete messages array
+  // ─────────────────────────────────────────────────────────────
+  logger.info("📋 FULL PROMPT BEING SENT TO API:");
+  messages.forEach((message, index) => {
+    logger.info(`  [${index}] ${message.role.toUpperCase()}:`);
+    logger.info(`      ${message.content.substring(0, 1000)}${message.content.length > 1000 ? '...[TRUNCATED]' : ''}`);
+  });
+  logger.info("─────────────────────────────────────────────────────────────");
+  
   performanceMonitor.startTiming(`API-${provider.name}-request`, 'api', {
     provider: provider.name,
     model: provider.model,
@@ -285,6 +302,16 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
 
 // Legacy direct API function (for development only)
 const makeDirectAPIRequest = async (messages: ChatMessage[], provider: ModelProvider): Promise<OpenAIResponse> => {
+  // ─────────────────────────────────────────────────────────────
+  // FULL PROMPT LOGGING - Log complete messages array (Direct API)
+  // ─────────────────────────────────────────────────────────────
+  logger.info("📋 FULL PROMPT BEING SENT TO DIRECT API:");
+  messages.forEach((message, index) => {
+    logger.info(`  [${index}] ${message.role.toUpperCase()}:`);
+    logger.info(`      ${message.content.substring(0, 1000)}${message.content.length > 1000 ? '...[TRUNCATED]' : ''}`);
+  });
+  logger.info("─────────────────────────────────────────────────────────────");
+  
   let requestBody: any = {
     model: provider.model,
     messages: messages,

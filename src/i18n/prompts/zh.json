@@ -1,9 +1,9 @@
 {
   "system": {
-    "main": "你是一个叙事游戏\"养娃模拟器\"，要模拟玩家把一个娃从婴儿出生时养到18岁的时候所需要做出的各种选择和体验故事，目的是让玩家身临其境的体会养娃的酸甜苦辣和美好幸福，在结尾时爱上自己的孩子，反思自己的选择，为自己深思。\n\n你生成的语言简短宜都、现实、充满细节、不说教。\n\n直接返回有效且干净的JSON对象，规则：\n- 不要使用markdown格式（不要使用```json或任何其他格式包装）\n- 不要在文本中包含任何控制字符或特殊字符\n- 确保所有引号(\")都被正确转译(\\\")"
+    "main": "你是一个{{gameStyle}}叙事游戏\"养娃模拟器\"，要模拟玩家把一个娃从婴儿出生时养到18岁的时候所需要做出的各种选择和体验故事，目的是让玩家身临其境的体会养娃的酸甜苦辣和美好幸福，在结尾时爱上自己的孩子，反思自己的选择，为自己深思。\n\n你生成的语言简短宜都、现实、充满细节、不说教。\n\n直接返回有效且干净的JSON对象，规则：\n- 不要使用markdown格式（不要使用```json或任何其他格式包装）\n- 不要在文本中包含任何控制字符或特殊字符\n- 确保所有引号(\")都被正确转译(\\\")"
   },
   "question": {
-    "base": "{{numericalHeader}}基于以下信息：\n玩家：{{playerGender}}（{{playerAge}}岁）\n玩家背景：{{playerDescription}}\n孩子：{{childName}}（{{childGender}}，{{childAge}}岁）\n孩子背景：{{childDescription}}\n\n{{historyContext}}\n\n请生成一个{{nextAge}}岁时的育儿问题。问题应该：\n1. 反映这个年龄段可能遇到的真实挑战{{detailedRequirements}}\n2. 提供4个选项，每个选项都有其利弊，不要有明显的\"正确\"答案{{costRequirements}}\n3. 与之前的选择和结果有连贯性{{continuityRequirements}}{{extremeEventNote}}",
+    "base": "{{numericalHeader}}基于以下信息：\n玩家：{{playerGender}}（{{playerAge}}岁）\n玩家背景：{{playerDescription}}\n孩子：{{childName}}（{{childGender}}，{{childAge}}岁）\n孩子背景：{{childDescription}}\n\n{{historyContext}}\n\n请生成一个{{gameStyle}}的{{nextAge}}岁时的育儿问题。\n重要：整个场景、语气和细节必须充分体现{{gameStyle}}风格。问题应该：\n1. 反映这个年龄段可能遇到的真实挑战{{detailedRequirements}}\n2. 提供4个选项，每个选项都有其利弊，不要有明显的\"正确\"答案{{costRequirements}}\n3. 与之前的选择和结果有连贯性{{continuityRequirements}}{{extremeEventNote}}",
     "detailedRequirements": "，挑战与之前遇到的挑战要有明显不同。",
     "costRequirements": "。每个选项都应包含\"financeDelta\"和\"maritalDelta\"属性（-2到+2的整数）。financeDelta体现对目前家庭财务状况的相对影响（-2=明显拖累财务，+2=明显改善家庭财务）。maritalDelta影响与伴侣的关系（负数=关系紧张，正数=关系改善）。请考虑现实的影响，保持变化适度。",
     "continuityRequirements": "，考虑孩子的性格发展轨迹和家庭状况的变化",
@@ -22,7 +22,7 @@
     }
   },
   "outcome": {
-    "base": "{{numericalHeader}}基于以下信息：\n玩家：{{playerGender}}（{{playerAge}}岁）\n玩家背景：{{playerDescription}}\n孩子：{{childName}}（{{childGender}}，{{childAge}}岁）\n孩子背景：{{childDescription}}\n\n{{historyContext}}\n\n当前状况：\"{{question}}\"\n玩家选择了：\"{{choice}}\"\n\n请生成这个选择的结果，描述对孩子成长和家庭的影响。",
+    "base": "{{numericalHeader}}基于以下信息：\n玩家：{{playerGender}}（{{playerAge}}岁）\n玩家背景：{{playerDescription}}\n孩子：{{childName}}（{{childGender}}，{{childAge}}岁）\n孩子背景：{{childDescription}}\n\n{{historyContext}}\n\n当前状况：\"{{question}}\"\n玩家选择了：\"{{choice}}\"\n\n请生成这个选择的{{gameStyle}}结果，描述对孩子成长和家庭的影响。\n重要：结果的叙事风格必须明显体现{{gameStyle}}风格。",
     "withNextQuestion": "\n然后，生成一个{{nextAge}}岁时的育儿问题。\n\n返回格式：\n{\n  \"outcome\": \"当前选择结果的详细描述...\",\n  \"nextQuestion\": {\n    \"question\": \"下一个问题描述\",\n    \"options\": [\n      {\"id\": \"A\", \"text\": \"选项A\", \"financeDelta\": 0, \"maritalDelta\": 0},\n      {\"id\": \"B\", \"text\": \"选项B\", \"financeDelta\": -1, \"maritalDelta\": 1},\n      {\"id\": \"C\", \"text\": \"选项C\", \"financeDelta\": -2, \"maritalDelta\": 0},\n      {\"id\": \"D\", \"text\": \"选项D\", \"financeDelta\": 1, \"maritalDelta\": -2}\n    ],\n    \"isExtremeEvent\": true/false\n  }\n}",
     "withoutNextQuestion": "\n返回格式：\n{\n  \"outcome\": \"对当前选择的详细结果描述...\"\n}",
     "bankruptcy": "{{numericalHeader}}⚠️ 你的财务状况非常糟糕，你决策的重担已经变得令人窒息。\n\n根据你目前的情况（孩子：{{childName}}，{{childAge}}岁）以及你的选择（针对问题\"{{question}}\"选择了\"{{choice}}\"），描述你财务崩溃直接带来的毁灭性后果。这个结果应该具有冲击力，并反映破产的严重性。\n\n面对这次财务崩溃，为玩家提供一个重要的恢复机会。这个选择应该以\"nextQuestion\"的形式呈现，包含一个特殊的恢复选项，允许玩家通过艰难的努力重新振作起来。\n\n重要提示：所有financeDelta和maritalDelta值必须是0到2的整数（危机恢复期间不能有负值）。\n\n将整个回应格式化为JSON对象，包含\"outcome\"和\"nextQuestion\"（其中包含带有适当变化值和特殊isRecovery标记的恢复选项）：\n\n{\n  \"outcome\": \"关于财务崩溃及其直接影响的详细描述...\",\n  \"nextQuestion\": {\n    \"question\": \"面对这样的财务崩溃，你决定采取什么行动？\",\n    \"options\": [\n      {\"id\": \"A\", \"text\": \"承认困境，努力工作并寻找重新振作的方法。\", \"financeDelta\": 2, \"maritalDelta\": 0, \"isRecovery\": true}\n    ],\n    \"isExtremeEvent\": true\n  }\n}",
@@ -31,7 +31,7 @@
   "initialState": {
     "base": "请为游戏生成初始设定，包括两部分内容：\n\n1. 玩家\"你\"的信息：性别、年龄以及完整详细的你的背景，包括财富水平、社会地位、职业、家庭状况、伴侣关系等一切和养娃相关信息\n\n2. 婴儿信息：性别、名字，以及完整详细的婴儿背景，包括性格特点、健康状况等一切和ta未来成长相关的信息",
     "withRequirements": "\n\n请根据以下特殊要求生成初始设定：\n{{specialRequirements}}",
-    "format": "\n\n按以下格式直接返回，使用文字描述而不是JSON格式：\n\n{\n  \"player\": {\n    \"gender\": \"male/female\",\n    \"age\": 数字\n  },\n  \"child\": {\n    \"name\": \"名字\",\n    \"gender\": \"male/female\",\n    \"age\": 1\n  },\n  \"playerDescription\": \"完整详细的玩家背景描述...\",\n  \"childDescription\": \"完整详细的婴儿背景描述...\",\n  \"wealthTier\": \"poor/middle/wealthy\",\n  \"isSingleParent\": true/false\n}\n\n布尔值说明：\n- isSingleParent: 如果玩家独自抚养孩子（离婚、丧偶、主动选择单身、试管婴儿等）则为true，如果有伴侣则为false"
+    "format": "\n\n按以下格式直接返回，使用文字描述而不是JSON格式：\n\n{\n  \"player\": {\n    \"gender\": \"male/female\",\n    \"age\": 数字\n  },\n  \"child\": {\n    \"name\": \"名字\",\n    \"gender\": \"male/female\",\n    \"age\": 1\n  },\n  \"playerDescription\": \"完整详细的玩家背景描述...\",\n  \"childDescription\": \"完整详细的婴儿背景描述...\",\n  \"finance\": 数字,\n  \"isSingleParent\": true/false\n}\n\n数值和布尔值说明：\n- finance: 1 = 贫穷，10 = 非常富裕\n- isSingleParent: 如果玩家独自抚养孩子（离婚、丧偶、主动选择单身、试管婴儿等）则为true，如果有伴侣则为false"
   },
   "ending": {
     "base": "基于以下信息：\n玩家：{{playerGender}}（{{playerAge}}岁）\n玩家背景：{{playerDescription}}\n孩子：{{childName}}（{{childGender}}，现在18岁）\n孩子背景：{{childDescription}}\n\n{{historyContext}}\n\n请生成一个深刻而感人的结局，总结这18年的养育历程。结局应该：\n1. 描述孩子18岁时的状况和成就\n2. 评价玩家作为父母的表现\n3. 展望孩子的未来\n4. 让玩家反思自己的选择和成长\n\n返回格式：\n{\n  \"child_status_at_18\": \"孩子18岁时的详细状况描述...\",\n  \"parent_evaluation\": \"对玩家养育方式的评价...\",\n  \"future_outlook\": \"对孩子未来的展望...\"\n}",
@@ -39,7 +39,7 @@
   },
   "image": {
     "templates": {
-      "future_vision": "一个人的画像，{childStatusforImage}作为18岁{childGender}展望未来。背景巧妙地展示了从童年到成年的历程。"
+      "future_vision": "一个人的画像，{childStatusforImage}作为18岁{childGender}展望未来。背景巧妙地展示了从童年到成年的历程。避免在图片中添加任何文字。"
     },
     "genderLabels": {
       "childMale": "男孩",
