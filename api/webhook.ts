@@ -28,15 +28,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const session = event.data.object as Stripe.Checkout.Session;
     const { anonId, totalCredits, currency } = session.metadata as any;
     
-    console.log('🎯 Webhook received checkout.session.completed:', {
-      sessionId: session.id,
-      anonId,
-      totalCredits,
-      currency,
-      email: session.metadata?.email,
-      amountTotal: session.amount_total,
-    });
-    
     if (!anonId) return res.status(200).json({ received: true });
 
     const prior = creditsStorage.get(anonId);
@@ -64,8 +55,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // impossible to accidentally corrupt prod data while still allowing reads to work.
     const env = process.env.VERCEL_ENV || 'development';
     const CREDITS_TABLE = process.env.CREDITS_TABLE || ((env === 'production' || env === 'preview') ? 'credits' : 'credits_shadow');
-
-    console.log('🗄️ Writing to table:', CREDITS_TABLE);
     
     try {
       // Fetch current credits
@@ -79,14 +68,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const current = existingRows && existingRows.length > 0 ? existingRows[0].credits || 0 : 0;
 
+      let upsertSuccess = false;
+
       if (existingRows && existingRows.length > 0) {
         // update
-        await supabaseAdmin
+        const { error: updErr } = await supabaseAdmin
           .from(CREDITS_TABLE)
           .update({ credits: current + add, email: session.metadata?.email || null })
           .eq('anon_id', anonId);
+
+        if (updErr) {
+          throw updErr;
+        }
+        upsertSuccess = true;
       } else {
-        await supabaseAdmin.from(CREDITS_TABLE).insert({
+        const { error: insErr } = await supabaseAdmin.from(CREDITS_TABLE).insert({
           anon_id: anonId,
           email: session.metadata?.email || null,
           credits: add,
@@ -94,19 +90,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           amount: session.amount_total || 0,
           stripe_session: session.id,
         });
+        if (insErr) {
+          throw insErr;
+        }
+        upsertSuccess = true;
       }
 
-          // Always insert a purchase record for auditing
-    const PURCHASES_TABLE = process.env.PURCHASES_TABLE || ((env === 'production' || env === 'preview') ? 'purchases' : 'purchases_shadow');
-    await supabaseAdmin.from(PURCHASES_TABLE).insert({
-        anon_id: anonId,
-        email: session.metadata?.email || null,
-        credits: add,
-        currency,
-        amount: session.amount_total || 0,
-        stripe_session: session.id,
-      });
-      console.log('✅ Supabase upsert successful');
+      if (upsertSuccess) {
+        // Credits table upsert successful
+      }
+
+      // Always insert a purchase record for auditing
+      const PURCHASES_TABLE = process.env.PURCHASES_TABLE || ((env === 'production' || env === 'preview') ? 'purchases' : 'purchases_shadow');
+      const { error: purchaseErr } = await supabaseAdmin.from(PURCHASES_TABLE).insert({
+          anon_id: anonId,
+          email: session.metadata?.email || null,
+          credits: add,
+          currency,
+          amount: session.amount_total || 0,
+          stripe_session: session.id,
+        });
+
+      if (purchaseErr) {
+        throw purchaseErr;
+      }
+
+      // Supabase operations completed successfully
 
       // === Log checkout_completed event (non-blocking) ===
       try {
@@ -151,7 +160,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.error('⚠️ Failed to set checkout_completed flag:', flagErr);
       }
     } catch (e: any) {
-      console.error(`❌ Supabase insert error into ${CREDITS_TABLE}:`, e?.message || e);
+      console.error('Supabase operation failed:', e);
 
       // Automatic fallback: if the error is due to unknown columns or type mismatch, retry with a minimal payload
       if (e?.message?.includes('column') || e?.code === '22P02') {
