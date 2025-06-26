@@ -168,7 +168,22 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
     }
   };
 
-  const handleCheckoutSuccess = () => {
+  const handleCheckoutSuccess = async () => {
+    // After embedded checkout completes, refresh credits first
+    try {
+      const trimmedEmail = email.trim();
+      if (trimmedEmail) {
+        await fetchCredits(trimmedEmail);
+      } else {
+        await fetchCredits();
+      }
+    } catch (err) {
+      // Non-fatal – if it fails, the PaywallGate will attempt its own refresh logic
+      if (import.meta.env.DEV) {
+        console.warn('fetchCredits after embedded checkout failed:', err);
+      }
+    }
+
     setShowEmbeddedCheckout(false);
     setClientSecret(null);
     onClose();

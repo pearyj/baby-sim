@@ -136,7 +136,7 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
         if (canceled) return;
         await fetchCredits();
         const newCredits = usePaymentStore.getState().credits;
-        if (newCredits > prev || attempt >= 4) { // stop after ~4s
+        if (newCredits > prev || attempt >= 10) { // stop after ~10s (was 4)
           setWaitingForCredit(false);
           return;
         }
