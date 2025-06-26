@@ -1,4 +1,5 @@
 import { API_CONFIG } from '../config/api';
+import { throttledFetch } from '../utils/throttledFetch';
 import type { Question, GameState } from '../types/game';
 import logger from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
@@ -262,7 +263,7 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
   
   // Use serverless function
   try {
-    const response = await fetch(API_CONFIG.SERVERLESS_API_URL, {
+    const response = await throttledFetch(API_CONFIG.SERVERLESS_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -48,38 +48,20 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
     return false;
   });
 
-  useEffect(() => {
-    if (isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - PaywallGate initialized:', {
-        PAYWALL_VERSION,
-        childName,
-        requiresCredits,
-        timestamp: new Date().toISOString()
-      });
-    }
-  }, [childName, requiresCredits, isEndingPhase]);
-
   // Feature flag check - if paywall is off, always render children
   if (PAYWALL_VERSION === 'off') {
-    if (isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - Paywall disabled, rendering children directly');
-    }
     return <>{children}</>;
   }
 
   // Fallback bypass check
   const skipPaywall = new URLSearchParams(window.location.search).get('skipPaywall') === 'yes';
   if (skipPaywall) {
-    if (isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - Paywall bypassed via URL parameter');
-    }
     return <>{children}</>;
   }
 
   useEffect(() => {
     // Only initialize payment store when we're actually in the ending phase
     if (!hasInitialized && isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - Initializing anonymous ID');
       initializeAnonymousId();
       setHasInitialized(true);
     }
@@ -88,58 +70,22 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
   useEffect(() => {
     // Only fetch credits when we're in the ending phase
     if (anonId && hasInitialized && isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - Fetching credits for anonId:', anonId?.slice(-8));
       fetchCredits();
     }
   }, [anonId, hasInitialized, fetchCredits, isEndingPhase]);
 
-  // Production debugging: Log payment store state changes - only when ending card is displayed
-
-  useEffect(() => {
-    // Only log debug info when we're actually at the ending card (where AIImageGenerator is shown)
-    if (isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - Payment store state (ending phase):', {
-        anonId: anonId?.slice(-8),
-        credits,
-        isLoading,
-        hasEmail: !!email,
-        error: error || 'none',
-        showPaywall,
-        hasInitialized,
-        waitingForCredit,
-        timestamp: new Date().toISOString()
-      });
-    }
-  }, [isEndingPhase, anonId, credits, isLoading, email, error, showPaywall, hasInitialized, waitingForCredit]);
-
   // Allow generation if credits available, but don't deduct yet.
   const handleGenerateImage = () => {
-    if (isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - PaywallGate handleGenerateImage called:', {
-        hasEmail: !!email,
-        credits,
-        requiresCredits,
-        PAYWALL_VERSION,
-        timestamp: new Date().toISOString()
-      });
-    }
-
     // In production mode, enforce paywall logic
     if (PAYWALL_VERSION === 'prod') {
       // Require email first
       if (!email) {
-        if (isEndingPhase) {
-          console.warn('🔍 PAYWALL DEBUG - PROD: No email, showing paywall');
-        }
         setShowPaywall(true);
         return false;
       }
 
       // If credits required and none available, show paywall
       if (requiresCredits && credits <= 0) {
-        if (isEndingPhase) {
-          console.warn('🔍 PAYWALL DEBUG - PROD: No credits, showing paywall');
-        }
         setShowPaywall(true);
         return false;
       }
@@ -147,23 +93,14 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
 
     // If credits already known and >0 allow, else open paywall / checker
     if (!requiresCredits) {
-      if (isEndingPhase) {
-        console.warn('🔍 PAYWALL DEBUG - Credits not required, allowing generation');
-      }
       return true;
     }
 
     if (credits > 0) {
-      if (isEndingPhase) {
-        console.warn('🔍 PAYWALL DEBUG - Credits available, allowing generation');
-      }
       return true;
     }
 
     // Credits 0 → open paywall to let user check / donate
-    if (isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - No credits, showing paywall');
-    }
     setShowPaywall(true);
     return false;
   };
@@ -176,22 +113,8 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
       hasCredits: credits > 0,
       creditsCount: credits,
       onImageGenerated: async (result: any) => {
-        if (isEndingPhase) {
-          console.warn('🔍 PAYWALL DEBUG - Image generation result:', {
-            success: result?.success,
-            requiresCredits,
-            timestamp: new Date().toISOString()
-          });
-        }
-        
         if (result?.success && requiresCredits) {
-          if (isEndingPhase) {
-            console.warn('🔍 PAYWALL DEBUG - Consuming credit');
-          }
           const succeeded = await consumeCredit();
-          if (isEndingPhase) {
-            console.warn('🔍 PAYWALL DEBUG - Credit consumption result:', succeeded);
-          }
           if (succeeded) onCreditConsumed?.();
         }
         originalOnImageGenerated?.(result);
@@ -200,9 +123,6 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
   };
 
   const handlePaywallClose = () => {
-    if (isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - Paywall closed, refreshing credits');
-    }
     setShowPaywall(false);
     resetError();
     // Refresh credits after potential payment
@@ -214,14 +134,8 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
 
       const poll = async (attempt = 0) => {
         if (canceled) return;
-        if (isEndingPhase) {
-          console.warn('🔍 PAYWALL DEBUG - Polling for credit update, attempt:', attempt);
-        }
         await fetchCredits();
         const newCredits = usePaymentStore.getState().credits;
-        if (isEndingPhase) {
-          console.warn('🔍 PAYWALL DEBUG - Poll result:', { prev, newCredits, attempt });
-        }
         if (newCredits > prev || attempt >= 4) { // stop after ~4s
           setWaitingForCredit(false);
           return;
@@ -246,9 +160,6 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
 
   // Loading state
   if (isLoading && !hasInitialized) {
-    if (isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - Showing loading state');
-    }
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
         <CircularProgress size={40} sx={{ color: '#8D6E63', mb: 2 }} />
@@ -261,9 +172,6 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
 
   // Error state
   if (error && !showPaywall) {
-    if (isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - Showing error state:', error);
-    }
     return (
       <Box sx={{ py: 2 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -281,19 +189,8 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
       const hasGameState = (child.props as any)?.gameState;
       const hasEndingSummary = (child.props as any)?.endingSummary;
       
-      if (isEndingPhase) {
-        console.warn('🔍 PAYWALL DEBUG - Checking child component:', {
-          componentName,
-          hasGameState: !!hasGameState,
-          hasEndingSummary: !!hasEndingSummary
-        });
-      }
-      
       // Check for AIImageGenerator by component name OR by having both gameState and endingSummary props
       if (componentName === 'AIImageGenerator' || (hasGameState && hasEndingSummary)) {
-        if (isEndingPhase) {
-          console.warn('🔍 PAYWALL DEBUG - Enhancing AIImageGenerator with paywall props');
-        }
         return React.cloneElement(child as React.ReactElement<any>, {
           ...createEnhancedProps(child.props),
           isCheckingCredits: waitingForCredit && credits === 0,
@@ -302,15 +199,6 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
     }
     return child;
   });
-
-  if (isEndingPhase) {
-    console.warn('🔍 PAYWALL DEBUG - Rendering PaywallGate with:', {
-      showPaywall,
-      showTestMode: PAYWALL_VERSION === 'test',
-      credits,
-      timestamp: new Date().toISOString()
-    });
-  }
 
   return (
     <>

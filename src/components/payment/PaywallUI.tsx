@@ -223,9 +223,6 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
   const handleCheckCredits = async () => {
     if (!validateEmail(email)) return;
     const trimmedEmail = email.trim();
-    if (import.meta.env.DEV) {
-      console.log('🔍 PaywallUI: Checking credits for email:', trimmedEmail);
-    }
 
     // Try to add the email to the subscribers table (one-time per dialog open)
     if (!hasSubscribed) {
@@ -238,14 +235,8 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
     setCheckMessage(null);
     try {
       // Pass the email directly to ensure it's used for the lookup
-      if (import.meta.env.DEV) {
-        console.log('🔍 PaywallUI: Calling fetchCredits with email:', trimmedEmail);
-      }
       await fetchCredits(trimmedEmail);
       const c = usePaymentStore.getState().credits;
-      if (import.meta.env.DEV) {
-        console.log('🔍 PaywallUI: Credits result:', c);
-      }
       if (c > 0) {
         setCheckMessage(t('paywall.creditsFound', { count: c }));
         // auto-close after brief delay
@@ -257,11 +248,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
         setCheckMessage(t('paywall.noCreditsFound'));
       }
     } catch (err) {
-      if (import.meta.env.DEV) {
-        console.error('🔍 PaywallUI: Credit check failed:', err);
-      } else {
-        console.error('Credit check failed:', err);
-      }
+      console.error('Credit check failed:', err);
       setCheckMessage(t('paywall.checkCreditsFailed'));
     } finally {
       setCheckingCredits(false);

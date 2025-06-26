@@ -39,7 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       sessionId = sessions[0].id as string;
     }
 
-    let extraCols: Record<string, any> = {};
+    const extraCols: Record<string, any> = {};
     if (type === 'choice' && payload && typeof payload === 'object') {
       const { age, optionId, customInstruction } = payload as any;
       if (typeof age === 'number') extraCols.age = age;
@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (typeof customInstruction === 'string') extraCols.custom_instruction = customInstruction;
     }
 
-    let { error } = await supabaseAdmin.from(EVENTS_TABLE).insert({
+    const { error } = await supabaseAdmin.from(EVENTS_TABLE).insert({
       session_id: sessionId,
       anon_id: anonId,
       kid_id: kidId,

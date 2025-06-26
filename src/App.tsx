@@ -153,28 +153,9 @@ function App() {
     isSingleParent: state.isSingleParent,
   }))
 
-  // Production debugging: Log paywall configuration - only during ending phase
-  useEffect(() => {
-    const paywallVersion = import.meta.env.VITE_PAYWALL_VERSION || 'test';
-    const skipPaywall = urlParams.get('skipPaywall') === 'yes';
-    
-    // Only log configuration when we reach the ending phase where paywall is actually used
-    if (gamePhase === 'ending_game' || gamePhase === 'summary') {
-      console.warn('🔍 PAYWALL DEBUG - Configuration:', {
-        paywallVersion,
-        skipPaywall,
-        secretTestEnding,
-        isDevelopment,
-        environment: import.meta.env.MODE,
-        timestamp: new Date().toISOString()
-      });
-    }
-  }, [secretTestEnding, urlParams, gamePhase]);
-
   // Secret test ending trigger - works in production
   useEffect(() => {
     if (secretTestEnding && gamePhase === 'uninitialized') {
-      console.warn('🔍 PAYWALL DEBUG - Triggering secret test ending');
       testEnding();
     }
   }, [secretTestEnding, gamePhase, testEnding]);
@@ -207,20 +188,6 @@ function App() {
       testPromptGeneration();
     }
   }, []);
-
-  // Production debugging: Log game state changes - only during ending phase
-  useEffect(() => {
-    // Only log game state when we reach the ending phase where paywall is actually used
-    if (isEndingPhase) {
-      console.warn('🔍 PAYWALL DEBUG - Game state (ending phase):', {
-        gamePhase,
-        isEndingPhase,
-        hasChild: !!child,
-        hasGameState: !!(player && child),
-        timestamp: new Date().toISOString()
-      });
-    }
-  }, [gamePhase, isEndingPhase, child, player]);
 
   if (error && gamePhase !== 'welcome' && gamePhase !== 'playing' && gamePhase !== 'feedback') { // Show general error screen only if not in a phase that might have its own error display or content
     return (

@@ -6,6 +6,8 @@ import { supabaseAdmin } from './supabaseAdmin';
  * Adds a new row to the `subscribers` table. This route uses the service-role
  * key so it bypasses RLS, keeping the DB private while still allowing writes
  * from the front-end via this function.
+ * 
+ * Uses upsert to prevent duplicate email entries.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -19,9 +21,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { error } = await supabaseAdmin.from('subscribers').insert([{ email }]);
+    // Use upsert to handle duplicate emails gracefully
+    const { error } = await supabaseAdmin
+      .from('subscribers')
+      .upsert([{ email }], { 
+        onConflict: 'email',
+        ignoreDuplicates: false 
+      });
+    
     if (error) {
-      console.error('Failed to insert subscriber:', error);
+      console.error('Failed to upsert subscriber:', error);
+      
+      // Handle specific duplicate key error if upsert doesn't work as expected
+      if (error.code === '23505') {
+        // PostgreSQL unique violation error code
+        return res.status(200).json({ success: true, message: 'already_subscribed' });
+      }
+      
       return res.status(500).json({ error: 'db_error' });
     }
 

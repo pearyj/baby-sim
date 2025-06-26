@@ -21,6 +21,7 @@ import { AIImageGenerator } from './AIImageGenerator';
 import { PaywallGate } from './payment/PaywallGate';
 import type { GameState } from '../types/game';
 import type { ImageGenerationResult } from '../services/imageGenerationService';
+import { saveEndingCard } from '../services/endingCardStorage';
 
 interface ShareableEndingCardProps {
   childName: string;
@@ -256,6 +257,20 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
         message: t('messages.imageGenerated'),
         severity: 'success',
       });
+
+      // Fire-and-forget upload to Supabase – do not block UI.
+      (async () => {
+        try {
+          await saveEndingCard({
+            endingSummaryMarkdown: endingSummaryText,
+            imageBase64: imageResult.imageBase64,
+            imageUrl: imageResult.imageUrl,
+            shareOk: false,
+          });
+        } catch (err) {
+          console.error('Failed to save ending card to Supabase', err);
+        }
+      })();
     }
   };
 

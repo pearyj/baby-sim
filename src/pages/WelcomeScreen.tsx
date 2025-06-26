@@ -73,11 +73,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
   const secretTestEnding = urlParams.get('secretTestEnding') === 'yes';
   const showTestButtons = isDevelopment || secretTestEnding;
   
-  // Production debugging: Log if secret test ending is enabled
-  if (secretTestEnding) {
-    console.warn('🔍 PAYWALL DEBUG - WelcomeScreen: Secret test ending enabled via URL parameter');
-  }
-  
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   

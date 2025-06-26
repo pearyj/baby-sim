@@ -8,9 +8,6 @@ export async function fetchCredits(anonId: string, email?: string): Promise<Cred
   if (email) params.append('email', email);
   
   const url = `${API_BASE}/credits?${params}`;
-  if (import.meta.env.DEV) {
-    console.log('🔍 PaymentService: Fetching credits from:', url);
-  }
   
   const response = await fetch(url);
   if (!response.ok) {
@@ -18,9 +15,6 @@ export async function fetchCredits(anonId: string, email?: string): Promise<Cred
   }
   
   const result = await response.json();
-  if (import.meta.env.DEV) {
-    console.log('🔍 PaymentService: Credits response:', result);
-  }
   return result;
 }
 

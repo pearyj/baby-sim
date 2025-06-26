@@ -73,6 +73,8 @@ export const InfoPage: React.FC = () => {
         const { error: serverError } = await response.json();
         throw new Error(serverError || 'unknown');
       }
+      
+      // Handle both new subscription and already subscribed cases silently
       setSuccess(true);
       setEmail('');
     } catch (e: any) {

@@ -11,7 +11,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (PAYWALL_VERSION === 'off') {
-    console.log('🚫 Paywall disabled via PAYWALL_VERSION=off');
     return res.status(200).json({ success: true, sessionId: 'disabled', url: null, message: 'Paywall disabled' });
   }
 

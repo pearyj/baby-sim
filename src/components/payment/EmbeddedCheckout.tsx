@@ -40,7 +40,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 
 // which can accidentally create two instances and trigger the "multiple Embedded Checkout objects" error.
 // We store the singleton in a module-level variable so subsequent mounts reuse the instance instead of
 // creating a new one.
-// eslint-disable-next-line @typescript-eslint/naming-convention
+ 
 let _embeddedInstance: any | null = null;
 let _embeddedClientSecret: string | null = null;
 let _embeddedInitPromise: Promise<any> | null = null;

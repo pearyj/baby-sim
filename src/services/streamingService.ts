@@ -2,6 +2,7 @@ import logger from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
 import { getActiveProvider, type ModelProvider } from './gptServiceUnified';
 import { API_CONFIG } from '../config/api';
+import { throttledFetch } from '../utils/throttledFetch';
 
 // Types for streaming
 export interface StreamChunk {
@@ -57,7 +58,7 @@ export const makeStreamingRequest = async (
   try {
     logger.info(`Making streaming request to serverless function`);
     
-    const response = await fetch(API_CONFIG.SERVERLESS_API_URL, {
+    const response = await throttledFetch(API_CONFIG.SERVERLESS_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
