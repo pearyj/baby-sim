@@ -109,15 +109,31 @@ const styleTranslations: Record<GameStyle, { zh: string; en: string }> = {
   cool: { zh: '爽', en: 'thrilling' },
 };
 
-export const generateSystemPrompt = (gameStyle: GameStyle = 'realistic'): string => {
-  logger.info(`📝 Generating system prompt with style ${gameStyle}`);
+export const generateSystemPrompt = (gameStyle: GameStyle = 'realistic', specialRequirements?: string): string => {
+  logger.info(`📝 Generating system prompt with style ${gameStyle}` + (specialRequirements ? ' and special requirements' : ''));
 
   const template = getPrompt('system.main');
 
   const currentLang = getCurrentLanguage();
   const styleDesc = styleTranslations[gameStyle]?.[currentLang] || gameStyle;
 
-  return interpolatePrompt(template, { gameStyle: styleDesc });
+  // Base prompt with style filled in
+  let systemPrompt = interpolatePrompt(template, { gameStyle: styleDesc });
+
+  // If there are special requirements from the user, append a note so the LLM keeps them in mind
+  if (specialRequirements && specialRequirements.trim().length > 0) {
+    const customizationTemplates: Record<SupportedLanguage, string> = {
+      en: 'The user requested before the child\'s birth: "{{specialRequirements}}". Please ensure the story respects this request.',
+      zh: '用户在孩子出生前提出了要求：「{{specialRequirements}}」。请确保故事遵循这一要求。',
+    } as const;
+
+    const noteTemplate = customizationTemplates[currentLang] || customizationTemplates['en'];
+    const note = interpolatePrompt(noteTemplate, { specialRequirements });
+
+    systemPrompt += `\n\n${note}`;
+  }
+
+  return systemPrompt;
 };
 
 /**

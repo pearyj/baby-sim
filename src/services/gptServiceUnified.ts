@@ -131,6 +131,17 @@ export const resetTokenUsageStats = (): void => {
 // ─────────────────────────────────────────────────────────────
 
 let activeGameStyle: GameStyle = 'realistic';
+// Store current special requirements to ensure they are passed to every system prompt
+let currentSpecialRequirements: string | undefined = undefined;
+
+export const setSpecialRequirements = (requirements?: string) => {
+  currentSpecialRequirements = requirements?.trim() || undefined;
+  if (currentSpecialRequirements) {
+    logger.info(`📌 Stored special requirements for prompts: ${currentSpecialRequirements}`);
+  } else {
+    logger.info('📌 Cleared special requirements for prompts');
+  }
+};
 
 export const setGameStyle = (style: GameStyle) => {
   activeGameStyle = style;
@@ -140,7 +151,7 @@ export const setGameStyle = (style: GameStyle) => {
 
 // Shared prompt generation functions (now using i18n)
 export const generateSystemPrompt = (): string => {
-  return generateSystemPromptI18n(activeGameStyle);
+  return generateSystemPromptI18n(activeGameStyle, currentSpecialRequirements);
 };
 
 export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequirements: boolean = true): string => {
@@ -655,6 +666,9 @@ const generateOutcomeAndNextQuestionSync = async (
 
 const generateInitialStateSync = async (specialRequirements?: string): Promise<GameState> => {
   logger.info("🚀 Function called: generateInitialState()" + (specialRequirements ? " with special requirements" : ""));
+  
+  // Store the special requirements so subsequent prompts include them
+  setSpecialRequirements(specialRequirements);
   
   return performanceMonitor.timeAsync('generateInitialState-full', 'api', async () => {
     const messages: ChatMessage[] = [
