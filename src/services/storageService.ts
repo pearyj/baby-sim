@@ -40,6 +40,21 @@ export interface GameStateToStore {
     questionText: string;
     optionText: string;
   } | null;
+
+  // ────────────────────────────────────────────
+  // Fields for ending-card persistence
+  // ────────────────────────────────────────────
+  /** The markdown summary shown on the ending card (if generated). */
+  endingSummaryText?: string | null;
+
+  /** True when the game has already reached its ending. */
+  isEnding?: boolean;
+
+  /** True if the UI was displaying the ending summary when the state was saved. */
+  showEndingSummary?: boolean;
+
+  /** The last known game phase so we can restore the correct screen. */
+  gamePhase?: string;
 }
 
 interface StoredState {

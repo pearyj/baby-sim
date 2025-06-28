@@ -15,7 +15,7 @@ export interface Question {
 
 // Define and export Player interface
 export interface Player {
-  gender: 'male' | 'female';
+  gender: 'male' | 'female' | 'nonBinary';
   age: number;
   [key: string]: any; // Consider making this more specific if possible
 }
@@ -23,7 +23,7 @@ export interface Player {
 // Define and export Child interface
 export interface Child {
   name: string;
-  gender: 'male' | 'female';
+  gender: 'male' | 'female'; // Children remain binary for now
   age: number;
   [key: string]: any; // Consider making this more specific if possible
 }

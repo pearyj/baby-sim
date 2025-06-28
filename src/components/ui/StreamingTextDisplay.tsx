@@ -161,7 +161,12 @@ const formatInitialState = (parsed: any): { text: string; isJSON: boolean } => {
   let text = "**游戏设定：**\n\n";
   
   if (parsed.player) {
-    text += `**玩家：** ${parsed.player.gender === 'male' ? '父亲' : '母亲'}，${parsed.player.age}岁\n`;
+    const parentRole = parsed.player.gender === 'male'
+      ? '父亲'
+      : parsed.player.gender === 'female'
+        ? '母亲'
+        : '家长';
+    text += `**玩家：** ${parentRole}，${parsed.player.age}岁\n`;
   }
   
   if (parsed.child) {
@@ -280,7 +285,7 @@ const extractInitialStateProgressive = (content: string): { text: string; isJSON
   const playerAgeMatch = content.match(/"player":[^}]*"age":\s*(\d+)/);
   
   if (playerGender) {
-    const genderText = playerGender === 'male' ? '父亲' : '母亲';
+    const genderText = playerGender === 'male' ? '父亲' : playerGender === 'female' ? '母亲' : '家长';
     const ageText = playerAgeMatch ? `，${playerAgeMatch[1]}岁` : '';
     text += `**玩家：** ${genderText}${ageText}\n`;
   }

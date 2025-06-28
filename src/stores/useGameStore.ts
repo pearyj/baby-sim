@@ -147,6 +147,11 @@ const saveGameState = (state: GameStoreState) => {
     marital: state.marital,
     isSingleParent: state.isSingleParent,
     pendingChoice: state.pendingChoice,
+    // Ending card persistence
+    endingSummaryText: state.endingSummaryText,
+    isEnding: state.isEnding,
+    showEndingSummary: state.showEndingSummary,
+    gamePhase: state.gamePhase,
   };
   
   logger.debug("Saving game state to localStorage:", stateToStore);
@@ -241,6 +246,18 @@ const useGameStore = create<GameStoreState>((set, get) => {
     initialState.finance = savedState.finance ?? 5; // Load finance from saved state
     initialState.marital = savedState.marital ?? 5; // Load marital relationship level from saved state
     initialState.isSingleParent = savedState.isSingleParent ?? false; // Load isSingleParent from saved state
+    
+    // Restore ending-card data if present
+    initialState.endingSummaryText = savedState.endingSummaryText ?? null;
+    initialState.showEndingSummary = savedState.showEndingSummary ?? false;
+    initialState.isEnding = savedState.isEnding ?? false;
+
+    // If the saved state indicates we were on the summary screen, restore directly to it
+    if (savedState.showEndingSummary || savedState.gamePhase === 'summary') {
+      initialState.gamePhase = 'summary';
+      initialState.isEnding = true;
+      initialState.showEndingSummary = true;
+    }
     
     logger.debug("Initialized game with saved state:", initialState);
   }
@@ -873,6 +890,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
           currentAge: 18,
         };
         set(prevState => ({ ...prevState, ...newState }));
+        // Persist the generated ending so refreshing the page reloads it
+        saveGameState({ ...get(), ...newState } as unknown as GameStoreState);
       } catch (err) {
         logger.error('Error generating test ending summary:', err);
         // Provide a fallback mock ending - use the ending from mock data if available
@@ -915,6 +934,8 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
           isLoading: false,
           isEnding: true,
         }));
+        // Save fallback ending as well
+        saveGameState(get());
       }
     },
 

@@ -398,7 +398,7 @@ export interface GPTServiceOptions {
 
 export interface InitialStateType {
   player: {
-    gender: 'male' | 'female';
+    gender: 'male' | 'female' | 'nonBinary';
     age: number;
   };
   child: {

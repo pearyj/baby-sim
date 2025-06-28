@@ -3,11 +3,19 @@ import { useTranslation } from 'react-i18next';
 export const useGameTranslations = () => {
   const { t, i18n } = useTranslation();
 
-  const getGenderText = (gender: 'male' | 'female', isParent: boolean = false) => {
+  const getGenderText = (
+    gender: 'male' | 'female' | 'nonBinary',
+    isParent: boolean = false,
+  ) => {
     if (isParent) {
-      return gender === 'male' ? t('game.father') : t('game.mother');
+      if (gender === 'male') return t('game.father');
+      if (gender === 'female') return t('game.mother');
+      return t('game.parent');
     }
-    return gender === 'male' ? t('game.boy') : t('game.girl');
+    // For child gender we only expect male/female but handle gracefully
+    if (gender === 'male') return t('game.boy');
+    if (gender === 'female') return t('game.girl');
+    return t('game.child'); // Fallback (should rarely be used)
   };
 
   const getWealthText = (wealthTier: 'poor' | 'middle' | 'wealthy') => {

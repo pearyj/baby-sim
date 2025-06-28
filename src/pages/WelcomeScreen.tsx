@@ -85,6 +85,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
   type GameStyle = 'realistic' | 'fantasy' | 'cool';
   const [gameStyle, setGameStyle] = useState<GameStyle>('realistic');
   
+  // ────────────────────────────────────────────
+  // Parent Gender Selection (mom/dad/non-binary/random)
+  // ────────────────────────────────────────────
+  type ParentGenderOption = 'random' | 'male' | 'female' | 'nonBinary';
+  const [parentGender, setParentGender] = useState<ParentGenderOption>('random');
+  
   // Get player and child data to check if we have a saved game
   const { gamePhase, initializeGame, continueSavedGame, resetToWelcome } = useGameStore(state => ({
     player: state.player,
@@ -187,9 +193,24 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
           fallbackUsed = true;
         }
         
-        if (states && states.length > 0) {
-          const randomIndex = Math.floor(Math.random() * states.length);
-          const selectedState = states[randomIndex];
+        // Filter states by selected parent gender if applicable
+        let filteredStates = states;
+        if (parentGender === 'male') {
+          filteredStates = states.filter(s => s.player.gender === 'male');
+        } else if (parentGender === 'female') {
+          filteredStates = states.filter(s => s.player.gender === 'female');
+        }
+
+        if (parentGender === 'nonBinary') {
+          // No pregenerated non-binary states; fall back to dynamic generation
+          logger.info('Parent selected non-binary, generating initial state dynamically');
+          initializeGame({ specialRequirements: 'The parent is a non-binary caregiver.' });
+          return;
+        }
+
+        if (filteredStates && filteredStates.length > 0) {
+          const randomIndex = Math.floor(Math.random() * filteredStates.length);
+          const selectedState = filteredStates[randomIndex];
           logger.info("Selected pre-generated state:", selectedState, fallbackUsed ? "(using fallback)" : "");
           initializeGame({ preloadedState: selectedState });
         } else {
@@ -356,6 +377,50 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                     </List>
                   </CardContent>
                 </FeatureCard>
+                
+                {/* Parent Gender Selection */}
+                <Box sx={{ mb: 4 }}>
+                  <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', color: 'primary.main' }}>
+                    {t('welcome.selectParentGender')}
+                  </Typography>
+                  <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3, flexWrap: 'wrap' }}>
+                    <Button
+                      key="random"
+                      variant={parentGender === 'random' ? 'contained' : 'outlined'}
+                      color={parentGender === 'random' ? 'primary' : 'inherit'}
+                      onClick={() => setParentGender('random')}
+                    >
+                      {t('welcome.parentGenderRandom')}
+                    </Button>
+                    <Button
+                      key="female"
+                      variant={parentGender === 'female' ? 'contained' : 'outlined'}
+                      color={parentGender === 'female' ? 'primary' : 'inherit'}
+                      onClick={() => setParentGender('female')}
+                    >
+                      {t('welcome.parentGenderMom')}
+                    </Button>
+                    <Button
+                      key="male"
+                      variant={parentGender === 'male' ? 'contained' : 'outlined'}
+                      color={parentGender === 'male' ? 'primary' : 'inherit'}
+                      onClick={() => setParentGender('male')}
+                    >
+                      {t('welcome.parentGenderDad')}
+                    </Button>
+                    {/* Show non-binary option only for English */}
+                    {i18n.language === 'en' && (
+                      <Button
+                        key="nonBinary"
+                        variant={parentGender === 'nonBinary' ? 'contained' : 'outlined'}
+                        color={parentGender === 'nonBinary' ? 'primary' : 'inherit'}
+                        onClick={() => setParentGender('nonBinary')}
+                      >
+                        {t('welcome.parentGenderNonBinary')}
+                      </Button>
+                    )}
+                  </Stack>
+                </Box>
                 
                 {/* Game Style Selection */}
                 <Box sx={{ mb: 4 }}>

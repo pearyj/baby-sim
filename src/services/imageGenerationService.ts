@@ -151,9 +151,11 @@ const generateImagePrompt = (
   const childGender = gameState.child.gender === 'male' 
     ? getPrompt('image.genderLabels.childMale') 
     : getPrompt('image.genderLabels.childFemale');
-  const parentGender = gameState.player.gender === 'male' 
-    ? getPrompt('image.genderLabels.parentMale') 
-    : getPrompt('image.genderLabels.parentFemale');
+  const parentGender = gameState.player.gender === 'male'
+    ? getPrompt('image.genderLabels.parentMale')
+    : gameState.player.gender === 'female'
+      ? getPrompt('image.genderLabels.parentFemale')
+      : getPrompt('image.genderLabels.parentNonBinary');
   
   // Analyze ending summary to extract relationship dynamic and child's status at 18
   const relationshipDynamic = analyzeRelationshipFromSummary(endingSummary);

@@ -182,13 +182,13 @@ export const StreamingTextDisplayI18n: React.FC<StreamingTextDisplayProps> = ({
     let text = `${labels.setup}\n\n`;
     
     if (parsed.player) {
-      const genderText = getGenderText(parsed.player.gender, true);
+      const genderText = getGenderText(parsed.player.gender as 'male' | 'female' | 'nonBinary', true);
       const ageText = formatAge(parsed.player.age);
       text += `${labels.player} ${genderText}，${ageText}\n`;
     }
     
     if (parsed.child) {
-      const genderText = getGenderText(parsed.child.gender);
+      const genderText = getGenderText(parsed.child.gender as 'male' | 'female');
       text += `${labels.child} ${parsed.child.name}（${genderText}）\n\n`;
     }
     
@@ -306,7 +306,7 @@ export const StreamingTextDisplayI18n: React.FC<StreamingTextDisplayProps> = ({
     const playerAgeMatch = content.match(/"player":[^}]*"age":\s*(\d+)/);
     
     if (playerGender) {
-      const genderText = getGenderText(playerGender as 'male' | 'female', true);
+      const genderText = getGenderText(playerGender as 'male' | 'female' | 'nonBinary', true);
       const ageText = playerAgeMatch ? `，${formatAge(parseInt(playerAgeMatch[1]))}` : '';
       text += `${labels.player} ${genderText}${ageText}\n`;
     }
