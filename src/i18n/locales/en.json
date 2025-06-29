@@ -251,7 +251,8 @@
     "checkCreditsFailed": "Failed to check credits",
     "emailReceiptCopy": "Share your email for receipt and for recovering your image credits for future kids",
     "emailAgreement": "By sharing your email you agree to our Privacy Policy and Terms of Service.",
-    "emailPrivacyNotice": "Privacy notice – By providing your e-mail you agree that BabySim may link it to your gameplay activity solely for analytics and product-improvement in line with our Privacy Policy. You can unlink or delete this data at any time."
+    "emailPrivacyNotice": "Privacy notice – By providing your e-mail you agree that BabySim may link it to your gameplay activity solely for analytics and product-improvement in line with our Privacy Policy. You can unlink or delete this data at any time.",
+    "postPaymentReminder": "If the page doesn't refresh after payment, you can return to this website in the same browser and your credits should load automatically. If you encounter any issues with payments, please email dev@babysim.fun."
   },
   "gameStyle": {
     "realistic": "Realistic",

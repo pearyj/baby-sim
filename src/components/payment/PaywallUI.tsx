@@ -56,6 +56,8 @@ const DonationSlider = styled(Slider)(() => ({
   },
 }));
 
+const PAYWALL_VERSION = import.meta.env.VITE_PAYWALL_VERSION || 'test';
+
 export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }) => {
   const { t, i18n } = useTranslation();
   const { createCheckoutSession, isLoading, error, resetError, setEmail, fetchCredits } = usePaymentStore();
@@ -379,22 +381,29 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
           {t('paywall.paymentSecure')}
         </Typography>
 
-        {/* Payment Test Notice - only show for English */}
-        {i18n.language === 'en' && (
-          <Alert severity="warning" sx={{ mt: 2, mb: 0 }}>
-            <Typography variant="body2" sx={{ color: 'red', fontWeight: 'bold' }}>
-              {t('paywall.paymenttestnotice')}
-            </Typography>
-          </Alert>
-        )}
+        {/* Reminder for post-payment refresh issues */}
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
+          {t('paywall.postPaymentReminder')}
+        </Typography>
 
-        {/* Payment Test Notice - only show for Chinese */}
-        {i18n.language === 'zh' && (
-          <Alert severity="warning" sx={{ mt: 2, mb: 0 }}>
-            <Typography variant="body2" sx={{ color: 'red', fontWeight: 'bold' }}>
-              {t('paywall.paymenttestnotice')}
-            </Typography>
-          </Alert>
+        {/* Payment Test Notice – only show in test mode */}
+        {PAYWALL_VERSION === 'test' && (
+          <>
+            {i18n.language === 'en' && (
+              <Alert severity="warning" sx={{ mt: 2, mb: 0 }}>
+                <Typography variant="body2" sx={{ color: 'red', fontWeight: 'bold' }}>
+                  {t('paywall.paymenttestnotice')}
+                </Typography>
+              </Alert>
+            )}
+            {i18n.language === 'zh' && (
+              <Alert severity="warning" sx={{ mt: 2, mb: 0 }}>
+                <Typography variant="body2" sx={{ color: 'red', fontWeight: 'bold' }}>
+                  {t('paywall.paymenttestnotice')}
+                </Typography>
+              </Alert>
+            )}
+          </>
         )}
       </DialogContent>
 

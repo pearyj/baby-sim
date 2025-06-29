@@ -246,7 +246,8 @@
     "checkCreditsFailed": "查询积分失败",
     "emailReceiptCopy": "邮箱以接受收据和并未来继续使用生图功能",
     "emailAgreement": "输入邮箱即代表您同意我们的隐私政策和服务条款。",
-    "emailPrivacyNotice": "隐私声明 – 通过提供您的邮箱，您同意BabySim可能将其与您的游戏活动关联，仅用于分析和产品改进，符合我们的隐私政策。您可以随时取消关联或删除此数据。"
+    "emailPrivacyNotice": "隐私声明 – 通过提供您的邮箱，您同意BabySim可能将其与您的游戏活动关联，仅用于分析和产品改进，符合我们的隐私政策。您可以随时取消关联或删除此数据。",
+    "postPaymentReminder": "如果支付完成后页面没有刷新，请使用同一浏览器返回此网站，积分应会自动加载。如遇支付问题，请发送邮件至 dev@babysim.fun。"
   },
   "gameStyle": {
     "realistic": "真实",
