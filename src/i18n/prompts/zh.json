@@ -14,7 +14,8 @@
     "historyItem": "{{age}}岁时：{{question}}\n选择：{{choice}}\n结果：{{outcome}}",
     "playerGender": {
       "male": "父亲",
-      "female": "母亲"
+      "female": "母亲",
+      "nonBinary": "家长"
     },
     "childGender": {
       "male": "男孩",
@@ -31,7 +32,7 @@
   "initialState": {
     "base": "请为游戏生成初始设定，包括两部分内容：\n\n1. 玩家\"你\"的信息：性别、年龄以及完整详细的你的背景，包括财富水平、社会地位、职业、家庭状况、伴侣关系等一切和养娃相关信息\n\n2. 婴儿信息：性别、名字，以及完整详细的婴儿背景，包括性格特点、健康状况等一切和ta未来成长相关的信息",
     "withRequirements": "\n\n请根据以下特殊要求生成初始设定：\n{{specialRequirements}}",
-    "format": "\n\n按以下格式直接返回，使用文字描述而不是JSON格式：\n\n{\n  \"player\": {\n    \"gender\": \"male/female\",\n    \"age\": 数字\n  },\n  \"child\": {\n    \"name\": \"名字\",\n    \"gender\": \"male/female\",\n    \"age\": 1\n  },\n  \"playerDescription\": \"完整详细的玩家背景描述...\",\n  \"childDescription\": \"完整详细的婴儿背景描述...\",\n  \"finance\": 数字,\n  \"isSingleParent\": true/false\n}\n\n数值和布尔值说明：\n- finance: 1 = 贫穷，10 = 非常富裕\n- isSingleParent: 如果玩家独自抚养孩子（离婚、丧偶、主动选择单身、试管婴儿等）则为true，如果有伴侣则为false"
+    "format": "\n\n按以下格式直接返回，使用文字描述而不是JSON格式：\n\n{\n  \"player\": {\n    \"gender\": \"male/female/nonBinary\",\n    \"age\": 数字\n  },\n  \"child\": {\n    \"name\": \"名字\",\n    \"gender\": \"male/female\",\n    \"age\": 1\n  },\n  \"playerDescription\": \"完整详细的玩家背景描述...\",\n  \"childDescription\": \"完整详细的婴儿背景描述...\",\n  \"finance\": 数字,\n  \"isSingleParent\": true/false\n}\n\n数值和布尔值说明：\n- finance: 1 = 贫穷，10 = 非常富裕\n- isSingleParent: 如果玩家独自抚养孩子（离婚、丧偶、主动选择单身、试管婴儿等）则为true，如果有伴侣则为false"
   },
   "ending": {
     "base": "基于以下信息：\n玩家：{{playerGender}}（{{playerAge}}岁）\n玩家背景：{{playerDescription}}\n孩子：{{childName}}（{{childGender}}，现在18岁）\n孩子背景：{{childDescription}}\n\n{{historyContext}}\n\n请生成一个深刻而感人的结局，总结这18年的养育历程。结局应该：\n1. 描述孩子18岁时的状况和成就\n2. 评价玩家作为父母的表现\n3. 展望孩子的未来\n4. 让玩家反思自己的选择和成长\n\n返回格式：\n{\n  \"child_status_at_18\": \"孩子18岁时的详细状况描述...\",\n  \"parent_evaluation\": \"对玩家养育方式的评价...\",\n  \"future_outlook\": \"对孩子未来的展望...\"\n}",
@@ -45,7 +46,8 @@
       "childMale": "男孩",
       "childFemale": "女孩",
       "parentMale": "父亲",
-      "parentFemale": "母亲"
+      "parentFemale": "母亲",
+      "parentNonBinary": "家长"
     },
     "relationshipDynamics": {
       "close": "亲密和谐的关系",

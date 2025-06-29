@@ -214,8 +214,21 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
           logger.info("Selected pre-generated state:", selectedState, fallbackUsed ? "(using fallback)" : "");
           initializeGame({ preloadedState: selectedState });
         } else {
-          logger.warn("No pre-generated states found or array is empty, falling back to default generation.");
-          initializeGame({}); // Fallback to default generation without special requirements
+          logger.warn("No pre-generated states found or array is empty, falling back to dynamic generation.");
+
+          // If the user explicitly chose a parent gender, pass it as a special requirement so the LLM respects it.
+          let genderRequirement: string | undefined;
+          if (parentGender === 'male') {
+            genderRequirement = 'The parent is a father.';
+          } else if (parentGender === 'female') {
+            genderRequirement = 'The parent is a mother.';
+          }
+
+          if (genderRequirement) {
+            initializeGame({ specialRequirements: genderRequirement });
+          } else {
+            initializeGame({});
+          }
         }
       } catch (error) {
         logger.error("Error loading or using pre-generated states:", error);
@@ -223,8 +236,19 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
         initializeGame({}); 
       }
     } else {
-      logger.info("Starting a new game with special requirements:", specialRequirements);
-      initializeGame({ specialRequirements: specialRequirements });
+      // Combine gender requirement (if any) with user-entered special requirements
+      const requirementsParts: string[] = [];
+      if (parentGender !== 'random') {
+        if (parentGender === 'male') requirementsParts.push('The parent is a father.');
+        else if (parentGender === 'female') requirementsParts.push('The parent is a mother.');
+        else if (parentGender === 'nonBinary') requirementsParts.push('The parent is a non-binary caregiver.');
+      }
+      if (specialRequirements.trim()) {
+        requirementsParts.push(`Special requirements: ${specialRequirements.trim()}`);
+      }
+      const combinedRequirements = requirementsParts.join(' ');
+      logger.info("Starting a new game with combined special requirements:", combinedRequirements);
+      initializeGame({ specialRequirements: combinedRequirements });
     }
   };
 

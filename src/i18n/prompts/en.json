@@ -14,7 +14,8 @@
     "historyItem": "At {{age}} years old: {{question}}\nChoice: {{choice}}\nResult: {{outcome}}",
     "playerGender": {
       "male": "Father",
-      "female": "Mother"
+      "female": "Mother",
+      "nonBinary": "Parent"
     },
     "childGender": {
       "male": "Boy",
@@ -31,7 +32,7 @@
   "initialState": {
     "base": "Generate simple and easy-to-read initial settings for the game, including two parts:\n\n1. Player \"you\" information: gender, age, and detailed background, including wealth, social status, occupation, family situation, partner relationship, and all other information related to raising a child\n\n2. Baby information: gender, name, background including personality traits, health status, and all other information related to their future growth",
     "withRequirements": "\n\nConsider these special requirements:\n{{specialRequirements}}",
-    "format": "\n\nReturn directly in the following format, using descriptive text rather than JSON format:\n\n{\n  \"player\": {\n    \"gender\": \"male/female\",\n    \"age\": number\n  },\n  \"child\": {\n    \"name\": \"name\",\n    \"gender\": \"male/female\",\n    \"age\": 1\n  },\n  \"playerDescription\": \"Complete detailed player background description...\",\n  \"childDescription\": \"Complete detailed baby background description...\",\n  \"finance\": number,\n  \"isSingleParent\": true/false\n}\n\nFor numeric and boolean values:\n- finance: 1 = poor, 10 = very wealthy\n- isSingleParent: true if the player is raising the child alone (divorced, widowed, single by choice, IVF, etc.), false if they have a partner"
+    "format": "\n\nReturn directly in the following format, using descriptive text rather than JSON format:\n\n{\n  \"player\": {\n    \"gender\": \"male/female/nonBinary\",\n    \"age\": number\n  },\n  \"child\": {\n    \"name\": \"name\",\n    \"gender\": \"male/female\",\n    \"age\": 1\n  },\n  \"playerDescription\": \"Complete detailed player background description...\",\n  \"childDescription\": \"Complete detailed baby background description...\",\n  \"finance\": number,\n  \"isSingleParent\": true/false\n}\n\nFor numeric and boolean values:\n- finance: 1 = poor, 10 = very wealthy\n- isSingleParent: true if the player is raising the child alone (divorced, widowed, single by choice, IVF, etc.), false if they have a partner"
   },
   "ending": {
     "base": "Based on the following information:\nPlayer: {{playerGender}} ({{playerAge}} years old)\nPlayer background: {{playerDescription}}\nChild: {{childName}} ({{childGender}}, now 18 years old)\nChild background: {{childDescription}}\n\n{{historyContext}}\n\nPlease generate a profound and touching ending that summarizes this 18-year parenting journey. The ending should:\n1. Describe the child's situation and achievements at 18 years old\n2. Evaluate the player's performance as a parent\n3. Look forward to the child's future\n4. Let the player reflect on their choices and growth\n\nReturn format:\n{\n  \"child_status_at_18\": \"Detailed description of the child's situation at 18...\",\n  \"parent_evaluation\": \"Evaluation of the player's parenting approach...\",\n  \"future_outlook\": \"Outlook for the child's future...\"\n}",
@@ -45,7 +46,8 @@
       "childMale": "young man",
       "childFemale": "young woman",
       "parentMale": "father",
-      "parentFemale": "mother"
+      "parentFemale": "mother",
+      "parentNonBinary": "parent"
     },
     "relationshipDynamics": {
       "close": "a close and strong relationship",

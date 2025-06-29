@@ -92,12 +92,13 @@ interface GameStoreState {
 
 // Helper function to generate narrative with translations
 const generateNarrative = (scenarioState: {
-  player: { gender: 'male' | 'female'; age: number };
+  player: { gender: 'male' | 'female' | 'nonBinary'; age: number };
   child: { name: string; gender: 'male' | 'female' };
   playerDescription: string;
   childDescription: string;
 }): string => {
-  const playerGenderKey = scenarioState.player.gender === 'male' ? 'father' : 'mother';
+  const playerGenderKey = scenarioState.player.gender === 'male' ? 'father' :
+                         scenarioState.player.gender === 'female' ? 'mother' : 'parent';
   const childGenderKey = scenarioState.child.gender === 'male' ? 'boy' : 'girl';
   
   const playerDesc = i18n.t(`game.${playerGenderKey}`);

@@ -13,7 +13,7 @@ interface ChildProfile {
 }
 
 interface PlayerProfile { 
-  gender: 'male' | 'female';
+  gender: 'male' | 'female' | 'nonBinary';
   age: number;
   description: string;
 }

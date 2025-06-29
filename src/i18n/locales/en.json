@@ -12,6 +12,7 @@
     "familyWealth": "Family Wealth:",
     "father": "Father",
     "mother": "Mother",
+    "parent": "Parent",
     "boy": "Boy",
     "girl": "Girl",
     "generating": "Generating more settings...",
@@ -118,7 +119,7 @@
     "loading": "Loading...",
     "testEnding": "(Dev) Test Ending Page",
     "testAdTimeline": "(Dev) Test Ad Timeline",
-    "chooseGameStyle": "Choose Game Style",
+    "chooseGameStyle": "Choose a Style",
     "selectThisOption": "I'll do this"
   },
   "header": {
@@ -191,7 +192,12 @@
     "specialRequirements": "Special Requirements (Optional)",
     "specialRequirementsPlaceholder": "I want an ugly cute kid",
     "specialRequirementsDesc": "You can describe what you'd like for yourself or your baby. AI will try to meet them. (Of course, AI can sometimes be unpredictable too, just like babies...)",
-    "readyToStart": "Ready to take on the challenge to become a parent?"
+    "readyToStart": "Ready to take on the challenge to become a parent?",
+    "selectParentGender": "Choose Your Role",
+    "parentGenderRandom": "Random",
+    "parentGenderMom": "Mom",
+    "parentGenderDad": "Dad",
+    "parentGenderNonBinary": "Non-binary Parent"
   },
   "intro": {
     "birthStory": "After fierce competition among 300 million sperm and dozens of follicles, plus a long and arduous ten-month pregnancy, your baby has finally decided to come into the world, ready to challenge you with the sweetest yet most painful experience!",

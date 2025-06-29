@@ -275,5 +275,85 @@
     "finance": 4,
     "marital": 8,
     "isSingleParent": false
+  },
+  {
+    "player": {
+      "gender": "nonBinary",
+      "age": 28
+    },
+    "child": {
+      "name": "River",
+      "gender": "male",
+      "age": 1
+    },
+    "playerDescription": "You are a traveling exhibition curator who lives out of rolling suitcases and pop-up flats across Europe. With each new city, you wheel art crates in one hand and River’s stroller in the other, translating wall labels while humming bedtime folk songs from three different countries. Freelance invoices pay well only after long delays, so you sketch gallery floor plans at night to stretch your cash flow.",
+    "childDescription": "River has storm-gray eyes and squeals whenever gallery lights dim for video art. He taps on Plexiglas vitrines, fascinated by reflections, and calms when you whisper the names of colors in several languages.",
+    "finance": 5,
+    "marital": 4,
+    "isSingleParent": true
+  },
+  {
+    "player": {
+      "gender": "nonBinary",
+      "age": 34
+    },
+    "child": {
+      "name": "Lumi",
+      "gender": "female",
+      "age": 1
+    },
+    "playerDescription": "You are a Seoul-based livestream gamer who codes accessibility mods by day and entertains a global audience by night. When streams go live, Lumi dozes in a sound-dampened bassinet glowing faintly with RGB strips. Your partner works overseas six months a year, leaving you to juggle sponsorship calls, diaper changes, and Korean subtitles all at once.",
+    "childDescription": "Lumi’s tiny fists pump whenever controller haptics buzz near her. She tracks pixel explosions better than plush toys and babbles in rhythm with your mechanical keyboard clicks.",
+    "finance": 6,
+    "marital": 6,
+    "isSingleParent": false
+  },
+  {
+    "player": {
+      "gender": "nonBinary",
+      "age": 40
+    },
+    "child": {
+      "name": "Atlas",
+      "gender": "male",
+      "age": 1
+    },
+    "playerDescription": "You run a regenerative micro-farm in New Zealand’s South Island, swapping corporate life for soil and solar panels. Days start before dawn: you strap Atlas into a sling, inspect mushroom logs, and update your CSA newsletter during nap breaks. Grants for sustainable agriculture cover most costs, but droughts keep your savings razor-thin.",
+    "childDescription": "Atlas giggles whenever irrigation misters spray fine rainbows. He chews on kale stems and watches earthworms wriggle with solemn wonder, already at home in the dirt-perfumed air.",
+    "finance": 4,
+    "marital": 7,
+    "isSingleParent": false
+  },
+  {
+    "player": {
+      "gender": "nonBinary",
+      "age": 25
+    },
+    "child": {
+      "name": "Aria",
+      "gender": "female",
+      "age": 1
+    },
+    "playerDescription": "You are a Boston biotech grad student racing to patent a low-cost gene-editing kit. Fellowship stipends barely cover rent, so you moonlight as a campus lab safety tutor while balancing childcare in the department lounge. Lab mates built a makeshift playpen out of autoclave crates, and you recite protein sequences as lullabies.",
+    "childDescription": "Aria’s eyes dart toward every pipette’s dripping colors. She presses chubby palms against chilled incubator glass, mesmerized by swirling cell cultures, and coos when fluorescent labels glow.",
+    "finance": 3,
+    "marital": 3,
+    "isSingleParent": true
+  },
+  {
+    "player": {
+      "gender": "nonBinary",
+      "age": 46
+    },
+    "child": {
+      "name": "Skye",
+      "gender": "female",
+      "age": 1
+    },
+    "playerDescription": "You are the communications officer at an Antarctic research station, overseeing satellite links that connect scientists to the outside world. Adoption paperwork cleared just before deployment, so Skye is the youngest resident on the ice. When blizzards howl, you read polar expedition journals aloud, bundled together under grow-lights that double as her sunlamp.",
+    "childDescription": "Skye’s cheeks glow against endless white. She quiets instantly when radar screens ping and flaps her arms at the sight of emperor penguins outside observation windows—tiny mittened hands copying their waddles.",
+    "finance": 7,
+    "marital": 8,
+    "isSingleParent": false
   }
 ]
