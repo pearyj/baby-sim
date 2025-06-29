@@ -193,19 +193,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
           fallbackUsed = true;
         }
         
-        // Filter states by selected parent gender if applicable
+        // Filter states by selected parent gender if applicable (male, female, nonBinary)
         let filteredStates = states;
-        if (parentGender === 'male') {
-          filteredStates = states.filter(s => s.player.gender === 'male');
-        } else if (parentGender === 'female') {
-          filteredStates = states.filter(s => s.player.gender === 'female');
-        }
-
-        if (parentGender === 'nonBinary') {
-          // No pregenerated non-binary states; fall back to dynamic generation
-          logger.info('Parent selected non-binary, generating initial state dynamically');
-          initializeGame({ specialRequirements: 'The parent is a non-binary caregiver.' });
-          return;
+        if (parentGender !== 'random') {
+          filteredStates = states.filter(s => s.player.gender === parentGender);
         }
 
         if (filteredStates && filteredStates.length > 0) {
@@ -222,6 +213,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
             genderRequirement = 'The parent is a father.';
           } else if (parentGender === 'female') {
             genderRequirement = 'The parent is a mother.';
+          } else if (parentGender === 'nonBinary') {
+            genderRequirement = 'The parent is a non-binary caregiver.';
           }
 
           if (genderRequirement) {

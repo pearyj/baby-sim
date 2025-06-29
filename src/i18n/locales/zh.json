@@ -190,11 +190,11 @@
     "specialRequirementsPlaceholder": "我想养个邻居家的孩子",
     "specialRequirementsDesc": "您可以描述具体的想要的关于自己和娃的背景和特点，AI将尽量满足您的要求。（当然，养娃和AI一样，是个玄学……）",
     "readyToStart": "准备好开始这段充满挑战与惊喜的养育之旅了吗？",
-    "selectParentGender": "选择父母身份",
+    "selectParentGender": "选择你的身份",
     "parentGenderRandom": "随机",
     "parentGenderMom": "妈妈",
     "parentGenderDad": "爸爸",
-    "parentGenderNonBinary": "非二元家长"
+    "parentGenderNonBinary": "其他家长"
   },
   "intro": {
     "birthStory": "经过3亿个精子的激烈角逐，数十个卵泡中的艰难竞争，再加上漫长而艰辛的十月怀胎，你家娃终于决定降临人间，准备向你发起最甜蜜又最痛苦的挑战了！",
