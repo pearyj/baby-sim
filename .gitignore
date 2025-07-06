@@ -31,3 +31,6 @@ dist-ssr
 .cursor/
 .vercel
 .env*.local
+
+# Marketing screenshots
+marketing_screenshots/

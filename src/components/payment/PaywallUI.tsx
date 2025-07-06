@@ -20,6 +20,7 @@ import { usePaymentStore } from '../../stores/usePaymentStore';
 import { calculatePricing } from '../../services/paymentService';
 import { EmbeddedCheckout } from './EmbeddedCheckout';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { isMobileDevice } from '../../utils/deviceDetection';
 
 interface PaywallUIProps {
   open: boolean;
@@ -116,12 +117,14 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
 
     try {
       const useEmbedded = currency === 'USD';
+      const isMobile = isMobileDevice();
 
       const result = await createCheckoutSession({
         email: trimmedEmail || undefined,
         lang: i18n.language,
         donatedUnits,
         embedded: useEmbedded,
+        isMobile,
       });
 
       if (result.success) {
@@ -131,7 +134,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
           setClientSecret(result.clientSecret);
           setShowEmbeddedCheckout(true);
         } else if (!useEmbedded && result.url) {
-          // Redirect flow (e.g., WeChat Pay) – open in popup to preserve SPA state
+          // Redirect flow (e.g., Alipay, Apple Pay) – open in popup to preserve SPA state
           const width = 500;
           const height = 700;
           const left = window.screenX + (window.outerWidth - width) / 2;

@@ -6,8 +6,8 @@ We want to monetize the AI image-generation feature through a donation-based, pa
 
 ### Key Features
 1. **Pricing** - name your own price (donation based)
-   • EN (card / Apple Pay): **US $1.99 = 2 credits**, then 1 credit per additional whole dollar.  
-   • ZH (WeChat / Alipay): **￥6 = 1 credit**, then 1 credit per additional ¥6.  
+   • EN (Apple Pay on mobile, card on desktop): **US $1.99 = 2 credits**, then 1 credit per additional whole dollar.  
+   • ZH (Alipay): **￥6 = 1 credit**, then 1 credit per additional ¥6.  
    • Users may pay more than the minimum; every price unit (USD $1 / RMB ¥6) → 1 extra credit.
 
 2. **No mandatory login** — anonymous by default. Optional email field in Checkout for:
@@ -95,8 +95,8 @@ Supabase
 ## 6. Stripe Configuration (clarified)
 • Single price ↔ unit-price map lives only in backend; client passes `donatedUnits`, never raw $ / ¥.
 • Test-mode price IDs mirror live IDs; backend chooses by `stripe_mode`.
-• Enable Apple Pay & Credit Card Payment Request Button for EN locale.  
-• Enable WeChat Pay & Alipay for ZH locale.  
+• Enable Apple Pay (mobile) & Credit Card for EN locale.  
+• Enable Alipay for ZH locale.  
 • Optional email field = true.  
 • Success URL ➜ `#/payment/success?session_id={CHECKOUT_SESSION_ID}`  
 • Cancel URL ➜ returns to game state.

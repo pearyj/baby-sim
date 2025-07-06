@@ -8,6 +8,7 @@ export interface CheckoutSessionRequest {
   email?: string;
   lang: string;
   donatedUnits: number;
+  isMobile?: boolean;
 }
 
 export interface CheckoutSessionResponse {

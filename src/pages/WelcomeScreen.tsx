@@ -287,10 +287,16 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
   );
 
   return (
-    <Container maxWidth="md" sx={{ py: 3 }}>
+    <Container 
+      maxWidth="md" 
+      sx={{ 
+        py: 3,
+        px: { xs: 1, sm: 3 }, // Tighter horizontal padding on mobile
+      }}
+    >
       <Fade in timeout={500}>
         <WelcomeCard elevation={3}>
-          <CardContent sx={{ p: { xs: 3, sm: 4, md: 5 } }}>
+          <CardContent sx={{ p: { xs: 2, sm: 4, md: 5 } }}>
             
             {hasSavedGame ? (
               <SavedGameCard elevation={2}>
@@ -400,12 +406,17 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', color: 'primary.main' }}>
                     {t('welcome.selectParentGender')}
                   </Typography>
-                  <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3, flexWrap: 'wrap' }}>
+                  <Stack direction="row" spacing={{ xs: 1, sm: 2 }} justifyContent="center" sx={{ mb: 3, flexWrap: 'wrap' }}>
                     <Button
                       key="random"
                       variant={parentGender === 'random' ? 'contained' : 'outlined'}
                       color={parentGender === 'random' ? 'primary' : 'inherit'}
                       onClick={() => setParentGender('random')}
+                      sx={{ 
+                        fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                        borderRadius: { xs: '12px', sm: '8px' },
+                        px: { xs: 1.5, sm: 2 }
+                      }}
                     >
                       {t('welcome.parentGenderRandom')}
                     </Button>
@@ -414,6 +425,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                       variant={parentGender === 'female' ? 'contained' : 'outlined'}
                       color={parentGender === 'female' ? 'primary' : 'inherit'}
                       onClick={() => setParentGender('female')}
+                      sx={{ 
+                        fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                        borderRadius: { xs: '12px', sm: '8px' },
+                        px: { xs: 1.5, sm: 2 }
+                      }}
                     >
                       {t('welcome.parentGenderMom')}
                     </Button>
@@ -422,6 +438,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                       variant={parentGender === 'male' ? 'contained' : 'outlined'}
                       color={parentGender === 'male' ? 'primary' : 'inherit'}
                       onClick={() => setParentGender('male')}
+                      sx={{ 
+                        fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                        borderRadius: { xs: '12px', sm: '8px' },
+                        px: { xs: 1.5, sm: 2 }
+                      }}
                     >
                       {t('welcome.parentGenderDad')}
                     </Button>
@@ -432,6 +453,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                         variant={parentGender === 'nonBinary' ? 'contained' : 'outlined'}
                         color={parentGender === 'nonBinary' ? 'primary' : 'inherit'}
                         onClick={() => setParentGender('nonBinary')}
+                        sx={{ 
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                          borderRadius: { xs: '12px', sm: '8px' },
+                          px: { xs: 1.5, sm: 2 }
+                        }}
                       >
                         {t('welcome.parentGenderNonBinary')}
                       </Button>
@@ -444,13 +470,18 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', color: 'primary.main' }}>
                     {t('actions.chooseGameStyle')}
                   </Typography>
-                  <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
+                  <Stack direction="row" spacing={{ xs: 1, sm: 2 }} justifyContent="center" sx={{ mb: 3 }}>
                     {(['realistic', 'fantasy', 'cool'] as GameStyle[]).map(style => (
                       <Button
                         key={style}
                         variant={gameStyle === style ? 'contained' : 'outlined'}
                         color={gameStyle === style ? 'primary' : 'inherit'}
                         onClick={() => setGameStyle(style)}
+                        sx={{ 
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                          borderRadius: { xs: '12px', sm: '8px' },
+                          px: { xs: 1.5, sm: 2 }
+                        }}
                       >
                         {t(`gameStyle.${style}`)}
                       </Button>

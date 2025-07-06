@@ -16,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!stripe) return res.status(500).json({ error: 'Stripe not configured' });
 
-  const { anonId, email, lang, donatedUnits, embedded = false } = req.body;
+  const { anonId, email, lang, donatedUnits, embedded = false, isMobile = false } = req.body;
   if (!anonId || !email || !donatedUnits || donatedUnits < 1) {
     return res.status(400).json({ error: 'Missing required parameters: anonId, email, and donatedUnits are required.' });
   }
@@ -47,11 +47,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     amount,
     credits,
     embedded,
+    isMobile,
   });
 
   try {
+    // Determine payment method types based on currency and device
+    let paymentMethodTypes: string[];
+    let paymentMethodOptions: any = undefined;
+    
+    if (currency === 'USD') {
+      // For USD (English users)
+      if (isMobile) {
+        // Mobile English users: Apple Pay first, then card
+        paymentMethodTypes = ['apple_pay', 'card'];
+      } else {
+        // Desktop English users: card only
+        paymentMethodTypes = ['card'];
+      }
+    } else {
+      // For RMB (Chinese users): Alipay
+      paymentMethodTypes = ['alipay'];
+      paymentMethodOptions = {
+        alipay: {},
+      };
+    }
+
     const sessionConfig: any = {
-      payment_method_types: currency === 'USD' ? ['card'] : ['wechat_pay'],
+      payment_method_types: paymentMethodTypes,
       line_items: [
         {
           price_data: {
@@ -69,12 +91,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         donatedUnits: String(donatedUnits),
         totalCredits: String(credits),
         currency,
+        isMobile: String(isMobile),
       },
       mode: 'payment',
       customer_email: email || undefined,
-      payment_method_options: currency === 'USD' ? undefined : {
-        wechat_pay: { client: 'web' },
-      },
+      payment_method_options: paymentMethodOptions,
     };
 
     if (embedded && currency === 'USD') {
