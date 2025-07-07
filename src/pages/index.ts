@@ -4,4 +4,5 @@ export { InfoPage } from './InfoPage';
 export { EndingCardTestPage } from './EndingCardTestPage';
 export { AdTestPage } from './AdTestPage';
 export { PaymentTestPage } from './PaymentTestPage';
-export { PaymentSuccessPage } from './PaymentSuccessPage'; 
+export { PaymentSuccessPage } from './PaymentSuccessPage';
+export { GalleryPage } from './GalleryPage'; 

@@ -21,6 +21,7 @@ import { calculatePricing } from '../../services/paymentService';
 import { EmbeddedCheckout } from './EmbeddedCheckout';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { isMobileDevice } from '../../utils/deviceDetection';
+import { isApplePaySupported } from '../../utils/deviceDetection';
 
 interface PaywallUIProps {
   open: boolean;
@@ -62,7 +63,7 @@ const PAYWALL_VERSION = import.meta.env.VITE_PAYWALL_VERSION || 'test';
 export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }) => {
   const { t, i18n } = useTranslation();
   const { createCheckoutSession, isLoading, error, resetError, setEmail, fetchCredits } = usePaymentStore();
-  const [donatedUnits, setDonatedUnits] = useState(1);
+  const [donatedUnits, setDonatedUnits] = useState(i18n.language === 'zh' ? 3 : 1);
   const [email, setEmailState] = useState('');
   const [emailError, setEmailError] = useState('');
   const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
@@ -82,12 +83,12 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
     if (!open) {
       setShowEmbeddedCheckout(false);
       setClientSecret(null);
-      setDonatedUnits(1);
+      setDonatedUnits(i18n.language === 'zh' ? 3 : 1);
       setEmailState('');
       setEmailError('');
       resetError();
     }
-  }, [open, resetError]);
+  }, [open, resetError, i18n.language]);
 
   const validateEmail = (input: string) => {
     if (!input) {
@@ -125,6 +126,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
         donatedUnits,
         embedded: useEmbedded,
         isMobile,
+        isAppleDevice: isApplePaySupported(),
       });
 
       if (result.success) {
@@ -198,7 +200,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
     setShowEmbeddedCheckout(false);
     setClientSecret(null);
     // Reset form state
-    setDonatedUnits(1);
+    setDonatedUnits(i18n.language === 'zh' ? 3 : 1);
     setEmailState('');
     setEmailError('');
     resetError();

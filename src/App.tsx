@@ -34,6 +34,7 @@ import { FeedbackButton } from './components/ui/FeedbackButton'
 import { AdTestPage } from './pages/AdTestPage'
 import { PaymentTestPage } from './pages/PaymentTestPage'
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
+import { GalleryPage } from './pages/GalleryPage';
 
 const MainContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
@@ -183,7 +184,10 @@ function App() {
   
   // Development-only prompt system test
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (
+      import.meta.env.DEV &&
+      import.meta.env.VITE_ENABLE_PROMPT_TESTS === 'true'
+    ) {
       checkAllPrompts();
       testPromptGeneration();
     }
@@ -486,6 +490,7 @@ function App() {
             {isDevelopment && <Route path="/ad-test-page" element={<AdTestPage />} />}
             <Route path="/test/payment" element={<PaymentTestPage />} />
             <Route path="/payment/success" element={<PaymentSuccessPage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/" element={
               <Container component="main" maxWidth="lg" sx={{ 
                 px: { xs: 1, sm: 1.5 }, 

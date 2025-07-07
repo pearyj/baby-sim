@@ -250,8 +250,12 @@
     "postPaymentReminder": "如果支付完成后页面没有刷新，请使用同一浏览器返回此网站，积分应会自动加载。如遇支付问题，请发送邮件至 dev@babysim.fun。"
   },
   "gameStyle": {
-    "realistic": "真实",
-    "fantasy": "魔幻",
-    "cool": "爽"
+    "realistic": "现实",
+    "fantasy": "奇幻",
+    "cool": "酷炫"
+  },
+  "gallery": {
+    "otherKids": "其他孩子",
+    "noImages": "暂时还没有分享的照片，快来养育一个孩子并分享吧！"
   }
 } 

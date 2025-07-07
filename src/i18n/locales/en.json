@@ -258,5 +258,9 @@
     "realistic": "Realistic",
     "fantasy": "Fantasy",
     "cool": "Thrilling"
+  },
+  "gallery": {
+    "otherKids": "Other Kids",
+    "noImages": "No shared images yet. Be the first to raise a kid to 18 and share!"
   }
 } 

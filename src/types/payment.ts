@@ -9,6 +9,8 @@ export interface CheckoutSessionRequest {
   lang: string;
   donatedUnits: number;
   isMobile?: boolean;
+  /** Indicates whether the client device supports Apple Pay (iOS/macOS Safari). */
+  isAppleDevice?: boolean;
 }
 
 export interface CheckoutSessionResponse {

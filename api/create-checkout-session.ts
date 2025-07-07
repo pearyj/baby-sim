@@ -16,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!stripe) return res.status(500).json({ error: 'Stripe not configured' });
 
-  const { anonId, email, lang, donatedUnits, embedded = false, isMobile = false } = req.body;
+  const { anonId, email, lang, donatedUnits, embedded = false, isMobile = false, isAppleDevice = false } = req.body;
   if (!anonId || !email || !donatedUnits || donatedUnits < 1) {
     return res.status(400).json({ error: 'Missing required parameters: anonId, email, and donatedUnits are required.' });
   }
@@ -65,9 +65,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         paymentMethodTypes = ['card'];
       }
     } else {
-      // For RMB (Chinese users): Alipay
-      paymentMethodTypes = ['alipay'];
+      // For RMB (Chinese users) — support Apple Pay (via card), WeChat Pay, and Alipay
+
+      if (isAppleDevice) {
+        // Apple device: Apple Pay (card) default, then WeChat Pay, then Alipay
+        paymentMethodTypes = ['card', 'wechat_pay', 'alipay'];
+      } else {
+        // Non-Apple device: WeChat Pay default, then Apple Pay (card), then Alipay
+        paymentMethodTypes = ['wechat_pay', 'card', 'alipay'];
+      }
+
+      // Configure payment method options – Stripe requires client to be 'web', 'ios', or 'android'
+      // Stripe Checkout currently supports only 'web' for wechat_pay client.
       paymentMethodOptions = {
+        wechat_pay: {
+          client: 'web',
+        },
         alipay: {},
       };
     }
