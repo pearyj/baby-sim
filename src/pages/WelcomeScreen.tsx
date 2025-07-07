@@ -291,7 +291,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
     <Container 
       maxWidth="md" 
       sx={{ 
-        py: 3,
+        py: 1.5,
         px: { xs: 1, sm: 3 }, // Tighter horizontal padding on mobile
       }}
     >
