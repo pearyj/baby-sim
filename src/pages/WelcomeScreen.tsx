@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { setGameStyle as setGPTGameStyle } from '../services/gptServiceUnified';
 import { initSession } from '../services/eventLogger';
 import { usePaymentStore } from '../stores/usePaymentStore';
+import GalleryCarousel from '../components/GalleryCarousel';
 
 interface WelcomeScreenProps {
   onStartLoading?: () => void;
@@ -337,7 +338,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
               <Box sx={{ mb: 4 }}>
                 <Typography variant="h4" sx={{ 
                   textAlign: 'center', 
-                  mb: 3, 
+                  mb: 2, 
                   fontWeight: 600,
                   background: 'linear-gradient(45deg, #6750A4 30%, #7D5260 90%)',
                   backgroundClip: 'text',
@@ -347,13 +348,14 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   {t('welcome.title')}
                 </Typography>
                 
-                <Typography variant="h6" sx={{ textAlign: 'center', mb: 4, color: 'text.secondary' }}>
+                <Typography variant="h6" sx={{ textAlign: 'center', mb: 1.5, color: 'text.secondary' }}>
                   {t('welcome.subtitle')}
                 </Typography>
-                
-                <FeatureCard elevation={1}>
-                  <CardContent sx={{ p: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+
+                {/* Game Introduction */}
+                <FeatureCard elevation={1} sx={{ mt: 2 }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                       <Psychology sx={{ mr: 1, color: 'primary.main' }} />
                       <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
                         {t('welcome.gameIntro')}
@@ -368,9 +370,9 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   </CardContent>
                 </FeatureCard>
                 
-                <FeatureCard elevation={1}>
-                  <CardContent sx={{ p: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <FeatureCard elevation={1} sx={{ mt: 2 }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                       <AutoAwesome sx={{ mr: 1, color: 'primary.main' }} />
                       <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
                         {t('welcome.gameFeatures')}
@@ -400,7 +402,14 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                     </List>
                   </CardContent>
                 </FeatureCard>
-                
+
+                {/* Proud Kids Gallery Carousel */}
+                <FeatureCard elevation={1} sx={{ mt: 2 }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <GalleryCarousel />
+                  </CardContent>
+                </FeatureCard>
+
                 {/* Parent Gender Selection */}
                 <Box sx={{ mb: 4 }}>
                   <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', color: 'primary.main' }}>

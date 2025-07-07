@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import i18n from '../i18n';
 
 /**
  * A single gallery item representing another player's ending image.
@@ -9,6 +10,7 @@ export interface GalleryItem {
   imageUrl: string;
   /** Short text snippet (child status at 18). Use as alt / caption. */
   childStatusAt18: string;
+  hearts: number;
 }
 
 /**
@@ -20,7 +22,7 @@ export interface GalleryItem {
 export async function getGalleryItems(limit = 20, offset = 0): Promise<GalleryItem[]> {
   const { data, error } = await supabase
     .from('ending_cards')
-    .select('id, child_status_at_18, image_path, child_name')
+    .select('id, child_status_at_18, image_path, child_name, hearts')
     .eq('share_ok', true)
     .order('created_at', { ascending: false })
     .range(offset, offset + (limit === Infinity ? 99999 : limit) - 1);
@@ -54,14 +56,18 @@ export async function getGalleryItems(limit = 20, offset = 0): Promise<GalleryIt
 
     const displayName = row.child_name || extractChildName(row.child_status_at_18 || '');
     
+    // For English users, use empty alt text to avoid showing Chinese names
+    const altText = i18n.language === 'en' ? '' : displayName;
+    
     if (import.meta.env.DEV) {
-      console.debug('[galleryService] Extracted name:', displayName);
+      console.debug('[galleryService] Extracted name:', displayName, 'Alt text:', altText);
     }
 
     return {
       id: row.id,
-      childStatusAt18: displayName,
+      childStatusAt18: altText,
       imageUrl: publicUrl,
+      hearts: row.hearts ?? 0,
     } as GalleryItem;
   });
 }
@@ -120,7 +126,7 @@ function extractChildName(statusText: string): string {
 export async function getFeaturedGalleryItems(count = 12): Promise<GalleryItem[]> {
   const { data, error } = await supabase
     .from('ending_cards')
-    .select('id, child_status_at_18, image_path')
+    .select('id, child_status_at_18, image_path, hearts')
     .eq('share_ok', true)
     .eq('is_featured', true)
     .order('featured_rank', { ascending: true })
@@ -139,6 +145,72 @@ export async function getFeaturedGalleryItems(count = 12): Promise<GalleryItem[]
       id: row.id,
       childStatusAt18: row.child_status_at_18,
       imageUrl: publicUrl,
+      hearts: row.hearts ?? 0,
     } as GalleryItem;
   });
+}
+
+/**
+ * Atomically increment hearts for a card and return new hearts count.
+ * Relies on SQL function `increment_heart(card_id uuid)`.
+ */
+export async function incrementHeart(cardId: string): Promise<number> {
+  const { data, error } = await supabase.rpc('increment_heart', { card_id: cardId });
+  if (error) throw error;
+
+  if (import.meta.env.DEV) {
+    console.debug('[incrementHeart] RPC raw data:', data);
+  }
+
+  // Possible return shapes:
+  // 1) scalar number
+  if (typeof data === 'number') return data;
+
+  // 2) array with scalar number
+  if (Array.isArray(data) && data.length === 1 && typeof data[0] === 'number') {
+    return data[0] as number;
+  }
+
+  // 3) object or array element with field hearts or new_hearts
+  const maybeObj = Array.isArray(data) ? data[0] : data;
+  if (maybeObj && typeof maybeObj === 'object') {
+    if ('new_hearts' in maybeObj) return (maybeObj as any).new_hearts as number;
+    if ('hearts' in maybeObj) return (maybeObj as any).hearts as number;
+    // fallback: return first numeric property
+    const numProp = Object.values(maybeObj).find((v) => typeof v === 'number');
+    if (typeof numProp === 'number') return numProp;
+  }
+  throw new Error('Unexpected response from increment_heart');
+} 
+
+/**
+ * Decrement hearts (unlike) for a card. Returns new heart count.
+ */
+export async function decrementHeart(cardId: string): Promise<number> {
+  const { data, error } = await supabase.rpc('decrement_heart', { card_id: cardId });
+  if (error) throw error;
+  if (import.meta.env.DEV) console.debug('[decrementHeart] RPC raw data:', data);
+
+  if (typeof data === 'number') return data;
+  if (Array.isArray(data) && data.length === 1 && typeof data[0] === 'number') return data[0] as number;
+  const maybeObj = Array.isArray(data) ? data[0] : data;
+  if (maybeObj && typeof maybeObj === 'object') {
+    if ('new_hearts' in maybeObj) return (maybeObj as any).new_hearts as number;
+    if ('hearts' in maybeObj) return (maybeObj as any).hearts as number;
+    const numProp = Object.values(maybeObj).find((v) => typeof v === 'number');
+    if (typeof numProp === 'number') return numProp;
+  }
+  throw new Error('Unexpected response from decrement_heart');
+} 
+
+/**
+ * Get total number of shared ending cards.
+ */
+export async function getSharedCardsCount(): Promise<number> {
+  const { count, error } = await supabase
+    .from('ending_cards')
+    .select('id', { count: 'exact', head: true })
+    .eq('share_ok', true);
+  if (error) throw error;
+  return count ?? 0;
 } 

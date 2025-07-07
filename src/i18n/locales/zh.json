@@ -241,7 +241,7 @@
     "cancel": "取消",
     "continueAndPay": "继续支付",
     "processing": "处理中...",
-    "creditsFound": "您有 {{count}} 个积分，可立即生成图片。",
+    "creditsFound": "您有 {{count}} 个积分，可立即生成娃的图片。",
     "noCreditsFound": "没有找到积分，请捐赠以获得积分。",
     "checkCreditsFailed": "查询积分失败",
     "emailReceiptCopy": "邮箱以接受收据和并未来继续使用生图功能",
@@ -255,7 +255,10 @@
     "cool": "酷炫"
   },
   "gallery": {
-    "otherKids": "其他孩子",
-    "noImages": "暂时还没有分享的照片，快来养育一个孩子并分享吧！"
+    "otherKids": "画廊：看看别人晒的娃",
+    "proudKids": "别人家晒的娃",
+    "seeMore": "查看更多 »",
+    "noImages": "还没有分享的图片。成为第一个养育孩子到18岁并分享的人！",
+    "raiseBaby": "我也想养育一个宝宝！"
   }
 } 

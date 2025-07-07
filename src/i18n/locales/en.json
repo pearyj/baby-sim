@@ -260,7 +260,10 @@
     "cool": "Thrilling"
   },
   "gallery": {
-    "otherKids": "Other Kids",
-    "noImages": "No shared images yet. Be the first to raise a kid to 18 and share!"
+    "otherKids": "Gallery: See the kids others raised",
+    "proudKids": "Proud kids others raised",
+    "seeMore": "See more »",
+    "noImages": "No shared images yet. Be the first to raise a kid to 18 and share!",
+    "raiseBaby": "I'd love to raise a baby too!"
   }
 } 
