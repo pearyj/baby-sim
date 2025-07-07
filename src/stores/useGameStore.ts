@@ -11,7 +11,6 @@ import type { GameState as ApiGameState, Player, Child, HistoryEntry, Question a
 import { clearState } from '../services/storageService'; // Keep clearState, remove loadState and saveState as they are used via storageService.* methods
 import type { GameStateToStore } from '../services/storageService'; // Import GameStateToStore as a type
 import logger from '../utils/logger';
-import { performanceMonitor } from '../utils/performanceMonitor';
 import i18n from '../i18n';
 import { track } from '@vercel/analytics';
 import { logEvent } from '../services/eventLogger';
@@ -274,14 +273,13 @@ const useGameStore = create<GameStoreState>((set, get) => {
       
       const startTime = Date.now(); // Record start time for the 2-second delay logic
 
-      // Start overall game initialization timing
-      performanceMonitor.startTiming('game-initialization-total', 'local', {
+      // Log game initialization start
+      logger.debug(`🚀 Starting game initialization`, {
         hasSpecialRequirements: !!options?.specialRequirements,
         hasPreloadedState: !!options?.preloadedState
       });
 
       // Reset to initializing state with empty values
-      performanceMonitor.timeSync('reset-game-state', 'local', () => {
         set(prevState => ({ 
           ...prevState, // Explicitly carry over previous state (including actions)
           gamePhase: 'initializing', 
@@ -304,7 +302,6 @@ const useGameStore = create<GameStoreState>((set, get) => {
           pendingChoice: null, // Make sure to clear pendingChoice as well
           isSingleParent: false, // Clear isSingleParent
         }));
-      });
       
       try {
         // Force a state update to ensure any components dependent on this state re-render
@@ -325,18 +322,11 @@ const useGameStore = create<GameStoreState>((set, get) => {
             streamingType: 'initial' as const
           }));
           
-          initialScenarioState = await performanceMonitor.timeAsync(
-            'generate-initial-state-streaming', 
-            'api', 
-            async () => {
-              // For now, use non-streaming version for initial state
-              return await gptService.generateInitialState({
-                specialRequirements: options?.specialRequirements,
-                preloadedState: options?.preloadedState
-              });
-            },
-            { isStreaming: true }
-          );
+          // For now, use non-streaming version for initial state
+          initialScenarioState = await gptService.generateInitialState({
+            specialRequirements: options?.specialRequirements,
+            preloadedState: options?.preloadedState
+          });
           
           // Clear streaming state
           set(prevState => ({ 
@@ -347,12 +337,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
           }));
         } else {
           // Use regular generation
-          initialScenarioState = await performanceMonitor.timeAsync(
-            'generate-initial-state', 
-            'api', 
-            () => gptService.generateInitialState(options),
-            { isPreloaded: !!options?.preloadedState }
-          );
+          initialScenarioState = await gptService.generateInitialState(options);
         }
 
         // If a preloaded state was used, ensure a minimum 2-second loading display
@@ -360,14 +345,12 @@ const useGameStore = create<GameStoreState>((set, get) => {
           const elapsedTime = Date.now() - startTime;
           const remainingTime = 2000 - elapsedTime;
           if (remainingTime > 0) {
-            await performanceMonitor.timeAsync('artificial-delay', 'local', async () => {
-              await new Promise(resolve => setTimeout(resolve, remainingTime));
-            }, { delayMs: remainingTime });
+            await new Promise(resolve => setTimeout(resolve, remainingTime));
           }
         }
 
         // Process the initial state (local processing)
-        const processedState = performanceMonitor.timeSync('process-initial-state', 'local', () => {
+        const processedState = (() => {
           // Use finance from the initial scenario state, or default to 5 for LLM-generated states
           const calculatedFinance = initialScenarioState.finance ?? 5;
 
@@ -407,25 +390,19 @@ const useGameStore = create<GameStoreState>((set, get) => {
             isEnding: false,
             showEndingSummary: false,
           };
-        });
+        })();
         
         // Update state
-        performanceMonitor.timeSync('update-state', 'local', () => {
-          set(prevState => ({ ...prevState, ...processedState }));
-        });
+        set(prevState => ({ ...prevState, ...processedState }));
         
         // Save to localStorage
-        performanceMonitor.timeSync('save-game-state', 'local', () => {
-          saveGameState(get());
-        });
+        saveGameState(get());
 
-        // End overall timing and print report
-        performanceMonitor.endTiming('game-initialization-total');
-        performanceMonitor.printReport();
+        // Log game initialization completion
+        logger.debug(`✅ Game initialization completed successfully`);
         
-      } catch (err) {
-        performanceMonitor.endTiming('game-initialization-total');
-        logger.error('Error initializing game in store:', err);
+              } catch (err) {
+          logger.error('Error initializing game in store:', err);
         const errorMessage = err instanceof Error ? err.message : 'Failed to initialize game data.';
         set(prevState => ({ 
           ...prevState,

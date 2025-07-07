@@ -2,7 +2,6 @@ import { API_CONFIG } from '../config/api';
 import { throttledFetch } from '../utils/throttledFetch';
 import type { Question, GameState } from '../types/game';
 import logger from '../utils/logger';
-import { performanceMonitor } from '../utils/performanceMonitor';
 import { makeStreamingJSONRequest } from './streamingService';
 import {
   generateSystemPrompt as generateSystemPromptI18n,
@@ -256,11 +255,7 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
   });
   logger.info("─────────────────────────────────────────────────────────────");
   
-  performanceMonitor.startTiming(`API-${provider.name}-request`, 'api', {
-    provider: provider.name,
-    model: provider.model,
-    messageCount: messages.length
-  });
+  logger.debug(`🚀 Starting API request to ${provider.name} (${provider.model})`);
   
   const cleanedMessages = JSON.parse(JSON.stringify(messages));
   
@@ -288,7 +283,6 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
 
     const responseText = await response.text();
     if (!response.ok) {
-      performanceMonitor.endTiming(`API-${provider.name}-request`);
       logger.error(`❌ Serverless API Error:`, response.status, responseText);
       throw new Error(`Failed serverless request: ${response.statusText || responseText}`);
     }
@@ -297,16 +291,14 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
     try {
       data = JSON.parse(responseText);
     } catch (e) {
-      performanceMonitor.endTiming(`API-${provider.name}-request`);
       logger.error(`Failed to parse serverless response as JSON: ${responseText}`);
       throw new Error(`Serverless function returned invalid JSON: ${e}`);
     }
     
-    performanceMonitor.endTiming(`API-${provider.name}-request`);
+    logger.debug(`✅ API request to ${provider.name} completed successfully`);
     
     return data as OpenAIResponse;
   } catch (error) {
-    performanceMonitor.endTiming(`API-${provider.name}-request`);
     logger.error(`❌ Exception in serverless API call:`, error);
     throw error;
   }
@@ -457,18 +449,16 @@ export const generateInitialState = async (
   const { specialRequirements, preloadedState } = options || {};
   
   if (preloadedState) {
-    return performanceMonitor.timeSync('generateInitialState-preloaded', 'local', () => {
-      logger.info("🔄 Using preloaded initial state:", preloadedState);
-      return {
-        ...preloadedState,
-        history: [],
-        currentQuestion: null,
-        feedbackText: null,
-        endingSummaryText: null,
-        finance: preloadedState.finance || 5,
-        isSingleParent: preloadedState.isSingleParent || false,
-      } as GameState;
-    });
+    logger.info("🔄 Using preloaded initial state:", preloadedState);
+    return {
+      ...preloadedState,
+      history: [],
+      currentQuestion: null,
+      feedbackText: null,
+      endingSummaryText: null,
+      finance: preloadedState.finance || 5,
+      isSingleParent: preloadedState.isSingleParent || false,
+    } as GameState;
   }
   
   return generateInitialStateSync(specialRequirements);
@@ -491,7 +481,7 @@ export const generateEnding = async (
 const generateQuestionSync = async (gameState: GameState): Promise<Question & { isExtremeEvent: boolean }> => {
   logger.info(`🚀 Function called: generateQuestion(child.age=${gameState.child.age})`);
   
-  return performanceMonitor.timeAsync('generateQuestion', 'api', async () => {
+  try {
     const systemPrompt = generateSystemPrompt();
     const userPrompt = generateQuestionPrompt(gameState, true);
     
@@ -528,9 +518,7 @@ const generateQuestionSync = async (gameState: GameState): Promise<Question & { 
       
       logger.info('📄 API response content (question):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
       
-      const result = performanceMonitor.timeSync('safeJsonParse-question', 'local', () => {
-        return safeJsonParse(content);
-      });
+      const result = safeJsonParse(content);
       
       // 🐛 LOG PARSED RESULT (development only)
       if (import.meta.env.DEV) {
@@ -560,7 +548,10 @@ const generateQuestionSync = async (gameState: GameState): Promise<Question & { 
       logger.error('❌ Error generating question:', error);
       throw error;
     }
-  });
+  } catch (error) {
+    logger.error('❌ Error generating question:', error);
+    throw error;
+  }
 };
 
 const generateOutcomeAndNextQuestionSync = async (
@@ -576,7 +567,7 @@ const generateOutcomeAndNextQuestionSync = async (
   
   const shouldGenerateNextQuestion = gameState.child.age < 17;
   
-  return performanceMonitor.timeAsync('generateOutcomeAndNextQuestion', 'api', async () => {
+  try {
     const systemPrompt = generateSystemPrompt();
     const userPrompt = generateOutcomeAndNextQuestionPrompt(gameState, question, choice, shouldGenerateNextQuestion);
     
@@ -617,9 +608,7 @@ const generateOutcomeAndNextQuestionSync = async (
       
       logger.info('📄 API response content (outcome):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
       
-      const result = performanceMonitor.timeSync('safeJsonParse-outcome', 'local', () => {
-        return safeJsonParse(content);
-      });
+      const result = safeJsonParse(content);
       
       // 🐛 LOG PARSED RESULT (development only)
       if (import.meta.env.DEV) {
@@ -661,7 +650,10 @@ const generateOutcomeAndNextQuestionSync = async (
       logger.error('❌ Error generating outcome and next question:', error);
       throw error;
     }
-  });
+  } catch (error) {
+    logger.error('❌ Error generating outcome and next question:', error);
+    throw error;
+  }
 };
 
 const generateInitialStateSync = async (specialRequirements?: string): Promise<GameState> => {
@@ -670,7 +662,7 @@ const generateInitialStateSync = async (specialRequirements?: string): Promise<G
   // Store the special requirements so subsequent prompts include them
   setSpecialRequirements(specialRequirements);
   
-  return performanceMonitor.timeAsync('generateInitialState-full', 'api', async () => {
+  try {
     const messages: ChatMessage[] = [
       { role: 'system', content: generateSystemPrompt() },
       { role: 'user', content: generateInitialStatePrompt(specialRequirements) }
@@ -685,20 +677,21 @@ const generateInitialStateSync = async (specialRequirements?: string): Promise<G
       const content = data.choices[0].message.content;
       logger.info('📄 API response content (initial state):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
       
-      return performanceMonitor.timeSync('safeJsonParse-initialState', 'local', () => {
-        return safeJsonParse(content);
-      });
+      return safeJsonParse(content);
     } catch (error) {
       logger.error('❌ Error generating initial state:', error);
       throw error;
     }
-  });
+  } catch (error) {
+    logger.error('❌ Error generating initial state:', error);
+    throw error;
+  }
 };
 
 const generateEndingSync = async (gameState: GameState): Promise<string> => {
   logger.info("🚀 Function called: generateEnding()");
   
-  return performanceMonitor.timeAsync('generateEnding', 'api', async () => {
+  try {
     const messages: ChatMessage[] = [
       { role: 'system', content: generateSystemPrompt() },
       { role: 'user', content: generateEndingPrompt(gameState) }
@@ -713,16 +706,17 @@ const generateEndingSync = async (gameState: GameState): Promise<string> => {
       const content = data.choices[0].message.content;
       logger.info('📄 API response content (ending):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
       
-      const result = performanceMonitor.timeSync('safeJsonParse-ending', 'local', () => {
-        return safeJsonParse(content);
-      });
+      const result = safeJsonParse(content);
       
       return formatEndingResult(result);
     } catch (error) {
       logger.error('❌ Error generating ending:', error);
       throw error;
     }
-  });
+  } catch (error) {
+    logger.error('❌ Error generating ending:', error);
+    throw error;
+  }
 };
 
 // Streaming implementations

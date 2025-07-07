@@ -1,7 +1,6 @@
 import { API_CONFIG } from '../config/api';
 import type { GameState } from '../types/game';
 import logger from '../utils/logger';
-import { performanceMonitor } from '../utils/performanceMonitor';
 import { isSupportedLanguage, type SupportedLanguage } from '../utils/languageDetection';
 import i18n from '../i18n';
 
@@ -390,44 +389,42 @@ export const generateEndingImage = async (
 ): Promise<ImageGenerationResult> => {
   logger.info("🎨 Starting image generation for ending card");
   
-  return performanceMonitor.timeAsync('generateEndingImage', 'api', async () => {
-    try {
-      // Validate options first
-      if (!validateImageGenerationOptions(options)) {
-        logger.error("❌ Invalid image generation options provided");
-        return {
-          success: false,
-          error: 'Invalid image generation options'
-        };
-      }
-      
-      // Generate the image prompt
-      const prompt = generateImagePrompt(gameState, endingSummary, options);
-      
-      // Debug log the full prompt for debugging purposes
-      logger.debugImagePrompt(prompt, options);
-      
-      // Regular info log with truncated prompt for normal logging
-      logger.info("📝 Generated image prompt:", prompt.substring(0, 200) + "...");
-      
-      // Make the API request
-      const result = await makeImageGenerationRequest(prompt, options);
-      
-      if (result.success) {
-        logger.info("✅ Image generation successful");
-      } else {
-        logger.error("❌ Image generation failed:", result.error);
-      }
-      
-      return result;
-    } catch (error) {
-      logger.error('❌ Error in generateEndingImage:', error);
+  try {
+    // Validate options first
+    if (!validateImageGenerationOptions(options)) {
+      logger.error("❌ Invalid image generation options provided");
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
+        error: 'Invalid image generation options'
       };
     }
-  });
+    
+    // Generate the image prompt
+    const prompt = generateImagePrompt(gameState, endingSummary, options);
+    
+    // Debug log the full prompt for debugging purposes
+    logger.debugImagePrompt(prompt, options);
+    
+    // Regular info log with truncated prompt for normal logging
+    logger.info("📝 Generated image prompt:", prompt.substring(0, 200) + "...");
+    
+    // Make the API request
+    const result = await makeImageGenerationRequest(prompt, options);
+    
+    if (result.success) {
+      logger.info("✅ Image generation successful");
+    } else {
+      logger.error("❌ Image generation failed:", result.error);
+    }
+    
+    return result;
+  } catch (error) {
+    logger.error('❌ Error in generateEndingImage:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+  }
 };
 
 /**

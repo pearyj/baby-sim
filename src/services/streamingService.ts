@@ -1,5 +1,4 @@
 import logger from '../utils/logger';
-import { performanceMonitor } from '../utils/performanceMonitor';
 import { getActiveProvider, type ModelProvider } from './gptServiceUnified';
 import { API_CONFIG } from '../config/api';
 import { throttledFetch } from '../utils/throttledFetch';
@@ -36,12 +35,8 @@ export const makeStreamingRequest = async (
   logger.debug(`📤 makeStreamingRequest called! Provider: ${provider.name}, Model: ${provider.model}`);
   logger.info(`📤 Sending streaming API request to ${provider.name} provider using ${provider.model}`);
   
-  // Start timing the API request
-  performanceMonitor.startTiming(`Streaming-API-${provider.name}-request`, 'api', {
-    provider: provider.name,
-    model: provider.model,
-    messageCount: messages.length
-  });
+  // Log the API request start
+  logger.debug(`🚀 Starting streaming API request to ${provider.name} (${provider.model})`);
 
   // Deep clone messages to avoid reference issues
   const cleanedMessages = JSON.parse(JSON.stringify(messages));
@@ -71,7 +66,6 @@ export const makeStreamingRequest = async (
     });
 
     if (!response.ok) {
-      performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
       const errorText = await response.text();
       logger.error(`❌ Streaming Serverless API Error:`, response.status, errorText);
       throw new Error(`Failed streaming serverless request: ${response.statusText || errorText}`);
@@ -138,7 +132,7 @@ export const makeStreamingRequest = async (
         }
       }
       
-      performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
+      logger.debug(`✅ Streaming API request to ${provider.name} completed successfully`);
       
       // Notify listeners that the stream has finished
       if (options.onChunk) {
@@ -152,7 +146,6 @@ export const makeStreamingRequest = async (
     }
     
   } catch (error) {
-    performanceMonitor.endTiming(`Streaming-API-${provider.name}-request`);
     logger.error(`❌ Exception in streaming serverless API call:`, error);
     
     if (error instanceof Error) {

@@ -17,7 +17,6 @@ import './App.css'
 import useGameStore from './stores/useGameStore'
 import { useGameFlow } from './hooks/useGameFlow'
 import logger from './utils/logger'
-import { performanceMonitor } from './utils/performanceMonitor'
 import { checkAllPrompts, testPromptGeneration } from './utils/promptChecker'
 import { useEffect } from 'react'
 import { ShareableEndingCard } from './components/ShareableEndingCard'
@@ -28,7 +27,6 @@ import { TimelineProvider } from './features/timeline/TimelineProvider'
 import { Header } from './components/layout/Header'
 import { InfoPage } from './pages/InfoPage'
 import { StreamingTextDisplay } from './components/ui/StreamingTextDisplay'
-import { PerformanceMonitor } from './components/dev/PerformanceMonitor'
 import { DebugNumericalValues } from './components/dev/DebugNumericalValues'
 import { FeedbackButton } from './components/ui/FeedbackButton'
 import { AdTestPage } from './pages/AdTestPage'
@@ -227,7 +225,6 @@ function App() {
   }
 
   const renderMainContent = () => {
-    return performanceMonitor.timeSync('render-main-content', 'ui', () => {
       if (gamePhase === 'initializing') {
         return (
           <LoadingCard>
@@ -476,7 +473,6 @@ function App() {
           </CardContent>
         </LoadingCard>
       );
-    }, { gamePhase, isLoading });
   };
 
   return (
@@ -539,9 +535,6 @@ function App() {
         </MainContentArea>
       </ContentArea>
       <FeedbackButton />
-      
-      {/* Show performance monitor in development mode */}
-      {isDevelopment && <PerformanceMonitor />}
       
       {/* Show debug numerical values in development mode */}
       {isDevelopment && <DebugNumericalValues />}
