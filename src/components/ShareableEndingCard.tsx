@@ -266,6 +266,7 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
             imageBase64: imageResult.imageBase64,
             imageUrl: imageResult.imageUrl,
             shareOk: false,
+            childName: childName,
           });
         } catch (err) {
           console.error('Failed to save ending card to Supabase', err);

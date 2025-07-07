@@ -57,6 +57,7 @@ export interface SaveEndingCardOptions {
   imageBase64?: string; // If the API returned base64 string.
   imageUrl?: string;    // If already uploaded elsewhere.
   shareOk?: boolean;
+  childName?: string;   // Child's name to store in the database
 }
 
 /**
@@ -68,6 +69,7 @@ export const saveEndingCard = async ({
   imageBase64,
   imageUrl,
   shareOk = false,
+  childName,
 }: SaveEndingCardOptions): Promise<{ success: boolean; id?: string; error?: string }> => {
   try {
     // 1. Parse summary sections.
@@ -113,6 +115,7 @@ export const saveEndingCard = async ({
       outlook: futureOutlook,
       image_path: storageKey,
       share_ok: shareOk,
+      child_name: childName,
     });
 
     if (insertErr) throw insertErr;

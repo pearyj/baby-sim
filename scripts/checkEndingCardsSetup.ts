@@ -47,6 +47,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     outlook: 'test',
     image_path: objectKey,
     share_ok: false,
+    child_name: 'test',
   });
   if (insertErr) {
     console.error('❌ Insert failed:', insertErr);
