@@ -20,7 +20,12 @@ function shuffleArray<T>(array: T[]): T[] {
     .map(({ value }) => value);
 }
 
-const GalleryCarousel: React.FC = () => {
+interface GalleryCarouselProps {
+  /** Optional title to override the default heading text. */
+  title?: string;
+}
+
+const GalleryCarousel: React.FC<GalleryCarouselProps> = ({ title }) => {
   const { t } = useTranslation();
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,7 +87,7 @@ const GalleryCarousel: React.FC = () => {
       {/* Title row */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, px: 0.5 }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main', textAlign: 'left' }}>
-          {t('gallery.proudKids')}
+          {title ?? t('gallery.proudKids')}
         </Typography>
         <Link
           component="button"

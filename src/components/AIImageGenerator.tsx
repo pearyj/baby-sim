@@ -57,19 +57,20 @@ const GenerateButton = styled(Button)(({ theme }) => ({
   fontWeight: 600,
   textTransform: 'none',
   minHeight: 48,
-  background: 'linear-gradient(45deg, #8D6E63 30%, #5D4037 90%)',
-  color: 'white',
+  background: 'linear-gradient(45deg, #FF8A5B 30%, #FF6B35 90%)',
+  color: '#fff',
+  boxShadow: '0 4px 12px rgba(255, 107, 53, 0.4)',
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   '&:hover': {
-    background: 'linear-gradient(45deg, #5D4037 30%, #3E2723 90%)',
+    background: 'linear-gradient(45deg, #FF6B35 30%, #E55A2B 90%)',
     transform: 'translateY(-2px)',
-    boxShadow: '0 4px 20px rgba(93, 64, 55, 0.4)',
+    boxShadow: '0 6px 24px rgba(229, 90, 43, 0.5)',
   },
   '&:active': {
     transform: 'translateY(0)',
   },
   '&:disabled': {
-    background: 'rgba(139, 69, 19, 0.3)',
+    background: 'rgba(255, 107, 53, 0.3)',
     color: 'rgba(255, 255, 255, 0.7)',
   },
 }));

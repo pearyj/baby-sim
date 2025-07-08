@@ -22,6 +22,8 @@ import type { InitialStateType } from '../services/gptServiceUnified';
 import logger from '../utils/logger';
 import pregenStatesZh from '../i18n/pregen/zh.json';
 import pregenStatesEn from '../i18n/pregen/en.json';
+import pregenStatesJa from '../i18n/pregen/ja.json';
+import pregenStatesEs from '../i18n/pregen/es.json';
 import { track } from '@vercel/analytics';
 import { useNavigate } from 'react-router-dom';
 import { setGameStyle as setGPTGameStyle } from '../services/gptServiceUnified';
@@ -152,7 +154,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
         logger.info("No special requirements, loading pre-generated states...");
         
         // Get current language from i18n
-        const currentLanguage = t('language.code'); // This should return 'zh' or 'en'
+        const currentLanguage = t('language.code'); // This should return 'zh', 'en', 'ja', or 'es'
         
         // Select the appropriate pre-generated states based on language
         let states: InitialStateType[];
@@ -161,6 +163,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
         if (currentLanguage === 'zh') {
           states = pregenStatesZh as InitialStateType[];
           logger.info("Using Chinese pre-generated states");
+        } else if (currentLanguage === 'ja') {
+          states = pregenStatesJa as InitialStateType[];
+          logger.info("Using Japanese pre-generated states");
+        } else if (currentLanguage === 'es') {
+          states = pregenStatesEs as InitialStateType[];
+          logger.info("Using Spanish pre-generated states");
         } else if (currentLanguage === 'en') {
           // Check if English states have actual content (not just placeholders)
           const hasRealContent = pregenStatesEn.some(state => 
@@ -177,10 +185,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
             logger.info("English states not ready, falling back to Chinese states");
           }
         } else {
-          // Default fallback to Chinese for any other language
-          states = pregenStatesZh as InitialStateType[];
+          // Default fallback to English for any other language
+          states = pregenStatesEn as InitialStateType[];
           fallbackUsed = true;
-          logger.info(`Unknown language ${currentLanguage}, falling back to Chinese states`);
+          logger.info(`Unknown language ${currentLanguage}, falling back to English states`);
         }
         
         // Final fallback to fetch original file if imported states are empty or invalid
@@ -455,22 +463,20 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                     >
                       {t('welcome.parentGenderDad')}
                     </Button>
-                    {/* Show non-binary option only for English */}
-                    {i18n.language === 'en' && (
-                      <Button
-                        key="nonBinary"
-                        variant={parentGender === 'nonBinary' ? 'contained' : 'outlined'}
-                        color={parentGender === 'nonBinary' ? 'primary' : 'inherit'}
-                        onClick={() => setParentGender('nonBinary')}
-                        sx={{ 
-                          fontSize: { xs: '0.8rem', sm: '0.875rem' },
-                          borderRadius: { xs: '12px', sm: '8px' },
-                          px: { xs: 1.5, sm: 2 }
-                        }}
-                      >
-                        {t('welcome.parentGenderNonBinary')}
-                      </Button>
-                    )}
+                    {/* Show non-binary option for all languages */}
+                    <Button
+                      key="nonBinary"
+                      variant={parentGender === 'nonBinary' ? 'contained' : 'outlined'}
+                      color={parentGender === 'nonBinary' ? 'primary' : 'inherit'}
+                      onClick={() => setParentGender('nonBinary')}
+                      sx={{ 
+                        fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                        borderRadius: { xs: '12px', sm: '8px' },
+                        px: { xs: 1.5, sm: 2 }
+                      }}
+                    >
+                      {t('welcome.parentGenderNonBinary')}
+                    </Button>
                   </Stack>
                 </Box>
                 

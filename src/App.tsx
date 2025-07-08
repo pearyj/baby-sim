@@ -35,6 +35,7 @@ import { AdTestPage } from './pages/AdTestPage'
 import { PaymentTestPage } from './pages/PaymentTestPage'
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
 import { GalleryPage } from './pages/GalleryPage';
+import GalleryCarousel from './components/GalleryCarousel';
 
 const MainContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
@@ -355,14 +356,36 @@ function App() {
                         endingSummaryText: endingSummaryText || null
                       } : undefined}
                     />
+
+                    {/* Carousel showing community images with custom heading */}
+                    <Box sx={{ mt: 6 }}>
+                      <GalleryCarousel
+                        title={t('messages.shareCarouselHeading', {
+                          childName: child?.name || t('game.childName'),
+                        })}
+                      />
+                    </Box>
                     
-                    <Box sx={{ mt: 3, textAlign: 'center' }}>
+                    <Box sx={{ mt: 5, textAlign: 'center' }}>
                       <Button
                         onClick={(e) => { e.preventDefault(); resetToWelcome(); }}
                         variant="contained"
-                        color="primary"
                         size="large"
-                        sx={{ py: 1.5, fontSize: '1.1rem', minWidth: 200 }}
+                        sx={{
+                          py: 1.5,
+                          fontSize: '1.1rem',
+                          minWidth: 200,
+                          background: 'linear-gradient(45deg, #8D6E63 30%, #5D4037 90%)',
+                          color: '#fff',
+                          '&:hover': {
+                            background: 'linear-gradient(45deg, #5D4037 30%, #3E2723 90%)',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 20px rgba(93, 64, 55, 0.4)',
+                          },
+                          '&:active': {
+                            transform: 'translateY(0)',
+                          },
+                        }}
                       >
                         {t('actions.restartNewJourney')}
                       </Button>

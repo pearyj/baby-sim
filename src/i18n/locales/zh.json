@@ -170,7 +170,8 @@
     "listenToChild": "耐心倾听并理解孩子的需求",
     "giveGuidance": "给予适当的引导和建议",
     "encourageThinking": "鼓励孩子独立思考解决问题",
-    "errorGeneratingSummary": "错误：无法生成摘要。"
+    "errorGeneratingSummary": "错误：无法生成摘要。",
+    "shareCarouselHeading": "{{childName}}这么可爱，生张图晒晒吧！"
   },
   "share": {
     "title": "我在《养娃模拟器》把{{childName}}养到18岁啦！",

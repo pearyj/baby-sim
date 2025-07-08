@@ -173,7 +173,8 @@
     "listenToChild": "Listen patiently and understand the child's needs",
     "giveGuidance": "Provide appropriate guidance and advice",
     "encourageThinking": "Encourage the child to think and solve problems independently",
-    "errorGeneratingSummary": "Error: Could not generate summary."
+    "errorGeneratingSummary": "Error: Could not generate summary.",
+    "shareCarouselHeading": "Join others in showing how amazing {{childName}} is with an image!"
   },
   "share": {
     "title": "I've raised {{childName}} to 18 at the Baby Simulator!",
