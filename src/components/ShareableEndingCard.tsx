@@ -11,9 +11,10 @@ import {
   Alert,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Download, Share } from '@mui/icons-material';
+import { Download, Share, ContentCopy } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
+import { formatJourneyText } from '../utils/formatJourney';
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
 import { track } from '@vercel/analytics';
@@ -33,7 +34,7 @@ interface ShareableEndingCardProps {
 
 // Utility function to remove story_style comments from display text
 const cleanEndingSummaryForDisplay = (text: string): string => {
-  return text.replace(/<!--\s*story_style:\s*[^>]+?-->/gi, '').trim();
+  return text.replace(/<!--\s*story_style:\s*[^>]*?-->/gi, '').trim();
 };
 
 const ShareableCard = styled(Card)(({ theme }) => ({
@@ -219,11 +220,15 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
   };
 
   const handleShare = async () => {
+    // Clean the ending summary for sharing (remove markdown)
+    const cleanedSummary = cleanEndingSummaryForDisplay(endingSummaryText || '');
+    const shareText = `${cleanedSummary}\n\n${t('share.text', { childName })}`;
+    
     if (navigator.share) {
       try {
         await navigator.share({
           title: t('share.title', { childName }),
-          text: t('share.text', { childName }),
+          text: shareText,
           url: 'https://babysim.fun', // Provide explicit URL to enable rich preview
         });
       } catch (error) {
@@ -232,7 +237,6 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
     } else {
       // Fallback: copy URL to clipboard
       try {
-        const shareText = t('share.text', { childName });
         await navigator.clipboard.writeText(shareText);
         setSnackbar({
           open: true,
@@ -244,6 +248,40 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
       }
     }
   };
+
+  // ───────────────────────────────────────────
+  // COPY JOURNEY TEXT HANDLER
+  // ───────────────────────────────────────────
+  const handleCopy = async () => {
+    try {
+      if (!gameState) {
+        throw new Error('No game state found')
+      }
+      const text = formatJourneyText(
+        gameState.history || [],
+        endingSummaryText,
+        t,
+        {
+          playerDescription: playerDescription,
+          childDescription: childDescription,
+          childName: childName,
+        }
+      )
+      await navigator.clipboard.writeText(text)
+      setSnackbar({
+        open: true,
+        message: t('messages.copySuccess'),
+        severity: 'success',
+      })
+    } catch (error) {
+      console.error('Error copying journey text:', error)
+      setSnackbar({
+        open: true,
+        message: t('messages.copyError'),
+        severity: 'error',
+      })
+    }
+  }
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
@@ -281,6 +319,11 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
           <Tooltip title="Download as Image">
             <ActionButton onClick={handleDownload} size="small">
               <Download />
+            </ActionButton>
+          </Tooltip>
+          <Tooltip title={t('actions.copyJourney')}>
+            <ActionButton onClick={handleCopy} size="small">
+              <ContentCopy />
             </ActionButton>
           </Tooltip>
           <Tooltip title="Share">
@@ -437,6 +480,34 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
           <PromotionText className="show-in-export-only" sx={{ display: 'none' }}>
             {t('messages.sharePromotionText')}
           </PromotionText>
+
+          {/* Bottom share prompt & action buttons (hidden in export) */}
+          <Box className="hide-in-export" sx={{ mt: 4, textAlign: 'center' }}>
+            <Typography variant="subtitle1" sx={{ 
+              mb: 2, 
+              fontWeight: 600, 
+              color: 'white !important',
+            }}>
+              {t('messages.sharePrompt')}
+            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+              <Tooltip title={t('actions.copyJourney')}>
+                <ActionButton onClick={handleCopy} size="medium">
+                  <ContentCopy />
+                </ActionButton>
+              </Tooltip>
+              <Tooltip title="Download as Image">
+                <ActionButton onClick={handleDownload} size="medium">
+                  <Download />
+                </ActionButton>
+              </Tooltip>
+              <Tooltip title="Share">
+                <ActionButton onClick={handleShare} size="medium">
+                  <Share />
+                </ActionButton>
+              </Tooltip>
+            </Box>
+          </Box>
         </CardContent>
       </ShareableCard>
 

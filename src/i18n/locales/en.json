@@ -50,7 +50,7 @@
     "readyToBegin": "Are you ready to begin this journey?",
     "currentAge": "Current Age",
     "situation": "Situation:",
-    "result": "Result:",
+    "result": "Result",
     "growthStage": "Growth Stage",
     "sponsored": "Sponsored",
     "adPlaceholder": "Advertisement Space"
@@ -120,7 +120,9 @@
     "testEnding": "(Dev) Test Ending Page",
     "testAdTimeline": "(Dev) Test Ad Timeline",
     "chooseGameStyle": "Choose a Style",
-    "selectThisOption": "I'll do this"
+    "selectThisOption": "I'll do this",
+    "selectedThisOption": "I did this",
+    "copyJourney": "Copy journey as text"
   },
   "header": {
     "title": "The Baby Simulator",
@@ -144,6 +146,8 @@
     "gameStateUnclear": "Please wait, game state ({{gamePhase}}) is not clearly handled.",
     "continueError": "Sorry, there was a problem continuing the game.",
     "sharePromotionText": "Raise your own baby at babysim.fun!",
+    "sharePrompt": "Share My Journey",
+    "myBackground": "My background",
     "downloadingImage": "Downloading image...",
     "downloadComplete": "Image downloaded successfully!",
     "downloadError": "Failed to download image. Please try again.",
@@ -151,7 +155,10 @@
     "generatingImage": "Generating {{childName}}'s image...",
     "imageGenerated": "Image generated successfully!",
     "imageGenerationFailed": "Failed to generate image. Please try again.",
-    "imageGenerationOptional": "Optional: Generate a personalized AI image for your journey",
+    "imageGenerationOptional": "Generate a personalized AI image for my baby",
+    "copySuccess": "Copied to clipboard!",
+    "copyError": "Copy failed. Please try again.",
+    "noRecordForYear": "(no record for this year)",
     "artStylePlaceholder": "Watercolor",
     "checkingCredits": "Checking credits…",
     "supportSimulator": "See {{childName}} in a photo",
@@ -170,7 +177,7 @@
   },
   "share": {
     "title": "I've raised {{childName}} to 18 at the Baby Simulator!",
-    "text": "I've raised {{childName}} to year 18 and {{childName}} turned out great! Join me and try raising a baby yourself at babysim.fun!",
+    "text": "Join me and try raising a baby yourself at https://babysim.fun!",
     "linkCopied": "Share text copied to clipboard!"
   },
   "welcome": {

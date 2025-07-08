@@ -117,7 +117,9 @@
     "loading": "加载中...",
     "testEnding": "(Dev) Test Ending Page",
     "chooseGameStyle": "选择游戏风格",
-    "selectThisOption": "选择这个方案"
+    "selectThisOption": "选择这个方案",
+    "selectedThisOption": "我选择了这个方案",
+    "copyJourney": "复制成长历程文本"
   },
   "header": {
     "title": "养娃模拟器",
@@ -141,6 +143,8 @@
     "gameStateUnclear": "请稍候，游戏状态 ({{gamePhase}}) 未明确处理。",
     "continueError": "很抱歉，继续游戏时遇到问题。",
     "sharePromotionText": "来babysim.fun亲自养娃👶",
+    "sharePrompt": "分享我的养娃历程",
+    "myBackground": "我的背景",
     "downloadingImage": "正在下载图片...",
     "downloadComplete": "图片下载成功！",
     "downloadError": "下载图片失败，请重试。",
@@ -148,7 +152,10 @@
     "generatingImage": "正在为{{childName}}生成图片...",
     "imageGenerated": "图片生成成功！",
     "imageGenerationFailed": "图片生成失败，请重试。",
-    "imageGenerationOptional": "可选：为您的养育之旅生成个性化AI图片",
+    "imageGenerationOptional": "为我娃生成AI毕业照",
+    "copySuccess": "已复制！",
+    "copyError": "复制失败，请重试。",
+    "noRecordForYear": "（该年无记录）",
     "artStylePlaceholder": "水彩画",
     "checkingCredits": "检查积分中…",
     "supportSimulator": "生成{{childName}}的照片",
@@ -167,7 +174,7 @@
   },
   "share": {
     "title": "我在《养娃模拟器》把{{childName}}养到18岁啦！",
-    "text": "我把{{childName}}养到了18岁，{{childName}}太棒了！来babysim.fun亲自体验养娃吧！",
+    "text": "来babysim.fun亲自体验养娃吧！",
     "linkCopied": "已复制分享文本"
   },
   "welcome": {
