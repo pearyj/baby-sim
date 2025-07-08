@@ -34,8 +34,7 @@ export const InfiniteGallery: React.FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
-  const lgUp = useMediaQuery(theme.breakpoints.up('lg'));
-  const cols = lgUp ? 4 : mdUp ? 3 : 2;
+  const cols = mdUp ? 3 : 2;
 
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [offset, setOffset] = useState<number | null>(null);

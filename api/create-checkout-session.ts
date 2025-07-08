@@ -56,14 +56,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let paymentMethodOptions: any = undefined;
     
     if (currency === 'USD') {
-      // For USD (English users)
-      if (isMobile) {
-        // Mobile English users: Apple Pay first, then card
-        paymentMethodTypes = ['apple_pay', 'card'];
-      } else {
-        // Desktop English users: card only
-        paymentMethodTypes = ['card'];
-      }
+      // For USD (English users) – Stripe Checkout automatically supports Apple Pay when using the "card" type, so just specify "card".
+      paymentMethodTypes = ['card'];
     } else {
       // For RMB (Chinese users) — support Apple Pay (via card), WeChat Pay, and Alipay
 
