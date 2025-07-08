@@ -1,16 +1,16 @@
 /**
  * Language detection utility for the Baby Raising Simulator
  * Implements the requirement: "Defaults to the system language of the user for both the prompt and the interface. 
- * If the user uses a different language from ZH or EN, default to EN."
+ * If the user uses a different language from supported languages, default to EN."
  */
 
 import logger from './logger';
 
-export type SupportedLanguage = 'zh' | 'en';
+export type SupportedLanguage = 'zh' | 'en' | 'ja' | 'es';
 
 /**
  * Get the user's system language and apply fallback logic
- * @returns The language code to use ('zh' or 'en')
+ * @returns The language code to use ('zh', 'en', 'ja', or 'es')
  */
 export const detectSystemLanguage = (): SupportedLanguage => {
   try {
@@ -26,6 +26,18 @@ export const detectSystemLanguage = (): SupportedLanguage => {
     if (normalizedLanguage === 'zh' || systemLanguage.toLowerCase().includes('zh')) {
       logger.info('Using Chinese (zh) based on system language');
       return 'zh';
+    }
+    
+    // Check if the system language is Japanese
+    if (normalizedLanguage === 'ja' || systemLanguage.toLowerCase().includes('ja')) {
+      logger.info('Using Japanese (ja) based on system language');
+      return 'ja';
+    }
+    
+    // Check if the system language is Spanish
+    if (normalizedLanguage === 'es' || systemLanguage.toLowerCase().includes('es')) {
+      logger.info('Using Spanish (es) based on system language');
+      return 'es';
     }
     
     // Check if the system language is English
@@ -48,13 +60,13 @@ export const detectSystemLanguage = (): SupportedLanguage => {
 /**
  * Get the preferred language with fallback logic
  * Priority: localStorage > system language > English
- * @returns The language code to use ('zh' or 'en')
+ * @returns The language code to use ('zh', 'en', 'ja', or 'es')
  */
 export const getPreferredLanguage = (): SupportedLanguage => {
   try {
     // First check if user has a saved preference
     const savedLanguage = localStorage.getItem('i18nextLng');
-    if (savedLanguage && (savedLanguage === 'zh' || savedLanguage === 'en')) {
+    if (savedLanguage && (savedLanguage === 'zh' || savedLanguage === 'en' || savedLanguage === 'ja' || savedLanguage === 'es')) {
       logger.info(`Using saved language preference: ${savedLanguage}`);
       return savedLanguage as SupportedLanguage;
     }
@@ -74,7 +86,7 @@ export const getPreferredLanguage = (): SupportedLanguage => {
  * @returns True if the language is supported
  */
 export const isSupportedLanguage = (language: string): language is SupportedLanguage => {
-  return language === 'zh' || language === 'en';
+  return language === 'zh' || language === 'en' || language === 'ja' || language === 'es';
 };
 
 /**
@@ -88,6 +100,10 @@ export const getLanguageDisplayName = (language: SupportedLanguage): string => {
       return '中文';
     case 'en':
       return 'English';
+    case 'ja':
+      return '日本語';
+    case 'es':
+      return 'Español';
     default:
       return 'English';
   }
@@ -104,6 +120,10 @@ export const getLanguageFlag = (language: SupportedLanguage): string => {
       return '🇨🇳';
     case 'en':
       return '🇺🇸';
+    case 'ja':
+      return '🇯🇵';
+    case 'es':
+      return '🇪🇸';
     default:
       return '🇺🇸';
   }

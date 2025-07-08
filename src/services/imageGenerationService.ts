@@ -8,10 +8,12 @@ import i18n from '../i18n';
 // Import prompt files
 import zhPrompts from '../i18n/prompts/zh.json';
 import enPrompts from '../i18n/prompts/en.json';
+import jaPrompts from '../i18n/prompts/ja.json';
+import esPrompts from '../i18n/prompts/es.json';
 
 // Security: Maximum length for custom art style to prevent jailbreaking (language-specific)
 const getMaxCustomArtStyleLength = (language: SupportedLanguage): number => {
-  return language === 'zh' ? 30 : 60; // 30 for Chinese, 60 for English
+  return language === 'zh' ? 30 : 60; // 30 for Chinese, 60 for others
 };
 
 type PromptResources = {
@@ -20,7 +22,9 @@ type PromptResources = {
 
 const promptResources: PromptResources = {
   zh: zhPrompts,
-  en: enPrompts
+  en: enPrompts,
+  ja: jaPrompts,
+  es: esPrompts
 };
 
 // Image generation interfaces

@@ -7,8 +7,12 @@ import logger from '../utils/logger';
 // Import translation files
 import enTranslations from './locales/en.json';
 import zhTranslations from './locales/zh.json';
+import jaTranslations from './locales/ja.json';
+import esTranslations from './locales/es.json';
 import enPrompts from './prompts/en.json';
 import zhPrompts from './prompts/zh.json';
+import jaPrompts from './prompts/ja.json';
+import esPrompts from './prompts/es.json';
 
 const resources = {
   en: {
@@ -18,6 +22,14 @@ const resources = {
   zh: {
     translation: zhTranslations,
     prompts: zhPrompts
+  },
+  ja: {
+    translation: jaTranslations,
+    prompts: jaPrompts
+  },
+  es: {
+    translation: esTranslations,
+    prompts: esPrompts
   }
 };
 
@@ -81,9 +93,13 @@ export const detectLanguage = () => {
   const browserLang = navigator.language;
   logger.debug(`🌐 Language Detection Summary:
     Browser Language: ${browserLang}
-    Detected Language: ${browserLang.startsWith('zh') ? 'zh' : 'en'}
+    Detected Language: ${browserLang.startsWith('zh') ? 'zh' : browserLang.startsWith('ja') ? 'ja' : browserLang.startsWith('es') ? 'es' : 'en'}
     Using Language: ${i18n.language}`);
-  return browserLang.startsWith('zh') ? 'zh' : 'en';
+  
+  if (browserLang.startsWith('zh')) return 'zh';
+  if (browserLang.startsWith('ja')) return 'ja';
+  if (browserLang.startsWith('es')) return 'es';
+  return 'en';
 };
 
 export default i18n; 

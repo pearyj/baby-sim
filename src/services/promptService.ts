@@ -6,6 +6,8 @@ import { isSupportedLanguage, type SupportedLanguage } from '../utils/languageDe
 // Import prompt files
 import zhPrompts from '../i18n/prompts/zh.json';
 import enPrompts from '../i18n/prompts/en.json';
+import jaPrompts from '../i18n/prompts/ja.json';
+import esPrompts from '../i18n/prompts/es.json';
 
 // Import activeGameStyle from gptServiceUnified
 let activeGameStyle: GameStyle = 'realistic';
@@ -16,7 +18,9 @@ type PromptResources = {
 
 const promptResources: PromptResources = {
   zh: zhPrompts,
-  en: enPrompts
+  en: enPrompts,
+  ja: jaPrompts,
+  es: esPrompts
 };
 
 /**
@@ -103,10 +107,10 @@ const interpolatePrompt = (template: string, variables: Record<string, any>): st
 export type GameStyle = 'realistic' | 'fantasy' | 'cool';
 
 // Mapping of internal style keys to translations per language
-const styleTranslations: Record<GameStyle, { zh: string; en: string }> = {
-  realistic: { zh: '真实', en: 'realistic' },
-  fantasy: { zh: '魔幻', en: 'fantasy' },
-  cool: { zh: '爽', en: 'thrilling' },
+const styleTranslations: Record<GameStyle, Record<SupportedLanguage, string>> = {
+  realistic: { zh: '真实', en: 'realistic', ja: 'リアル', es: 'realista' },
+  fantasy: { zh: '魔幻', en: 'fantasy', ja: 'ファンタジー', es: 'fantasía' },
+  cool: { zh: '爽', en: 'thrilling', ja: 'スリリング', es: 'emocionante' },
 };
 
 export const generateSystemPrompt = (gameStyle: GameStyle = 'realistic', specialRequirements?: string): string => {
@@ -125,7 +129,9 @@ export const generateSystemPrompt = (gameStyle: GameStyle = 'realistic', special
     const customizationTemplates: Record<SupportedLanguage, string> = {
       en: 'The user requested before the child\'s birth: "{{specialRequirements}}". Please ensure the story respects this request.',
       zh: '用户在孩子出生前提出了要求：「{{specialRequirements}}」。请确保故事遵循这一要求。',
-    } as const;
+      ja: 'ユーザーは子どもの誕生前に次の要求をしました：「{{specialRequirements}}」。ストーリーがこの要求を尊重するようにしてください。',
+      es: 'El usuario solicitó antes del nacimiento del niño: "{{specialRequirements}}". Por favor asegúrese de que la historia respete esta solicitud.',
+    };
 
     const noteTemplate = customizationTemplates[currentLang] || customizationTemplates['en'];
     const note = interpolatePrompt(noteTemplate, { specialRequirements });
