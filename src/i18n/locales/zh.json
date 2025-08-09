@@ -50,7 +50,6 @@
     "readyToBegin": "准备好开始这段旅程了吗？",
     "currentAge": "当前年龄",
     "situation": "状况：",
-    "result": "结果：",
     "growthStage": "成长期"
   },
   "developmentalStages": {
@@ -119,14 +118,16 @@
     "chooseGameStyle": "选择游戏风格",
     "selectThisOption": "选择这个方案",
     "selectedThisOption": "我选择了这个方案",
-    "copyJourney": "复制成长历程文本"
+    "copyJourney": "复制成长历程文本",
+    "refresh": "刷新"
   },
   "header": {
     "title": "养娃模拟器",
     "infoCenter": "信息中心",
     "enableStreaming": "启用实时流式响应",
     "disableStreaming": "禁用实时流式响应",
-    "streaming": "流式"
+    "streaming": "流式",
+    "modelToggle": "模型"
   },
   "messages": {
     "error": "发生错误",
@@ -171,7 +172,11 @@
     "giveGuidance": "给予适当的引导和建议",
     "encourageThinking": "鼓励孩子独立思考解决问题",
     "errorGeneratingSummary": "错误：无法生成摘要。",
-    "shareCarouselHeading": "{{childName}}这么可爱，生张图晒晒吧！"
+    "shareCarouselHeading": "{{childName}}这么可爱，生张图晒晒吧！",
+    "thankYouSupport": "感谢您的支持！",
+    "createImages": "生成图片",
+    "useCreditsHint": "提示：您可以使用积分为{{childName}}生成结尾图片。",
+    "creditsUsageShort": "积分可用于高级 GPT‑5 与图片生成。"
   },
   "share": {
     "title": "我在《养娃模拟器》把{{childName}}养到18岁啦！",
@@ -191,11 +196,18 @@
     "gameFeatures": "游戏特点",
     "feature1": "AI生成的角色背景、养育情境和故事线",
     "feature2": "每个决定都会影响娃的成长路径",
-    "feature3": "时间轴记录你的养育历程，直到送娃18岁成人，并反思自己是个什么样的父母",
-    "feature4": "[更新 + 内测中] 生成您18岁孩子的照片，风格自选",
+      "feature3": "时间轴记录你的养育历程，直到送娃18岁成人，并反思自己是个什么样的父母",
+      "feature4": "生成您18岁孩子的照片，风格自选",
+      "feature5": "[内测中] 升级至最新的 GPT‑5 模型，体验更好的情境生成与写作",
     "startGameInfo": "点击开始游戏，随机生成一位父亲/母亲的角色，以及娃的基本信息。",
     "specialRequirements": "特殊要求（可选）",
     "specialRequirementsPlaceholder": "我想养个邻居家的孩子",
+    "specialRequirementsPlaceholderByStyle": {
+      "realistic": "我想要一个丑萌的孩子",
+      "fantasy": "我的宝宝拥有超能力",
+      "cool": "我的宝宝将成为独角兽创业公司的创始人",
+      "ultra": "请尽可能详细地介绍你和（如果有）你的伴侣，以获得超真实的体验。"
+    },
     "specialRequirementsDesc": "您可以描述具体的想要的关于自己和娃的背景和特点，AI将尽量满足您的要求。（当然，养娃和AI一样，是个玄学……）",
     "readyToStart": "准备好开始这段充满挑战与惊喜的养育之旅了吗？",
     "selectParentGender": "选择你的身份",
@@ -237,30 +249,39 @@
   },
   "paywall": {
     "title": "感谢游玩！生成{{childName}}的照片",
-    "subtitle": "AI生成有成本，选择您的捐赠金额来支持养娃模拟器，可获取积分以生成您专属的AI照片",
+    "title_llm": "为更好的{{childName}}体验，您正在使用成本较高的 GPT-5！",
+    "title_support": "打赏支持养娃模拟器",
+    "subtitle": "AI 生成有成本——按您希望的金额打赏以支持本游戏，并获得积分以使用高级语言模型、生成专属 AI 照片",
+    "subtitle_llm": "AI 生成有成本——按您希望的金额打赏以支持本游戏，并获得积分以使用高级语言模型、生成专属 AI 照片",
     "email": "邮箱",
     "emailRequired": "邮箱是必填项",
     "emailInvalid": "请输入有效的邮箱地址",
     "checkCredits": "查询积分",
     "donationAmount": "捐赠金额：",
     "getCredits": "获得 {{count}} 个积分",
+    "creditsLabel": "积分",
     "paymentSecure": "支付由Stripe安全处理。Stripe每次交易会收取手续费，如果您想多次生成照片，建议选择总金额一次性支付。您可以以后用您的邮箱地址继续生图。",
     "paymenttestnotice": "支付功能测试中，请直接点击继续支付宝扫码按照指示进行，无需真实付费。",
     "cancel": "取消",
     "continueAndPay": "继续支付",
+    "supportMore": "继续支持",
     "processing": "处理中...",
     "creditsFound": "您有 {{count}} 个积分，可立即生成娃的图片。",
+    "creditsFound_llm": "您有 {{count}} 个积分，现在可以继续使用 GPT‑5。",
     "noCreditsFound": "没有找到积分，请捐赠以获得积分。",
     "checkCreditsFailed": "查询积分失败",
     "emailReceiptCopy": "邮箱以接受收据和并未来继续使用生图功能",
     "emailAgreement": "输入邮箱即代表您同意我们的隐私政策和服务条款。",
     "emailPrivacyNotice": "隐私声明 – 通过提供您的邮箱，您同意BabySim可能将其与您的游戏活动关联，仅用于分析和产品改进，符合我们的隐私政策。您可以随时取消关联或删除此数据。",
-    "postPaymentReminder": "如果支付完成后页面没有刷新，请使用同一浏览器返回此网站，积分应会自动加载。如遇支付问题，请发送邮件至 dev@babysim.fun。"
+    "postPaymentReminder": "如果支付完成后页面没有刷新，请使用同一浏览器返回此网站，积分应会自动加载。如遇支付问题，请发送邮件至 dev@babysim.fun。",
+    "gpt5AccessWarning": "注意！GPT-5 API对特定国家和地区有访问限制，在打赏前请确认你可以正常访问GPT，建议另外开启ChatGPT官网以检查可以正常访问。生图功能不受此限制。"
   },
   "gameStyle": {
     "realistic": "现实",
     "fantasy": "奇幻",
-    "cool": "酷炫"
+    "cool": "酷炫",
+    "ultra": "上新：超写实GPT-5",
+    "ultraExplanation": "付费功能——使用 GPT‑5 带来超写实体验。在部分地区访问 GPT‑5 可能需要梯子/VPN。"
   },
   "gallery": {
     "otherKids": "画廊：看看别人晒的娃",
@@ -268,5 +289,10 @@
     "seeMore": "查看更多 »",
     "noImages": "还没有分享的图片。成为第一个养育孩子到18岁并分享的人！",
     "raiseBaby": "我也想养育一个宝宝！"
+  },
+  "gentleReminder": {
+    "title": "一个温柔的小提醒",
+    "body": "现实里，孩子不是我们能挑选的。有时，世界把一个小生命交到我们手上，需要我们如其所是地去爱。也许试着继续和这位孩子一起走走看，你会遇见意想不到的风景。",
+    "ok": "我明白了"
   }
 } 

@@ -10,7 +10,12 @@ import jaPrompts from '../i18n/prompts/ja.json';
 import esPrompts from '../i18n/prompts/es.json';
 
 // Import activeGameStyle from gptServiceUnified
-let activeGameStyle: GameStyle = 'realistic';
+// Initialize default style based on language to match gptServiceUnified
+const initialLangForStyle = (() => {
+  const lang = i18n.language;
+  return isSupportedLanguage(lang) ? lang : 'en';
+})();
+let activeGameStyle: GameStyle = initialLangForStyle === 'zh' ? 'realistic' : 'ultra';
 
 type PromptResources = {
   [key in SupportedLanguage]: any;
@@ -104,13 +109,14 @@ const interpolatePrompt = (template: string, variables: Record<string, any>): st
   return result;
 };
 
-export type GameStyle = 'realistic' | 'fantasy' | 'cool';
+export type GameStyle = 'realistic' | 'fantasy' | 'cool' | 'ultra';
 
 // Mapping of internal style keys to translations per language
 const styleTranslations: Record<GameStyle, Record<SupportedLanguage, string>> = {
   realistic: { zh: '真实', en: 'realistic', ja: 'リアル', es: 'realista' },
   fantasy: { zh: '魔幻', en: 'fantasy', ja: 'ファンタジー', es: 'fantasía' },
   cool: { zh: '爽', en: 'thrilling', ja: 'スリリング', es: 'emocionante' },
+  ultra: { zh: '超真实（付费）', en: 'ultra-realistic', ja: '超リアル（有料）', es: 'ultrarrealista (de pago)' },
 };
 
 export const generateSystemPrompt = (gameStyle: GameStyle = 'realistic', specialRequirements?: string): string => {
@@ -124,28 +130,28 @@ export const generateSystemPrompt = (gameStyle: GameStyle = 'realistic', special
   // Base prompt with style filled in
   let systemPrompt = interpolatePrompt(template, { gameStyle: styleDesc });
 
-  // If there are special requirements from the user, append a note so the LLM keeps them in mind
+  // Always include the player's initial customization request if available,
+  // so later question/outcome generations consistently consider it.
   if (specialRequirements && specialRequirements.trim().length > 0) {
-    const customizationTemplates: Record<SupportedLanguage, string> = {
-      en: 'The user requested before the child\'s birth: "{{specialRequirements}}". Please ensure the story respects this request.',
-      zh: '用户在孩子出生前提出了要求：「{{specialRequirements}}」。请确保故事遵循这一要求。',
-      ja: 'ユーザーは子どもの誕生前に次の要求をしました：「{{specialRequirements}}」。ストーリーがこの要求を尊重するようにしてください。',
-      es: 'El usuario solicitó antes del nacimiento del niño: "{{specialRequirements}}". Por favor asegúrese de que la historia respete esta solicitud.',
-    };
-
-    const noteTemplate = customizationTemplates[currentLang] || customizationTemplates['en'];
-    const note = interpolatePrompt(noteTemplate, { specialRequirements });
-
-    systemPrompt += `\n\n${note}`;
+    systemPrompt += `\n\nAt the beginning of the game, the player provided special requirements: ${specialRequirements.trim()}`;
   }
 
   return systemPrompt;
 };
 
 /**
+ * Generate a localized note reminding the model of the user's special requirements
+ * (was previously appended to system prompt; now used in user message)
+ */
+export const generateCustomizationNote = (specialRequirements?: string): string => {
+  if (!specialRequirements || specialRequirements.trim().length === 0) return '';
+  return specialRequirements.trim();
+};
+
+/**
  * Generate question prompt
  */
-export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequirements: boolean = true): string => {
+export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequirements: boolean = true, includeHistoryContext: boolean = true): string => {
   logger.info(`📝 Generating question prompt for child age ${gameState.child.age}`);
   
   const nextAge = gameState.child.age;
@@ -170,12 +176,12 @@ export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequ
   
   // Prepare history context
   let historyContext = "";
-  if (gameState.history.length > 0) {
+  if (includeHistoryContext && gameState.history.length > 0) {
     const historyPrefix = getPrompt('question.historyPrefix');
     const historyItemTemplate = getPrompt('question.historyItem');
     
-    // Only include the most recent 5 entries to prevent exceeding character limit
-    const recentHistory = gameState.history.slice(-5);
+    // Only include the most recent 8 entries to prevent exceeding character limit
+    const recentHistory = gameState.history.slice(-8);
     
     const historyItems = recentHistory.map(h => 
       interpolatePrompt(historyItemTemplate, {
@@ -232,13 +238,34 @@ export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequ
 };
 
 /**
+ * Build history context for question/outcome prompts (recent 8 entries, full detail)
+ */
+export const generateRecentHistoryContext = (gameState: GameState): string => {
+  if (!gameState.history || gameState.history.length === 0) return '';
+  const historyPrefix = getPrompt('question.historyPrefix');
+  const historyItemTemplate = getPrompt('question.historyItem');
+  const recentHistory = gameState.history.slice(-8);
+  const historyItems = recentHistory.map(h => 
+    interpolatePrompt(historyItemTemplate, {
+      age: h.age,
+      question: h.question,
+      choice: h.choice,
+      outcome: h.outcome
+    })
+  ).join('\n\n');
+  return historyPrefix + historyItems;
+};
+
+/**
  * Generate outcome and next question prompt
  */
 export const generateOutcomeAndNextQuestionPrompt = (
   gameState: GameState,
   question: string,
   choice: string,
-  shouldGenerateNextQuestion: boolean
+  shouldGenerateNextQuestion: boolean,
+  includeHistoryContext: boolean = true,
+  includeChoiceLines: boolean = true
 ): string => {
   logger.info(`📝 Generating outcome${shouldGenerateNextQuestion ? ' and next question' : ''} prompt for child age ${gameState.child.age}`);
   
@@ -294,12 +321,12 @@ export const generateOutcomeAndNextQuestionPrompt = (
   
   // Prepare history context
   let historyContext = "";
-  if (gameState.history.length > 0) {
+  if (includeHistoryContext && gameState.history.length > 0) {
     const historyPrefix = getPrompt('question.historyPrefix');
     const historyItemTemplate = getPrompt('question.historyItem');
     
-    // Only include the most recent 5 entries to prevent exceeding character limit
-    const recentHistory = gameState.history.slice(-5);
+    // Only include the most recent 8 entries to prevent exceeding character limit
+    const recentHistory = gameState.history.slice(-8);
     
     const historyItems = recentHistory.map(h => 
       interpolatePrompt(historyItemTemplate, {
@@ -323,7 +350,7 @@ export const generateOutcomeAndNextQuestionPrompt = (
   
   // Get base prompt and interpolate
   const baseTemplate = getPrompt('outcome.base');
-  const basePrompt = interpolatePrompt(baseTemplate, {
+  let basePrompt = interpolatePrompt(baseTemplate, {
     numericalHeader,
     gameStyle: gameStyleDesc,
     playerGender,
@@ -337,60 +364,160 @@ export const generateOutcomeAndNextQuestionPrompt = (
     question,
     choice
   });
+
+  if (!includeChoiceLines) {
+    // Remove the two lines that include the current situation and player choice
+    // We rely on localized labels that match the templates across languages
+    const currentSituationLabels: Record<SupportedLanguage, string> = {
+      en: 'Current situation:',
+      zh: '当前状况：',
+      ja: '現在の状況：',
+      es: 'Situación actual:'
+    } as const;
+    const playerChoseLabels: Record<SupportedLanguage, string> = {
+      en: 'I chose:',
+      zh: '我选择了：',
+      ja: '選びました：',
+      es: 'Elegí:'
+    } as const;
+    const lang = getCurrentLanguage();
+    const cur = currentSituationLabels[lang] || currentSituationLabels.en;
+    const chose = playerChoseLabels[lang] || playerChoseLabels.en;
+    // Remove lines starting with these labels
+    basePrompt = basePrompt
+      .split('\n')
+      .filter(line => !(line.trim().startsWith(cur) || line.trim().startsWith(chose)))
+      .join('\n');
+  }
   
   // Add format section based on whether next question is needed
   let formatSection: string;
   if (shouldGenerateNextQuestion) {
-    const nextAge = gameState.child.age + 2;
+    const nextAge = gameState.child.age + 1;
     const template = getPrompt('outcome.withNextQuestion');
     formatSection = interpolatePrompt(template, { nextAge });
   } else {
     formatSection = getPrompt('outcome.withoutNextQuestion');
   }
   
+  // Do NOT append guardrails here. Guardrails are appended conditionally
+  // in the service layer based on the effective provider (GPT-5).
   return basePrompt + formatSection;
+};
+
+/**
+ * Build localized user lines for outcome: the two lines indicating current situation and chosen option
+ */
+export const generateOutcomeUserLines = (_question: string, choice: string): string => {
+  // Pass only the raw choice text in the user message (no labels, no quotes)
+  return String(choice);
+};
+
+/**
+ * Build history context for ending prompt (all entries; last 8 with detailed outcomes)
+ */
+export const generateEndingHistoryContext = (gameState: GameState): string => {
+  if (!gameState.history || gameState.history.length === 0) return '';
+  const historyPrefix = getPrompt('question.historyPrefix');
+  const historyItemTemplate = getPrompt('question.historyItem');
+  const allHistory = gameState.history;
+  const recentHistory = gameState.history.slice(-8);
+  const recentAges = new Set(recentHistory.map(h => h.age));
+  const historyItems = allHistory.map(h => {
+    if (recentAges.has(h.age)) {
+      return interpolatePrompt(historyItemTemplate, {
+        age: h.age,
+        question: h.question,
+        choice: h.choice,
+        outcome: h.outcome
+      });
+    }
+    return interpolatePrompt(historyItemTemplate, {
+      age: h.age,
+      question: h.question,
+      choice: h.choice,
+      outcome: '...'
+    });
+  }).join('\n\n');
+  return historyPrefix + historyItems;
+};
+
+/**
+ * Get the localized concise note for outcome prompts
+ */
+export const getGpt5UltraGuardrails = (): string => {
+  const note = getPrompt('outcome.gpt5UltraGuardrails');
+  return note || '';
+};
+
+// Backward-compatible alias used by gptServiceUnified imports
+export const getOutcomeConciseNote = (): string => {
+  const note = getPrompt('outcome.gpt5UltraGuardrails');
+  return note || '';
 };
 
 /**
  * Generate initial state prompt
  */
-export const generateInitialStatePrompt = (specialRequirements?: string): string => {
+export const generateInitialStatePrompt = (specialRequirements?: string, includeRequirements: boolean = true): string => {
   logger.info("📝 Generating initial state prompt" + (specialRequirements ? " with special requirements" : ""));
   
   const baseTemplate = getPrompt('initialState.base');
   let prompt = baseTemplate;
   
-  if (specialRequirements) {
+  if (includeRequirements && specialRequirements) {
     const requirementsTemplate = getPrompt('initialState.withRequirements');
     const requirementsSection = interpolatePrompt(requirementsTemplate, { specialRequirements });
     prompt += requirementsSection;
   }
   
   const formatSection = getPrompt('initialState.format');
-  return prompt + formatSection;
+
+  // Add concise length constraint note (i18n) with a language-specific hardcoded word limit
+  const conciseTemplate = getPrompt('initialState.conciseLimitNote');
+  const lang = getCurrentLanguage();
+  const languageWordLimits: Record<SupportedLanguage, number> = {
+    en: 120, // English ~120 words
+    zh: 90,  // Chinese roughly shorter for similar content
+    ja: 100, // Japanese roughly comparable, slightly shorter than English
+    es: 120, // Spanish similar to English for this purpose
+  };
+  const wordLimit = languageWordLimits[lang] ?? 120;
+  const conciseNote = interpolatePrompt(conciseTemplate, { wordLimit });
+
+  return prompt + formatSection + conciseNote;
+};
+
+/**
+ * Build just the initial-state requirements section (if any)
+ */
+export const generateInitialRequirementsSection = (specialRequirements?: string): string => {
+  if (!specialRequirements || specialRequirements.trim().length === 0) return '';
+  const requirementsTemplate = getPrompt('initialState.withRequirements');
+  return interpolatePrompt(requirementsTemplate, { specialRequirements });
 };
 
 /**
  * Generate ending prompt
  */
-export const generateEndingPrompt = (gameState: GameState): string => {
+export const generateEndingPrompt = (gameState: GameState, includeHistoryContext: boolean = true): string => {
   logger.info("📝 Generating ending prompt");
   
   // Prepare history context
   let historyContext = "";
-  if (gameState.history.length > 0) {
+  if (includeHistoryContext && gameState.history.length > 0) {
     const historyPrefix = getPrompt('question.historyPrefix');
     const historyItemTemplate = getPrompt('question.historyItem');
     
     // Get all history entries for questions and choices
     const allHistory = gameState.history;
     
-    // Get the last 5 entries for detailed outcomes
-    const recentHistory = gameState.history.slice(-5);
+    // Get the last 8 entries for detailed outcomes
+    const recentHistory = gameState.history.slice(-8);
     const recentAges = new Set(recentHistory.map(h => h.age));
     
     const historyItems = allHistory.map(h => {
-      // For recent entries (last 5 years), include full details
+      // For recent entries (last 8 years), include full details
       if (recentAges.has(h.age)) {
         return interpolatePrompt(historyItemTemplate, {
           age: h.age,
@@ -491,10 +618,15 @@ export const setActiveGameStyle = (style: GameStyle) => {
 
 export default {
   generateSystemPrompt,
+  generateCustomizationNote,
   generateQuestionPrompt,
   generateOutcomeAndNextQuestionPrompt,
   generateInitialStatePrompt,
   generateEndingPrompt,
+  generateRecentHistoryContext,
+  generateEndingHistoryContext,
+  generateInitialRequirementsSection,
+  getGpt5UltraGuardrails,
   formatEndingResult,
   checkMissingPrompts,
   getCurrentLanguage

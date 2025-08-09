@@ -134,15 +134,7 @@ export const PaymentSuccessPage: React.FC = () => {
               <Typography variant="h4" sx={{ mb: 2, fontWeight: 600 }}>
                 {i18n.language === 'zh' ? '感谢您的支持！' : 'Thank you for your support!'}
               </Typography>
-              
 
-
-              <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
-                {i18n.language === 'zh'
-                  ? '您可以使用积分来生成AI照片，记录您的育儿之旅。'
-                  : 'You can use your credits to generate AI photos and capture your parenting journey.'
-                }
-              </Typography>
 
               {error && (
                 <Alert severity="warning" sx={{ mb: 3 }}>

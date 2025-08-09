@@ -35,11 +35,11 @@ export async function createCheckoutSession(request: CheckoutSessionRequest & { 
 }
 
 // Consume one credit via backend; returns remaining credits
-export async function consumeCreditAPI(anonId: string, email?: string): Promise<{ remaining: number }> {
+export async function consumeCreditAPI(anonId: string, email?: string, amount?: number): Promise<{ remaining: number }> {
   const response = await fetch(`${API_BASE}/consume-credit`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ anonId, email }),
+    body: JSON.stringify({ anonId, email, amount }),
   });
 
   if (!response.ok) {

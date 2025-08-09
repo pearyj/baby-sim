@@ -103,6 +103,15 @@ button:focus-visible {
   background-color: #2196f3;
 }
 
+/* Contact button uses app's solid brown palette */
+.floating-btn.feedback-btn {
+  background-color: #8D6E63;
+}
+.floating-btn.feedback-btn:hover,
+.floating-btn.feedback-btn:focus {
+  background-color: #5D4037;
+}
+
 .floating-btn:hover,
 .floating-btn:focus {
   background-color: #e67e00;

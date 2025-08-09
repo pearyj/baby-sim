@@ -51,7 +51,6 @@
     "readyToBegin": "¿Estás listo para comenzar este viaje?",
     "currentAge": "Edad Actual",
     "situation": "Situación:",
-    "result": "Resultado:",
     "growthStage": "Etapa de Crecimiento",
     "sponsored": "Patrocinado",
     "adPlaceholder": "Espacio Publicitario"
@@ -121,14 +120,16 @@
     "testEnding": "(Dev) Probar Página Final",
     "testAdTimeline": "(Dev) Probar Línea de Tiempo de Anuncios",
     "chooseGameStyle": "Elige un Estilo",
-    "selectThisOption": "Haré esto"
+    "selectThisOption": "Haré esto",
+    "refresh": "Actualizar"
   },
   "header": {
     "title": "El Simulador de Bebés",
     "infoCenter": "Centro de Información",
     "enableStreaming": "Habilitar transmisión en tiempo real",
     "disableStreaming": "Deshabilitar transmisión en tiempo real",
-    "streaming": "Transmisión"
+    "streaming": "Transmisión",
+    "modelToggle": "Modelo"
   },
   "messages": {
     "error": "Ocurrió un error",
@@ -167,7 +168,10 @@
     "listenToChild": "Escuchar pacientemente y entender las necesidades del niño",
     "giveGuidance": "Proporcionar orientación y consejo apropiados",
     "encourageThinking": "Alentar al niño a pensar y resolver problemas independientemente",
-    "errorGeneratingSummary": "Error: No se pudo generar resumen."
+    "errorGeneratingSummary": "Error: No se pudo generar resumen.",
+    "thankYouSupport": "¡Gracias por tu apoyo!",
+    "creditsUsageShort": "Usa créditos para GPT‑5 premium y generación de imágenes.",
+    "useCreditsHint": "Consejo: Puedes usar créditos para generar la imagen final de {{childName}}."
   },
   "share": {
     "title": "¡He criado a {{childName}} hasta los 18 años en el Simulador de Bebés!",
@@ -187,11 +191,18 @@
     "gameFeatures": "Características del Juego",
     "feature1": "Antecedentes de personajes, escenarios de crianza e historias generadas por IA",
     "feature2": "Cada decisión afecta el camino de tu hijo",
-    "feature3": "Ve una línea de tiempo de tu viaje de crianza hasta que tu hijo alcance la edad adulta a los 18, y reflexiona sobre qué tipo de padre eres",
-    "feature4": "[Actualizado + en Beta] Generar una foto de tu hijo de 18 años en el estilo que prefieras",
+      "feature3": "Ve una línea de tiempo de tu viaje de crianza hasta que tu hijo alcance la edad adulta a los 18, y reflexiona sobre qué tipo de padre eres",
+      "feature4": "[Actualizado + Beta] Genera una foto de tu hijo de 18 años en el estilo que prefieras",
+      "feature5": "[Beta] Actualiza al modelo GPT‑5 más reciente para disfrutar de una mejor generación de escenarios y escritura",
     "startGameInfo": "Haz clic en iniciar juego para generar aleatoriamente un personaje padre e información básica del niño.",
     "specialRequirements": "Requisitos Especiales (Opcional)",
     "specialRequirementsPlaceholder": "Quiero un niño feo pero tierno",
+    "specialRequirementsPlaceholderByStyle": {
+      "realistic": "Quiero un niño feo pero adorable",
+      "fantasy": "Mi bebé tiene superpoderes",
+      "cool": "Mi bebé será fundador de una startup unicornio",
+      "ultra": "Para una experiencia ultrarrealista, comparte tantos detalles como sea posible sobre ti y, si lo tienes, tu pareja."
+    },
     "specialRequirementsDesc": "Puedes describir lo que te gustaría para ti o tu bebé. La IA intentará cumplirlo. (Por supuesto, la IA a veces puede ser impredecible también, como los bebés...)",
     "readyToStart": "¿Estás listo para asumir el desafío de convertirte en padre/madre?",
     "selectParentGender": "Elige Tu Rol",
@@ -233,7 +244,10 @@
   },
   "paywall": {
     "title": "¡Gracias por jugar! Ver a {{childName}} en una foto",
-    "subtitle": "¡Las generaciones de IA cuestan dinero! Dona al precio que prefieras para apoyar el juego y recibir créditos para generar fotos AI personalizadas",
+    "title_llm": "¡Estás usando el costoso modelo GPT-5 para una mejor experiencia con {{childName}}!",
+    "title_support": "Apoya el Simulador de Bebés",
+    "subtitle": "Las generaciones de IA tienen un costo — dona al precio que prefieras para apoyar el juego y recibir créditos para usar modelos de lenguaje premium y generar fotos AI personalizadas",
+    "subtitle_llm": "Las generaciones de IA tienen un costo — dona al precio que prefieras para apoyar el juego y recibir créditos para usar modelos de lenguaje premium y generar fotos AI personalizadas",
     "email": "Correo Electrónico",
     "emailRequired": "Se requiere correo electrónico para recibos y para rastrear tus créditos",
     "emailInvalid": "Por favor ingresa una dirección de correo electrónico válida",
@@ -241,27 +255,39 @@
     "donationAmount": "Cantidad de Donación:",
     "getCredits": "Obtener {{count}} crédito",
     "getCredits_plural": "Obtener {{count}} créditos",
+    "creditsLabel": "Créditos",
     "paymentSecure": "Pago procesado de forma segura por Stripe. Ten en cuenta que Stripe toma una tarifa del 2.9% + 30 centavos por cada pago, ¡así que por favor elige una cantidad mayor en una transacción si quieres generar múltiples veces! Podrás reutilizarlos en el futuro con tu dirección de correo electrónico.",
     "paymenttestnotice": "Ten en cuenta que como actualmente estamos en pruebas y dando créditos gratis, por favor ingresa 4242424242424242 como número de tarjeta de crédito, y recibirás créditos sin cargar tu tarjeta real.",
     "cancel": "Cancelar",
     "continueAndPay": "Continuar y Pagar",
+    "supportMore": "Apoyar Más",
     "processing": "Procesando...",
     "creditsFound": "Tienes {{count}} crédito. Puedes generar tu foto ahora.",
     "creditsFound_plural": "Tienes {{count}} créditos. Puedes generar tu foto ahora.",
+    "creditsFound_llm": "Tienes {{count}} crédito. Ya puedes continuar con GPT‑5.",
+    "creditsFound_llm_plural": "Tienes {{count}} créditos. Ya puedes continuar con GPT‑5.",
     "noCreditsFound": "No se encontraron créditos. Por favor dona para obtener créditos.",
     "checkCreditsFailed": "Error al verificar créditos",
     "emailReceiptCopy": "Comparte tu correo electrónico para el recibo y para recuperar tus créditos de imagen para futuros niños",
     "emailAgreement": "Al compartir tu correo electrónico aceptas nuestra Política de Privacidad y Términos de Servicio.",
     "emailPrivacyNotice": "Aviso de privacidad – Al proporcionar tu correo electrónico aceptas que BabySim puede vincularlo a tu actividad de juego únicamente para análisis y mejora del producto de acuerdo con nuestra Política de Privacidad. Puedes desvincular o eliminar estos datos en cualquier momento.",
-    "postPaymentReminder": "Si la página no se actualiza después del pago, puedes regresar a este sitio web en el mismo navegador y tus créditos deberían cargarse automáticamente. Si encuentras algún problema con los pagos, por favor envía un correo a dev@babysim.fun."
+    "postPaymentReminder": "Si la página no se actualiza después del pago, puedes regresar a este sitio web en el mismo navegador y tus créditos deberían cargarse automáticamente. Si encuentras algún problema con los pagos, por favor envía un correo a dev@babysim.fun.",
+    "gpt5AccessWarning": "Importante: La API de GPT‑5 está restringida en ciertos países/regiones. Antes de donar, asegúrate de poder acceder a GPT. Recomendamos abrir el sitio web de ChatGPT para verificar. La función de generación de imágenes no está sujeta a esta restricción."
   },
   "gameStyle": {
     "realistic": "Realista",
     "fantasy": "Fantasía",
-    "cool": "Emocionante"
+    "cool": "Emocionante",
+    "ultra": "Nuevo: Ultra-realista con GPT-5",
+    "ultraExplanation": "Función premium: usa GPT‑5 para una experiencia ultrarrealista. En algunas regiones puede requerirse una VPN para acceder a GPT‑5."
   },
   "gallery": {
     "otherKids": "Otros Niños",
     "noImages": "No hay imágenes compartidas aún. ¡Sé el primero en criar un niño hasta los 18 y compartir!"
+  },
+  "gentleReminder": {
+    "title": "Un recordatorio amable",
+    "body": "En la vida, no siempre podemos elegir a nuestro hijo. A veces el mundo nos entrega un pequeño ser humano para amar tal como es. Considera continuar el viaje con el niño que tienes: puede sorprenderte a dónde los lleva.",
+    "ok": "Entendido"
   }
 }

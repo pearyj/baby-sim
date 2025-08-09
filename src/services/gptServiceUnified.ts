@@ -1,9 +1,13 @@
 import { API_CONFIG } from '../config/api';
+import i18n from '../i18n';
+import { isSupportedLanguage } from '../utils/languageDetection';
 import { throttledFetch } from '../utils/throttledFetch';
 import type { Question, GameState } from '../types/game';
 import logger from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
 import { makeStreamingJSONRequest } from './streamingService';
+import { getOrCreateAnonymousId, consumeCreditAPI } from './paymentService';
+import { usePaymentStore } from '../stores/usePaymentStore';
 import {
   generateSystemPrompt as generateSystemPromptI18n,
   type GameStyle,
@@ -12,6 +16,10 @@ import {
   generateOutcomeAndNextQuestionPrompt as generateOutcomeAndNextQuestionPromptI18n,
   generateInitialStatePrompt as generateInitialStatePromptI18n,
   generateEndingPrompt as generateEndingPromptI18n,
+  generateRecentHistoryContext as generateRecentHistoryContextI18n,
+  generateEndingHistoryContext as generateEndingHistoryContextI18n,
+  generateOutcomeUserLines as generateOutcomeUserLinesI18n,
+  getGpt5UltraGuardrails as getGpt5UltraGuardrailsI18n,
   formatEndingResult
 } from './promptService';
 
@@ -67,7 +75,12 @@ let globalTokenUsage: TokenUsageStats = {
 // Provider management functions
 export const getActiveProvider = (): ModelProvider => {
   const provider = API_CONFIG.ACTIVE_PROVIDER;
-  
+  return getProviderByKey(provider);
+};
+
+export const getProviderByKey = (
+  key: 'openai' | 'gpt5' | 'deepseek' | 'volcengine'
+): ModelProvider => {
   // Helper to read provider keys from Vite env ─ only needed for DIRECT_API_MODE=true.
   const env = import.meta.env;
 
@@ -77,6 +90,12 @@ export const getActiveProvider = (): ModelProvider => {
       apiUrl: 'https://api.openai.com/v1/chat/completions',
       apiKey: env.VITE_OPENAI_API_KEY || '',
       model: 'gpt-4o-mini',
+    },
+    gpt5: {
+      name: 'openai',
+      apiUrl: 'https://api.openai.com/v1/chat/completions',
+      apiKey: env.VITE_OPENAI_API_KEY || '',
+      model: 'gpt-5-mini-2025-08-07',
     },
     deepseek: {
       name: 'deepseek',
@@ -92,16 +111,36 @@ export const getActiveProvider = (): ModelProvider => {
     }
   };
 
-  return providers[provider] || providers.volcengine;
+  return providers[key] || providers.volcengine;
+};
+
+// Development-only: expose a helper to print current model and masked key prefix
+export const debugPrintActiveModel = (): void => {
+  try {
+    if (!import.meta.env.DEV) return;
+    const provider = getActiveProvider();
+    // Only reveal key prefix when DIRECT_API_MODE is enabled (key is in browser env)
+    const showKey = API_CONFIG.DIRECT_API_MODE;
+    const keyPrefix = showKey && provider.apiKey ? `${provider.apiKey.slice(0, 6)}...` : '(hidden)';
+    // eslint-disable-next-line no-console
+    console.log(
+      `🤖 Active provider: ${provider.name} | model: ${provider.model} | key: ${keyPrefix} | direct=${API_CONFIG.DIRECT_API_MODE}`
+    );
+  } catch (_) {
+    // ignore
+  }
 };
 
 export const switchProvider = (): ModelProvider => {
-  const providers = ['openai', 'deepseek', 'volcengine'] as const;
+  const providers = ['openai', 'gpt5', 'deepseek', 'volcengine'] as const;
   const currentIndex = providers.indexOf(API_CONFIG.ACTIVE_PROVIDER as any);
   const nextIndex = (currentIndex + 1) % providers.length;
   
   API_CONFIG.ACTIVE_PROVIDER = providers[nextIndex];
   logger.info(`🔄 Switched to ${API_CONFIG.ACTIVE_PROVIDER} model provider`);
+  try {
+    window.dispatchEvent(new CustomEvent('model-provider-changed'));
+  } catch (_) {}
   return getActiveProvider();
 };
 
@@ -130,7 +169,89 @@ export const resetTokenUsageStats = (): void => {
 // Game Style Handling
 // ─────────────────────────────────────────────────────────────
 
-let activeGameStyle: GameStyle = 'realistic';
+// Local persistence helpers (scoped here to avoid cross-module coupling)
+const GAME_STYLE_STORAGE_KEY = 'childSimGameStyle';
+const PROVIDER_OVERRIDE_STORAGE_KEY = 'childSimProvider'; // allowed: 'deepseek' | 'gpt5'
+const isLocalStorageAvailableForStyle = (): boolean => {
+  try {
+    const testKey = '__styleLocalStorageTest__';
+    localStorage.setItem(testKey, testKey);
+    localStorage.removeItem(testKey);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
+const readPersistedGameStyle = (): GameStyle | null => {
+  if (!isLocalStorageAvailableForStyle()) return null;
+  try {
+    const raw = localStorage.getItem(GAME_STYLE_STORAGE_KEY);
+    if (raw === 'realistic' || raw === 'fantasy' || raw === 'cool' || raw === 'ultra') {
+      return raw as GameStyle;
+    }
+    return null;
+  } catch (_) {
+    return null;
+  }
+};
+
+const writePersistedGameStyle = (style: GameStyle): void => {
+  if (!isLocalStorageAvailableForStyle()) return;
+  try {
+    localStorage.setItem(GAME_STYLE_STORAGE_KEY, style);
+  } catch (_) {
+    // ignore persistence failures
+  }
+};
+
+type ProviderOverrideKey = 'deepseek' | 'gpt5' | null;
+
+const readPersistedProviderOverride = (): ProviderOverrideKey => {
+  if (!isLocalStorageAvailableForStyle()) return null;
+  try {
+    const raw = localStorage.getItem(PROVIDER_OVERRIDE_STORAGE_KEY);
+    if (raw === 'deepseek' || raw === 'gpt5') return raw;
+    return null;
+  } catch (_) {
+    return null;
+  }
+};
+
+const writePersistedProviderOverride = (key: ProviderOverrideKey): void => {
+  if (!isLocalStorageAvailableForStyle()) return;
+  try {
+    if (!key) localStorage.removeItem(PROVIDER_OVERRIDE_STORAGE_KEY);
+    else localStorage.setItem(PROVIDER_OVERRIDE_STORAGE_KEY, key);
+  } catch (_) {
+    // ignore
+  }
+};
+
+// Default to ultra for non-Chinese languages, realistic for Chinese
+const initialLang = (() => {
+  const lang = i18n.language;
+  return isSupportedLanguage(lang) ? lang : 'en';
+})();
+// Prefer persisted style if available, otherwise default by language
+const persistedStyle = readPersistedGameStyle();
+let activeGameStyle: GameStyle = persistedStyle ?? (initialLang === 'zh' ? 'realistic' : 'ultra');
+let providerOverride: ProviderOverrideKey = readPersistedProviderOverride();
+// Keep promptService in sync with the resolved style at startup
+setActiveGameStyle(activeGameStyle);
+// Initialize provider by style. If ultra, ignore persisted overrides and lock to GPT-5
+if (activeGameStyle === 'ultra') {
+  (API_CONFIG as any).ACTIVE_PROVIDER = 'gpt5';
+  providerOverride = null; // lock mode: overrides disabled in ultra
+} else if (providerOverride) {
+  (API_CONFIG as any).ACTIVE_PROVIDER = providerOverride;
+} else {
+  (API_CONFIG as any).ACTIVE_PROVIDER = 'deepseek';
+}
+try {
+  window.dispatchEvent(new CustomEvent('model-provider-changed'));
+  window.dispatchEvent(new CustomEvent('game-style-changed', { detail: { style: activeGameStyle } }));
+} catch (_) {}
 // Store current special requirements to ensure they are passed to every system prompt
 let currentSpecialRequirements: string | undefined = undefined;
 
@@ -147,6 +268,55 @@ export const setGameStyle = (style: GameStyle) => {
   activeGameStyle = style;
   setActiveGameStyle(style);
   logger.info(`🎨 Game style set to ${style}`);
+  // Persist selection so it survives page refreshes
+  writePersistedGameStyle(style);
+  // Enforce provider policy per style
+  if (style === 'ultra') {
+    // Lock to GPT-5 and clear any override
+    providerOverride = null;
+    (API_CONFIG as any).ACTIVE_PROVIDER = 'gpt5';
+    logger.info('🔒 Ultra mode: locking to GPT-5 and disabling overrides');
+  } else {
+    // Non-ultra: default DeepSeek unless user has an override
+    (API_CONFIG as any).ACTIVE_PROVIDER = providerOverride || 'deepseek';
+    logger.info(`🎯 Non‑ultra mode: ACTIVE_PROVIDER ${API_CONFIG.ACTIVE_PROVIDER}`);
+  }
+  try {
+    window.dispatchEvent(new CustomEvent('model-provider-changed'));
+  } catch (_) {}
+  try {
+    window.dispatchEvent(new CustomEvent('game-style-changed', { detail: { style } }));
+  } catch (_) {}
+};
+
+export const isPremiumStyleActive = (): boolean => activeGameStyle === 'ultra';
+
+export const getProviderOverride = (): ProviderOverrideKey => providerOverride;
+
+export const setProviderOverride = (key: ProviderOverrideKey): void => {
+  // If ultra is active, ignore overrides and keep GPT-5
+  if (activeGameStyle === 'ultra') {
+    providerOverride = null;
+    (API_CONFIG as any).ACTIVE_PROVIDER = 'gpt5';
+    writePersistedProviderOverride(providerOverride);
+    try { window.dispatchEvent(new CustomEvent('model-provider-changed')); } catch (_) {}
+    return;
+  }
+  providerOverride = key;
+  // If user explicitly chooses a provider, apply immediately; if cleared, fall back to DeepSeek
+  (API_CONFIG as any).ACTIVE_PROVIDER = key || 'deepseek';
+  writePersistedProviderOverride(providerOverride);
+  try {
+    window.dispatchEvent(new CustomEvent('model-provider-changed'));
+  } catch (_) {}
+};
+
+export const getEffectiveProviderKey = (): 'openai' | 'deepseek' | 'volcengine' | 'gpt5' => {
+  // Ultra style is locked to GPT-5
+  if (activeGameStyle === 'ultra') return 'gpt5';
+  // Otherwise respect explicit override, fallback to DeepSeek
+  if (providerOverride === 'deepseek' || providerOverride === 'gpt5') return providerOverride;
+  return 'deepseek';
 };
 
 // Shared prompt generation functions (now using i18n)
@@ -154,25 +324,41 @@ export const generateSystemPrompt = (): string => {
   return generateSystemPromptI18n(activeGameStyle, currentSpecialRequirements);
 };
 
-export const generateQuestionPrompt = (gameState: GameState, includeDetailedRequirements: boolean = true): string => {
-  return generateQuestionPromptI18n(gameState, includeDetailedRequirements);
+export const generateQuestionPrompt = (
+  gameState: GameState,
+  includeDetailedRequirements: boolean = true,
+  includeHistoryContext: boolean = true
+): string => {
+  return generateQuestionPromptI18n(gameState, includeDetailedRequirements, includeHistoryContext);
 };
 
 export const generateOutcomeAndNextQuestionPrompt = (
   gameState: GameState,
   question: string,
   choice: string,
-  shouldGenerateNextQuestion: boolean
+  shouldGenerateNextQuestion: boolean,
+  includeHistoryContext: boolean = true,
+  includeChoiceLines: boolean = true
 ): string => {
-  return generateOutcomeAndNextQuestionPromptI18n(gameState, question, choice, shouldGenerateNextQuestion);
+  return generateOutcomeAndNextQuestionPromptI18n(
+    gameState,
+    question,
+    choice,
+    shouldGenerateNextQuestion,
+    includeHistoryContext,
+    includeChoiceLines
+  );
 };
 
-export const generateInitialStatePrompt = (specialRequirements?: string): string => {
-  return generateInitialStatePromptI18n(specialRequirements);
+export const generateInitialStatePrompt = (
+  specialRequirements?: string,
+  includeRequirements: boolean = true
+): string => {
+  return generateInitialStatePromptI18n(specialRequirements, includeRequirements);
 };
 
-export const generateEndingPrompt = (gameState: GameState): string => {
-  return generateEndingPromptI18n(gameState);
+export const generateEndingPrompt = (gameState: GameState, includeHistoryContext: boolean = true): string => {
+  return generateEndingPromptI18n(gameState, includeHistoryContext);
 };
 
 // Unified service interface
@@ -241,10 +427,36 @@ const safeJsonParse = (content: string): any => {
   }
 };
 
-// Helper function to make API requests with the active provider
+// Helper to charge credits for premium GPT-5 interactions
+const chargePremiumInteraction = async (): Promise<void> => {
+  try {
+    // In production (and generally), charge whenever the effective provider is GPT-5
+    const effectiveKey = getEffectiveProviderKey();
+    if (effectiveKey !== 'gpt5') return;
+    const anonId = getOrCreateAnonymousId();
+    // If user has an email-bound balance, consume against that row to avoid "no_credits" on anon_id
+    const email = (() => {
+      try { return usePaymentStore.getState().email || undefined; } catch (_) { return undefined; }
+    })();
+    const result = await consumeCreditAPI(anonId, email, 0.05);
+    try {
+      usePaymentStore.setState({ credits: result.remaining });
+    } catch (_) {
+      // ignore state update errors
+    }
+  } catch (_) {
+    // Non-fatal: if charging fails, do not block gameplay
+  }
+};
+
+// Helper function to make API requests with the (possibly overridden) provider
 const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse> => {
-  const provider = getActiveProvider();
-  logger.info(`📤 Sending API request to ${provider.name} provider using ${provider.model}`);
+  const effectiveProviderKey = getEffectiveProviderKey();
+  const activeProvider = getActiveProvider();
+  const provider = getProviderByKey(effectiveProviderKey);
+  logger.info(
+    `📤 Sending API request with provider key ${effectiveProviderKey} (effective=${provider.name}/${provider.model}, active=${activeProvider.name}/${activeProvider.model})`
+  );
   
   // ─────────────────────────────────────────────────────────────
   // FULL PROMPT LOGGING - Log complete messages array
@@ -252,9 +464,21 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
   logger.info("📋 FULL PROMPT BEING SENT TO API:");
   messages.forEach((message, index) => {
     logger.info(`  [${index}] ${message.role.toUpperCase()}:`);
-    logger.info(`      ${message.content.substring(0, 1000)}${message.content.length > 1000 ? '...[TRUNCATED]' : ''}`);
+    logger.info(message.content);
   });
   logger.info("─────────────────────────────────────────────────────────────");
+
+  // Dev-only: console group with full messages for easier manual inspection
+  try {
+    if (import.meta.env && import.meta.env.DEV) {
+      console.group('🔍 FULL MESSAGES ARRAY (Non-Streaming)');
+      messages.forEach((m, i) => {
+        console.log(`[${i}] role=${m.role}`);
+        console.log(m.content);
+      });
+      console.groupEnd();
+    }
+  } catch (_) {}
   
   performanceMonitor.startTiming(`API-${provider.name}-request`, 'api', {
     provider: provider.name,
@@ -268,7 +492,7 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
   const useDirectAPI = API_CONFIG.DIRECT_API_MODE;
   
   if (useDirectAPI) {
-    // Legacy direct API call (for development only)
+    // Legacy direct API call (for development only) - use effective provider
     return makeDirectAPIRequest(messages, provider);
   }
   
@@ -281,7 +505,7 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
       },
       body: JSON.stringify({
         messages: cleanedMessages,
-        provider: API_CONFIG.ACTIVE_PROVIDER,
+        provider: effectiveProviderKey as any,
         streaming: false
       })
     });
@@ -303,7 +527,7 @@ const makeModelRequest = async (messages: ChatMessage[]): Promise<OpenAIResponse
     }
     
     performanceMonitor.endTiming(`API-${provider.name}-request`);
-    
+
     return data as OpenAIResponse;
   } catch (error) {
     performanceMonitor.endTiming(`API-${provider.name}-request`);
@@ -320,16 +544,28 @@ const makeDirectAPIRequest = async (messages: ChatMessage[], provider: ModelProv
   logger.info("📋 FULL PROMPT BEING SENT TO DIRECT API:");
   messages.forEach((message, index) => {
     logger.info(`  [${index}] ${message.role.toUpperCase()}:`);
-    logger.info(`      ${message.content.substring(0, 1000)}${message.content.length > 1000 ? '...[TRUNCATED]' : ''}`);
+    logger.info(message.content);
   });
   logger.info("─────────────────────────────────────────────────────────────");
+
+  // Dev-only: console group with full messages for easier manual inspection
+  try {
+    if (import.meta.env && import.meta.env.DEV) {
+      console.group('🔍 FULL MESSAGES ARRAY (Direct API)');
+      messages.forEach((m, i) => {
+        console.log(`[${i}] role=${m.role}`);
+        console.log(m.content);
+      });
+      console.groupEnd();
+    }
+  } catch (_) {}
   
   let requestBody: any = {
     model: provider.model,
     messages: messages,
-    temperature: 0.7,
   };
   
+  const isGpt5 = (provider.model || '').startsWith('gpt-5');
   if (provider.name === 'deepseek') {
     requestBody = {
       ...requestBody,
@@ -338,6 +574,12 @@ const makeDirectAPIRequest = async (messages: ChatMessage[], provider: ModelProv
       top_p: 0.8,
       frequency_penalty: 0,
       presence_penalty: 0,
+    };
+  } else if (!isGpt5) {
+    // Only include temperature for non-GPT-5 models
+    requestBody = {
+      ...requestBody,
+      temperature: 0.7,
     };
   }
   
@@ -493,22 +735,25 @@ const generateQuestionSync = async (gameState: GameState): Promise<Question & { 
   
   return performanceMonitor.timeAsync('generateQuestion', 'api', async () => {
     const systemPrompt = generateSystemPrompt();
-    const userPrompt = generateQuestionPrompt(gameState, true);
+    const assistantHistory = generateRecentHistoryContextI18n(gameState);
+  const systemQuestionPrompt = generateQuestionPrompt(gameState, true, false);
     
     // 🐛 COMPREHENSIVE LOGGING - FULL PROMPTS (development only)
     if (import.meta.env.DEV) {
       console.log('\n🔍 ===== GENERATE QUESTION DEBUG =====');
       console.log('🎯 SYSTEM PROMPT (FULL):');
       console.log(systemPrompt);
-      console.log('\n📝 USER PROMPT (FULL):');
-      console.log(userPrompt);
+      console.log('\n📝 SYSTEM QUESTION PROMPT (FULL):');
+      console.log(systemQuestionPrompt);
       console.log('\n📊 GAME STATE SENT TO LLM:');
       console.log(JSON.stringify(gameState, null, 2));
     }
     
+    const conciseNote = (getEffectiveProviderKey() === 'gpt5') ? getGpt5UltraGuardrailsI18n() : '';
+    const combinedSystem = `${systemPrompt}\n\n${systemQuestionPrompt}${conciseNote ? `\n\n${conciseNote}` : ''}`;
     const messages: ChatMessage[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
+      { role: 'system', content: combinedSystem },
+      ...(assistantHistory ? [{ role: 'assistant', content: assistantHistory }] as ChatMessage[] : [])
     ];
 
     try {
@@ -554,7 +799,9 @@ const generateQuestionSync = async (gameState: GameState): Promise<Question & { 
         options: result.options,
         isExtremeEvent: result.isExtremeEvent || false
       };
-      
+      // Charge premium credit per interaction (post-success), excluding initialization
+      await chargePremiumInteraction();
+
       return question;
     } catch (error) {
       logger.error('❌ Error generating question:', error);
@@ -578,15 +825,24 @@ const generateOutcomeAndNextQuestionSync = async (
   
   return performanceMonitor.timeAsync('generateOutcomeAndNextQuestion', 'api', async () => {
     const systemPrompt = generateSystemPrompt();
-    const userPrompt = generateOutcomeAndNextQuestionPrompt(gameState, question, choice, shouldGenerateNextQuestion);
+    const assistantHistory = generateRecentHistoryContextI18n(gameState);
+    const systemOutcomePrompt = generateOutcomeAndNextQuestionPrompt(
+      gameState,
+      question,
+      choice,
+      shouldGenerateNextQuestion,
+      false,
+      true
+    );
+    const userChoiceLines = generateOutcomeUserLinesI18n(question, choice);
     
     // 🐛 COMPREHENSIVE LOGGING - FULL PROMPTS (development only)
     if (import.meta.env.DEV) {
       console.log('\n🔍 ===== GENERATE OUTCOME DEBUG =====');
       console.log('🎯 SYSTEM PROMPT (FULL):');
       console.log(systemPrompt);
-      console.log('\n📝 USER PROMPT (FULL):');
-      console.log(userPrompt);
+      console.log('\n📝 SYSTEM OUTCOME PROMPT (FULL):');
+      console.log(systemOutcomePrompt);
       console.log('\n📊 GAME STATE SENT TO LLM:');
       console.log(JSON.stringify(gameState, null, 2));
       console.log('\n🎯 SELECTED CHOICE:');
@@ -595,9 +851,13 @@ const generateOutcomeAndNextQuestionSync = async (
       console.log(`Should generate next question: ${shouldGenerateNextQuestion}`);
     }
     
+    // Append concise note whenever effective provider is GPT-5
+    const conciseNote = (getEffectiveProviderKey() === 'gpt5') ? getGpt5UltraGuardrailsI18n() : '';
+    const combinedSystem = `${systemPrompt}\n\n${systemOutcomePrompt}${conciseNote ? `\n\n${conciseNote}` : ''}`;
     const messages: ChatMessage[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
+      { role: 'system', content: combinedSystem },
+      ...(assistantHistory ? [{ role: 'assistant', content: assistantHistory }] as ChatMessage[] : []),
+      { role: 'user', content: userChoiceLines }
     ];
 
     try {
@@ -655,7 +915,9 @@ const generateOutcomeAndNextQuestionSync = async (
       } else if (!shouldGenerateNextQuestion) {
         response.isEnding = true;
       }
-      
+      // Charge premium credit per interaction (post-success), excluding initialization
+      await chargePremiumInteraction();
+
       return response;
     } catch (error) {
       logger.error('❌ Error generating outcome and next question:', error);
@@ -671,9 +933,12 @@ const generateInitialStateSync = async (specialRequirements?: string): Promise<G
   setSpecialRequirements(specialRequirements);
   
   return performanceMonitor.timeAsync('generateInitialState-full', 'api', async () => {
+    const systemPrompt = generateSystemPrompt();
+    const systemInitPrompt = generateInitialStatePrompt(specialRequirements, false);
+    const conciseNote = (getEffectiveProviderKey() === 'gpt5') ? getGpt5UltraGuardrailsI18n() : '';
+    const combinedSystem = `${systemPrompt}\n\n${systemInitPrompt}${conciseNote ? `\n\n${conciseNote}` : ''}`;
     const messages: ChatMessage[] = [
-      { role: 'system', content: generateSystemPrompt() },
-      { role: 'user', content: generateInitialStatePrompt(specialRequirements) }
+      { role: 'system', content: combinedSystem }
     ];
 
     try {
@@ -699,9 +964,13 @@ const generateEndingSync = async (gameState: GameState): Promise<string> => {
   logger.info("🚀 Function called: generateEnding()");
   
   return performanceMonitor.timeAsync('generateEnding', 'api', async () => {
+    const systemPrompt = generateSystemPrompt();
+    const systemEndingPrompt = generateEndingPrompt(gameState, false);
+    const assistantHistory = generateEndingHistoryContextI18n(gameState);
+    const combinedSystem = `${systemPrompt}\n\n${systemEndingPrompt}`;
     const messages: ChatMessage[] = [
-      { role: 'system', content: generateSystemPrompt() },
-      { role: 'user', content: generateEndingPrompt(gameState) }
+      { role: 'system', content: combinedSystem },
+      ...(assistantHistory ? [{ role: 'assistant', content: assistantHistory }] as ChatMessage[] : [])
     ];
 
     try {
@@ -717,7 +986,10 @@ const generateEndingSync = async (gameState: GameState): Promise<string> => {
         return safeJsonParse(content);
       });
       
-      return formatEndingResult(result);
+      const formatted = formatEndingResult(result);
+      // Charge premium credit per interaction (post-success), excluding initialization
+      await chargePremiumInteraction();
+      return formatted;
     } catch (error) {
       logger.error('❌ Error generating ending:', error);
       throw error;
@@ -733,9 +1005,14 @@ const generateQuestionStreaming = async (
 ): Promise<Question & { isExtremeEvent: boolean }> => {
   logger.info(`🚀 Streaming function called: generateQuestion(child.age=${gameState.child.age})`);
   
+  const systemPrompt = generateSystemPrompt();
+  const systemQuestionPrompt = generateQuestionPrompt(gameState, false, false);
+  const assistantHistory = generateRecentHistoryContextI18n(gameState);
+  const streamingGuardrails = (getEffectiveProviderKey() === 'gpt5') ? getGpt5UltraGuardrailsI18n() : '';
   const messages: ChatMessage[] = [
-    { role: 'system', content: generateSystemPrompt() },
-    { role: 'user', content: generateQuestionPrompt(gameState, false) }
+    { role: 'system', content: systemPrompt },
+    { role: 'system', content: systemQuestionPrompt + (streamingGuardrails ? `\n\n${streamingGuardrails}` : '') },
+    ...(assistantHistory ? [{ role: 'assistant', content: assistantHistory }] as ChatMessage[] : [])
   ];
 
   return new Promise((resolve, reject) => {
@@ -790,9 +1067,23 @@ const generateOutcomeAndNextQuestionStreaming = async (
   
   const shouldGenerateNextQuestion = gameState.child.age < 17;
   
+  const systemPrompt = generateSystemPrompt();
+  const systemOutcomePrompt = generateOutcomeAndNextQuestionPrompt(
+    gameState,
+    question,
+    choice,
+    shouldGenerateNextQuestion,
+    false,
+    true
+  );
+  const assistantHistory = generateRecentHistoryContextI18n(gameState);
+  const userChoiceLines = generateOutcomeUserLinesI18n(question, choice);
+  const streamingGuardrails2 = (getEffectiveProviderKey() === 'gpt5') ? getGpt5UltraGuardrailsI18n() : '';
   const messages: ChatMessage[] = [
-    { role: 'system', content: generateSystemPrompt() },
-    { role: 'user', content: generateOutcomeAndNextQuestionPrompt(gameState, question, choice, shouldGenerateNextQuestion) }
+    { role: 'system', content: systemPrompt },
+    { role: 'system', content: systemOutcomePrompt + (streamingGuardrails2 ? `\n\n${streamingGuardrails2}` : '') },
+    ...(assistantHistory ? [{ role: 'assistant', content: assistantHistory }] as ChatMessage[] : []),
+    { role: 'user', content: userChoiceLines }
   ];
 
   return new Promise((resolve, reject) => {
@@ -847,9 +1138,13 @@ const generateEndingStreaming = async (
 ): Promise<string> => {
   logger.info("🚀 Streaming function called: generateEnding()");
   
+  const systemPrompt2 = generateSystemPrompt();
+  const systemEndingPrompt = generateEndingPrompt(gameState, false);
+  const assistantHistory2 = generateEndingHistoryContextI18n(gameState);
   const messages: ChatMessage[] = [
-    { role: 'system', content: generateSystemPrompt() },
-    { role: 'user', content: generateEndingPrompt(gameState) }
+    { role: 'system', content: systemPrompt2 },
+    { role: 'system', content: systemEndingPrompt },
+    ...(assistantHistory2 ? [{ role: 'assistant', content: assistantHistory2 }] as ChatMessage[] : [])
   ];
 
   return new Promise((resolve, reject) => {

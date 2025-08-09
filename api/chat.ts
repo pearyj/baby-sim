@@ -15,7 +15,7 @@ interface ModelProvider {
 
 interface RequestBody {
   messages: ChatMessage[];
-  provider?: 'openai' | 'deepseek' | 'volcengine';
+  provider?: 'openai' | 'deepseek' | 'volcengine' | 'gpt5';
   streaming?: boolean;
 }
 
@@ -28,6 +28,13 @@ const getProvider = (providerName: string): ModelProvider => {
         apiUrl: 'https://api.openai.com/v1/chat/completions',
         apiKey: process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '',
         model: 'gpt-4o-mini',
+      };
+    case 'gpt5':
+      return {
+        name: 'openai',
+        apiUrl: 'https://api.openai.com/v1/chat/completions',
+        apiKey: process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '',
+        model: 'gpt-5-mini-2025-08-07',
       };
     case 'deepseek':
       return {
@@ -103,8 +110,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Validate provider
-    if (!['openai', 'deepseek', 'volcengine'].includes(provider)) {
+    // Validate provider (allow alias 'gpt5')
+    if (!['openai', 'deepseek', 'volcengine', 'gpt5'].includes(provider)) {
       return res.status(400).json({ error: 'Invalid provider' });
     }
 
@@ -115,11 +122,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Prepare request body
+    const supportsTemperature = !(providerConfig.model || '').startsWith('gpt-5');
     let requestBody: any = {
       model: providerConfig.model,
       messages: messages,
-      temperature: 0.7,
-      stream: streaming,
+      ...(supportsTemperature ? { temperature: 0.7 } : {}),
+      ...(streaming ? { stream: true } : {}),
     };
 
     // Add provider-specific parameters

@@ -27,6 +27,8 @@ interface PaywallUIProps {
   open: boolean;
   onClose: () => void;
   childName: string;
+  mode?: 'llm' | 'image' | 'support';
+  onCreditsGained?: (newCredits: number, prevCredits?: number) => void;
 }
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -60,7 +62,7 @@ const DonationSlider = styled(Slider)(() => ({
 
 const PAYWALL_VERSION = import.meta.env.VITE_PAYWALL_VERSION || 'test';
 
-export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }) => {
+export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, mode = 'image', onCreditsGained }) => {
   const { t, i18n } = useTranslation();
   const { createCheckoutSession, isLoading, error, resetError, setEmail, fetchCredits } = usePaymentStore();
   const [donatedUnits, setDonatedUnits] = useState(i18n.language === 'zh' ? 3 : 1);
@@ -156,7 +158,12 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
                 intervalRef.current = null;
                 popupRef.current = null;
                 // Refresh credits and close dialog
+                const prevCredits = usePaymentStore.getState().credits ?? 0;
                 await fetchCredits(trimmedEmail);
+                const newCredits = usePaymentStore.getState().credits ?? 0;
+                if (typeof onCreditsGained === 'function' && newCredits > prevCredits) {
+                  onCreditsGained(newCredits, prevCredits);
+                }
                 onClose();
               }
             }, 1000);
@@ -179,10 +186,15 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
     // After embedded checkout completes, refresh credits first
     try {
       const trimmedEmail = email.trim();
+      const prevCredits = usePaymentStore.getState().credits ?? 0;
       if (trimmedEmail) {
         await fetchCredits(trimmedEmail);
       } else {
         await fetchCredits();
+      }
+      const newCredits = usePaymentStore.getState().credits ?? 0;
+      if (typeof onCreditsGained === 'function' && newCredits > prevCredits) {
+        onCreditsGained(newCredits, prevCredits);
       }
     } catch (err) {
       // Non-fatal – if it fails, the PaywallGate will attempt its own refresh logic
@@ -257,10 +269,14 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
     setCheckMessage(null);
     try {
       // Pass the email directly to ensure it's used for the lookup
+      const prevCredits = usePaymentStore.getState().credits ?? 0;
       await fetchCredits(trimmedEmail);
       const c = usePaymentStore.getState().credits;
       if (c > 0) {
-        setCheckMessage(t('paywall.creditsFound', { count: c }));
+        if (typeof onCreditsGained === 'function' && c > prevCredits) {
+          onCreditsGained(c, prevCredits);
+        }
+        setCheckMessage(t(mode === 'llm' ? 'paywall.creditsFound_llm' : 'paywall.creditsFound', { count: c }));
         // auto-close after brief delay
         setTimeout(() => {
           setCheckingCredits(false);
@@ -297,12 +313,19 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
         <>
           <DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
             <Favorite sx={{ color: '#8D6E63', mr: 1, verticalAlign: 'middle' }} />
-            {t('paywall.title', { childName })}
+            {t(
+              mode === 'llm'
+                ? 'paywall.title_llm'
+                : mode === 'support'
+                  ? 'paywall.title_support'
+                  : 'paywall.title',
+              { childName }
+            )}
           </DialogTitle>
           
           <DialogContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3, textAlign: 'center' }}>
-          {t('paywall.subtitle')}
+          {t(mode === 'llm' ? 'paywall.subtitle_llm' : 'paywall.subtitle')}
         </Typography>
 
         {/* Email Input */}
@@ -382,14 +405,28 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName }
           </Alert>
         )}
 
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center' }}>
-          {t('paywall.paymentSecure')}
-        </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center' }}>
+            {t('paywall.paymentSecure')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
+            {i18n.language === 'zh'
+              ? '高级 GPT‑5 模型有更高的 Token 成本，可能需要 VPN；同一套积分也可用于游戏结尾的图片生成。'
+              : 'Premium GPT‑5 model has higher token cost and may require VPN; the same token credits can be used for the end-of-game image generation.'}
+          </Typography>
 
         {/* Reminder for post-payment refresh issues */}
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
           {t('paywall.postPaymentReminder')}
         </Typography>
+
+        {/* GPT-5 access region reminder (LLM only) */}
+        {mode === 'llm' && (
+          <Alert severity="warning" sx={{ mt: 2 }}>
+            <Typography variant="body2">
+              {t('paywall.gpt5AccessWarning')}
+            </Typography>
+          </Alert>
+        )}
 
         {/* Payment Test Notice – only show in test mode */}
         {PAYWALL_VERSION === 'test' && (

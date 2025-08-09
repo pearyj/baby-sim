@@ -30,8 +30,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'style required' });
   }
 
-  // Decide table (shadow variant for non-prod deployments to avoid polluting prod data)
-  const TABLE = process.env.SESSIONS_TABLE || 'game_sessions';
+  // Decide table (shadow in dev/preview by default to avoid polluting prod data)
+  const env = process.env.VERCEL_ENV || 'development';
+  const TABLE = process.env.SESSIONS_TABLE || (env === 'production' || env === 'preview' ? 'game_sessions' : 'game_sessions_shadow');
 
   try {
     const { error } = await supabaseAdmin

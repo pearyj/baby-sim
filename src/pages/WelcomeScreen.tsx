@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -85,8 +85,31 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
   // ─────────────────────────────────────────────
   // Game style selection state
   // ─────────────────────────────────────────────
-  type GameStyle = 'realistic' | 'fantasy' | 'cool';
-  const [gameStyle, setGameStyle] = useState<GameStyle>('realistic');
+  type GameStyle = 'realistic' | 'fantasy' | 'cool' | 'ultra';
+  const defaultStyle: GameStyle = (i18n.language === 'zh') ? 'realistic' : 'ultra';
+  const [gameStyle, setGameStyle] = useState<GameStyle>(defaultStyle);
+
+  // Persisted style key (must match gptServiceUnified)
+  const GAME_STYLE_STORAGE_KEY = 'childSimGameStyle';
+  // On mount, load persisted style if present
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(GAME_STYLE_STORAGE_KEY);
+      if (raw === 'realistic' || raw === 'fantasy' || raw === 'cool' || raw === 'ultra') {
+        setGameStyle(raw as GameStyle);
+      }
+    } catch (_) {
+      // ignore read failures
+    }
+  }, []);
+  // Whenever selection changes, persist it immediately so refresh retains it pre-start
+  useEffect(() => {
+    try {
+      localStorage.setItem(GAME_STYLE_STORAGE_KEY, gameStyle);
+    } catch (_) {
+      // ignore write failures
+    }
+  }, [gameStyle]);
   
   // ────────────────────────────────────────────
   // Parent Gender Selection (mom/dad/non-binary/random)
@@ -403,10 +426,15 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                         </Typography>
                       </ListItem>
                       <ListItem disablePadding>
-                        <Typography variant="body2" sx={{ textAlign: 'left' }}>
+                        <Typography variant="body2" sx={{ mb: 1, textAlign: 'left' }}>
                           {t('welcome.feature4')}
                         </Typography>
                       </ListItem>
+                       <ListItem disablePadding>
+                         <Typography variant="body2" sx={{ mb: 1, textAlign: 'left' }}>
+                           {t('welcome.feature5')}
+                         </Typography>
+                       </ListItem>
                     </List>
                   </CardContent>
                 </FeatureCard>
@@ -485,7 +513,28 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', color: 'primary.main' }}>
                     {t('actions.chooseGameStyle')}
                   </Typography>
-                  <Stack direction="row" spacing={{ xs: 1, sm: 2 }} justifyContent="center" sx={{ mb: 3 }}>
+
+                  {/* Highlighted premium option on its own line */}
+                  <Stack direction="row" spacing={{ xs: 1, sm: 2 }} justifyContent="center" sx={{ mb: 2 }}>
+                    <Button
+                      key="ultra"
+                      variant={gameStyle === 'ultra' ? 'contained' : 'outlined'}
+                      color={gameStyle === 'ultra' ? 'primary' : 'inherit'}
+                      onClick={() => setGameStyle('ultra')}
+                      sx={{ 
+                        fontSize: { xs: '0.9rem', sm: '1rem' },
+                        fontWeight: 800,
+                        borderRadius: { xs: '14px', sm: '10px' },
+                        px: { xs: 2, sm: 2.5 },
+                        py: { xs: 1, sm: 1.2 }
+                      }}
+                    >
+                      {t('gameStyle.ultra')}
+                    </Button>
+                  </Stack>
+
+                  {/* Other options on a separate line */}
+                  <Stack direction="row" spacing={{ xs: 1, sm: 2 }} justifyContent="center" sx={{ mb: 2, flexWrap: 'wrap' }}>
                     {(['realistic', 'fantasy', 'cool'] as GameStyle[]).map(style => (
                       <Button
                         key={style}
@@ -502,6 +551,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                       </Button>
                     ))}
                   </Stack>
+
+                  {gameStyle === 'ultra' && (
+                    <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: -1, mb: 2 }}>
+                      {t('gameStyle.ultraExplanation')}
+                    </Typography>
+                  )}
                 </Box>
                 
                 {renderSpecialRequirementsInput()}

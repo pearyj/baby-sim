@@ -656,6 +656,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
               } else {
                 await get().loadQuestion();
               }
+              // Continuing the game means the player is engaging → reset give up streak
+              storageService.resetGiveUpStreak();
               logger.debug("DEBUG: Successfully loaded first question - AFTER await loadQuestion()"); // New Log
               logger.debug("Successfully loaded first question");
             } catch (innerErr) {
@@ -690,8 +692,10 @@ const useGameStore = create<GameStoreState>((set, get) => {
         set(prevState => ({ ...prevState, gamePhase: 'ending_game', isLoading: true, error: null, showFeedback: false, feedbackText: null }));
         try {
           const finalChildState = { ...child, age: 18 };
+          const ageDeltaTo18 = 18 - (child?.age ?? 0);
+          const finalPlayerState = player ? { ...player, age: player.age + ageDeltaTo18 } : player;
           const fullGameStateForApi: ApiGameState = {
-            player: player!,
+            player: finalPlayerState!,
             child: finalChildState,
             playerDescription: playerDescription!,
             childDescription: childDescription!,
@@ -712,6 +716,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
             isEnding: true,
             currentAge: 18, 
             child: finalChildState, // Persist the final age
+            player: finalPlayerState!,
           };
           set(prevState => ({ ...prevState, ...newState }));
           saveGameState(get());
@@ -724,11 +729,13 @@ const useGameStore = create<GameStoreState>((set, get) => {
         // Not ending, advance age and load next question.
         logger.debug("Advancing to next age:", currentChildAge + 1);
         const nextAge = currentChildAge + 1;
+        const nextPlayerAge = (player?.age ?? 0) + 1;
         const newState = {
             showFeedback: false, 
             feedbackText: null,
             child: { ...child, age: nextAge }, 
             currentAge: nextAge,
+            player: player ? { ...player, age: nextPlayerAge } : player,
             gamePhase: 'loading_question' as GamePhase,
             isLoading: true
         };
@@ -765,6 +772,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
           } else {
             await get().loadQuestion();
           }
+          // Player continues engaging → reset give up streak
+          storageService.resetGiveUpStreak();
         }
       }
     },
@@ -773,6 +782,13 @@ const useGameStore = create<GameStoreState>((set, get) => {
       logger.debug("Resetting to welcome screen");
       // Clear localStorage state
       clearState();
+      // Increment give up streak when explicitly resetting to welcome
+      try {
+        const streak = storageService.incrementGiveUpStreak();
+        logger.info(`Give up streak incremented to ${streak}`);
+      } catch (_) {
+        // ignore
+      }
       // Reset the store state to welcome, but don't initialize a new game yet
       useGameStore.setState({
         gamePhase: 'welcome',

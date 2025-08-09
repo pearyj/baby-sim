@@ -13,6 +13,9 @@ interface PaywallGateProps {
 
 // Feature flag check (in real app, this would come from env or config)
 const PAYWALL_VERSION = import.meta.env.VITE_PAYWALL_VERSION || 'test';
+const IS_DEV = import.meta.env.DEV;
+// Enforce paywall in development as well as in production mode
+const ENFORCE_PAYWALL = IS_DEV || PAYWALL_VERSION === 'prod';
 
 export const PaywallGate: React.FC<PaywallGateProps> = ({ 
   children, 
@@ -48,14 +51,15 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
     return false;
   });
 
-  // Feature flag check - if paywall is off, always render children
-  if (PAYWALL_VERSION === 'off') {
+  // Feature flag check - if paywall is off AND not in dev, allow bypass
+  if (PAYWALL_VERSION === 'off' && !IS_DEV) {
     return <>{children}</>;
   }
 
   // Fallback bypass check
   const skipPaywall = new URLSearchParams(window.location.search).get('skipPaywall') === 'yes';
-  if (skipPaywall) {
+  // Only honor skipPaywall when not enforcing (i.e., not dev and not prod mode)
+  if (skipPaywall && !ENFORCE_PAYWALL) {
     return <>{children}</>;
   }
 
@@ -76,8 +80,8 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
 
   // Allow generation if credits available, but don't deduct yet.
   const handleGenerateImage = () => {
-    // In production mode, enforce paywall logic
-    if (PAYWALL_VERSION === 'prod') {
+    // Enforce paywall logic in development and production mode
+    if (ENFORCE_PAYWALL) {
       // Require email first
       if (!email) {
         setShowPaywall(true);
@@ -125,30 +129,6 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
   const handlePaywallClose = () => {
     setShowPaywall(false);
     resetError();
-    // Refresh credits after potential payment
-    if (anonId) {
-      const prev = credits;
-      setWaitingForCredit(true);
-
-      let canceled = false;
-
-      const poll = async (attempt = 0) => {
-        if (canceled) return;
-        await fetchCredits();
-        const newCredits = usePaymentStore.getState().credits;
-        if (newCredits > prev || attempt >= 10) { // stop after ~10s (was 4)
-          setWaitingForCredit(false);
-          return;
-        }
-        setTimeout(() => poll(attempt + 1), 1000);
-      };
-
-      poll();
-
-      return () => {
-        canceled = true;
-      };
-    }
   };
 
   // Ensure any pending poll is cleared if component unmounts
@@ -227,6 +207,7 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
         open={showPaywall}
         onClose={handlePaywallClose}
         childName={childName}
+        mode={'image'}
       />
     </>
   );

@@ -3,6 +3,8 @@ import { AppBar, Toolbar, Typography, Box, Switch, FormControlLabel, Tooltip } f
 import { styled } from '@mui/material/styles';
 import { DevModelSwitcher } from '../dev';
 import { LanguageToggle } from '../ui';
+import ProviderToggle from '../ui/ProviderToggle';
+import { isPremiumStyleActive } from '../../services/gptServiceUnified';
 import { useTranslation } from 'react-i18next';
 import useGameStore from '../../stores/useGameStore';
 import { useNavigate } from 'react-router-dom';
@@ -24,11 +26,21 @@ const StyledTitle = styled(Typography)(({ theme }) => ({
 export const Header: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { enableStreaming, toggleStreaming, isStreaming } = useGameStore(state => ({
+  const { enableStreaming, toggleStreaming, isStreaming, gamePhase } = useGameStore(state => ({
     enableStreaming: state.enableStreaming,
     toggleStreaming: state.toggleStreaming,
     isStreaming: state.isStreaming,
+    gamePhase: state.gamePhase,
   }));
+  const isInGame = (
+    gamePhase === 'playing' ||
+    gamePhase === 'loading_question' ||
+    gamePhase === 'feedback' ||
+    gamePhase === 'generating_outcome' ||
+    gamePhase === 'ending_game' ||
+    gamePhase === 'summary' ||
+    gamePhase === 'ended'
+  );
 
   return (
     <StyledAppBar position="fixed" elevation={2}>
@@ -49,6 +61,9 @@ export const Header: React.FC = () => {
         <Box sx={{ position: 'absolute', right: 16, display: 'flex', gap: 2, alignItems: 'center' }}>
           {/* Language Toggle */}
           <LanguageToggle />
+
+          {/* Provider Toggle (DeepSeek ↔ GPT-5) - only during gameplay and not in ultra style */}
+          {isInGame && !isPremiumStyleActive() && <ProviderToggle />}
           
           {/* Only show streaming toggle in development mode */}
           {import.meta.env.DEV && (
@@ -68,8 +83,8 @@ export const Header: React.FC = () => {
             </Tooltip>
           )}
           
-          {/* Dev Model Switcher */}
-          {import.meta.env.DEV && <DevModelSwitcher />}
+          {/* Dev Model Switcher - hidden in ultra style */}
+          {import.meta.env.DEV && !isPremiumStyleActive() && <DevModelSwitcher />}
         </Box>
       </Toolbar>
     </StyledAppBar>

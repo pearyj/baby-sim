@@ -203,31 +203,6 @@ export const EmbeddedCheckout: React.FC<EmbeddedCheckoutProps> = ({
           <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
             {i18n.language === 'zh' ? '支付成功！' : 'Payment Successful!'}
           </Typography>
-          
-
-
-          <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-            {i18n.language === 'zh'
-              ? `您现在可以为 ${childName} 生成AI照片了！`
-              : `You can now generate AI photos of ${childName}!`
-            }
-          </Typography>
-
-          <Button
-            variant="contained"
-            onClick={onSuccess}
-            sx={{
-              background: 'linear-gradient(45deg, #4CAF50 30%, #388E3C 90%)',
-              '&:hover': {
-                background: 'linear-gradient(45deg, #388E3C 30%, #2E7D32 90%)',
-              },
-              borderRadius: 3,
-              px: 4,
-              py: 1.5,
-            }}
-          >
-            {i18n.language === 'zh' ? '生成照片' : 'Generate Photo'}
-          </Button>
         </SuccessContainer>
       </CheckoutContainer>
     );
@@ -274,8 +249,8 @@ export const EmbeddedCheckout: React.FC<EmbeddedCheckoutProps> = ({
       
       <Typography variant="h6" sx={{ mb: 3, textAlign: 'center' }}>
         {i18n.language === 'zh' 
-          ? `支持宝宝模拟器，为 ${childName} 生成照片` 
-          : `Support the Baby Simulator and see ${childName} in a photo`
+          ? `支持宝宝模拟器和 ${childName}` 
+          : `Support the Baby Simulator and ${childName}`
         }
       </Typography>
       <div ref={containerRef} id={checkoutId.current} style={{ width: '100%' }}></div>

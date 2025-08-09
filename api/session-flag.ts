@@ -25,7 +25,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'anonId, kidId and flags required' });
   }
 
-  const TABLE = process.env.SESSIONS_TABLE || 'game_sessions';
+  const env = process.env.VERCEL_ENV || 'development';
+  const TABLE = process.env.SESSIONS_TABLE || (env === 'production' || env === 'preview' ? 'game_sessions' : 'game_sessions_shadow');
 
   const updatePayload: Record<string, boolean> = {};
   if (flags.checkoutInitiated) updatePayload.checkout_initiated = true;

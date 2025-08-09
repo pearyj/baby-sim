@@ -50,7 +50,6 @@
     "readyToBegin": "Are you ready to begin this journey?",
     "currentAge": "Current Age",
     "situation": "Situation:",
-    "result": "Result",
     "growthStage": "Growth Stage",
     "sponsored": "Sponsored",
     "adPlaceholder": "Advertisement Space"
@@ -122,14 +121,16 @@
     "chooseGameStyle": "Choose a Style",
     "selectThisOption": "I'll do this",
     "selectedThisOption": "I did this",
-    "copyJourney": "Copy journey as text"
+    "copyJourney": "Copy journey as text",
+    "refresh": "Refresh"
   },
   "header": {
     "title": "The Baby Simulator",
     "infoCenter": "Info Center",
     "enableStreaming": "Enable real-time streaming",
     "disableStreaming": "Disable real-time streaming",
-    "streaming": "Streaming"
+    "streaming": "Streaming",
+    "modelToggle": "Model"
   },
   "messages": {
     "error": "An error occurred",
@@ -174,7 +175,16 @@
     "giveGuidance": "Provide appropriate guidance and advice",
     "encourageThinking": "Encourage the child to think and solve problems independently",
     "errorGeneratingSummary": "Error: Could not generate summary.",
-    "shareCarouselHeading": "Join others in showing how amazing {{childName}} is with an image!"
+    "shareCarouselHeading": "Join others in showing how amazing {{childName}} is with an image!",
+    "thankYouSupport": "Thank you for your support!",
+    "createImages": "Create Images",
+    "useCreditsHint": "Tip: You can use credits to generate the ending image for {{childName}}.",
+    "creditsUsageShort": "Use credits for premium GPT‑5 and image generation."
+  },
+  "gentleReminder": {
+    "title": "A gentle reminder",
+    "body": "In life, we don't always get to choose our child. Sometimes the world hands us a little human to love just as they are. Consider continuing the journey with the kid you've got — you might be surprised where it goes.",
+    "ok": "Got it"
   },
   "share": {
     "title": "I've raised {{childName}} to 18 at the Baby Simulator!",
@@ -195,10 +205,17 @@
     "feature1": "AI-generated character backgrounds, parenting scenarios, and storylines",
     "feature2": "Every decision affects your child's path",
     "feature3": "See a timeline of your parenting journey until your child reaches adulthood at 18, and reflect on what kind of parent you are",
-    "feature4": "[Updated + in Beta] Generate a photo of your 18-year-old child at a style of your liking",
+    "feature4": "[Updated + Beta] Generate a photo of your 18-year-old child in the style you prefer",
+    "feature5": "[Beta] Upgrade to the latest GPT‑5 model for better scenario generation and writing",
     "startGameInfo": "Click start game to randomly generate a parent character and basic child information.",
     "specialRequirements": "Special Requirements (Optional)",
     "specialRequirementsPlaceholder": "I want an ugly cute kid",
+    "specialRequirementsPlaceholderByStyle": {
+      "realistic": "I want an ugly cute kid",
+      "fantasy": "My baby has superpowers",
+      "cool": "My baby will become a unicorn startup founder",
+      "ultra": "Please share as much details about you and your partner (if have) as possible for an ultra realistic experience."
+    },
     "specialRequirementsDesc": "You can describe what you'd like for yourself or your baby. AI will try to meet them. (Of course, AI can sometimes be unpredictable too, just like babies...)",
     "readyToStart": "Ready to take on the challenge to become a parent?",
     "selectParentGender": "Choose Your Role",
@@ -240,7 +257,10 @@
   },
   "paywall": {
     "title": "Thank you for playing! See {{childName}} in a photo",
-    "subtitle": "AI generations cost money! Donate at your own price to support the game and receive credits to generate personalized AI photos",
+    "title_llm": "You are using a costly GPT-5 model for better experience with {{childName}}!",
+    "title_support": "Support The Baby Simulator",
+    "subtitle": "AI generations cost money – donate at your own price to support the game and receive credits to use premium language models and generate personalized AI photos",
+    "subtitle_llm": "AI generations cost money – donate at your own price to support the game and receive credits to use premium language models and generate personalized AI photos",
     "email": "Email",
     "emailRequired": "Email is required for receipts and for tracking your credits",
     "emailInvalid": "Please enter a valid email address",
@@ -248,24 +268,31 @@
     "donationAmount": "Donation Amount:",
     "getCredits": "Get {{count}} credit",
     "getCredits_plural": "Get {{count}} credits",
+    "creditsLabel": "Credits",
     "paymentSecure": "Payment securely processed by Stripe. Note that Stripe takes a 2.9% + 30 cents fee for each payment so please choose a higher amount in one transaction if you'd like to generate multiple times! You will be able to reuse them in the future with your email address.",
     "paymenttestnotice": "Note that as we are currently in testing and are giving away credits for free, please put in 4242424242424242 as the credit card number, and you will receive credits without charging your real card.",
     "cancel": "Cancel",
     "continueAndPay": "Continue & Pay",
+    "supportMore": "Support More",
     "processing": "Processing...",
     "creditsFound": "You have {{count}} credit. You can generate your photo now.",
     "creditsFound_plural": "You have {{count}} credits. You can generate your photo now.",
+    "creditsFound_llm": "You have {{count}} credit. You can continue with GPT‑5 now.",
+    "creditsFound_llm_plural": "You have {{count}} credits. You can continue with GPT‑5 now.",
     "noCreditsFound": "No credits found. Please donate to get credits.",
     "checkCreditsFailed": "Failed to check credits",
     "emailReceiptCopy": "Share your email for receipt and for recovering your image credits for future kids",
     "emailAgreement": "By sharing your email you agree to our Privacy Policy and Terms of Service.",
     "emailPrivacyNotice": "Privacy notice – By providing your e-mail you agree that BabySim may link it to your gameplay activity solely for analytics and product-improvement in line with our Privacy Policy. You can unlink or delete this data at any time.",
-    "postPaymentReminder": "If the page doesn't refresh after payment, you can return to this website in the same browser and your credits should load automatically. If you encounter any issues with payments, please email dev@babysim.fun."
+    "postPaymentReminder": "If the page doesn't refresh after payment, you can return to this website in the same browser and your credits should load automatically. If you encounter any issues with payments, please email dev@babysim.fun.",
+    "gpt5AccessWarning": "Important: The GPT‑5 API is restricted in certain countries/regions. Before donating, ensure you can access GPT. We recommend opening the ChatGPT website to verify. The image generation feature is not subject to this restriction."
   },
   "gameStyle": {
     "realistic": "Realistic",
     "fantasy": "Fantasy",
-    "cool": "Thrilling"
+    "cool": "Thrilling",
+    "ultra": "New: Ultra-realistic with GPT-5",
+    "ultraExplanation": "Premium feature – uses GPT‑5 for ultra-realistic writing and may cost more tokens; this mode consumes credits per interaction. In some regions you may need a VPN to access GPT‑5."
   },
   "gallery": {
     "otherKids": "Gallery: See the kids others raised",

@@ -1,5 +1,6 @@
 import React from 'react';
 import ModelSwitcher from './ModelSwitcher';
+import { isPremiumStyleActive } from '../../services/gptServiceUnified';
 
 interface DevModelSwitcherProps {
   className?: string;
@@ -11,6 +12,10 @@ interface DevModelSwitcherProps {
 const DevModelSwitcher: React.FC<DevModelSwitcherProps> = ({ className }) => {
   // Only render in development mode
   if (!import.meta.env.DEV) {
+    return null;
+  }
+  // Hide entirely when ultra style is active (locked to GPT-5)
+  if (isPremiumStyleActive()) {
     return null;
   }
   

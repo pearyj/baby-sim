@@ -55,6 +55,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // impossible to accidentally corrupt prod data while still allowing reads to work.
     const env = process.env.VERCEL_ENV || 'development';
     const CREDITS_TABLE = process.env.CREDITS_TABLE || ((env === 'production' || env === 'preview') ? 'credits' : 'credits_shadow');
+    const PURCHASES_TABLE = process.env.PURCHASES_TABLE || ((env === 'production' || env === 'preview') ? 'purchases' : 'purchases_shadow');
+    const defaultEventsFamily = (env === 'production' || env === 'preview') ? 'game_events' : 'game_events_shadow';
+    const EVENTS_TABLE_SEL = process.env.EVENTS_TABLE || defaultEventsFamily;
+    const isShadowFamily = EVENTS_TABLE_SEL.endsWith('_shadow');
+    const SESSIONS_TABLE_SEL = process.env.SESSIONS_TABLE || (isShadowFamily ? 'game_sessions_shadow' : 'game_sessions');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[webhook] Table selection', {
+        env,
+        CREDITS_TABLE,
+        PURCHASES_TABLE,
+        EVENTS_TABLE: EVENTS_TABLE_SEL,
+        SESSIONS_TABLE: SESSIONS_TABLE_SEL,
+      });
+    }
     
     try {
       // Fetch current credits
@@ -66,7 +80,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       if (selErr) throw selErr;
 
-      const current = existingRows && existingRows.length > 0 ? existingRows[0].credits || 0 : 0;
+      const current = existingRows && existingRows.length > 0 ? Number(existingRows[0].credits ?? 0) : 0;
 
       let upsertSuccess = false;
 
@@ -101,7 +115,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       // Always insert a purchase record for auditing
-      const PURCHASES_TABLE = process.env.PURCHASES_TABLE || ((env === 'production' || env === 'preview') ? 'purchases' : 'purchases_shadow');
       const { error: purchaseErr } = await supabaseAdmin.from(PURCHASES_TABLE).insert({
           anon_id: anonId,
           email: session.metadata?.email || null,
@@ -119,8 +132,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // === Log checkout_completed event (non-blocking) ===
       try {
-        const EVENTS_TABLE = process.env.EVENTS_TABLE || ((env === 'production' || env === 'preview') ? 'game_events' : 'game_events_shadow');
-        const SESSIONS_TABLE = process.env.SESSIONS_TABLE || ((env === 'production' || env === 'preview') ? 'game_sessions' : 'game_sessions_shadow');
+        // Align sessions table family with events table to prevent FK mismatches
+        const EVENTS_TABLE = EVENTS_TABLE_SEL;
+        const SESSIONS_TABLE = SESSIONS_TABLE_SEL;
 
         // Fetch session_id via anon_id (may not exist if init failed, ignore error)
         let sessionId: string | null = null;
@@ -151,7 +165,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // Also mark checkout_completed in game_sessions
       try {
-        const SESSIONS_TABLE_FINAL = process.env.SESSIONS_TABLE || ((env === 'production' || env === 'preview') ? 'game_sessions' : 'game_sessions_shadow');
+        const SESSIONS_TABLE_FINAL = SESSIONS_TABLE_SEL;
         await supabaseAdmin
           .from(SESSIONS_TABLE_FINAL)
           .update({ checkout_completed: true })

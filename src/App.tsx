@@ -8,6 +8,10 @@ import {
   CircularProgress,
   Chip,
   Fade,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
@@ -36,6 +40,11 @@ import { PaymentTestPage } from './pages/PaymentTestPage'
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
 import { GalleryPage } from './pages/GalleryPage';
 import GalleryCarousel from './components/GalleryCarousel';
+import { debugPrintActiveModel, isPremiumStyleActive } from './services/gptServiceUnified';
+import { PaywallUI } from './components/payment/PaywallUI';
+import { usePaymentStore } from './stores/usePaymentStore';
+import React from 'react';
+import * as storageService from './services/storageService';
 
 const MainContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
@@ -92,6 +101,9 @@ const EndingCard = styled(Card)(({ theme }) => ({
 function App() {
   useGameFlow() // Initialize game flow logic
   const { t } = useTranslation();
+  const [showLLMPaywall, setShowLLMPaywall] = React.useState(false);
+  const [showGiveUpReminder, setShowGiveUpReminder] = React.useState(false);
+  // const [isWaitingForPremiumCredit, setIsWaitingForPremiumCredit] = React.useState(false);
   
   // Determine if in development mode
   const isDevelopment = import.meta.env.DEV;
@@ -155,6 +167,15 @@ function App() {
     isSingleParent: state.isSingleParent,
   }))
 
+  // Payment store for premium gating
+  const { credits, email, fetchCredits, anonId, initializeAnonymousId } = usePaymentStore(state => ({
+    credits: state.credits,
+    email: state.email,
+    fetchCredits: state.fetchCredits,
+    anonId: state.anonId,
+    initializeAnonymousId: state.initializeAnonymousId,
+  }));
+
   // Secret test ending trigger - works in production
   useEffect(() => {
     if (secretTestEnding && gamePhase === 'uninitialized') {
@@ -193,6 +214,37 @@ function App() {
       testPromptGeneration();
     }
   }, []);
+
+  // Ensure payment anonId is initialized early so paywall flows work consistently
+  useEffect(() => {
+    try {
+      if (!anonId && typeof initializeAnonymousId === 'function') {
+        initializeAnonymousId();
+      }
+    } catch (_) {
+      // ignore
+    }
+    // We intentionally run this once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Print active model and masked API key prefix in browser console (dev only)
+  useEffect(() => {
+    debugPrintActiveModel();
+  }, []);
+
+  // Check give up streak whenever entering welcome or when app mounts
+  useEffect(() => {
+    try {
+      const streak = storageService.getGiveUpStreak();
+      // Show reminder if user has given up/restarted 3 or more times consecutively
+      if (streak >= 3 && (gamePhase === 'welcome' || gamePhase === 'uninitialized')) {
+        setShowGiveUpReminder(true);
+      }
+    } catch (_) {
+      // ignore
+    }
+  }, [gamePhase]);
 
   if (error && gamePhase !== 'welcome' && gamePhase !== 'playing' && gamePhase !== 'feedback') { // Show general error screen only if not in a phase that might have its own error display or content
     return (
@@ -400,8 +452,8 @@ function App() {
 
       if (isFeedbackPhase || isGeneratingOutcomePhase) {
           // Check if this is the initial feedback narrative (after initialization)
-          const isInitialNarrative = history.length === 1 && history[0].question === "游戏开始";
-          
+          const isInitialNarrative = history.length === 1 && (history[0].question === "游戏开始" || history[0].question === "Game Start");
+
           // Debug the continueGame function
           logger.info("Rendering FeedbackDisplay with:", {
             continueGameType: typeof continueGame,
@@ -410,19 +462,34 @@ function App() {
             isInitialNarrative,
             childName: child?.name
           });
-          
-          // Create a safe wrapper for continueGame
-          const safeContinue = () => {
+
+          // Create a safe wrapper for continueGame with premium (ultra) gating on every GPT-5 call
+          const safeContinue = async () => {
             const storeContinueGame = useGameStore.getState().continueGame;
+
+            if (isPremiumStyleActive()) {
+              // Refresh credits before gating
+              try {
+                if (!anonId && typeof initializeAnonymousId === 'function') {
+                  initializeAnonymousId();
+                }
+                await fetchCredits();
+              } catch (_) {}
+              // Require email and at least 0.05 credits for GPT-5 interactions
+              if (!email || typeof credits !== 'number' || credits < 0.05) {
+                setShowLLMPaywall(true);
+                return;
+              }
+            }
+
             if (typeof storeContinueGame === 'function') {
               storeContinueGame();
             } else {
               logger.error("continueGame from store is not a function:", storeContinueGame);
-              // Fallback behavior: we could reload or go to welcome screen
               window.location.reload();
             }
           };
-          
+
           return (
             <FeedbackDisplay
               feedback={feedbackText || (isGeneratingOutcomePhase ? "" : "")}
@@ -439,10 +506,28 @@ function App() {
 
       if (isGamePlayPhase) {
         if (currentQuestion) {
+          // Wrap selectOption to gate GPT-5 usage by credits
+          const storeSelectOption = enableStreaming ? selectOptionStreaming : selectOption;
+          const safeSelectOption = async (optionId: string) => {
+            if (isPremiumStyleActive()) {
+              // Refresh credits before gating
+              try {
+                if (!anonId && typeof initializeAnonymousId === 'function') {
+                  initializeAnonymousId();
+                }
+                await fetchCredits();
+              } catch (_) {}
+              if (!email || typeof credits !== 'number' || credits < 0.05) {
+                setShowLLMPaywall(true);
+                return;
+              }
+            }
+            await storeSelectOption(optionId);
+          };
           return (
             <QuestionDisplay
               question={currentQuestion}
-              onSelectOption={enableStreaming ? selectOptionStreaming : selectOption}
+              onSelectOption={safeSelectOption}
               isLoading={false} 
               childName={child?.name || t('game.childName')}
               isStreaming={isStreaming && streamingType === 'question'}
@@ -562,12 +647,46 @@ function App() {
         </MainContentArea>
       </ContentArea>
       <FeedbackButton />
+
+      {/* Gentle reminder dialog for repeated give-ups */}
+      <Dialog open={showGiveUpReminder} onClose={() => setShowGiveUpReminder(false)}>
+        <DialogTitle>{t('gentleReminder.title')}</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1">
+            {t('gentleReminder.body')}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowGiveUpReminder(false)} variant="contained">
+            {t('gentleReminder.ok')}
+          </Button>
+        </DialogActions>
+      </Dialog>
       
       {/* Show performance monitor in development mode */}
       {isDevelopment && <PerformanceMonitor />}
       
       {/* Show debug numerical values in development mode */}
       {isDevelopment && <DebugNumericalValues />}
+
+      {/* Premium LLM paywall dialog */}
+      {showLLMPaywall && (
+        <PaywallUI
+          open={showLLMPaywall}
+          onClose={async () => {
+            setShowLLMPaywall(false);
+          }}
+          childName={child?.name || t('game.childName')}
+          mode="llm"
+          onCreditsGained={() => {
+            // Proceed automatically only if generation is waiting and user has just gained credits
+            const storeContinueGame = useGameStore.getState().continueGame;
+            if (typeof storeContinueGame === 'function') {
+              storeContinueGame();
+            }
+          }}
+        />
+      )}
     </MainContainer>
   );
 }

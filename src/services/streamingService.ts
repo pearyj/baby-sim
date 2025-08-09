@@ -1,8 +1,10 @@
 import logger from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
-import { getActiveProvider, type ModelProvider } from './gptServiceUnified';
+import { getActiveProvider, getEffectiveProviderKey, getProviderByKey, type ModelProvider } from './gptServiceUnified';
+import { getOrCreateAnonymousId, consumeCreditAPI } from './paymentService';
 import { API_CONFIG } from '../config/api';
 import { throttledFetch } from '../utils/throttledFetch';
+import { usePaymentStore } from '../stores/usePaymentStore';
 
 // Types for streaming
 export interface StreamChunk {
@@ -32,9 +34,26 @@ export const makeStreamingRequest = async (
   messages: ChatMessage[],
   options: StreamOptions
 ): Promise<void> => {
-  const provider = getActiveProvider();
-  logger.debug(`📤 makeStreamingRequest called! Provider: ${provider.name}, Model: ${provider.model}`);
-  logger.info(`📤 Sending streaming API request to ${provider.name} provider using ${provider.model}`);
+  const effectiveProviderKey = getEffectiveProviderKey();
+  const activeProvider = getActiveProvider();
+  const provider = getProviderByKey(effectiveProviderKey);
+  logger.debug(`📤 makeStreamingRequest called! Effective Provider: ${provider.name}, Model: ${provider.model}`);
+  logger.info(
+    `📤 Sending streaming API request to ${provider.name} provider using ${provider.model} (active=${activeProvider.name}/${activeProvider.model})`
+  );
+  
+  // Dev-only: print full messages array before streaming
+  try {
+    // Vite env is available in client; guard in case this is reused elsewhere
+    if ((import.meta as any).env && (import.meta as any).env.DEV) {
+      console.group('🔍 FULL MESSAGES ARRAY (Streaming)');
+      messages.forEach((m, i) => {
+        console.log(`[${i}] role=${m.role}`);
+        console.log(m.content);
+      });
+      console.groupEnd();
+    }
+  } catch (_) {}
   
   // Start timing the API request
   performanceMonitor.startTiming(`Streaming-API-${provider.name}-request`, 'api', {
@@ -50,7 +69,7 @@ export const makeStreamingRequest = async (
   const useDirectAPI = API_CONFIG.DIRECT_API_MODE;
   
   if (useDirectAPI) {
-    // Legacy direct streaming API call (for development only)
+    // Legacy direct streaming API call (for development only) - use effective provider
     return makeDirectStreamingRequest(messages, provider, options);
   }
   
@@ -65,7 +84,7 @@ export const makeStreamingRequest = async (
       },
       body: JSON.stringify({
         messages: cleanedMessages,
-        provider: API_CONFIG.ACTIVE_PROVIDER,
+        provider: effectiveProviderKey as any,
         streaming: true
       })
     });
@@ -146,6 +165,21 @@ export const makeStreamingRequest = async (
       }
 
       options.onComplete(fullContent, usage);
+
+      // Charge fractional credit if using GPT-5 (ultra)
+      try {
+        const currentEffective = getEffectiveProviderKey();
+        if (currentEffective === 'gpt5') {
+          const anonId = getOrCreateAnonymousId();
+          const email = (() => {
+            try { return usePaymentStore.getState().email || undefined; } catch (_) { return undefined; }
+          })();
+          const result = await consumeCreditAPI(anonId, email, 0.05);
+          try {
+            usePaymentStore.setState({ credits: result.remaining });
+          } catch (_) {}
+        }
+      } catch (_) {}
       
     } finally {
       reader.releaseLock();
@@ -170,12 +204,18 @@ const makeDirectStreamingRequest = async (
   options: StreamOptions
 ): Promise<void> => {
   // Create the request body based on provider
+  const isGpt5 = (provider.model || '').startsWith('gpt-5');
   let requestBody: any = {
     model: provider.model,
     messages: messages,
-    temperature: 0.7,
     stream: true, // Enable streaming
   };
+  if (!isGpt5) {
+    requestBody = {
+      ...requestBody,
+      temperature: 0.7,
+    };
+  }
 
   // Add provider-specific parameters
   if (provider.name === 'deepseek') {
@@ -279,6 +319,18 @@ const makeDirectStreamingRequest = async (
 
     options.onComplete(fullContent, usage);
     
+    // Charge fractional credit if using GPT-5 (ultra) in direct mode
+    try {
+      const isGpt5Effective = (provider.model || '').startsWith('gpt-5');
+      if (isGpt5Effective) {
+        const anonId = getOrCreateAnonymousId();
+        const result = await consumeCreditAPI(anonId, undefined, 0.05);
+        try {
+          usePaymentStore.setState({ credits: result.remaining });
+        } catch (_) {}
+      }
+    } catch (_) {}
+    
   } finally {
     reader.releaseLock();
   }
@@ -343,6 +395,65 @@ const cleanJSONContent = (content: string): string => {
     .trim();
 };
 
+// Extract the first complete top-level JSON object {...} from arbitrary text.
+// Handles strings and escapes to avoid counting braces inside strings.
+const extractFirstCompleteJSONObject = (text: string): string | null => {
+  const s = text;
+  let inString = false;
+  let escapeNext = false;
+  let braceCount = 0;
+  let startIndex = -1;
+
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+
+    if (escapeNext) {
+      escapeNext = false;
+      continue;
+    }
+
+    if (ch === '\\') {
+      escapeNext = true;
+      continue;
+    }
+
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (inString) continue;
+
+    if (ch === '{') {
+      if (braceCount === 0) {
+        startIndex = i;
+      }
+      braceCount++;
+    } else if (ch === '}') {
+      if (braceCount > 0) {
+        braceCount--;
+        if (braceCount === 0 && startIndex !== -1) {
+          return s.slice(startIndex, i + 1);
+        }
+      }
+    }
+  }
+
+  return null;
+};
+
+// Try to parse JSON from arbitrary text by extracting the first full JSON object
+const tryParseJSONObjectFromText = (text: string): any | null => {
+  const cleaned = cleanJSONContent(text);
+  const candidate = extractFirstCompleteJSONObject(cleaned);
+  if (!candidate) return null;
+  try {
+    return JSON.parse(candidate);
+  } catch (_) {
+    return null;
+  }
+};
+
 // Streaming wrapper for JSON responses (for structured data like questions and outcomes)
 export const makeStreamingJSONRequest = async (
   messages: ChatMessage[],
@@ -391,8 +502,10 @@ export const makeStreamingJSONRequest = async (
         } else {
           // Try one final parse attempt
           try {
-            const cleanedContent = cleanJSONContent(accumulatedContent);
-            const parsed = JSON.parse(cleanedContent);
+            const parsed = tryParseJSONObjectFromText(accumulatedContent);
+            if (parsed == null) {
+              throw new Error('No complete JSON object found in streamed content');
+            }
             options.onComplete(parsed, chunk.usage);
           } catch (error) {
             logger.error('Failed to parse final JSON response:', error);
@@ -410,8 +523,10 @@ export const makeStreamingJSONRequest = async (
       // This is a backup - should already be handled in onChunk when isComplete=true
       if (!lastValidJSON) {
         try {
-          const cleanedContent = cleanJSONContent(fullContent);
-          const parsed = JSON.parse(cleanedContent);
+          const parsed = tryParseJSONObjectFromText(fullContent);
+          if (parsed == null) {
+            throw new Error('No complete JSON object found in full content');
+          }
           options.onComplete(parsed, usage);
         } catch (error) {
           logger.error('Failed to parse final JSON response in backup handler:', error);
@@ -422,4 +537,4 @@ export const makeStreamingJSONRequest = async (
     },
     onError: options.onError
   });
-}; 
+};

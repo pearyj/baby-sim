@@ -16,7 +16,7 @@ export const API_CONFIG = {
   SERVERLESS_API_URL: import.meta.env.VITE_SERVERLESS_API_URL || '/api/chat',
 
   // Model provider in use (can be switched in dev via DevModelSwitcher)
-  ACTIVE_PROVIDER: (import.meta.env.VITE_ACTIVE_PROVIDER as 'openai' | 'deepseek' | 'volcengine') || 'volcengine',
+  ACTIVE_PROVIDER: (import.meta.env.VITE_ACTIVE_PROVIDER as 'openai' | 'deepseek' | 'volcengine' | 'gpt5') || 'volcengine',
 
   // Local direct-to-provider mode (only enable when explicitly set)
   DIRECT_API_MODE: import.meta.env.VITE_DIRECT_API_MODE === 'true',

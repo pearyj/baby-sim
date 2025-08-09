@@ -2,6 +2,7 @@ import type { Question } from '../types/game'; // Import Question type
 import logger from '../utils/logger';
 
 const CHILD_SIM_GAME_STATE_KEY = 'childSimGameState';
+const CHILD_SIM_GIVE_UP_STREAK_KEY = 'childSimGiveUpStreak';
 const CURRENT_STORAGE_VERSION = 1;
 
 // Define interfaces for the structure of the state to be stored
@@ -141,3 +142,39 @@ export const clearState = (): void => {
     logger.error('Error clearing game state:', error);
   }
 }; 
+
+// ────────────────────────────────────────────────────────────────────────────────
+// |                       "Give Up" Streak Persistence                           |
+// ────────────────────────────────────────────────────────────────────────────────
+
+export const getGiveUpStreak = (): number => {
+  if (!isLocalStorageAvailable()) return 0;
+  try {
+    const raw = localStorage.getItem(CHILD_SIM_GIVE_UP_STREAK_KEY);
+    const parsed = raw ? parseInt(raw, 10) : 0;
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+  } catch {
+    return 0;
+  }
+};
+
+export const incrementGiveUpStreak = (): number => {
+  if (!isLocalStorageAvailable()) return 1;
+  try {
+    const current = getGiveUpStreak();
+    const next = current + 1;
+    localStorage.setItem(CHILD_SIM_GIVE_UP_STREAK_KEY, String(next));
+    return next;
+  } catch {
+    return 1;
+  }
+};
+
+export const resetGiveUpStreak = (): void => {
+  if (!isLocalStorageAvailable()) return;
+  try {
+    localStorage.setItem(CHILD_SIM_GIVE_UP_STREAK_KEY, '0');
+  } catch {
+    // ignore
+  }
+};

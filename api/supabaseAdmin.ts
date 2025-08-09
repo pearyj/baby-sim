@@ -8,10 +8,16 @@ const SUPABASE_URL =
   process.env.SUPABASE_URL || // preferred for serverless envs
   process.env.VITE_SUPABASE_URL;
 
-const SUPABASE_SERVICE_KEY =
-  process.env.SUPABASE_SERVICE_KEY || // service-role key (preferred)
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.VITE_SUPABASE_SERVICE_KEY; // fallback for local dev where someone copied the key with a VITE_ prefix
+let SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+let serviceKeySource = 'SUPABASE_SERVICE_KEY';
+if (!SUPABASE_SERVICE_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  serviceKeySource = 'SUPABASE_SERVICE_ROLE_KEY';
+}
+if (!SUPABASE_SERVICE_KEY && process.env.VITE_SUPABASE_SERVICE_KEY) {
+  SUPABASE_SERVICE_KEY = process.env.VITE_SUPABASE_SERVICE_KEY;
+  serviceKeySource = 'VITE_SUPABASE_SERVICE_KEY';
+}
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
   // Fail fast so that mis-configuration is obvious in the logs.
@@ -27,3 +33,8 @@ export const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
     autoRefreshToken: false,
   },
 }); 
+
+// Helpful diagnostics in dev only. Never log secrets, only the source name.
+if (process.env.NODE_ENV === 'development') {
+  console.log(`[supabaseAdmin] Using service role key from ${serviceKeySource} for ${SUPABASE_URL}`);
+}

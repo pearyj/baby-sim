@@ -31,6 +31,12 @@ export const PRICE_CONFIG = {
   RMB: { basePrice: 600, baseCredits: 1, additionalCreditPrice: 600 },
 } as const;
 
+// Display text explaining premium GPT-5 usage for embedding in the paywall where needed
+export const PREMIUM_NOTICE_EN =
+  'Premium GPT‑5 model has higher token cost and may require VPN. Your token credits can also be used for image generation at the end of the game.';
+export const PREMIUM_NOTICE_ZH =
+  '高级 GPT‑5 模型有更高的 Token 成本，可能需要 VPN。同一套积分也可用于游戏结尾的图片生成。';
+
 type Currency = keyof typeof PRICE_CONFIG;
 
 export function calculateAmountAndCredits(units: number, currency: Currency) {

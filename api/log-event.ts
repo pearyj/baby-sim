@@ -22,9 +22,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'anonId, kidId and type required' });
   }
 
-  // Always write to the main tables unless explicitly overridden via env vars.
-  const EVENTS_TABLE = process.env.EVENTS_TABLE || 'game_events';
-  const SESSIONS_TABLE = process.env.SESSIONS_TABLE || 'game_sessions';
+  // In non-prod environments default to shadow tables to avoid polluting prod data
+  const env = process.env.VERCEL_ENV || 'development';
+  const defaultEvents = env === 'production' || env === 'preview' ? 'game_events' : 'game_events_shadow';
+  const EVENTS_TABLE = process.env.EVENTS_TABLE || defaultEvents;
+  // Derive the matching sessions table family to avoid FK mismatches
+  const isShadow = EVENTS_TABLE.endsWith('_shadow');
+  const desiredSessions = isShadow ? 'game_sessions_shadow' : 'game_sessions';
+  let SESSIONS_TABLE = process.env.SESSIONS_TABLE || desiredSessions;
+  if (process.env.SESSIONS_TABLE && process.env.SESSIONS_TABLE !== desiredSessions) {
+    // Override to the aligned table to prevent FK errors when envs are inconsistent
+    SESSIONS_TABLE = desiredSessions;
+  }
 
   try {
     // Look up session id (non-blocking if missing)
@@ -47,15 +56,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (typeof customInstruction === 'string') extraCols.custom_instruction = customInstruction;
     }
 
-    const { error } = await supabaseAdmin.from(EVENTS_TABLE).insert({
-      session_id: sessionId,
+    const insertPayload: any = {
       anon_id: anonId,
       kid_id: kidId,
       type,
       payload,
       occurred_at: new Date(),
       ...extraCols,
-    });
+    };
+    if (sessionId) {
+      insertPayload.session_id = sessionId;
+    }
+
+    const { error } = await supabaseAdmin.from(EVENTS_TABLE).insert(insertPayload);
 
     // If the insert failed because some extra analytic columns are missing, retry without them
     if (error && (error as any).message?.includes('column')) {

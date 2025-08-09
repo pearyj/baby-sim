@@ -91,7 +91,7 @@ export const usePaymentStore = create<PaymentState>()(
         }
       },
 
-      consumeCredit: async (emailParam?: string) => {
+      consumeCredit: async (emailParam?: string, amount?: number) => {
         const { anonId, email, credits } = get();
 
         if (credits <= 0) {
@@ -101,7 +101,7 @@ export const usePaymentStore = create<PaymentState>()(
         const emailToUse = emailParam || email || undefined;
 
         try {
-          const result = await paymentService.consumeCreditAPI(anonId, emailToUse);
+          const result = await paymentService.consumeCreditAPI(anonId, emailToUse, amount);
           set({ credits: result.remaining });
           return true;
         } catch (error) {
