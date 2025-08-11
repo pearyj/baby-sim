@@ -1,4 +1,5 @@
 import type { CreditInfo, CheckoutSessionRequest, CheckoutSessionResponse } from '../types/payment';
+import { request, CreditInfoSchema, CheckoutSessionResponseSchema, ConsumeCreditSchema } from './apiClient';
 
 const API_BASE = '/api';
 
@@ -9,44 +10,26 @@ export async function fetchCredits(anonId: string, email?: string): Promise<Cred
   
   const url = `${API_BASE}/credits?${params}`;
   
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error('Failed to fetch credits');
-  }
-  
-  const result = await response.json();
-  return result;
+  return request(url, CreditInfoSchema);
 }
 
-export async function createCheckoutSession(request: CheckoutSessionRequest & { embedded?: boolean }): Promise<CheckoutSessionResponse> {
-  const response = await fetch(`${API_BASE}/create-checkout-session`, {
+export async function createCheckoutSession(req: CheckoutSessionRequest & { embedded?: boolean }): Promise<CheckoutSessionResponse> {
+  return request(`${API_BASE}/create-checkout-session`, CheckoutSessionResponseSchema, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(request),
+    body: req,
   });
-  
-  if (!response.ok) {
-    throw new Error('Failed to create checkout session');
-  }
-  
-  return response.json();
 }
 
 // Consume one credit via backend; returns remaining credits
 export async function consumeCreditAPI(anonId: string, email?: string, amount?: number): Promise<{ remaining: number }> {
-  const response = await fetch(`${API_BASE}/consume-credit`, {
+  const resp = await request(`${API_BASE}/consume-credit`, ConsumeCreditSchema, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ anonId, email, amount }),
+    body: { anonId, email, amount },
   });
-
-  if (!response.ok) {
-    throw new Error('Failed to consume credit');
+  if (resp.ok === false || typeof resp.remaining !== 'number') {
+    throw new Error(resp.error || 'Failed to consume credit');
   }
-
-  return response.json();
+  return { remaining: resp.remaining };
 }
 
 // Generate or retrieve anonymous ID from localStorage

@@ -2,8 +2,8 @@ import { API_CONFIG } from '../config/api';
 import type { GameState } from '../types/game';
 import logger from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
-import { isSupportedLanguage, type SupportedLanguage } from '../utils/languageDetection';
-import i18n from '../i18n';
+import type { SupportedLanguage } from '../utils/languageDetection';
+import { makePromptGetter, getCurrentLanguage as getLangUtil } from './promptUtils';
 
 // Import prompt files
 import zhPrompts from '../i18n/prompts/zh.json';
@@ -48,68 +48,17 @@ export interface ImageGenerationResult {
 /**
  * Get the current language from i18n with proper fallback
  */
-const getCurrentLanguage = (): SupportedLanguage => {
-  const currentLang = i18n.language;
-  
-  // Ensure we have a supported language, fallback to English
-  if (isSupportedLanguage(currentLang)) {
-    return currentLang;
-  }
-  
-  logger.warn(`Unsupported language '${currentLang}' detected, falling back to English`);
-  return 'en';
-};
+const getCurrentLanguage = (): SupportedLanguage => getLangUtil();
 
 /**
  * Get a prompt by key path with fallback to English then Chinese
  */
-const getPrompt = (keyPath: string): string => {
-  const currentLang = getCurrentLanguage();
-  
-  // Try current language first
-  let prompt = getPromptByPath(promptResources[currentLang], keyPath);
-  
-  // Fallback to English if not found and current language is not English
-  if (!prompt && currentLang !== 'en') {
-    prompt = getPromptByPath(promptResources['en'], keyPath);
-    if (prompt) {
-      logger.warn(`Image prompt '${keyPath}' not found in ${currentLang}, using English fallback`);
-    }
-  }
-  
-  // Fallback to Chinese if still not found and current language is not Chinese
-  if (!prompt && currentLang !== 'zh') {
-    prompt = getPromptByPath(promptResources['zh'], keyPath);
-    if (prompt) {
-      logger.warn(`Image prompt '${keyPath}' not found in ${currentLang} or English, using Chinese fallback`);
-    }
-  }
-  
-  if (!prompt) {
-    logger.error(`Image prompt '${keyPath}' not found in any language`);
-    return `[Missing prompt: ${keyPath}]`;
-  }
-  
-  return prompt;
-};
+const getPrompt = makePromptGetter(promptResources as any);
 
 /**
  * Helper function to get nested property by dot notation path
  */
-const getPromptByPath = (obj: any, path: string): string | null => {
-  const keys = path.split('.');
-  let current = obj;
-  
-  for (const key of keys) {
-    if (current && typeof current === 'object' && key in current) {
-      current = current[key];
-    } else {
-      return null;
-    }
-  }
-  
-  return typeof current === 'string' ? current : null;
-};
+// Note: prompt path resolution handled by promptUtils via makePromptGetter
 
 /**
  * Validate and sanitize custom art style input

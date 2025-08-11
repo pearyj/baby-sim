@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { applyCors, handlePreflight, rateLimit } from './_utils';
 
 // Types
 interface ChatMessage {
@@ -60,12 +61,7 @@ const getProvider = (providerName: string): ModelProvider => {
   }
 };
 
-// CORS headers - allow all origins for now (you should restrict this to your domain in production)
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*', // Allow all origins for now
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+// CORS applied per request using applyCors
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Add security headers
@@ -74,18 +70,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(200).json({}).setHeader('Access-Control-Allow-Origin', corsHeaders['Access-Control-Allow-Origin'])
-      .setHeader('Access-Control-Allow-Methods', corsHeaders['Access-Control-Allow-Methods'])
-      .setHeader('Access-Control-Allow-Headers', corsHeaders['Access-Control-Allow-Headers']);
-  }
+  // CORS preflight
+  if (handlePreflight(req, res)) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
+    applyCors(req, res);
+    if (!rateLimit(req, res, 'chat', 60)) return; // ~60 req/min per IP
     const { messages, provider = 'volcengine', streaming = false }: RequestBody = req.body;
 
     // Input validation
@@ -170,9 +164,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        res.setHeader(key, value);
-      });
+      applyCors(req, res);
 
       if (response.body) {
         const reader = response.body.getReader();
@@ -196,10 +188,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Handle regular response
       const data = await response.json();
       
-      // Set CORS headers
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        res.setHeader(key, value);
-      });
+      applyCors(req, res);
       
       res.status(200).json(data);
     }
@@ -207,10 +196,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error) {
     console.error('Serverless function error:', error);
     
-    // Set CORS headers even for errors
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value);
-    });
+    // CORS headers for errors
+    applyCors(req, res);
     
     res.status(500).json({ 
       error: 'Internal server error',

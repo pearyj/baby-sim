@@ -1,8 +1,12 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabaseAdmin } from './supabaseAdmin';
+import { applyCors, handlePreflight, rateLimit } from './_utils';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (handlePreflight(req, res)) return;
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  applyCors(req, res);
+  if (!rateLimit(req, res, 'credits', 120)) return;
 
   const { anonId, email, skipPaywall } = req.query;
   

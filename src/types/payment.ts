@@ -16,8 +16,8 @@ export interface CheckoutSessionRequest {
 export interface CheckoutSessionResponse {
   success: boolean;
   sessionId?: string;
-  url?: string;
-  clientSecret?: string;
+  url?: string | null;
+  clientSecret?: string | null;
   error?: string;
   message?: string;
 }

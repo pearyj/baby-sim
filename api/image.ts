@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { applyCors, handlePreflight, rateLimit } from './_utils';
 import { Service } from '@volcengine/openapi';
 
 // Define response type for comic API
@@ -21,19 +22,12 @@ interface VolcEngineImageConfig {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value);
-    });
-    return res.status(200).end();
-  }
+  if (handlePreflight(req, res)) return;
+  applyCors(req, res);
+  if (!rateLimit(req, res, 'image', 30)) return;
 
   // Only allow POST requests
   if (req.method !== 'POST') {
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value);
-    });
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -42,9 +36,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Validate required parameters
     if (!prompt) {
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        res.setHeader(key, value);
-      });
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
@@ -56,9 +47,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!volcengineConfig.apiKey || !volcengineConfig.secretKey) {
       console.error('Volcano Engine credentials not configured');
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        res.setHeader(key, value);
-      });
       return res.status(500).json({ error: 'Image generation service not configured' });
     }
 
@@ -129,17 +117,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!imageBase64) {
       console.error('❌ No image data in response:', response);
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        res.setHeader(key, value);
-      });
       return res.status(500).json({ error: 'No image data received from Volcano Engine' });
     }
 
     // Return success response
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value);
-    });
-
     return res.status(200).json({
       success: true,
       imageBase64,
@@ -153,10 +134,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error: any) {
     console.error('❌ Image generation error:', error);
     
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value);
-    });
-
     return res.status(500).json({
       error: 'Failed to generate image',
       details: error.message || 'Unknown error',

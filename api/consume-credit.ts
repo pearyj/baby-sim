@@ -1,8 +1,12 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabaseAdmin } from './supabaseAdmin';
+import { applyCors, handlePreflight, rateLimit } from './_utils';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (handlePreflight(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  applyCors(req, res);
+  if (!rateLimit(req, res, 'consume-credit', 120)) return;
 
   const { anonId, email, amount } = req.body || {};
   if (!anonId) {
@@ -43,40 +47,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    const currentBalance = (currentRows || []).reduce((sum, r: any) => sum + (Number(r.credits) || 0), 0);
-
     // Default decrement amount is 1 credit (image gen). Allow fractional for premium LLM.
     const decrement = typeof amount === 'number' && amount > 0 ? amount : 1;
+    const dec = Math.max(0, Math.round(decrement * 100) / 100);
 
-    if (currentBalance <= 0 || currentBalance - decrement < -1e-9) {
-      return res.status(400).json({ ok: false, error: 'no_credits' });
-    }
+    // Optimistic concurrency: try update using current observed balance in WHERE clause; retry a few times on conflict.
+    let attempts = 0;
+    let lastObserved = currentRows?.[0]?.credits ?? 0;
+    while (attempts < 3) {
+      const remainingRaw = Number(lastObserved) - dec;
+      if (remainingRaw < -1e-9) {
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(400).json({ ok: false, error: 'no_credits' });
+      }
+      const remaining = Math.max(0, Math.round(remainingRaw * 100) / 100);
 
-    // Compute remaining with stable rounding to 2 decimals to avoid FP artifacts
-    const remainingRaw = currentBalance - decrement;
-    const remaining = Math.max(0, Math.round(remainingRaw * 100) / 100);
-
-    // Decide which row to update
-    let updateQuery = supabaseAdmin.from(tableToUse).update({ credits: remaining });
-    if (email && typeof email === 'string' && email.length > 0) {
-      // When consuming by email, update that email's row and sync anon_id
-      updateQuery = supabaseAdmin
+      let update = supabaseAdmin
         .from(tableToUse)
-        .update({ credits: remaining, anon_id: anonId })
-        .eq('email', email);
-    } else {
-      // Otherwise, update by anon_id
-      updateQuery = updateQuery.eq('anon_id', anonId);
+        .update({ credits: remaining });
+
+      if (email && typeof email === 'string' && email.length > 0) {
+        update = update.eq('email', email).eq('credits', lastObserved);
+      } else {
+        update = update.eq('anon_id', anonId).eq('credits', lastObserved);
+      }
+
+      const { data: updated, error: updErr } = await update.select('credits');
+      if (updErr) throw updErr;
+      if (updated && updated.length > 0) {
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ ok: true, remaining });
+      }
+      // Reload current balance and retry
+      const { data: reread, error: rereadErr } = await supabaseAdmin
+        .from(tableToUse)
+        .select('credits')
+        .limit(1)
+        .maybeSingle();
+      if (rereadErr) throw rereadErr;
+      lastObserved = reread?.credits ?? lastObserved;
+      attempts += 1;
     }
 
-    const { error: updateErr } = await updateQuery;
-    if (updateErr) {
-      throw updateErr;
-    }
-
-    // Avoid any intermediary caching of credit writes/reads
+    // If we reach here, concurrency prevented update
     res.setHeader('Cache-Control', 'no-store');
-    return res.status(200).json({ ok: true, remaining });
+    return res.status(409).json({ ok: false, error: 'concurrent_update' });
   } catch (e: any) {
     res.setHeader('Cache-Control', 'no-store');
     return res.status(500).json({ ok: false, error: e.message || 'db_error' });
