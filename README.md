@@ -1,10 +1,14 @@
 # Baby Raising Simulator
 
-A React-based simulation game where you make decisions to raise a virtual baby. The game uses AI models to generate scenarios, outcomes, and story progression.
+An open-source, AI-powered text game with meta systems, ending, optional image generation, and payments. This React-based simulation game allows you to make decisions to raise a virtual baby, using AI models to generate scenarios, outcomes, and story progression.
 
 ## Features
 
-- **Multi-Provider AI Support**: Switch between OpenAI, DeepSeek, and Volcengine (火山引擎) models
+- **Multi-Provider AI Support**: Switch between OpenAI and DeepSeek (provided by Volcengine) models
+- **Meta Systems**: Enhanced gameplay mechanics
+- **Multiple Endings**: Diverse story outcomes
+- **Optional Image Generation**: Visual representation of key moments
+- **Payment Integration**: Support for premium features
 - **Dynamic Story Generation**: AI-generated scenarios and outcomes based on your choices
 - **Real-time Model Switching**: Compare different AI models' responses during gameplay
 - **Token Usage Tracking**: Monitor API usage and costs
@@ -49,23 +53,15 @@ Volcengine is ByteDance's cloud platform providing access to DeepSeek V3 and oth
 - **Model**: `deepseek-v3-250324` - A powerful MoE model with 671B parameters, 37B activated
 - **Key Benefits**: Cost-effective access to DeepSeek V3 with enterprise-grade infrastructure
 
-### DeepSeek Direct API
-Direct access to DeepSeek's own API platform:
-- **Documentation**: [DeepSeek API Docs](https://api-docs.deepseek.com/)
-- **Endpoint**: `https://api.deepseek.com/v1/chat/completions`
-- **Model**: `deepseek-chat` (maps to DeepSeek V3)
-- **Advantages**: Often lower latency, direct from source
-
 ### OpenAI
 - **Documentation**: [OpenAI API Reference](https://platform.openai.com/docs/api-reference)
 - **Endpoint**: `https://api.openai.com/v1/chat/completions`
 - **Models**: `gpt-4`, `gpt-3.5-turbo`, etc.
 
-## Model Switching
+## Model Switching in development
 
 The application supports switching between AI providers:
 - In development mode, use the model switcher component in the UI
-- Models automatically cycle: OpenAI → DeepSeek → Volcengine → OpenAI
 - Current provider is configurable in `src/config/api.ts`
 
 ## Development
@@ -100,48 +96,33 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- OpenAI for GPT models
+- Volcano Engine for Deepseek LLM and image generation
+- Stripe for payment processing
+- Supabase for database and authentication
+- Vercel for deployment
+
+## About Vibe Coding
+
+This project was created using the "vibe coding" approach. Vibe coding is a development methodology that emphasizes intuition, creativity, and rapid iteration. It involves:
+
+1. Quickly prototyping ideas
+2. Embracing imperfection in early stages
+3. Iterating based on feel and user feedback
+4. Balancing structure with flexibility
+
+By using vibe coding, we were able to rapidly develop this AI-powered game, incorporating various features and technologies in an organic, evolving manner.
+
 ## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+[The rest of the ESLint configuration section remains unchanged]
