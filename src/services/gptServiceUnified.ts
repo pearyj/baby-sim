@@ -205,13 +205,13 @@ const writePersistedGameStyle = (style: GameStyle): void => {
   }
 };
 
-type ProviderOverrideKey = 'deepseek' | 'gpt5' | null;
+type ProviderOverrideKey = 'volcengine' | 'deepseek' | 'gpt5' | null;
 
 const readPersistedProviderOverride = (): ProviderOverrideKey => {
   if (!isLocalStorageAvailableForStyle()) return null;
   try {
     const raw = localStorage.getItem(PROVIDER_OVERRIDE_STORAGE_KEY);
-    if (raw === 'deepseek' || raw === 'gpt5') return raw;
+    if (raw === 'volcengine' || raw === 'gpt5') return raw;
     return null;
   } catch (_) {
     return null;
@@ -246,7 +246,8 @@ if (activeGameStyle === 'ultra') {
 } else if (providerOverride) {
   (API_CONFIG as any).ACTIVE_PROVIDER = providerOverride;
 } else {
-  (API_CONFIG as any).ACTIVE_PROVIDER = 'deepseek';
+  // Default to Volcengine DeepSeek variant in non-ultra mode
+  (API_CONFIG as any).ACTIVE_PROVIDER = 'volcengine';
 }
 try {
   window.dispatchEvent(new CustomEvent('model-provider-changed'));
@@ -277,8 +278,8 @@ export const setGameStyle = (style: GameStyle) => {
     (API_CONFIG as any).ACTIVE_PROVIDER = 'gpt5';
     logger.info('🔒 Ultra mode: locking to GPT-5 and disabling overrides');
   } else {
-    // Non-ultra: default DeepSeek unless user has an override
-    (API_CONFIG as any).ACTIVE_PROVIDER = providerOverride || 'deepseek';
+    // Non-ultra: default Volcengine unless user has an override
+    (API_CONFIG as any).ACTIVE_PROVIDER = providerOverride || 'volcengine';
     logger.info(`🎯 Non‑ultra mode: ACTIVE_PROVIDER ${API_CONFIG.ACTIVE_PROVIDER}`);
   }
   try {
@@ -303,20 +304,20 @@ export const setProviderOverride = (key: ProviderOverrideKey): void => {
     return;
   }
   providerOverride = key;
-  // If user explicitly chooses a provider, apply immediately; if cleared, fall back to DeepSeek
-  (API_CONFIG as any).ACTIVE_PROVIDER = key || 'deepseek';
+  // If user explicitly chooses a provider, apply immediately; if cleared, fall back to Volcengine
+  (API_CONFIG as any).ACTIVE_PROVIDER = key || 'volcengine';
   writePersistedProviderOverride(providerOverride);
   try {
     window.dispatchEvent(new CustomEvent('model-provider-changed'));
   } catch (_) {}
 };
 
-export const getEffectiveProviderKey = (): 'openai' | 'deepseek' | 'volcengine' | 'gpt5' => {
+export const getEffectiveProviderKey = (): 'openai' | 'volcengine' | 'gpt5' | 'deepseek' => {
   // Ultra style is locked to GPT-5
   if (activeGameStyle === 'ultra') return 'gpt5';
-  // Otherwise respect explicit override, fallback to DeepSeek
-  if (providerOverride === 'deepseek' || providerOverride === 'gpt5') return providerOverride;
-  return 'deepseek';
+  // Otherwise respect explicit override, fallback to Volcengine
+  if (providerOverride === 'volcengine' || providerOverride === 'gpt5') return providerOverride;
+  return 'volcengine';
 };
 
 // Shared prompt generation functions (now using i18n)
@@ -429,23 +430,34 @@ const safeJsonParse = (content: string): any => {
 
 // Helper to charge credits for premium GPT-5 interactions
 const chargePremiumInteraction = async (): Promise<void> => {
+  // Charge only when GPT-5 is the effective provider
+  const effectiveKey = getEffectiveProviderKey();
+  if (effectiveKey !== 'gpt5') return;
+
+  const anonId = getOrCreateAnonymousId();
+  // Prefer charging against email balance first to avoid "no_credits" on anon_id
+  const email = (() => {
+    try {
+      return usePaymentStore.getState().email || undefined;
+    } catch (_) {
+      return undefined;
+    }
+  })();
+
   try {
-    // In production (and generally), charge whenever the effective provider is GPT-5
-    const effectiveKey = getEffectiveProviderKey();
-    if (effectiveKey !== 'gpt5') return;
-    const anonId = getOrCreateAnonymousId();
-    // If user has an email-bound balance, consume against that row to avoid "no_credits" on anon_id
-    const email = (() => {
-      try { return usePaymentStore.getState().email || undefined; } catch (_) { return undefined; }
-    })();
     const result = await consumeCreditAPI(anonId, email, 0.05);
+    // Update local store with remaining balance
     try {
       usePaymentStore.setState({ credits: result.remaining });
     } catch (_) {
-      // ignore state update errors
+      /* ignore state update errors */
     }
-  } catch (_) {
-    // Non-fatal: if charging fails, do not block gameplay
+  } catch (error: any) {
+    // Propagate explicit no_credits errors so that caller can trigger paywall
+    if (error instanceof Error && error.message === 'no_credits') {
+      throw error;
+    }
+    // Silently ignore other failures (network, etc.) to avoid blocking gameplay
   }
 };
 

@@ -10,11 +10,11 @@ import {
 } from '../../services/gptServiceUnified';
 import useGameStore from '../../stores/useGameStore';
 
-type ProviderChoice = 'deepseek' | 'gpt5';
+type ProviderChoice = 'volcengine' | 'gpt5';
 
 export const ProviderToggle: React.FC = () => {
   const { t } = useTranslation();
-  const [choice, setChoice] = useState<ProviderChoice>('deepseek');
+  const [choice, setChoice] = useState<ProviderChoice>('volcengine');
   const [locked, setLocked] = useState<boolean>(false);
   const [, setLabel] = useState<string>('');
   const gamePhase = useGameStore(state => state.gamePhase);
@@ -33,10 +33,11 @@ export const ProviderToggle: React.FC = () => {
   useEffect(() => {
     const update = () => {
       const eff = getEffectiveProviderKey();
-      const override = getProviderOverride();
+      const rawOverride = getProviderOverride();
+      const override = rawOverride === 'deepseek' ? 'volcengine' : rawOverride;
       const isLocked = isPremiumStyleActive();
       setLocked(isLocked);
-      const nextChoice: ProviderChoice = override ? override : (eff === 'gpt5' ? 'gpt5' : 'deepseek');
+      const nextChoice: ProviderChoice = override ? override : (eff === 'gpt5' ? 'gpt5' : 'volcengine');
       setChoice(nextChoice);
       setLabel(getCurrentModel());
     };
@@ -88,8 +89,8 @@ export const ProviderToggle: React.FC = () => {
           },
         }}
       >
-        <ToggleButton value="deepseek" aria-label="DeepSeek">
-          DeepSeek
+        <ToggleButton value="volcengine" aria-label="Volcengine">
+          Volcengine
         </ToggleButton>
         <ToggleButton value="gpt5" aria-label="GPT-5">
           GPT-5
