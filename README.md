@@ -1,6 +1,8 @@
 # Baby Raising Simulator
 
-An open-source, AI-powered text game with meta systems, ending, optional image generation, and payments. This React-based simulation game allows you to make decisions to raise a virtual baby, using AI models to generate scenarios, outcomes, and story progression.
+An open-source, AI-powered text game with meta systems, ending, optional image generation, and optional payments. This React-based simulation game allows you to make decisions to raise a virtual baby, using AI models to generate scenarios, outcomes, and story progression. 
+
+The game is currently accessible at https://www.babysim.fun/. Please feel free to play the game as it is. There are many other possible AI-powered text and image based games that could this code base as a starting point, and I hope to see as many such games as possible.
 
 ## Features
 
