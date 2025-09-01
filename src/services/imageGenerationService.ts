@@ -261,10 +261,10 @@ const makeImageGenerationRequest = async (
   const useDirectAPI = API_CONFIG.DIRECT_API_MODE;
   
   if (useDirectAPI) {
-    // Direct API call to Volcano Engine (for development)
-    const volcengineApiKey = import.meta.env.VITE_VOLCENGINE_VISUAL_API_KEY;
-    if (!volcengineApiKey) {
-      throw new Error('Volcano Engine API key not found for direct mode');
+    // Direct API call to Doubao (for development)
+    const doubaoApiKey = import.meta.env.VITE_VOLCENGINE_LLM_API_KEY || import.meta.env.VITE_VOLCENGINE_VISUAL_API_KEY;
+    if (!doubaoApiKey) {
+      throw new Error('Doubao API key not found for direct mode');
     }
     
     return makeDirectImageRequest(prompt, options);
@@ -276,7 +276,7 @@ const makeImageGenerationRequest = async (
       prompt,
       size,
       quality,
-      provider: 'volcengine'
+      provider: 'doubao'
     };
     
     // Debug log the full request payload

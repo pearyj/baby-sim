@@ -1,7 +1,6 @@
 {
   "type": "commonjs",
   "dependencies": {
-    "@volcengine/openapi": "^1.30.2",
     "stripe": "^14.19.0",
     "@supabase/supabase-js": "^2.49.8"
   }

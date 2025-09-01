@@ -15,8 +15,10 @@ I've successfully implemented an MVP for AI image generation as an optional feat
   - Error handling and validation
 
 ### 2. API Endpoint (`api/image.ts`)
-- **Serverless function** for Volcano Engine image generation
-- **Security**: Uses server-side API keys
+- **Serverless function** for Doubao image generation (updated to latest API)
+- **New API**: Uses Doubao's latest REST API (doubao-seedream-3-0-t2i-250415)
+- **Security**: Uses server-side Bearer token authentication (same key as LLM API)
+- **Key Configuration**: Uses VOLCENGINE_LLM_API_KEY (shared with LLM service)
 - **CORS support** for client requests
 - **Input validation** for size, quality, and prompt parameters
 - **Error handling** with detailed error messages

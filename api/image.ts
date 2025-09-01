@@ -1,11 +1,17 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applyCors, handlePreflight, rateLimit } from './_utils';
-import { Service } from '@volcengine/openapi';
 
-// Define response type for comic API
-interface ComicResponse {
-  ImageUrls?: string[];
-  Images?: string[];
+// Define response type for Doubao image generation API
+interface DoubaoImageResponse {
+  data?: Array<{
+    url?: string;
+    b64_json?: string;
+  }>;
+  error?: {
+    message: string;
+    type: string;
+    code: string;
+  };
 }
 
 // CORS headers
@@ -15,10 +21,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-// Volcano Engine configuration interface
-interface VolcEngineImageConfig {
+// Doubao API configuration interface
+interface DoubaoImageConfig {
   apiKey: string;
-  secretKey: string;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -32,44 +37,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { prompt, size = '768x768', quality = 'standard' } = req.body;
+    const { prompt, size = '1024x1024', quality = 'standard' } = req.body;
 
     // Validate required parameters
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    // Get provider configuration
-    const volcengineConfig: VolcEngineImageConfig = {
-      apiKey: process.env.VOLCENGINE_VISUAL_API_KEY || '',
-      secretKey: process.env.VOLCENGINE_VISUAL_SECRET_KEY || '',
+    // Get Doubao API configuration (uses same key as LLM)
+    const doubaoConfig: DoubaoImageConfig = {
+      apiKey: process.env.VOLCENGINE_LLM_API_KEY || process.env.ARK_API_KEY || '',
     };
 
-    if (!volcengineConfig.apiKey || !volcengineConfig.secretKey) {
-      console.error('Volcano Engine credentials not configured');
+    if (!doubaoConfig.apiKey) {
+      console.error('Doubao API key not configured');
       return res.status(500).json({ error: 'Image generation service not configured' });
     }
 
-    // Parse size dimensions
-    const [width, height] = size.split('x').map(Number);
-    const scale = quality === 'hd' ? 7.5 : 5.0;
-
-    // Initialize Volcano Engine client
-    const client = new Service({ 
-      region: 'cn-north-1',
-      serviceName: 'cv',
-      host: 'visual.volcengineapi.com'
-    });
+    // Map size parameter (Doubao supports specific sizes)
+    const validSizes = ['1024x1024', '768x768', '512x512'];
+    const finalSize = validSizes.includes(size) ? size : '1024x1024';
     
-    // Set credentials
-    client.setAccessKeyId(volcengineConfig.apiKey);
-    client.setSecretKey(volcengineConfig.secretKey);
+    // Map quality to guidance_scale
+    const guidance_scale = quality === 'hd' ? 7.5 : 3.0;
 
     // Log basic info (production safe)
     if (process.env.NODE_ENV === 'development') {
-      console.log(`🎨 Making image generation request to Volcano Engine Text-to-Image API`);
+      console.log(`🎨 Making image generation request to Doubao API`);
       console.log(`📝 Prompt (truncated): ${prompt.substring(0, 100)}...`);
-      console.log(`📏 Size: ${width}x${height}, Quality: ${quality}`);
+      console.log(`📏 Size: ${finalSize}, Quality: ${quality}`);
       
       // Debug: Log full prompt for debugging purposes (development only)
       console.group('🖼️ IMAGE GENERATION API DEBUG - Full Prompt');
@@ -77,57 +73,72 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log(prompt);
       console.log('📏 Prompt Length:', prompt.length, 'characters');
       console.log('⚙️ Generation Parameters:', {
-        width,
-        height,
-        scale,
-        size,
+        size: finalSize,
+        guidance_scale,
         quality
       });
       console.groupEnd();
     }
 
-    // Make request using fetchOpenAPI for proper URL handling
-    const response = await client.fetchOpenAPI({
-      Action: 'CVProcess',
-      Version: '2022-08-31',
+    // Make request to new Doubao API
+    const response = await fetch('https://ark.cn-beijing.volces.com/api/v3/images/generations', {
       method: 'POST',
-      data: {
-        req_key: 'high_aes_general_v30l_zt2i',
-        Prompt: prompt,
-        Width: width,
-        Height: height,
-        Scale: scale,
-        Steps: 25,
-        Seed: -1,
-        ReturnUrl: true,
-        ModelVersion: "general_v3.0"
-      }
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${doubaoConfig.apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'doubao-seedream-3-0-t2i-250415',
+        prompt: prompt,
+        response_format: 'b64_json', // Changed from 'url' to 'b64_json' to match your existing flow
+        size: finalSize,
+        guidance_scale: guidance_scale,
+        watermark: true
+      })
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Doubao API Error:', response.status, errorText);
+      return res.status(response.status).json({ 
+        error: `Failed to generate image: ${response.statusText}`,
+        details: errorText
+      });
+    }
+
+    const data: DoubaoImageResponse = await response.json();
+
     if (process.env.NODE_ENV === 'development') {
-      console.log('✅ Received image generation response');
+      console.log('✅ Received image generation response from Doubao');
     }
 
     // Extract image data from response
     let imageBase64: string | undefined;
+    let imageUrl: string | undefined;
 
-    if (response && (response as any).data && (response as any).data.binary_data_base64 && (response as any).data.binary_data_base64.length > 0) {
-      imageBase64 = (response as any).data.binary_data_base64[0];
+    if (data.data && data.data.length > 0) {
+      const imageData = data.data[0];
+      imageBase64 = imageData.b64_json;
+      imageUrl = imageData.url;
     }
 
-    if (!imageBase64) {
-      console.error('❌ No image data in response:', response);
-      return res.status(500).json({ error: 'No image data received from Volcano Engine' });
+    if (!imageBase64 && !imageUrl) {
+      console.error('❌ No image data in response:', data);
+      return res.status(500).json({ 
+        error: 'No image data received from Doubao API',
+        details: data.error?.message || 'Unknown error'
+      });
     }
 
     // Return success response
     return res.status(200).json({
       success: true,
       imageBase64,
-      provider: 'volcengine',
-      model: 'comic_v1.0',
+      imageUrl,
+      provider: 'doubao',
+      model: 'doubao-seedream-3-0-t2i-250415',
       prompt: prompt.substring(0, 100) + (prompt.length > 100 ? '...' : ''),
-      size,
+      size: finalSize,
       quality,
     });
 

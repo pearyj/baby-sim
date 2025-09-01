@@ -50,8 +50,10 @@ The game is currently accessible at https://www.babysim.fun/. Please feel free t
 
 ### Volcengine (火山引擎) with DeepSeek V3
 Volcengine is ByteDance's cloud platform providing access to DeepSeek V3 and other AI models:
-- **Documentation**: [Volcengine API Reference](https://www.volcengine.com/docs/82379/1544106)
-- **Endpoint**: `https://ark.cn-beijing.volces.com/api/v3/chat/completions`
+- **LLM Documentation**: [Volcengine API Reference](https://www.volcengine.com/docs/82379/1544106)
+- **LLM Endpoint**: `https://ark.cn-beijing.volces.com/api/v3/chat/completions`
+- **Image Generation Documentation**: [Doubao Image Generation API](https://www.volcengine.com/docs/82379/1541523)
+- **Image Generation Endpoint**: `https://ark.cn-beijing.volces.com/api/v3/images/generations`
 - **Model**: `deepseek-v3-250324` - A powerful MoE model with 671B parameters, 37B activated
 - **Key Benefits**: Cost-effective access to DeepSeek V3 with enterprise-grade infrastructure
 
@@ -97,6 +99,10 @@ Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Changelog
+
+See `CHANGELOG.md` for versioned release notes.
 
 ## Contributing
 
