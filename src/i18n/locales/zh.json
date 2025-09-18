@@ -50,7 +50,11 @@
     "readyToBegin": "准备好开始这段旅程了吗？",
     "currentAge": "当前年龄",
     "situation": "状况：",
-    "growthStage": "成长期"
+    "growthStage": "成长期",
+    "ageImagePromptTitle": "您的孩子{{age}}岁了！",
+    "ageImagePromptDescription": "你的孩子已经{{age}}岁了！是否生成一个特殊的图片来纪念这一里程碑？",
+    "generatedImageAlt": "生成的{{age}}岁的{{gender}}的图片",
+    "imageGenerated": "图片生成成功！"
   },
   "developmentalStages": {
     "newborn": "新生儿期",
@@ -119,7 +123,17 @@
     "selectThisOption": "选择这个方案",
     "selectedThisOption": "我选择了这个方案",
     "copyJourney": "复制成长历程文本",
-    "refresh": "刷新"
+    "refresh": "刷新",
+    "generateImage": "生成图片",
+    "imageGenerated": "图片生成成功！",
+    "skip": "跳过",
+    "unlock": "解锁",
+    "errorGeneratingSummary": "错误：无法生成摘要。",
+    "shareCarouselHeading": "{{childName}}这么可爱，生张图晒晒吧！",
+    "thankYouSupport": "感谢您的支持！",
+    "createImages": "生成图片",
+    "useCreditsHint": "提示：您可以使用积分为{{childName}}生成结尾图片。",
+    "creditsUsageShort": "积分可用于高级 GPT‑5 与图片生成。"
   },
   "header": {
     "title": "养娃模拟器",
@@ -171,12 +185,10 @@
     "listenToChild": "耐心倾听并理解孩子的需求",
     "giveGuidance": "给予适当的引导和建议",
     "encourageThinking": "鼓励孩子独立思考解决问题",
-    "errorGeneratingSummary": "错误：无法生成摘要。",
-    "shareCarouselHeading": "{{childName}}这么可爱，生张图晒晒吧！",
-    "thankYouSupport": "感谢您的支持！",
-    "createImages": "生成图片",
-    "useCreditsHint": "提示：您可以使用积分为{{childName}}生成结尾图片。",
-    "creditsUsageShort": "积分可用于高级 GPT‑5 与图片生成。"
+    "blurredImageHint": "解锁查看清晰图片",
+    "imageBlurredHint": "图片已生成，付费后可查看清晰版本",
+    "creditsUsageShort": "积分使用",
+    "useCreditsHint": "使用积分解锁功能"
   },
   "share": {
     "title": "我在《养娃模拟器》把{{childName}}养到18岁啦！",
@@ -295,4 +307,4 @@
     "body": "现实里，孩子不是我们能挑选的。有时，世界把一个小生命交到我们手上，需要我们如其所是地去爱。也许试着继续和这位孩子一起走走看，你会遇见意想不到的风景。",
     "ok": "我明白了"
   }
-} 
+}

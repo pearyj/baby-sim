@@ -17,6 +17,7 @@ import { generateEndingImage, type ImageGenerationOptions, type ImageGenerationR
 import type { GameState } from '../types/game';
 import { usePaymentStore } from '../stores/usePaymentStore';
 import { logEvent, updateSessionFlags } from '../services/eventLogger';
+// useGameStore import removed - image storage now handled in imageGenerationService
 
 // Security: Maximum length for art style input to prevent jailbreaking (language-specific)
 const getMaxArtStyleLength = (language: string): number => {
@@ -103,6 +104,7 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const { anonId, kidId } = usePaymentStore(state => ({ anonId: state.anonId, kidId: state.kidId }));
+  // addGeneratedImage removed - image storage now handled in imageGenerationService
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<ImageGenerationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -166,11 +168,27 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
         ...(sanitizedArtStyle !== '' ? { customArtStyle: sanitizedArtStyle } : {})
       };
 
-      const result = await generateEndingImage(gameState, endingSummary, options);
+      // Get outcome from history for current age as aiGeneratedText
+      const currentAgeOutcome = gameState.history.find(entry => entry.age === gameState.child.age)?.outcome;
+      
+      const result = await generateEndingImage(
+        gameState,
+        endingSummary,
+        options,
+        currentAgeOutcome // Use current age outcome as AI generated text
+      );
+      
+      console.log('🎨 AIImageGenerator result:', result);
+      console.log('📸 AIImageGenerator has imageBase64?', !!result.imageBase64);
+      console.log('🔗 AIImageGenerator has imageUrl?', !!result.imageUrl);
       
       if (result.success) {
         setGeneratedImage(result);
         onImageGenerated?.(result);
+        
+        // Image storage is now handled directly in imageGenerationService
+        console.log('ℹ️ AIImageGenerator: Image storage handled by imageGenerationService');
+        
         track('Image Generated');
         if (anonId && kidId) {
           updateSessionFlags(anonId, kidId, { imageGenerated: true });
@@ -321,4 +339,4 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
 };
 
 // Add displayName for production debugging
-AIImageGenerator.displayName = 'AIImageGenerator'; 
+AIImageGenerator.displayName = 'AIImageGenerator';

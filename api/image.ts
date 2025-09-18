@@ -54,13 +54,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'Image generation service not configured' });
     }
 
-    // Map size parameter (Doubao supports specific sizes)
-    const validSizes = ['1024x1024', '768x768', '512x512'];
+    // Map size parameter (Doubao requires at least 921600 pixels)
+    // Only 1024x1024 (1048576 pixels) meets the minimum requirement
+    const validSizes = ['1024x1024'];
     const finalSize = validSizes.includes(size) ? size : '1024x1024';
     
-    // Map quality to guidance_scale
-    const guidance_scale = quality === 'hd' ? 7.5 : 3.0;
-
     // Log basic info (production safe)
     if (process.env.NODE_ENV === 'development') {
       console.log(`🎨 Making image generation request to Doubao API`);
@@ -74,7 +72,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log('📏 Prompt Length:', prompt.length, 'characters');
       console.log('⚙️ Generation Parameters:', {
         size: finalSize,
-        guidance_scale,
         quality
       });
       console.groupEnd();
@@ -88,11 +85,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         'Authorization': `Bearer ${doubaoConfig.apiKey}`
       },
       body: JSON.stringify({
-        model: 'doubao-seedream-3-0-t2i-250415',
+        model: 'doubao-seedream-4-0-250828',
         prompt: prompt,
         response_format: 'b64_json', // Changed from 'url' to 'b64_json' to match your existing flow
         size: finalSize,
-        guidance_scale: guidance_scale,
         watermark: true
       })
     });
@@ -150,4 +146,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       details: error.message || 'Unknown error',
     });
   }
-} 
+}

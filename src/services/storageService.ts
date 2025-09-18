@@ -23,7 +23,9 @@ interface HistoryEntry {
   age: number; 
   question: string; 
   choice: string; 
-  outcome: string; 
+  outcome: string;
+  imageUrl?: string; // Generated image URL
+  imageBase64?: string; // Generated image base64 data
 }
 
 export interface GameStateToStore {
@@ -56,6 +58,9 @@ export interface GameStateToStore {
 
   /** The last known game phase so we can restore the correct screen. */
   gamePhase?: string;
+
+  /** Generated images data for display in AdDisplay component. */
+  generatedImages?: { age: number; imageUrl?: string; imageBase64?: string }[];
 }
 
 interface StoredState {

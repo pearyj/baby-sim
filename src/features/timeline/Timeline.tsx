@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { getTimelineIcon, getCurrentAgeColor, DEVELOPMENTAL_STAGE_KEYS } from '../../constants/timelineIcons';
 import type { GameState } from '../../types/game';
 import { AdDisplay } from '../../components/ads/AdDisplay';
+import { ImageDisplay } from '../../components/ui/ImageDisplay';
 
 interface TimelineProps {
   history: GameState['history'];
@@ -146,7 +147,7 @@ export const Timeline: React.FC<TimelineProps> = ({
             <TimelineItem key={`timeline-${event.age}-${index}`} sx={{ 
               paddingBottom: isLast ? 0 : 2 
             }}>
-              {import.meta.env.DEV && <AdDisplay currentAge={event.age} />}
+              {/* <AdDisplay currentAge={event.age} /> */}
               <Tooltip 
                 title={`${event.age} ${t('game.yearsOld')} - ${iconConfig.description} (${developmentalStage})`}
                 placement="left"
@@ -266,10 +267,11 @@ export const Timeline: React.FC<TimelineProps> = ({
                   </CardContent>
                 </TimelineCard>
               )}
+              <ImageDisplay currentAge={event.age} />
             </TimelineItem>
           );
         })}
       </TimelineContainer>
     </Box>
   );
-}; 
+};

@@ -44,6 +44,7 @@
   },
   "image": {
     "templates": {
+      "current_age_vision": "Retrato de una persona de {childStatusforImage} como un/a {childGender} confiado/a de {childAge} años mirando hacia su futuro brillante. El fondo muestra sutilmente el viaje desde la infancia hasta la edad adulta. Evita cualquier texto en la imagen.",
       "future_vision": "Retrato de una persona de {childStatusforImage} como un/a {childGender} confiado/a de 18 años mirando hacia su futuro brillante. El fondo muestra sutilmente el viaje desde la infancia hasta la edad adulta. Evita cualquier texto en la imagen."
     },
     "genderLabels": {

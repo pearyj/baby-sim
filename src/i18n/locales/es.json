@@ -53,7 +53,9 @@
     "situation": "Situación:",
     "growthStage": "Etapa de Crecimiento",
     "sponsored": "Patrocinado",
-    "adPlaceholder": "Espacio Publicitario"
+    "adPlaceholder": "Espacio Publicitario",
+    "ageImagePromptTitle": "{{age}} años!",
+    "ageImagePromptDescription": "Tu hijo ha alcanzado {{age}} años! ¿Quieres generar una imagen especial para recordar este momento?"
   },
   "developmentalStages": {
     "newborn": "Recién Nacido",
@@ -121,7 +123,17 @@
     "testAdTimeline": "(Dev) Probar Línea de Tiempo de Anuncios",
     "chooseGameStyle": "Elige un Estilo",
     "selectThisOption": "Haré esto",
-    "refresh": "Actualizar"
+    "refresh": "Actualizar",
+    "generateImage": "Generar Imagen",
+    "imageGenerated": "Imagen Generada con Éxito!",
+    "skip": "Saltar",
+    "unlock": "Desbloquear",
+    "errorGeneratingSummary": "Error: No se pudo generar el resumen.",
+    "shareCarouselHeading": "{{childName}} es increíble!",
+    "thankYouSupport": "¡Gracias por tu apoyo!",
+    "createImages": "Crear Imágenes",
+    "useCreditsHint": "Pista: Puedes usar créditos para {{childName}} para generar imágenes.",
+    "creditsUsageShort": "Créditos pueden usarse para GPT-5 y generación de imágenes."
   },
   "header": {
     "title": "El Simulador de Bebés",

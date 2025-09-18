@@ -22,7 +22,7 @@ export interface GalleryItem {
 export async function getGalleryItems(limit = 20, offset = 0): Promise<GalleryItem[]> {
   const { data, error } = await supabase
     .from('ending_cards')
-    .select('id, child_status_at_18, image_path, child_name, hearts')
+    .select('id, child_status_at_18, image_path')
     .eq('share_ok', true)
     .order('created_at', { ascending: false })
     .range(offset, offset + (limit === Infinity ? 99999 : limit) - 1);
@@ -49,12 +49,11 @@ export async function getGalleryItems(limit = 20, offset = 0): Promise<GalleryIt
       console.debug('[galleryService] Generated URL for', row.image_path, ':', publicUrl);
       console.debug('[galleryService] Row data:', { 
         id: row.id, 
-        child_name: row.child_name, 
         child_status_preview: row.child_status_at_18?.substring(0, 100) 
       });
     }
 
-    const displayName = row.child_name || extractChildName(row.child_status_at_18 || '');
+    const displayName = extractChildName(row.child_status_at_18 || '');
     
     // For English users, use empty alt text to avoid showing Chinese names
     const altText = i18n.language === 'en' ? '' : displayName;
@@ -67,7 +66,7 @@ export async function getGalleryItems(limit = 20, offset = 0): Promise<GalleryIt
       id: row.id,
       childStatusAt18: altText,
       imageUrl: publicUrl,
-      hearts: row.hearts ?? 0,
+      hearts: 0, // Default to 0 since hearts field doesn't exist yet
     } as GalleryItem;
   });
 }
@@ -126,7 +125,7 @@ function extractChildName(statusText: string): string {
 export async function getFeaturedGalleryItems(count = 12): Promise<GalleryItem[]> {
   const { data, error } = await supabase
     .from('ending_cards')
-    .select('id, child_status_at_18, image_path, hearts')
+    .select('id, child_status_at_18, image_path')
     .eq('share_ok', true)
     .eq('is_featured', true)
     .order('featured_rank', { ascending: true })
@@ -145,7 +144,7 @@ export async function getFeaturedGalleryItems(count = 12): Promise<GalleryItem[]
       id: row.id,
       childStatusAt18: row.child_status_at_18,
       imageUrl: publicUrl,
-      hearts: row.hearts ?? 0,
+      hearts: 0, // Default to 0 since hearts field doesn't exist yet
     } as GalleryItem;
   });
 }
@@ -213,4 +212,4 @@ export async function getSharedCardsCount(): Promise<number> {
     .eq('share_ok', true);
   if (error) throw error;
   return count ?? 0;
-} 
+}

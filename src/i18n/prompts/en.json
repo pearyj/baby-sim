@@ -44,6 +44,7 @@
   },
   "image": {
     "templates": {
+      "current_age_vision": "One-person portrait of {childStatusforImage} as a confident {childAge}-year-old {childGender} looking towards their bright future. The background subtly shows the journey from childhood to adulthood. Avoid any text in the image.",
       "future_vision": "One-person portrait of {childStatusforImage} as a confident 18-year-old {childGender} looking towards their bright future. The background subtly shows the journey from childhood to adulthood. Avoid any text in the image."
     },
     "genderLabels": {

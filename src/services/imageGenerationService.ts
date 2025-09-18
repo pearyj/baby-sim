@@ -4,6 +4,8 @@ import logger from '../utils/logger';
 import { performanceMonitor } from '../utils/performanceMonitor';
 import type { SupportedLanguage } from '../utils/languageDetection';
 import { makePromptGetter, getCurrentLanguage as getLangUtil } from './promptUtils';
+import useGameStore from '../stores/useGameStore';
+import { processAndStoreImage } from './imageStorageService';
 
 // Import prompt files
 import zhPrompts from '../i18n/prompts/zh.json';
@@ -93,7 +95,8 @@ const validateAndSanitizeCustomArtStyle = (customArtStyle?: string): string | un
 const generateImagePrompt = (
   gameState: GameState, 
   endingSummary: string,
-  options: ImageGenerationOptions = {}
+  options: ImageGenerationOptions = {},
+  aiGeneratedText?: string // AI generated text from chat API
 ): string => {
   const { customArtStyle } = options;
   
@@ -118,8 +121,23 @@ const generateImagePrompt = (
   logger.debug("🔍 Extracted relationship dynamic:", relationshipDynamic.substring(0, 100) + (relationshipDynamic.length > 100 ? "..." : ""));
   logger.debug("🔍 Extracted child status at 18:", childStatusAt18.substring(0, 100) + (childStatusAt18.length > 100 ? "..." : ""));
   
+  // Extract first three sentences from AI generated text if provided
+  let aiTextContext = '';
+  if (aiGeneratedText) {
+    logger.debug("🔍 aiGeneratedText Using AI text context for image:", aiTextContext );
+    // Remove HTML tags and extract plain text
+    const plainText = aiGeneratedText.replace(/<[^>]*>/g, '').trim();
+    // Split by sentence endings (., !, ?) and take first 3 sentences
+    const sentences = plainText.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const firstThreeSentences = sentences.slice(0, 3).join('. ');
+    if (firstThreeSentences.trim()) {
+      aiTextContext = ` Context: ${firstThreeSentences.trim()}.`;
+      logger.debug("🔍 Using AI text context for image:", aiTextContext.substring(0, 100));
+    }
+  }
+  
   // Get template from i18n (only future_vision template now)
-  const template = getPrompt('image.templates.future_vision');
+  const template = getPrompt('image.templates.current_age_vision');
   
   // Validate and sanitize custom art style
   let resolvedArtStyle = validateAndSanitizeCustomArtStyle(customArtStyle);
@@ -129,6 +147,7 @@ const generateImagePrompt = (
   
   // Build a richer child description using the ending-card field when available
   const rawChildDescription = (gameState.childDescription ?? '').trim();
+  const rawChildCurAgeDescription = (gameState.history[gameState.history.length -1] ?? {}).outcome;
   // Fallback to the child's name if the rich description is absent
   const childDescriptionForPrompt = rawChildDescription.length > 0 ? rawChildDescription : gameState.child.name;
   // Truncate extremely long descriptions to keep the prompt concise
@@ -137,17 +156,43 @@ const generateImagePrompt = (
   const truncatedChildDescription = childDescriptionForPrompt.length > maxLength
     ? `${childDescriptionForPrompt.slice(0, maxLength)}...`
     : childDescriptionForPrompt;
+
+  const truncatedCurAgeDescription = rawChildCurAgeDescription.length > maxLength
+    ? `${rawChildCurAgeDescription.slice(0, maxLength)}...`
+    : rawChildCurAgeDescription;
   
   // Use child status at 18 if available, otherwise fall back to gameState.childDescription
   const childStatusForImage = childStatusAt18 || truncatedChildDescription;
+  const childCurAgeStatusForImage = truncatedCurAgeDescription;
+  console.log("childCurAgeStatusForImage", childCurAgeStatusForImage)
+
+  // Add randomization elements to increase image diversity
+  const randomElements = [
+    'warm lighting', 'soft natural light', 'golden hour lighting', 'studio lighting',
+    'close-up perspective', 'medium shot', 'environmental portrait', 'candid moment',
+    'serene atmosphere', 'joyful mood', 'contemplative scene', 'peaceful setting',
+    'detailed background', 'blurred background', 'indoor setting', 'outdoor scene'
+  ];
   
+  // Select 2-3 random elements to add variety
+  const selectedElements = [];
+  const numElements = Math.floor(Math.random() * 2) + 2; // 2-3 elements
+  const shuffled = [...randomElements].sort(() => Math.random() - 0.5);
+  for (let i = 0; i < numElements && i < shuffled.length; i++) {
+    selectedElements.push(shuffled[i]);
+  }
+  
+  const randomModifiers = selectedElements.join(', ');
+  console.log("relationshipDynamic", relationshipDynamic)
   return (
     template
       .replace('{childGender}', childGender)
       .replace('{parentGender}', parentGender)
+      .replace('{childAge}', (gameState.child.age - 1).toString())
       .replace('{relationshipDynamic}', relationshipDynamic)
-      .replace('{childStatusforImage}', childStatusForImage) // Keep for backward compatibility with existing templates
-    + ` Style: ${resolvedArtStyle}.`);
+      .replace('{childStatusforImage}', childCurAgeStatusForImage)
+      .replace('{childEnv}', aiTextContext) // Keep for backward compatibility with existing templates
+    + ` ${randomModifiers}. Style: ${resolvedArtStyle}.`);
 };
 
 /**
@@ -300,12 +345,18 @@ const makeImageGenerationRequest = async (
     }
 
     const data = await response.json();
+    console.log('🌐 imageData API Response data:', data);
+    console.log('🔗 imageData API returned imageUrl?', !!data.imageUrl);
+    console.log('📸 imageData API returned imageBase64?', !!data.imageBase64);
     
-    return {
+    const result = {
       success: true,
       imageUrl: data.imageUrl,
       imageBase64: data.imageBase64
     };
+    console.log('✅ imageData Final result from makeImageGenerationRequest:', result);
+    
+    return result;
   } catch (error) {
     logger.error(`❌ Exception in image generation API call:`, error);
     return {
@@ -339,7 +390,8 @@ const makeDirectImageRequest = async (
 export const generateEndingImage = async (
   gameState: GameState,
   endingSummary: string,
-  options: ImageGenerationOptions = {}
+  options: ImageGenerationOptions = {},
+  aiGeneratedText?: string // AI generated text from chat API
 ): Promise<ImageGenerationResult> => {
   logger.info("🎨 Starting image generation for ending card");
   
@@ -355,7 +407,7 @@ export const generateEndingImage = async (
       }
       
       // Generate the image prompt
-      const prompt = generateImagePrompt(gameState, endingSummary, options);
+      const prompt = generateImagePrompt(gameState, endingSummary, options, aiGeneratedText);
       
       // Debug log the full prompt for debugging purposes
       logger.debugImagePrompt(prompt, options);
@@ -368,6 +420,38 @@ export const generateEndingImage = async (
       
       if (result.success) {
         logger.info("✅ Image generation successful");
+        
+        // Store the generated image using new image storage service
+        if (result.imageBase64) {
+          console.log('💾 imageGenerationService processing and storing image for age:', gameState.child.age);
+          
+          // 使用新的图片存储服务：上传到Supabase并存储URL
+          const kidId = gameState.child.name || 'unknown';
+          const storageResult = await processAndStoreImage(
+            result.imageBase64,
+            gameState.child.age,
+            kidId
+          );
+          
+          if (storageResult.success && storageResult.imageUrl) {
+            const { addGeneratedImage } = useGameStore.getState();
+            addGeneratedImage(gameState.child.age, {
+              imageUrl: storageResult.imageUrl,
+              // 保留base64用于立即显示，但不存储到localStorage
+              imageBase64: result.imageBase64
+            });
+            console.log('✅ imageGenerationService image uploaded and URL stored successfully');
+          } else {
+            console.warn('⚠️ imageGenerationService: Failed to upload image, falling back to base64 storage');
+            // 如果上传失败，仍然存储base64作为备选方案
+            const { addGeneratedImage } = useGameStore.getState();
+            addGeneratedImage(gameState.child.age, {
+              imageBase64: result.imageBase64
+            });
+          }
+        } else {
+          console.warn('⚠️ imageGenerationService: No imageBase64 data, skipping storage');
+        }
       } else {
         logger.error("❌ Image generation failed:", result.error);
       }
@@ -420,4 +504,4 @@ export const validateImageGenerationOptions = (options: ImageGenerationOptions):
   }
   
   return true;
-}; 
+};

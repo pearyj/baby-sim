@@ -475,4 +475,4 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
       )}
     </StyledDialog>
   );
-}; 
+};

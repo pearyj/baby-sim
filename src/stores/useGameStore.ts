@@ -59,6 +59,11 @@ interface GameStoreState {
   isEnding: boolean; // True when the game is in the process of ending, before the summary
   showEndingSummary: boolean;
   
+  // Image generation tracking
+  generatedImageAges: number[]; // Track ages at which images have been generated
+  shouldGenerateImage: boolean; // Flag to indicate if image should be generated at current age
+  generatedImages: { age: number; imageBase64?: string; imageUrl?: string }[]; // Store generated images data
+  
   // Streaming state
   isStreaming: boolean; // Whether any content is currently streaming
   streamingContent: string; // Current streaming content
@@ -85,6 +90,7 @@ interface GameStoreState {
   resetToWelcome: () => void; // New function to reset to the welcome screen
   testEnding: () => Promise<void>; // Dev function to test ending screen
   toggleStreaming: () => void; // Toggle streaming mode
+  addGeneratedImage: (age: number, imageData: { imageBase64?: string; imageUrl?: string }) => void; // Store generated image
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
@@ -154,6 +160,8 @@ const saveGameState = (state: GameStoreState) => {
     isEnding: state.isEnding,
     showEndingSummary: state.showEndingSummary,
     gamePhase: state.gamePhase,
+    // Generated images data
+    generatedImages: state.generatedImages,
   };
   
   logger.debug("Saving game state to localStorage:", stateToStore);
@@ -177,7 +185,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
   type GameStoreData = Omit<GameStoreState, 
     'initializeGame' | 'startGame' | 'continueSavedGame' | 'loadQuestion' | 
     'loadQuestionStreaming' | 'selectOption' | 'selectOptionStreaming' | 
-    'continueGame' | 'resetToWelcome' | 'testEnding' | 'toggleStreaming'
+    'continueGame' | 'resetToWelcome' | 'testEnding' | 'toggleStreaming' | 'addGeneratedImage'
   >;
   
   const initialState: GameStoreData = {
@@ -208,7 +216,12 @@ const useGameStore = create<GameStoreState>((set, get) => {
     showEndingSummary: false,
     pendingChoice: null,
 
-    // ——— 1.4) STREAMING STATE ————————————————————————————————————————
+    // ——— 1.4) IMAGE GENERATION TRACKING ——————————————————————————————
+    generatedImageAges: [],
+    shouldGenerateImage: false,
+    generatedImages: [],
+    
+    // ——— 1.5) STREAMING STATE ————————————————————————————————————————
     isStreaming: false,
     streamingContent: '',
     streamingType: null,
@@ -253,6 +266,9 @@ const useGameStore = create<GameStoreState>((set, get) => {
     initialState.endingSummaryText = savedState.endingSummaryText ?? null;
     initialState.showEndingSummary = savedState.showEndingSummary ?? false;
     initialState.isEnding = savedState.isEnding ?? false;
+    
+    // Restore generated images if present
+    initialState.generatedImages = savedState.generatedImages ?? [];
 
     // If the saved state indicates we were on the summary screen, restore directly to it
     if (savedState.showEndingSummary || savedState.gamePhase === 'summary') {
@@ -731,6 +747,16 @@ const useGameStore = create<GameStoreState>((set, get) => {
         logger.debug("Advancing to next age:", currentChildAge + 1);
         const nextAge = currentChildAge + 1;
         const nextPlayerAge = (player?.age ?? 0) + 1;
+        
+        // Check if we should generate an image at this age (every 3 years: 3, 6, 9, 12, 15, 18)
+        const { generatedImageAges } = get();
+        // const shouldGenerateImage = (nextAge % 3 === 0) && !generatedImageAges.includes(nextAge);
+        const shouldGenerateImage = (nextAge % 1 === 0) && !generatedImageAges.includes(nextAge);
+        
+        if (shouldGenerateImage) {
+          logger.info(`🎨 Image generation triggered for age ${nextAge}`);
+        }
+        
         const newState = {
             showFeedback: false, 
             feedbackText: null,
@@ -738,7 +764,9 @@ const useGameStore = create<GameStoreState>((set, get) => {
             currentAge: nextAge,
             player: player ? { ...player, age: nextPlayerAge } : player,
             gamePhase: 'loading_question' as GamePhase,
-            isLoading: true
+            isLoading: true,
+            shouldGenerateImage,
+            generatedImageAges: shouldGenerateImage ? [...generatedImageAges, nextAge] : generatedImageAges
         };
         set(prevState => ({ ...prevState, ...newState }));
         
@@ -1197,6 +1225,55 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
           feedbackText: i18n.t('messages.processChoiceError', { errorMessage })
         }));
       }
+    },
+
+    addGeneratedImage: (age: number, imageData: { imageBase64?: string; imageUrl?: string }) => {
+      console.log('🔍 imageData addGeneratedImage called with age:', age, 'imageData:', imageData);
+      console.log('📊 imageData has imageBase64?', !!imageData.imageBase64);
+      console.log('🔗 imageData has imageUrl?', !!imageData.imageUrl);
+      
+      set(prevState => {
+        console.log('📝 imageData Current history length:', prevState.history.length);
+        
+        // Always add image data to the last history entry
+        const updatedHistory = [...prevState.history];
+        if (updatedHistory.length > 0) {
+          const lastIndex = updatedHistory.length - 1;
+          console.log('📋 imageData Last history entry before update:', updatedHistory[lastIndex]);
+          
+          // For localStorage optimization, only store imageUrl, never imageBase64
+          const optimizedImageData = imageData.imageUrl 
+            ? { imageUrl: imageData.imageUrl } 
+            : {}; // Don't store anything if no imageUrl
+          
+          updatedHistory[lastIndex] = { 
+            ...updatedHistory[lastIndex], 
+            ...optimizedImageData 
+          };
+          
+          console.log('✅ imageData Last history entry after update:', updatedHistory[lastIndex]);
+          console.log('🖼️ imageData Updated entry has imageBase64?', !!updatedHistory[lastIndex].imageBase64);
+          console.log('🔗 imageData Updated entry has imageUrl?', !!updatedHistory[lastIndex].imageUrl);
+        }
+        
+        const newState = {
+          ...prevState,
+          history: updatedHistory,
+          // Keep the generatedImages array for backward compatibility, also optimize storage
+          generatedImages: [...prevState.generatedImages, { 
+            age, 
+            imageBase64: imageData.imageUrl ? undefined : imageData.imageBase64,
+            imageUrl: imageData.imageUrl 
+          }]
+        };
+        
+        console.log('💾 imageData New state history:', newState.history);
+        return newState;
+      });
+      
+      console.log('💿 imageData Saving game state...');
+      saveGameState(get());
+      console.log('✅ imageData Game state saved');
     },
 
     

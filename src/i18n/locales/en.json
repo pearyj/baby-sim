@@ -52,7 +52,12 @@
     "situation": "Situation:",
     "growthStage": "Growth Stage",
     "sponsored": "Sponsored",
-    "adPlaceholder": "Advertisement Space"
+    "adPlaceholder": "Advertisement Space",
+    "ageImagePromptTitle": "{{age}} Years Old!",
+    "ageImagePromptDescription": "Your child has reached {{age}} years old! Would you like to generate a special image to commemorate this milestone?",
+    "generatedImageAlt": "Generated {{age}} years old {{gender}} image",
+    "imageGenerated": "Image generated successfully!",
+    "generateImage": "Generate Image"
   },
   "developmentalStages": {
     "newborn": "Newborn",
@@ -122,7 +127,17 @@
     "selectThisOption": "I'll do this",
     "selectedThisOption": "I did this",
     "copyJourney": "Copy journey as text",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "generateImage": "Generate Image",
+    "imageGenerated": "Image generated successfully!",
+    "skip": "Skip",
+    "unlock": "Unlock",
+    "errorGeneratingSummary": "Error: Failed to generate summary.",
+    "shareCarouselHeading": "{{childName}} is awesome!",
+    "thankYouSupport": "Thank you for your support!",
+    "createImages": "Create Images",
+    "useCreditsHint": "Hint: You can use credits for {{childName}} to generate images.",
+    "creditsUsageShort": "Credits can be used for GPT-5 and image generation."
   },
   "header": {
     "title": "The Baby Simulator",
@@ -174,12 +189,10 @@
     "listenToChild": "Listen patiently and understand the child's needs",
     "giveGuidance": "Provide appropriate guidance and advice",
     "encourageThinking": "Encourage the child to think and solve problems independently",
-    "errorGeneratingSummary": "Error: Could not generate summary.",
-    "shareCarouselHeading": "Join others in showing how amazing {{childName}} is with an image!",
-    "thankYouSupport": "Thank you for your support!",
-    "createImages": "Create Images",
-    "useCreditsHint": "Tip: You can use credits to generate the ending image for {{childName}}.",
-    "creditsUsageShort": "Use credits for premium GPT‑5 and image generation."
+    "blurredImageHint": "Unlock to view clear image",
+    "imageBlurredHint": "Image generated, pay to view clear version",
+    "creditsUsageShort": "Credits Usage",
+    "useCreditsHint": "Use credits to unlock features"
   },
   "gentleReminder": {
     "title": "A gentle reminder",
@@ -301,4 +314,4 @@
     "noImages": "No shared images yet. Be the first to raise a kid to 18 and share!",
     "raiseBaby": "I'd love to raise a baby too!"
   }
-} 
+}

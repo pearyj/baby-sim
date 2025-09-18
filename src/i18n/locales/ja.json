@@ -53,7 +53,11 @@
     "situation": "状況:",
     "growthStage": "成長段階",
     "sponsored": "スポンサー",
-    "adPlaceholder": "広告スペース"
+    "adPlaceholder": "広告スペース",
+    "ageImagePromptTitle": "{{age}}歳！",
+    "ageImagePromptDescription": "あなたの子供は{{age}}歳です！この時点で特殊な画像を生成して、この瞬間を記録しましょう。",
+    "generatedImageAlt": "生成された{{age}}歳の{{gender}}の画像",
+    "imageGenerated": "画像が生成されました！"
   },
   "developmentalStages": {
     "newborn": "新生児",
@@ -121,7 +125,17 @@
     "testAdTimeline": "（開発用）広告タイムラインのテスト",
     "chooseGameStyle": "スタイルを選択",
     "selectThisOption": "これを選択します",
-    "refresh": "更新"
+    "refresh": "更新",
+    "generateImage": "画像を生成する",
+    "imageGenerated": "画像が生成されました！",
+    "skip": "スキップ",
+    "unlock": "アンロック",
+    "errorGeneratingSummary": "エラー：要約を生成できませんでした。",
+    "shareCarouselHeading": "{{childName}}はこんな顔をしています！",
+    "thankYouSupport": "ありがとうございます！サポートを提供してくださった方に感謝します！",
+    "createImages": "画像を生成する",
+    "useCreditsHint": "ヒント：{{childName}}の画像を生成するには、{{childName}}のクレジットを使用してください。",
+    "creditsUsageShort": "クレジットは、高度なGPT-5と画像生成の使用を可能にします。"
   },
   "header": {
     "title": "ベビーシミュレーター",
