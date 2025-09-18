@@ -123,18 +123,7 @@ const generateImagePrompt = (
   
   // Extract first three sentences from AI generated text if provided
   let aiTextContext = '';
-  if (aiGeneratedText) {
-    logger.debug("🔍 aiGeneratedText Using AI text context for image:", aiTextContext );
-    // Remove HTML tags and extract plain text
-    const plainText = aiGeneratedText.replace(/<[^>]*>/g, '').trim();
-    // Split by sentence endings (., !, ?) and take first 3 sentences
-    const sentences = plainText.split(/[.!?]+/).filter(s => s.trim().length > 0);
-    const firstThreeSentences = sentences.slice(0, 3).join('. ');
-    if (firstThreeSentences.trim()) {
-      aiTextContext = ` Context: ${firstThreeSentences.trim()}.`;
-      logger.debug("🔍 Using AI text context for image:", aiTextContext.substring(0, 100));
-    }
-  }
+  
   
   // Get template from i18n (only future_vision template now)
   const template = getPrompt('image.templates.current_age_vision');

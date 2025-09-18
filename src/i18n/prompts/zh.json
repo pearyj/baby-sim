@@ -44,7 +44,7 @@
   },
   "image": {
     "templates": {
-      "current_age_vision": "一个人的画像，{childStatusforImage}作为{childAge}岁{childGender}。背景巧妙地展示了这样的情景，{childEnv}。避免在图片中添加任何文字。",
+      "current_age_vision": "一个人的画像，避免出现父母正面，{childHairColor}，{childRace}，作为{childAge}岁{childGender}。背景巧妙地展示了这样的情景，{childEnv}。避免在图片中添加任何文字。",
       "future_vision": "一个人的画像，{childStatusforImage}作为18岁{childGender}展望未来。背景巧妙地展示了从童年到成年的历程。避免在图片中添加任何文字。"
     },
     "genderLabels": {
