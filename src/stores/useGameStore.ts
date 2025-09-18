@@ -100,16 +100,19 @@ interface GameStoreState {
 // Helper function to generate narrative with translations
 const generateNarrative = (scenarioState: {
   player: { gender: 'male' | 'female' | 'nonBinary'; age: number };
-  child: { name: string; gender: 'male' | 'female' };
+  child: { name: string ; gender: 'male' | 'female'; haircolor: string; race: string; };
   playerDescription: string;
   childDescription: string;
 }): string => {
   const playerGenderKey = scenarioState.player.gender === 'male' ? 'father' :
                          scenarioState.player.gender === 'female' ? 'mother' : 'parent';
   const childGenderKey = scenarioState.child.gender === 'male' ? 'boy' : 'girl';
+  const childHairColorKey = scenarioState.child.haircolor;
+  const childRaceKey = scenarioState.child.race;
   
   const playerDesc = i18n.t(`game.${playerGenderKey}`);
   const childDesc = i18n.t(`game.${childGenderKey}`);
+  const childHairColorDesc = i18n.t(`game.${childHairColorKey}`);
   const journeyStart = i18n.t('ui.journeyStart');
   const readyToBegin = i18n.t('ui.readyToBegin');
   
@@ -118,7 +121,7 @@ const generateNarrative = (scenarioState: {
     return `As a ${playerDesc.toLowerCase()} (${scenarioState.player.age} years old), you are about to begin the journey of raising your child ${scenarioState.child.name} (${childDesc.toLowerCase()}, just born).\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
   } else {
     // Chinese version (default)
-    return `作为${playerDesc}（${scenarioState.player.age}岁），你即将开始养育你的孩子${scenarioState.child.name}（${childDesc}，刚刚出生）的旅程。\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
+    return `作为${playerDesc}（${scenarioState.player.age}岁），你即将开始养育你的孩子${scenarioState.child.name}（${childDesc}，${childHairColorDesc}，${childRaceKey}，刚刚出生）的旅程。\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
   }
 };
 
@@ -146,6 +149,8 @@ const saveGameState = (state: GameStoreState) => {
       name: state.child.name,
       gender: state.child.gender,
       age: state.child.age,
+      haircolor: state.child.haircolor,
+      race: state.child.race,
       description: state.childDescription || '',
     },
     history: state.history,
@@ -250,6 +255,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
       name: savedState.child.name,
       gender: savedState.child.gender,
       age: authorizedAge,
+      haircolor: savedState.child.haircolor,
+      race: savedState.child.race,
       profile: {},
       traits: [],
     };
@@ -869,7 +876,9 @@ const useGameStore = create<GameStoreState>((set, get) => {
       const mockChild: Child = {
         name: selectedMockData.child.name,
         gender: selectedMockData.child.gender,
-        age: 18,
+        age: 18, 
+        haircolor: selectedMockData.child.haircolor,
+        race: selectedMockData.child.race,
         profile: selectedMockData.child.profile || {},
         traits: selectedMockData.child.traits || [],
       };

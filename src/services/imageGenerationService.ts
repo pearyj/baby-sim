@@ -191,6 +191,8 @@ const generateImagePrompt = (
       .replace('{childAge}', (gameState.child.age - 1).toString())
       .replace('{relationshipDynamic}', relationshipDynamic)
       .replace('{childStatusforImage}', childCurAgeStatusForImage)
+      .replace('{childHairColor}', gameState.child.haircolor)
+      .replace('{childRace}', gameState.child.race)
       .replace('{childEnv}', aiTextContext) // Keep for backward compatibility with existing templates
     + ` ${randomModifiers}. Style: ${resolvedArtStyle}.`);
 };

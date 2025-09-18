@@ -25,6 +25,8 @@ export interface Child {
   name: string;
   gender: 'male' | 'female'; // Children remain binary for now
   age: number;
+  haircolor: string;
+  race: string;
   [key: string]: any; // Consider making this more specific if possible
 }
 

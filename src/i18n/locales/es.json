@@ -22,7 +22,12 @@
     "loading": "Cargando...",
     "yearsOld": "años",
     "year": "Año {{year}}",
-    "checkFinance": "Verificar el estado financiero actual"
+    "checkFinance": "Verificar el estado financiero actual",
+    "black": "Negro",
+    "light": "Claro",
+    "darkcurly": "Rizado Oscuro",
+    "blonde": "Rubio",
+    "curlyligh": "Rizado Claro"
   },
   "wealth": {
     "poor": "Pobre",

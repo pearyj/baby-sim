@@ -10,6 +10,8 @@ interface ChildProfile {
   name: string;
   gender: 'male' | 'female';
   age: number; // Child's biological age
+  haircolor: string;
+  race: string;
   description: string;
 }
 

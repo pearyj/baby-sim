@@ -22,7 +22,12 @@
     "loading": "Loading...",
     "yearsOld": "years old",
     "year": "Year {{year}}",
-    "checkFinance": "Check current financial status"
+    "checkFinance": "Check current financial status",
+    "black": "Black",
+    "light": "Light",
+    "darkcurly": "Dark Curly",
+    "blonde": "Blonde",
+    "curlyligh": "Curly Light"
   },
   "wealth": {
     "poor": "Poor",

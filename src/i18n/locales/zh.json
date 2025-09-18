@@ -22,7 +22,12 @@
     "loading": "加载中...",
     "yearsOld": "岁",
     "year": "第{{year}}年",
-    "checkFinance": "查看当前财务状况"
+    "checkFinance": "查看当前财务状况",
+    "black": "黑色",
+    "light": "浅色",
+    "darkcurly": "深色卷发",
+    "blonde": "金发",
+    "curlyligh": "卷曲浅色"
   },
   "wealth": {
     "poor": "贫困",
