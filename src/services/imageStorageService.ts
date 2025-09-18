@@ -48,7 +48,9 @@ export const uploadImageToStorage = async (
 
     // 2. 生成存储路径
     const timestamp = Date.now();
-    const storageKey = `${kidId}/age-${age}-${timestamp}.png`;
+    // 对kidId进行URL编码以支持中文字符
+    const encodedKidId = encodeURIComponent(kidId);
+    const storageKey = `${encodedKidId}/age-${age}-${timestamp}.png`;
 
     // 3. 上传到Supabase Storage
     const { error: uploadErr } = await supabase.storage

@@ -35,7 +35,7 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({ currentAge }) => {
         borderRadius: 2
       }}
     >
-      <Box sx={{ textAlign: 'center' }}>
+      <Box className="image-display" sx={{ textAlign: 'center' }}>
         <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
           {t('welcome.currentAge', {age: currentAge})}
         </Typography>
@@ -82,7 +82,6 @@ const BlurredImageContainer: React.FC<{ currentImage: any }> = ({ currentImage }
     <>
       <Box sx={{
         width: '100%',
-        maxWidth: '300px',
         borderRadius: '8px',
         overflow: 'hidden',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',

@@ -87,7 +87,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
         agePrompt,
         {
           customArtStyle: `Age ${currentAge} milestone portrait`,
-          size: '768x768',
+          size: '1920x640',
           quality: 'hd'
         },
         currentAgeOutcome // Use current age outcome as AI generated text

@@ -750,8 +750,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
         
         // Check if we should generate an image at this age (every 3 years: 3, 6, 9, 12, 15, 18)
         const { generatedImageAges } = get();
-        // const shouldGenerateImage = (nextAge % 3 === 0) && !generatedImageAges.includes(nextAge);
-        const shouldGenerateImage = (nextAge % 1 === 0) && !generatedImageAges.includes(nextAge);
+        const shouldGenerateImage = (currentChildAge % 3 === 0) && !generatedImageAges.includes(currentChildAge);
+        // const shouldGenerateImage = (nextAge % 1 === 0) && !generatedImageAges.includes(nextAge);
         
         if (shouldGenerateImage) {
           logger.info(`🎨 Image generation triggered for age ${nextAge}`);

@@ -36,7 +36,7 @@ export interface ImageGenerationOptions {
    * When provided it will be appended to the prompt as "Style: {customArtStyle}.".
    */
   customArtStyle?: string;
-  size?: '512x512' | '768x768' | '1024x1024';
+  size?: '512x512' | '768x768' | '1024x1024' | '1920x640';
   quality?: 'standard' | 'hd';
 }
 
@@ -471,7 +471,7 @@ export const generateEndingImage = async (
  * Validate image generation options
  */
 export const validateImageGenerationOptions = (options: ImageGenerationOptions): boolean => {
-  const validSizes = ['512x512', '768x768', '1024x1024'];
+  const validSizes = ['512x512', '768x768', '1024x1024', '1920x640'];
   const validQualities = ['standard', 'hd'];
   
   if (options.size && !validSizes.includes(options.size)) {

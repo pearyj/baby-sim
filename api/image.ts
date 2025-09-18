@@ -56,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Map size parameter (Doubao requires at least 921600 pixels)
     // Only 1024x1024 (1048576 pixels) meets the minimum requirement
-    const validSizes = ['1024x1024'];
+    const validSizes = ['1024x1024', '1920x640'];
     const finalSize = validSizes.includes(size) ? size : '1024x1024';
     
     // Log basic info (production safe)
