@@ -579,6 +579,8 @@ export const formatEndingResult = (result: any): string => {
   return summaryMarkdown;
 };
 
+
+
 /**
  * Check for missing prompts in a language
  */
@@ -630,4 +632,4 @@ export default {
   formatEndingResult,
   checkMissingPrompts,
   getCurrentLanguage
-}; 
+};

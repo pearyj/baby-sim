@@ -121,7 +121,7 @@ const generateNarrative = (scenarioState: {
     return `As a ${playerDesc.toLowerCase()} (${scenarioState.player.age} years old), you are about to begin the journey of raising your child ${scenarioState.child.name} (${childDesc.toLowerCase()}, just born).\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
   } else {
     // Chinese version (default)
-    return `作为${playerDesc}（${scenarioState.player.age}岁），你即将开始养育你的孩子${scenarioState.child.name}（${childDesc}，${childHairColorDesc}，${childRaceKey}，刚刚出生）的旅程。\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
+    return `作为${playerDesc}（${scenarioState.player.age}岁），你即将开始养育你的孩子${scenarioState.child.name}（${childDesc}，${childHairColorDesc}头发，${childRaceKey}，刚刚出生）的旅程。\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
   }
 };
 
@@ -757,7 +757,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
         
         // Check if we should generate an image at this age (every 3 years: 3, 6, 9, 12, 15, 18)
         const { generatedImageAges } = get();
-        const shouldGenerateImage = (currentChildAge % 3 === 0) && !generatedImageAges.includes(currentChildAge);
+        const shouldGenerateImage = (currentChildAge % 1 === 0) && !generatedImageAges.includes(currentChildAge);
         // const shouldGenerateImage = (nextAge % 1 === 0) && !generatedImageAges.includes(nextAge);
         
         if (shouldGenerateImage) {

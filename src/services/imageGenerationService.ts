@@ -6,6 +6,7 @@ import type { SupportedLanguage } from '../utils/languageDetection';
 import { makePromptGetter, getCurrentLanguage as getLangUtil } from './promptUtils';
 import useGameStore from '../stores/useGameStore';
 import { processAndStoreImage } from './imageStorageService';
+import i18n from '../i18n';
 
 // Import prompt files
 import zhPrompts from '../i18n/prompts/zh.json';
@@ -90,14 +91,103 @@ const validateAndSanitizeCustomArtStyle = (customArtStyle?: string): string | un
 };
 
 /**
+ * Make a simple API request to summarize text
+ */
+const makeSimpleAPIRequest = async (messages: Array<{role: 'system' | 'user' | 'assistant', content: string}>): Promise<string> => {
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messages,
+        provider: 'volcengine',
+        streaming: false
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content.trim();
+  } catch (error) {
+    logger.error('❌ Error in API request:', error);
+    throw error;
+  }
+};
+
+/**
+ * Summarize outcome text using AI model for image generation
+ * Returns 50 characters for Chinese/Japanese, 100 characters for other languages
+ */
+const summarizeOutcome = async (outcome: string): Promise<string> => {
+  if (!outcome || outcome.trim().length === 0) {
+    return '快乐成长的场景';
+  }
+  
+  const currentLanguage = getCurrentLanguage();
+  const targetLength = (currentLanguage === 'zh' || currentLanguage === 'ja') ? 50 : 100;
+  
+  try {
+    const messages = [
+      {
+        role: 'system' as const,
+        content: `你是一个专业的文本总结助手。请将用户提供的文本总结为适合图像生成的简洁描述。
+
+要求：
+- 如果是中文或日文，总结为${targetLength}字左右
+- 如果是其他语言，总结为${targetLength}个字符左右
+- 保持核心情景和情感
+- 适合作为图像生成的提示词
+- 不要添加引号或其他格式符号
+- 直接返回总结内容`
+      },
+      {
+        role: 'user' as const,
+        content: `请总结以下文本：\n\n${outcome}`
+      }
+    ];
+    
+    const summary = await makeSimpleAPIRequest(messages);
+    
+    // Fallback to ensure length constraints
+    if (summary.length > targetLength * 1.5) {
+      return summary.substring(0, targetLength) + '...';
+    }
+    
+    return summary;
+  } catch (error) {
+    logger.error('❌ Error summarizing outcome with AI:', error);
+    
+    // Fallback to simple truncation
+    const cleaned = outcome.replace(/\s+/g, ' ').trim();
+    if (cleaned.length <= targetLength) {
+      return cleaned;
+    }
+    
+    const truncated = cleaned.substring(0, targetLength - 3);
+    const lastSpace = truncated.lastIndexOf(' ');
+    
+    if (lastSpace > targetLength * 0.7) {
+      return truncated.substring(0, lastSpace) + '...';
+    }
+    
+    return truncated + '...';
+  }
+};
+
+/**
  * Generate image prompt based on game state and ending summary
  */
-const generateImagePrompt = (
+const generateImagePrompt = async (
   gameState: GameState, 
   endingSummary: string,
   options: ImageGenerationOptions = {},
   aiGeneratedText?: string // AI generated text from chat API
-): string => {
+): Promise<string> => {
   const { customArtStyle } = options;
   
   // Get current language from i18n
@@ -136,7 +226,12 @@ const generateImagePrompt = (
   
   // Build a richer child description using the ending-card field when available
   const rawChildDescription = (gameState.childDescription ?? '').trim();
-  const rawChildCurAgeDescription = (gameState.history[gameState.history.length -1] ?? {}).outcome;
+  
+  // Find the outcome for the current age from history
+  const currentAge = gameState.child.age;
+  const currentAgeHistory = gameState.history.find(h => h.age === (currentAge -1 ));
+  const rawChildCurAgeDescription = currentAgeHistory?.outcome || '';
+  
   // Fallback to the child's name if the rich description is absent
   const childDescriptionForPrompt = rawChildDescription.length > 0 ? rawChildDescription : gameState.child.name;
   // Truncate extremely long descriptions to keep the prompt concise
@@ -152,7 +247,7 @@ const generateImagePrompt = (
   
   // Use child status at 18 if available, otherwise fall back to gameState.childDescription
   const childStatusForImage = childStatusAt18 || truncatedChildDescription;
-  const childCurAgeStatusForImage = truncatedCurAgeDescription;
+  const childCurAgeStatusForImage = await summarizeOutcome(truncatedCurAgeDescription);
   console.log("childCurAgeStatusForImage", childCurAgeStatusForImage)
 
   // Add randomization elements to increase image diversity
@@ -172,6 +267,7 @@ const generateImagePrompt = (
   }
   
   const randomModifiers = selectedElements.join(', ');
+  const childHairColor = i18n.t(`game.${gameState.child.haircolor}`);
   console.log("relationshipDynamic", relationshipDynamic)
   return (
     template
@@ -179,11 +275,13 @@ const generateImagePrompt = (
       .replace('{parentGender}', parentGender)
       .replace('{childAge}', (gameState.child.age - 1).toString())
       .replace('{relationshipDynamic}', relationshipDynamic)
-      .replace('{childStatusforImage}', childCurAgeStatusForImage)
-      .replace('{childHairColor}', gameState.child.haircolor)
+      .replace('{aiOutcome}', childCurAgeStatusForImage)
+      .replace('{childHairColor}', childHairColor)
       .replace('{childRace}', gameState.child.race)
       .replace('{childEnv}', aiTextContext) // Keep for backward compatibility with existing templates
-    + ` ${randomModifiers}. Style: ${resolvedArtStyle}.`);
+      .replace('{childStatusforImage}', childCurAgeStatusForImage) // Keep for future_vision template compatibility
+    + ` ${randomModifiers}`
+  );
 };
 
 /**
@@ -398,7 +496,7 @@ export const generateEndingImage = async (
       }
       
       // Generate the image prompt
-      const prompt = generateImagePrompt(gameState, endingSummary, options, aiGeneratedText);
+      const prompt = await generateImagePrompt(gameState, endingSummary, options, aiGeneratedText);
       
       // Debug log the full prompt for debugging purposes
       logger.debugImagePrompt(prompt, options);

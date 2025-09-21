@@ -44,7 +44,7 @@
   },
   "image": {
     "templates": {
-      "current_age_vision": "One-person portrait of {childStatusforImage} as a confident {childAge}-year-old {childGender} looking towards their bright future. The background subtly shows the journey from childhood to adulthood. Avoid any text in the image.",
+      "current_age_vision": "One-person portrait, avoid showing parents' faces, {childHairColor} hair, {childRace}, as a {childAge}-year-old {childGender}. The background subtly shows the scene: {aiOutcome}. Avoid any text in the image.",
       "future_vision": "One-person portrait of {childStatusforImage} as a confident 18-year-old {childGender} looking towards their bright future. The background subtly shows the journey from childhood to adulthood. Avoid any text in the image."
     },
     "genderLabels": {
@@ -70,4 +70,4 @@
     "financialHeader": "$F{{financialBurden}}\n\n",
     "numericalHeader": "[F{{finance}}/M{{marital}}] "
   }
-} 
+}

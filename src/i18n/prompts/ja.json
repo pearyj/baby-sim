@@ -43,7 +43,7 @@
   },
   "image": {
     "templates": {
-      "current_age_vision": "人物のポートレート{childStatusforImage}、年齢は{childAge}歳、年齢は{childGender}。背景は、状況{childEnv}をさりげなく表しています。画像にテキストを追加しないでください。",
+      "current_age_vision": "人物のポートレート、両親の正面を避ける、{childHairColor}の髪、{childRace}、{childAge}歳の{childGender}として。背景は巧妙にこのようなシーンを示しています：{aiOutcome}。画像にテキストを追加しないでください。",
       "future_vision": "明るい未来を見つめる自信に満ちた18歳の{childGender}としての{childStatusforImage}の一人のポートレート。背景は幼児期から成人期への旅を微妙に示しています。画像にテキストを含めないでください。"
     },
     "genderLabels": {

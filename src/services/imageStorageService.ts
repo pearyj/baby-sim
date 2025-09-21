@@ -46,11 +46,10 @@ export const uploadImageToStorage = async (
     }
     const imageBlob = new Blob([buffer], { type: 'image/png' });
 
-    // 2. 生成存储路径
+    // 2. 生成存储路径 - 完全避免使用kidId以防止中文字符问题
     const timestamp = Date.now();
-    // 对kidId进行URL编码以支持中文字符
-    const encodedKidId = encodeURIComponent(kidId);
-    const storageKey = `${encodedKidId}/age-${age}-${timestamp}.png`;
+    const randomId = crypto.randomUUID().substring(0, 8); // 使用随机ID替代kidId
+    const storageKey = `images/age-${age}-${timestamp}-${randomId}.png`;
 
     // 3. 上传到Supabase Storage
     const { error: uploadErr } = await supabase.storage
@@ -65,7 +64,25 @@ export const uploadImageToStorage = async (
       return { success: false, error: uploadErr.message };
     }
 
-    // 4. 获取公共URL
+    // 4. 创建数据库记录以支持RLS策略
+    const recordId = crypto.randomUUID();
+    const { error: insertErr } = await supabase.from('ending_cards').insert({
+      id: recordId,
+      child_status_at_18: `Child at age ${age}`, // 临时状态描述，避免中文字符
+      parent_review: 'Generated during gameplay',
+      outlook: 'Image generated for gameplay',
+      image_path: storageKey,
+      share_ok: true, // 允许公开访问
+    });
+
+    if (insertErr) {
+      logger.error('Failed to create database record for image:', insertErr);
+      // 清理已上传的文件
+      await supabase.storage.from('ending-cards').remove([storageKey]);
+      return { success: false, error: insertErr.message };
+    }
+
+    // 5. 获取公共URL
     const { data: urlData } = supabase.storage
       .from('ending-cards')
       .getPublicUrl(storageKey);

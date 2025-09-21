@@ -659,6 +659,8 @@ export interface InitialStateType {
     name: string;
     gender: 'male' | 'female';
     age: number;
+    haircolor?: string;
+    race?: string;
   };
   playerDescription: string;
   childDescription: string;
@@ -715,6 +717,11 @@ export const generateInitialState = async (
       logger.info("🔄 Using preloaded initial state:", preloadedState);
       return {
         ...preloadedState,
+        child: {
+          ...preloadedState.child,
+          haircolor: preloadedState.child.haircolor || 'black',
+          race: preloadedState.child.race || '汉族'
+        },
         history: [],
         currentQuestion: null,
         feedbackText: null,
@@ -740,6 +747,8 @@ export const generateEnding = async (
     return generateEndingSync(gameState);
   }
 };
+
+
 
 // Synchronous implementations
 const generateQuestionSync = async (gameState: GameState): Promise<Question & { isExtremeEvent: boolean }> => {
@@ -1008,6 +1017,8 @@ const generateEndingSync = async (gameState: GameState): Promise<string> => {
     }
   });
 };
+
+
 
 // Streaming implementations
 
