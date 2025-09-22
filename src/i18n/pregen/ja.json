@@ -1,7 +1,7 @@
 [
   {
     "player": { "gender": "female", "age": 28 },
-    "child":  { "name": "あかり", "gender": "female", "age": 1, "haircolor": "black", "race": "日本人" },
+    "child":  { "name": "あかり", "gender": "female", "age": 1, "haircolor": "black", "race": "asianPeople" },
     "playerDescription": "あなたは28歳のマーケティング専門職で、賑やかな都市に住んでいます。野心的で創造的、ワークライフバランスを重視しています。中流階級の家庭で育ち、子どもに多様な体験と機会を提供することを信じています。",
     "childDescription": "あかりは好奇心旺盛で活発な女の子で、明るい目と人を引きつける笑顔を持っています。周囲を探索することが大好きで、とても社交的で表現豊かな兆候を早くから見せています。",
     "finance": 5,

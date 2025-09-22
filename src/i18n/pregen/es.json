@@ -1,7 +1,7 @@
 [
   {
     "player": { "gender": "female", "age": 28 },
-    "child":  { "name": "Sofía", "gender": "female", "age": 1, "haircolor": "light", "race": "Hispana" },
+    "child":  { "name": "Sofía", "gender": "female", "age": 1, "haircolor": "light", "race": "LatinPeople" },
     "playerDescription": "Eres una profesional de marketing de 28 años que vive en una ciudad bulliciosa. Eres ambiciosa, creativa y valoras el equilibrio trabajo-vida. Creciste en una familia de clase media y crees en proporcionar a tu hija experiencias diversas y oportunidades.",
     "childDescription": "Sofía es una bebé curiosa y enérgica con ojos brillantes y una sonrisa contagiosa. Le encanta explorar su entorno y muestra signos tempranos de ser muy social y expresiva.",
     "finance": 5,
@@ -10,7 +10,7 @@
   },
   {
     "player": { "gender": "male", "age": 32 },
-    "child":  { "name": "Diego", "gender": "male", "age": 1, "haircolor": "black", "race": "Hispano" },
+    "child":  { "name": "Diego", "gender": "male", "age": 1, "haircolor": "black", "race": "LatinPeople" },
     "playerDescription": "Eres un ingeniero de software de 32 años que trabaja remotamente. Eres analítico, paciente y disfrutas resolver problemas. Vienes de un entorno conocedor de tecnología y quieres introducir a tu hijo a los campos STEM mientras aseguras una educación integral.",
     "childDescription": "Diego es un bebé tranquilo y observador que parece fascinado por patrones y sonidos. Tiene un temperamento gentil y muestra signos tempranos de ser reflexivo y metódico en su enfoque a nuevas experiencias.",
     "finance": 8,
@@ -19,7 +19,7 @@
   },
   {
     "player": { "gender": "female", "age": 25 },
-    "child":  { "name": "Isabella", "gender": "female", "age": 1, "haircolor": "light", "race": "Hispana" },
+    "child":  { "name": "Isabella", "gender": "female", "age": 1, "haircolor": "light", "race": "LatinPeople" },
     "playerDescription": "Eres una maestra de 25 años apasionada por la educación y el desarrollo infantil. Eres cariñosa, paciente y crees en el poder del aprendizaje a través del juego. Vienes de una familia de educadores y valoras el logro académico junto con la inteligencia emocional.",
     "childDescription": "Isabella es una bebé gentil y receptiva que parece disfrutar la música y los cuentos. Tiene un comportamiento tranquilo y muestra signos tempranos de ser empática y atenta a su entorno.",
     "finance": 4,
@@ -28,7 +28,7 @@
   },
   {
     "player": { "gender": "male", "age": 29 },
-    "child":  { "name": "Mateo", "gender": "male", "age": 1, "haircolor": "black", "race": "Hispano" },
+    "child":  { "name": "Mateo", "gender": "male", "age": 1, "haircolor": "black", "race": "LatinPeople" },
     "playerDescription": "Eres un chef de 29 años que tiene un pequeño restaurante. Eres creativo, trabajador y apasionado por la cultura gastronómica. Creciste en una familia grande y unida y quieres transmitir tradiciones mientras fomentas los intereses individuales de tu hijo.",
     "childDescription": "Mateo es un bebé activo y curioso que parece disfrutar diferentes texturas y sabores. Tiene una personalidad vivaz y muestra signos tempranos de ser aventurero y ansioso por explorar nuevas experiencias.",
     "finance": 5,
@@ -37,7 +37,7 @@
   },
   {
     "player": { "gender": "male", "age": 35 },
-    "child":  { "name": "Alejandro", "gender": "male", "age": 1, "haircolor": "light", "race": "Hispano" },
+    "child":  { "name": "Alejandro", "gender": "male", "age": 1, "haircolor": "light", "race": "LatinPeople" },
     "playerDescription": "Eres un asesor financiero de 35 años que valora la estabilidad y la planificación a largo plazo. Eres metódico, responsable y crees en enseñar habilidades prácticas de vida. Vienes de un origen modesto y trabajaste duro para lograr seguridad financiera.",
     "childDescription": "Alejandro es un bebé reflexivo y observador que parece disfrutar la rutina y la previsibilidad. Tiene un temperamento estable y muestra signos tempranos de ser analítico y orientado a los detalles.",
     "finance": 8,
@@ -46,7 +46,7 @@
   },
   {
     "player": { "gender": "female", "age": 31 },
-    "child":  { "name": "Valentina", "gender": "female", "age": 1, "haircolor": "darkcurly", "race": "Hispana" },
+    "child":  { "name": "Valentina", "gender": "female", "age": 1, "haircolor": "darkcurly", "race": "LatinPeople" },
     "playerDescription": "Eres una diseñadora gráfica de 31 años que trabaja como freelance. Eres artística, independiente y valoras la creatividad y la autoexpresión. Creciste en un hogar artístico y quieres fomentar el potencial creativo de tu hija mientras proporcionas habilidades prácticas.",
     "childDescription": "Valentina es una bebé expresiva e imaginativa que parece atraída por colores y estímulos visuales. Tiene una personalidad vibrante y muestra signos tempranos de ser creativa y emocionalmente expresiva.",
     "finance": 4,
@@ -55,7 +55,7 @@
   },
   {
     "player": { "gender": "female", "age": 26 },
-    "child":  { "name": "Carmen", "gender": "female", "age": 1, "haircolor": "black", "race": "Hispana" },
+    "child":  { "name": "Carmen", "gender": "female", "age": 1, "haircolor": "black", "race": "LatinPeople" },
     "playerDescription": "Eres una enfermera de 26 años que es compasiva y dedicada a ayudar a otros. Eres empática, fuerte y crees en la importancia de la salud y el bienestar. Vienes de una familia trabajadora y valoras el trabajo duro y la perseverancia.",
     "childDescription": "Carmen es una bebé gentil y sensible que parece muy receptiva a las señales emocionales. Tiene una naturaleza cariñosa y muestra signos tempranos de ser intuitiva y emocionalmente inteligente.",
     "finance": 2,
@@ -64,7 +64,7 @@
   },
   {
     "player": { "gender": "female", "age": 30 },
-    "child":  { "name": "Santiago", "gender": "male", "age": 1, "haircolor": "black", "race": "Indígena" },
+    "child":  { "name": "Santiago", "gender": "male", "age": 1, "haircolor": "black", "race": "LatinPeople" },
     "playerDescription": "Eres una trabajadora social de 30 años de una comunidad indígena. Eres orientada a la comunidad, sabia y profundamente conectada con tu herencia cultural. Crees en criar a tu hijo con una identidad cultural fuerte mientras lo preparas para el mundo moderno.",
     "childDescription": "Santiago es un bebé tranquilo y observador que parece muy conectado con la naturaleza y su entorno. Tiene un temperamento pacífico y muestra signos tempranos de ser sabio y espiritualmente consciente.",
     "finance": 3,
@@ -73,7 +73,7 @@
   },
   {
     "player": { "gender": "female", "age": 27 },
-    "child":  { "name": "Camila", "gender": "female", "age": 1, "haircolor": "light", "race": "Hispana" },
+    "child":  { "name": "Camila", "gender": "female", "age": 1, "haircolor": "light", "race": "LatinPeople" },
     "playerDescription": "Eres una científica investigadora de 27 años que es curiosa y orientada a los detalles. Eres intelectual, metódica y crees en la crianza basada en evidencia. Vienes de una familia inmigrante y valoras la educación y la preservación cultural.",
     "childDescription": "Camila es una bebé inquisitiva y alerta que parece fascinada por causa y efecto. Tiene un temperamento enfocado y muestra signos tempranos de ser analítica y con mentalidad científica.",
     "finance": 6,
@@ -82,7 +82,7 @@
   },
   {
     "player": { "gender": "male", "age": 33 },
-    "child":  { "name": "Lucas", "gender": "male", "age": 1, "haircolor": "blonde", "race": "Hispano" },
+    "child":  { "name": "Lucas", "gender": "male", "age": 1, "haircolor": "blonde", "race": "LatinPeople" },
     "playerDescription": "Eres un entrenador personal de 33 años que es consciente de la salud y enérgico. Eres motivacional, disciplinado y crees en la importancia del fitness físico y el bienestar mental. Creciste jugando deportes y quieres inculcar hábitos saludables en tu hijo.",
     "childDescription": "Lucas es un bebé activo y enérgico que parece disfrutar el movimiento y el juego físico. Tiene una personalidad dinámica y muestra signos tempranos de ser atlético y físicamente coordinado.",
     "finance": 5,
@@ -91,7 +91,7 @@
   },
   {
     "player": { "gender": "female", "age": 34 },
-    "child":  { "name": "Elena", "gender": "female", "age": 1, "haircolor": "light", "race": "Hispana" },
+    "child":  { "name": "Elena", "gender": "female", "age": 1, "haircolor": "light", "race": "LatinPeople" },
     "playerDescription": "Eres una abogada ambiental de 34 años apasionada por la sostenibilidad y la justicia social. Eres principista, elocuente y crees en criar a tu hija para que sea ambientalmente consciente y socialmente responsable.",
     "childDescription": "Elena es una bebé reflexiva y consciente que parece muy receptiva a su entorno. Tiene una naturaleza contemplativa y muestra signos tempranos de ser ambientalmente sensible y socialmente consciente.",
     "finance": 9,
@@ -100,7 +100,7 @@
   },
   {
     "player": { "gender": "male", "age": 28 },
-    "child":  { "name": "Paloma", "gender": "female", "age": 1, "haircolor": "black", "race": "Hispana" },
+    "child":  { "name": "Paloma", "gender": "female", "age": 1, "haircolor": "black", "race": "LatinPeople" },
     "playerDescription": "Eres un músico de 28 años apasionado por las artes y la cultura. Eres creativo, expresivo y crees en el poder de la música y las artes en el desarrollo infantil. Vienes de una familia musical y quieres compartir tu amor por la música mientras fomentas los talentos individuales de tu hija.",
     "childDescription": "Paloma es una bebé expresiva y rítmica que parece naturalmente atraída a la música y los sonidos. Tiene una personalidad vivaz y muestra signos tempranos de ser musicalmente dotada y artísticamente inclinada.",
     "finance": 2,
@@ -117,7 +117,7 @@
       "gender": "male",
       "age": 1,
       "haircolor": "curlyligh",
-      "race": "Mexicano"
+      "race": "LatinPeople"
     },
     "playerDescription": "Eres una madre soltera de 29 años que trabaja como periodista en Ciudad de México. Viajas frecuentemente para cubrir noticias importantes, llevando a Emilio en su portabebés mientras entrevistas a personas en mercados bulliciosos y plazas históricas. Tus ingresos varían según las asignaciones, pero tu pasión por contar historias importantes te mantiene motivada.",
     "childDescription": "Emilio tiene cabello castaño ondulado y se calma con el sonido de voces hablando. Observa fascinado las multitudes y parece absorber cada conversación como si estuviera aprendiendo el ritmo del periodismo.",
@@ -135,7 +135,7 @@
       "gender": "female",
       "age": 1,
       "haircolor": "black",
-      "race": "Andina"
+      "race": "LatinPeople"
     },
     "playerDescription": "Eres un agricultor de 35 años en las montañas de Perú, cultivando quinua y papas usando métodos tradicionales andinos. Tu esposa teje textiles para vender en el mercado local. Juntos enseñan a Esperanza sobre la conexión sagrada con la Pachamama (Madre Tierra) mientras planifican su futuro en un mundo cambiante.",
     "childDescription": "Esperanza tiene ojos grandes y oscuros que siguen el vuelo de los cóndores. Se tranquiliza con el sonido del viento en las montañas y babea cuando toca las hojas de las plantas de quinua.",

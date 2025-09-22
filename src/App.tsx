@@ -349,6 +349,10 @@ function App() {
               endingSummaryText: endingSummaryText || null
             }}
             currentAge={currentAge}
+            onDismiss={() => {
+              // Hide the AgeImagePrompt when user clicks skip
+              useGameStore.setState({ shouldGenerateImage: false });
+            }}
           />
         );
       }

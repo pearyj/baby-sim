@@ -27,7 +27,11 @@
     "light": "Claro",
     "darkcurly": "Rizado Oscuro",
     "blonde": "Rubio",
-    "curlyligh": "Rizado Claro"
+    "curlyligh": "Rizado Claro",
+    "whitePeople": "Blanco",
+    "asianPeople": "Asiático",
+    "blackPeople": "Negro",
+    "LatinPeople": "Latino"
   },
   "wealth": {
     "poor": "Pobre",
@@ -131,6 +135,10 @@
     "refresh": "Actualizar",
     "generateImage": "Generar Imagen",
     "imageGenerated": "Imagen Generada con Éxito!",
+    "skipConfirmTitle": "¿Omitir generación de imagen?",
+    "skipConfirmMessage": "¿Estás seguro de que quieres omitir la generación de una imagen para este hito? No se te volverá a preguntar para futuros hitos.",
+    "skipConfirmCancel": "Cancelar",
+    "skipConfirmConfirm": "Omitir todas las imágenes futuras",
     "skip": "Saltar",
     "unlock": "Desbloquear",
     "errorGeneratingSummary": "Error: No se pudo generar el resumen.",

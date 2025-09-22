@@ -27,7 +27,11 @@
     "light": "Light",
     "darkcurly": "Dark Curly",
     "blonde": "Blonde",
-    "curlyligh": "Curly Light"
+    "curlyligh": "Curly Light",
+    "whitePeople": "White",
+    "asianPeople": "Asian",
+    "blackPeople": "Black",
+    "LatinPeople": "Latin"
   },
   "wealth": {
     "poor": "Poor",
@@ -62,7 +66,11 @@
     "ageImagePromptDescription": "Your child has reached {{age}} years old! Would you like to generate a special image to commemorate this milestone?",
     "generatedImageAlt": "Generated {{age}} years old {{gender}} image",
     "imageGenerated": "Image generated successfully!",
-    "generateImage": "Generate Image"
+    "generateImage": "Generate Image",
+    "skipConfirmTitle": "Skip Image Generation?",
+    "skipConfirmMessage": "Are you sure you want to skip generating an image for this milestone? You won't be prompted again for future milestones.",
+    "skipConfirmCancel": "Cancel",
+    "skipConfirmConfirm": "Skip All Future Images"
   },
   "developmentalStages": {
     "newborn": "Newborn",

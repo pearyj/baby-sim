@@ -268,7 +268,8 @@ const generateImagePrompt = async (
   
   const randomModifiers = selectedElements.join(', ');
   const childHairColor = i18n.t(`game.${gameState.child.haircolor}`);
-  console.log("relationshipDynamic", relationshipDynamic)
+  const childRace = i18n.t(`game.${gameState.child.race}`);
+  console.log("childRacechildRace", childRace)
   return (
     template
       .replace('{childGender}', childGender)
@@ -277,7 +278,7 @@ const generateImagePrompt = async (
       .replace('{relationshipDynamic}', relationshipDynamic)
       .replace('{aiOutcome}', childCurAgeStatusForImage)
       .replace('{childHairColor}', childHairColor)
-      .replace('{childRace}', gameState.child.race)
+      .replace('{childRace}', childRace)
       .replace('{childEnv}', aiTextContext) // Keep for backward compatibility with existing templates
       .replace('{childStatusforImage}', childCurAgeStatusForImage) // Keep for future_vision template compatibility
     + ` ${randomModifiers}`

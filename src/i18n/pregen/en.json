@@ -1,7 +1,7 @@
 [
   {
     "player": { "gender": "female", "age": 28 },
-    "child":  { "name": "Ava", "gender": "female", "age": 1, "haircolor": "light", "race": "Caucasian" },
+    "child":  { "name": "Ava", "gender": "female", "age": 1, "haircolor": "light", "race": "whitePeople" },
     "playerDescription": "You are a 28-year-old marketing professional living in a bustling city. You're ambitious, creative, and value work-life balance. You grew up in a middle-class family and believe in providing your child with diverse experiences and opportunities.",
     "childDescription": "Ava is a curious and energetic baby girl with bright eyes and a contagious smile. She loves exploring her surroundings and shows early signs of being very social and expressive.",
     "finance": 5,
@@ -10,7 +10,7 @@
   },
   {
     "player": { "gender": "male", "age": 32 },
-    "child":  { "name": "Logan", "gender": "male", "age": 1, "haircolor": "black", "race": "Caucasian" },
+    "child":  { "name": "Logan", "gender": "male", "age": 1, "haircolor": "black", "race": "asianPeople" },
     "playerDescription": "You are a 32-year-old software engineer who works remotely. You're analytical, patient, and enjoy problem-solving. You come from a tech-savvy background and want to introduce your child to STEM fields while ensuring a well-rounded upbringing.",
     "childDescription": "Logan is a calm and observant baby boy who seems fascinated by patterns and sounds. He has a gentle temperament and shows early signs of being thoughtful and methodical in his approach to new experiences.",
     "finance": 8,
@@ -19,7 +19,7 @@
   },
   {
     "player": { "gender": "female", "age": 25 },
-    "child":  { "name": "Grace", "gender": "female", "age": 1, "haircolor": "light", "race": "Caucasian" },
+    "child":  { "name": "Grace", "gender": "female", "age": 1, "haircolor": "light", "race": "whitePeople" },
     "playerDescription": "You are a 25-year-old teacher who is passionate about education and child development. You're nurturing, patient, and believe in the power of learning through play. You come from a family of educators and value academic achievement alongside emotional intelligence.",
     "childDescription": "Grace is a gentle and responsive baby girl who seems to enjoy music and storytelling. She has a calm demeanor and shows early signs of being empathetic and attentive to her surroundings.",
     "finance": 4,
@@ -28,7 +28,7 @@
   },
   {
     "player": { "gender": "male", "age": 29 },
-    "child":  { "name": "Mateo", "gender": "male", "age": 1, "haircolor": "black", "race": "Hispanic" },
+    "child":  { "name": "Mateo", "gender": "male", "age": 1, "haircolor": "black", "race": "LatinPeople" },
     "playerDescription": "You are a 29-year-old chef who owns a small restaurant. You're creative, hardworking, and passionate about food culture. You grew up in a large, close-knit family and want to pass on traditions while encouraging your child's individual interests.",
     "childDescription": "Mateo is an active and curious baby boy who seems to enjoy different textures and flavors. He has a lively personality and shows early signs of being adventurous and eager to explore new experiences.",
     "finance": 5,
@@ -37,7 +37,7 @@
   },
   {
     "player": { "gender": "male", "age": 35 },
-    "child":  { "name": "Elliot", "gender": "male", "age": 1, "haircolor": "blonde", "race": "Caucasian" },
+    "child":  { "name": "Elliot", "gender": "male", "age": 1, "haircolor": "blonde", "race": "whitePeople" },
     "playerDescription": "You are a 35-year-old financial advisor who values stability and long-term planning. You're methodical, responsible, and believe in teaching practical life skills. You come from a modest background and worked hard to achieve financial security.",
     "childDescription": "Elliot is a thoughtful and observant baby boy who seems to enjoy routine and predictability. He has a steady temperament and shows early signs of being analytical and detail-oriented.",
     "finance": 8,
@@ -46,7 +46,7 @@
   },
   {
     "player": { "gender": "female", "age": 31 },
-    "child":  { "name": "Bella", "gender": "female", "age": 1, "haircolor": "light", "race": "Caucasian" },
+    "child":  { "name": "Bella", "gender": "female", "age": 1, "haircolor": "light", "race": "whitePeople" },
     "playerDescription": "You are a 31-year-old graphic designer who works freelance. You're artistic, independent, and value creativity and self-expression. You grew up in an artistic household and want to encourage your child's creative potential while providing practical skills.",
     "childDescription": "Bella is an expressive and imaginative baby girl who seems drawn to colors and visual stimuli. She has a vibrant personality and shows early signs of being creative and emotionally expressive.",
     "finance": 4,
@@ -55,7 +55,7 @@
   },
   {
     "player": { "gender": "female", "age": 26 },
-    "child":  { "name": "Rose", "gender": "female", "age": 1, "haircolor": "blonde", "race": "Caucasian" },
+    "child":  { "name": "Rose", "gender": "female", "age": 1, "haircolor": "blonde", "race": "whitePeople" },
     "playerDescription": "You are a 26-year-old nurse who is compassionate and dedicated to helping others. You're empathetic, strong, and believe in the importance of health and wellness. You come from a working-class family and value hard work and perseverance.",
     "childDescription": "Rose is a gentle and sensitive baby girl who seems very responsive to emotional cues. She has a caring nature and shows early signs of being intuitive and emotionally intelligent.",
     "finance": 2,
@@ -64,7 +64,7 @@
   },
   {
     "player": { "gender": "female", "age": 30 },
-    "child":  { "name": "Ashkii", "gender": "male", "age": 1, "haircolor": "black", "race": "Native American" },
+    "child":  { "name": "Ashkii", "gender": "male", "age": 1, "haircolor": "black", "race": "LatinPeople" },
     "playerDescription": "You are a 30-year-old social worker from a Native American community. You're community-oriented, wise, and deeply connected to your cultural heritage. You believe in raising your child with strong cultural identity while preparing him for the modern world.",
     "childDescription": "Ashkii is a calm and observant baby boy who seems very connected to nature and his surroundings. He has a peaceful temperament and shows early signs of being wise and spiritually aware.",
     "finance": 3,
@@ -73,7 +73,7 @@
   },
   {
     "player": { "gender": "female", "age": 27 },
-    "child":  { "name": "Mei", "gender": "female", "age": 1, "haircolor": "black", "race": "Asian" },
+    "child":  { "name": "Mei", "gender": "female", "age": 1, "haircolor": "black", "race": "asianPeople" },
     "playerDescription": "You are a 27-year-old research scientist who is curious and detail-oriented. You're intellectual, methodical, and believe in evidence-based parenting. You come from an immigrant family and value education and cultural preservation.",
     "childDescription": "Mei is an inquisitive and alert baby girl who seems fascinated by cause and effect. She has a focused temperament and shows early signs of being analytical and scientifically minded.",
     "finance": 6,
@@ -82,7 +82,7 @@
   },
   {
     "player": { "gender": "male", "age": 33 },
-    "child":  { "name": "Leo", "gender": "male", "age": 1, "haircolor": "light", "race": "Caucasian" },
+    "child":  { "name": "Leo", "gender": "male", "age": 1, "haircolor": "light", "race": "whitePeople" },
     "playerDescription": "You are a 33-year-old personal trainer who is health-conscious and energetic. You're motivational, disciplined, and believe in the importance of physical fitness and mental wellness. You grew up playing sports and want to instill healthy habits in your child.",
     "childDescription": "Leo is an active and energetic baby boy who seems to enjoy movement and physical play. He has a dynamic personality and shows early signs of being athletic and physically coordinated.",
     "finance": 5,
@@ -91,7 +91,7 @@
   },
   {
     "player": { "gender": "female", "age": 34 },
-    "child":  { "name": "Frieda", "gender": "female", "age": 1, "haircolor": "blonde", "race": "Caucasian" },
+    "child":  { "name": "Frieda", "gender": "female", "age": 1, "haircolor": "blonde", "race": "whitePeople" },
     "playerDescription": "You are a 34-year-old environmental lawyer who is passionate about sustainability and social justice. You're principled, articulate, and believe in raising your child to be environmentally conscious and socially responsible.",
     "childDescription": "Frieda is a thoughtful and aware baby girl who seems very responsive to her environment. She has a contemplative nature and shows early signs of being environmentally sensitive and socially conscious.",
     "finance": 9,
@@ -100,7 +100,7 @@
   },
   {
     "player": { "gender": "female", "age": 30 },
-    "child":  { "name": "Nils", "gender": "male", "age": 1, "haircolor": "blonde", "race": "Scandinavian" },
+    "child":  { "name": "Nils", "gender": "male", "age": 1, "haircolor": "blonde", "race": "whitePeople" },
     "playerDescription": "You are a 30-year-old architect from Scandinavia who values minimalism and functionality. You're practical, innovative, and believe in creating beautiful, functional spaces. You want to raise your child with appreciation for design and sustainable living.",
     "childDescription": "Nils is a calm and methodical baby boy who seems to appreciate order and simplicity. He has a peaceful temperament and shows early signs of being design-oriented and systematically minded.",
     "finance": 8,
@@ -109,7 +109,7 @@
   },
   {
     "player": { "gender": "male", "age": 28 },
-    "child":  { "name": "Giulia", "gender": "female", "age": 1, "haircolor": "darkcurly", "race": "Italian" },
+    "child":  { "name": "Giulia", "gender": "female", "age": 1, "haircolor": "darkcurly", "race": "whitePeople" },
     "playerDescription": "You are a 28-year-old musician who is passionate about arts and culture. You're creative, expressive, and believe in the power of music and arts in child development. You come from a musical family and want to share your love of music while encouraging your child's individual talents.",
     "childDescription": "Giulia is an expressive and rhythmic baby girl who seems naturally drawn to music and sounds. She has a lively personality and shows early signs of being musically gifted and artistically inclined.",
     "finance": 2,
@@ -126,7 +126,7 @@
       "gender": "male",
       "age": 1,
       "haircolor": "light",
-      "race": "Caucasian"
+      "race": "whitePeople"
     },
     "playerDescription": "You are a freelance wildlife photographer living out of a converted van that criss-crosses the American Southwest. With every sunrise shoot, you strap Milo into a baby carrier, hoping desert silence and crimson light become his first memories. Your unpredictable gigs mean weeks of abundant cash, followed by dry spells where you sell prints at roadside markets to afford diapers and fuel.",
     "childDescription": "Milo has a shock of sandy hair and never seems bothered by dust or heat. He giggles whenever he feels the van’s engine rumble and stares transfixed at soaring hawks—already showing a nomad’s calm curiosity.",
@@ -144,7 +144,7 @@
       "gender": "male",
       "age": 1,
       "haircolor": "black",
-      "race": "African"
+      "race": "blackPeople"
     },
     "playerDescription": "You are a Nairobi social-enterprise founder who installs low-cost solar panels in informal settlements. Long days in the field leave you racing home through traffic to read bedtime stories lit by the very lights your company provides. Your spouse is an investigative journalist often on dangerous assignments, so childcare schedules change weekly.",
     "childDescription": "Ayaan’s eyes widen whenever a bulb flickers to life; he babbles at solar cells as if they are toys. He calms instantly when he feels sunlight on his face, as though recharging alongside the panels.",
@@ -162,7 +162,7 @@
       "gender": "female",
       "age": 1,
       "haircolor": "curlyligh",
-      "race": "Caucasian"
+      "race": "whitePeople"
     },
     "playerDescription": "You are an Oxford postgraduate researcher writing a thesis on medieval manuscripts. Between library sprints and archive dust, you pump breast milk in stone cloisters and annotate Latin verses during nap time. Scholarships cover tuition but hardly childcare, so you tutor freshmen at night for extra income.",
     "childDescription": "Beatrice has wispy curls like ink quills and reaches for crinkly parchment more eagerly than plush toys. Gregorian chant on your headphones lulls her to sleep faster than any lullaby.",
@@ -180,7 +180,7 @@
       "gender": "male",
       "age": 1,
       "haircolor": "black",
-      "race": "Hawaiian"
+      "race": "LatinPeople"
     },
     "playerDescription": "You are a former pro surfer who now runs a modest beachfront taco shack on Oʻahu. Dawn starts with checking swell forecasts while bottle-warming on a camp stove. Tourists flock when waves are good, but hurricanes can wipe out earnings in a night. You dream of teaching Kai to read tide charts before picture books.",
     "childDescription": "Kai squeals whenever he hears crashing surf and kicks his legs as if paddling. Salty air soothes him; inland car rides make him fussy until he hears gulls again.",
@@ -198,7 +198,7 @@
       "gender": "female",
       "age": 1,
       "haircolor": "darkcurly",
-      "race": "Middle Eastern"
+      "race": "asianPeople"
     },
     "playerDescription": "You are a robotics engineer in Dubai leading a team building warehouse drones. Your apartment overlooks the desert skyline, yet you often build cardboard versions of your prototypes at home so Zara can safely play with ‘robots like mom’s.’ Your partner, a flight attendant, swaps global layovers for diaper-duty whenever you sprint toward hectic product launches.",
     "childDescription": "Zara tracks the buzzing of quadcopter toys with laser focus. She slaps her hands on aluminium foil, delighted by its metallic shine, and gurgles when servo motors whirr.",
@@ -270,7 +270,7 @@
       "gender": "male",
       "age": 1,
       "haircolor": "black",
-      "race": "Hispanic"
+      "race": "LatinPeople"
     },
     "playerDescription": "You are a Bogotá city-planning professor pushing bike-lane reforms. Commutes involve strapping Diego into a cargo bike and weaving through traffic to lectures. Grants are competitive, so you freelance as an urban sketch artist at night, illustrating dream playgrounds where he might someday climb.",
     "childDescription": "Diego squeals each time the bike bell rings and leans into turns like a seasoned courier. When you unfurl blueprint paper, he smacks it with paint-stained palms, leaving abstract street grids.",
@@ -306,7 +306,7 @@
       "gender": "male",
       "age": 1,
       "haircolor": "light",
-      "race": "Mixed"
+      "race": "LatinPeople"
     },
     "playerDescription": "You are a traveling exhibition curator who lives out of rolling suitcases and pop-up flats across Europe. With each new city, you wheel art crates in one hand and River’s stroller in the other, translating wall labels while humming bedtime folk songs from three different countries. Freelance invoices pay well only after long delays, so you sketch gallery floor plans at night to stretch your cash flow.",
     "childDescription": "River has storm-gray eyes and squeals whenever gallery lights dim for video art. He taps on Plexiglas vitrines, fascinated by reflections, and calms when you whisper the names of colors in several languages.",
@@ -324,7 +324,7 @@
       "gender": "female",
       "age": 1,
       "haircolor": "black",
-      "race": "Asian"
+      "race": "asianPeople"
     },
     "playerDescription": "You are a Seoul-based livestream gamer who codes accessibility mods by day and entertains a global audience by night. When streams go live, Lumi dozes in a sound-dampened bassinet glowing faintly with RGB strips. Your partner works overseas six months a year, leaving you to juggle sponsorship calls, diaper changes, and Korean subtitles all at once.",
     "childDescription": "Lumi’s tiny fists pump whenever controller haptics buzz near her. She tracks pixel explosions better than plush toys and babbles in rhythm with your mechanical keyboard clicks.",

@@ -27,7 +27,11 @@
     "light": "明るい髪",
     "darkcurly": "暗いカール",
     "blonde": "金髪",
-    "curlyligh": "明るいカール"
+    "curlyligh": "明るいカール",
+    "whitePeople": "白人",
+    "asianPeople": "アジア人",
+    "blackPeople": "黒人",
+    "LatinPeople": "ラテン人"
   },
   "wealth": {
     "poor": "貧しい",
@@ -134,6 +138,10 @@
     "generateImage": "画像を生成する",
     "imageGenerated": "画像が生成されました！",
     "skip": "スキップ",
+    "skipConfirmTitle": "画像生成をスキップしますか？",
+    "skipConfirmMessage": "このマイルストーンの画像生成をスキップしてもよろしいですか？今後のマイルストーンでは画像生成の提案は表示されません。",
+    "skipConfirmCancel": "キャンセル",
+    "skipConfirmConfirm": "今後の画像をすべてスキップ",
     "unlock": "アンロック",
     "errorGeneratingSummary": "エラー：要約を生成できませんでした。",
     "shareCarouselHeading": "{{childName}}はこんな顔をしています！",

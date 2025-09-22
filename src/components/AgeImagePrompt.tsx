@@ -7,16 +7,23 @@ import {
   CardContent,
   CircularProgress,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { CameraAlt, Close } from '@mui/icons-material';
+import { CameraAlt, Close, LockOpen } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { generateEndingImage } from '../services/imageGenerationService';
 import type { GameState } from '../types/game';
 import type { ImageGenerationResult } from '../services/imageGenerationService';
 import useGameStore from '../stores/useGameStore';
-import { PaywallGate } from './payment/PaywallGate';
+import { PaywallUI } from './payment/PaywallUI';
 import { usePaymentStatus } from '../hooks/usePaymentStatus';
+import { RACE_GENDER_IMAGE_MAP } from '../constants/contants';
+import { logEvent } from '../services/eventLogger';
+import { usePaymentStore } from '../stores/usePaymentStore';
 
 interface AgeImagePromptProps {
   gameState: GameState;
@@ -57,6 +64,34 @@ const GeneratedImage = styled('img')(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
+const BlurredImageContainer = styled(Box)(({ theme }) => ({
+  position: 'relative',
+  display: 'inline-block',
+  borderRadius: theme.spacing(1),
+  overflow: 'hidden',
+}));
+
+const BlurOverlay = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  borderRadius: theme.spacing(1),
+  zIndex: 10,
+}));
+
+const UnlockButton = styled(Button)(({ theme }) => ({
+  backgroundColor: '#8D6E63',
+  '&:hover': {
+    backgroundColor: '#6D4C41',
+  },
+}));
+
 export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   gameState,
   currentAge,
@@ -68,38 +103,72 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   const [generatedImage, setGeneratedImage] = useState<ImageGenerationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
-  const setShouldGenerateImage = useGameStore(state => state.shouldGenerateImage);
+  const [showSkipConfirm, setShowSkipConfirm] = useState(false);
   const { hasPaid, isLoading } = usePaymentStatus();
+  const { anonId, kidId } = usePaymentStore(state => ({ anonId: state.anonId, kidId: state.kidId }));
+  
+  // Get the correct age from history instead of using currentAge which is already incremented
+  const { history } = useGameStore();
+  const history_curage = history && history.length ? history[history.length - 1].age : 0;
+  console.log('AgeImagePrompt - currentAge:', currentAge, 'history_curage:', history_curage);
+  console.log('AgeImagePrompt - hasPaid:', hasPaid, 'isLoading:', isLoading);
+
+  // Generate default blurred image for all users based on child's race and gender
+  const getDefaultImage = () => {
+    const { race, gender } = gameState.child;
+    console.log('getDefaultImage - race:', race, 'gender:', gender);
+    console.log('RACE_GENDER_IMAGE_MAP:', RACE_GENDER_IMAGE_MAP);
+    const raceMap = RACE_GENDER_IMAGE_MAP[race as keyof typeof RACE_GENDER_IMAGE_MAP];
+    console.log('Race map for', race, ':', raceMap);
+    const imageUrl = raceMap?.[gender as 'male' | 'female'];
+    console.log('Image URL for', race, gender, ':', imageUrl);
+    if (imageUrl) {
+      return {
+        success: true,
+        imageUrl,
+        isDefault: true
+      } as ImageGenerationResult & { isDefault: boolean };
+    }
+    return null;
+  };
+
+  // Remove auto-generation - users must click to generate images
 
   const handleGenerateImage = async () => {
+    console.log('handleGenerateImage called, history_curage:', history_curage);
     setIsGenerating(true);
     setError(null);
 
     try {
-      // Create a prompt for the specific age
-      const agePrompt = `${gameState.childDescription} at age ${currentAge}. ${gameState.endingSummaryText || ''}`;
-      
-      // Get outcome from history for current age as aiGeneratedText
-      const currentAgeOutcome = gameState.history.find(entry => entry.age === currentAge)?.outcome;
-      
-      const result = await generateEndingImage(
-        gameState,
-        agePrompt,
-        {
-          customArtStyle: `Age ${currentAge} milestone portrait`,
-          size: '1920x640',
-          quality: 'hd'
-        },
-        currentAgeOutcome // Use current age outcome as AI generated text
-      );
-
-      if (result.success) {
-        setGeneratedImage(result);
-        onImageGenerated?.(result);
+      if (history_curage === 3) {
+        // For 3-year-olds, use default image based on race and gender
+        console.log('Getting default image for race:', gameState.child.race, 'gender:', gameState.child.gender);
+        const defaultImage = getDefaultImage();
+        console.log('Default image result:', defaultImage);
+        if (defaultImage) {
+          console.log('Setting generated image:', defaultImage);
+          setGeneratedImage(defaultImage);
+          onImageGenerated?.(defaultImage);
+          
+          // Save the image to history for timeline display
+          useGameStore.getState().addGeneratedImage(history_curage, defaultImage);
+        } else {
+          console.log('No default image found, setting error');
+          setError(t('messages.imageGenerationFailed', {
+            defaultValue: 'Failed to generate image'
+          }));
+        }
       } else {
-        setError(result.error || t('messages.imageGenerationFailed', {
-          defaultValue: 'Failed to generate image'
-        }));
+        // For ages > 3, call the actual image generation API
+        const result = await generateEndingImage(gameState, history_curage.toString());
+        if (result.success && result.imageUrl) {
+          setGeneratedImage(result);
+          onImageGenerated?.(result);
+        } else {
+          setError(t('messages.imageGenerationFailed', {
+            defaultValue: 'Failed to generate image'
+          }));
+        }
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -113,33 +182,52 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   };
 
   const handleDismiss = () => {
+    // Show confirmation dialog when user tries to skip
+    setShowSkipConfirm(true);
+  };
+
+  const handleConfirmSkip = async () => {
+    // Log skip event for analytics
+    if (anonId && kidId) {
+      await logEvent(anonId, kidId, 'image_generation_skipped', {
+        age: currentAge,
+        childName: gameState.child.name,
+        hasPaid
+      });
+    }
+    
+    // Call skipImageGeneration method
+    const { skipImageGeneration } = useGameStore.getState();
+    skipImageGeneration();
+    
+    // Reset the shouldGenerateImage flag in the store
+    useGameStore.setState({ shouldGenerateImage: false });
+    setShowSkipConfirm(false);
+    onDismiss?.();
+  };
+
+  const handleCancelSkip = () => {
+    setShowSkipConfirm(false);
+  };
+
+  const handleContinue = () => {
     // Reset the shouldGenerateImage flag in the store
     useGameStore.setState({ shouldGenerateImage: false });
     onDismiss?.();
   };
 
-  const handleContinue = () => {
-    handleDismiss();
-  };
 
-  const handleUnblurClick = () => {
-    setShowPaywall(true);
-  };
-
-  const handlePaywallClose = () => {
-    setShowPaywall(false);
-  };
 
   return (
-    <>
+    <div className='age-image-prompt'>
       <Overlay onClick={handleDismiss} />
       <PromptCard>
         <CardContent>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 600, color: '#5D4037' }}>
               {t('ui.ageImagePromptTitle', {
-                age: currentAge -1,
-                defaultValue: `${currentAge -1} Years Old!`
+                age: history_curage,
+                defaultValue: `${history_curage} Years Old!`
               })}
             </Typography>
             <Button
@@ -153,7 +241,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
 
           <Typography variant="body2" sx={{ mb: 3, color: '#666' }}>
             {t('ui.ageImagePromptDescription', {
-              age: currentAge - 1,
+              age: history_curage,
             })}
           </Typography>
 
@@ -165,63 +253,46 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
 
           {generatedImage && generatedImage.success && (
             <Box sx={{ textAlign: 'center', mb: 2 }}>
-              <Box sx={{ position: 'relative', display: 'inline-block' }}>
+              {/* For 3-year-olds or paid users, show image without blur */}
+              {(() => {
+                // 只有付费用户才能看到清晰图片，所有未付费用户都显示蒙层
+                const shouldShowClear = hasPaid;
+                console.log('图片显示逻辑 - history_curage:', history_curage, 'hasPaid:', hasPaid, 'shouldShowClear:', shouldShowClear);
+                return shouldShowClear;
+              })() ? (
                 <GeneratedImage
                   src={generatedImage.imageUrl || `data:image/png;base64,${generatedImage.imageBase64}`}
                   alt={t('ui.generatedImageAlt', {
-                    age: currentAge,
+                    age: history_curage,
                     gender: gameState.child.gender,
                   })}
-                  style={{ filter: hasPaid ? 'none' : 'blur(6px)' }}
                 />
-                {/* 模糊覆盖层 - 只在未付费时显示 */}
-                {!hasPaid && !isLoading && (
-                 <Box sx={{
-                   position: 'absolute',
-                   top: 0,
-                   left: 0,
-                   right: 0,
-                   bottom: 0,
-                   backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                   display: 'flex',
-                   flexDirection: 'column',
-                   alignItems: 'center',
-                   justifyContent: 'center',
-                   borderRadius: 1,
-                   cursor: 'pointer',
-                 }} onClick={handleUnblurClick}>
-                   <Typography 
-                     variant="caption" 
-                     sx={{ 
-                       color: 'white',
-                       fontWeight: 600,
-                       textShadow: '0 1px 2px rgba(0, 0, 0, 0.8)',
-                       textAlign: 'center',
-                       px: 1,
-                       mb: 1
-                     }}
-                   >
-                     {t('messages.imageBlurredHint', { defaultValue: '图片已生成，付费后可查看清晰版本' })}
-                   </Typography>
-                   <Button 
-                     variant="contained"
-                     size="small"
-                     sx={{
-                       backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                       color: '#8D6E63',
-                       '&:hover': {
-                         backgroundColor: 'rgba(255, 255, 255, 1)',
-                       },
-                       fontSize: '0.75rem',
-                       py: 0.5,
-                       px: 1.5,
-                     }}
-                   >
-                     {t('actions.unlock', { defaultValue: '解锁' })}
-                   </Button>
-                 </Box>
-                )}
-              </Box>
+              ) : (
+                /* For unpaid users over 3, show blurred image with unlock button */
+                <BlurredImageContainer>
+                  <GeneratedImage
+                    src={generatedImage.imageUrl || `data:image/png;base64,${generatedImage.imageBase64}`}
+                    alt={t('ui.generatedImageAlt', {
+                      age: history_curage,
+                      gender: gameState.child.gender,
+                    })}
+                    sx={{ filter: 'blur(8px)' }}
+                  />
+                  <BlurOverlay>
+                    <UnlockButton
+                      variant="contained"
+                      startIcon={<LockOpen />}
+                      onClick={() => {
+                        console.log('解锁按钮被点击，显示付费弹窗');
+                        setShowPaywall(true);
+                      }}
+                      size="small"
+                    >
+                      {t('actions.unlock', { defaultValue: 'Unlock' })}
+                    </UnlockButton>
+                  </BlurOverlay>
+                </BlurredImageContainer>
+              )}
               <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#666' }}>
                 {t('ui.imageGenerated', {
                   defaultValue: 'Image generated successfully!'
@@ -231,25 +302,39 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
           )}
 
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-            {!generatedImage && (
-              <Button
-                variant="contained"
-                onClick={handleGenerateImage}
-                disabled={isGenerating}
-                startIcon={isGenerating ? <CircularProgress size={20} /> : <CameraAlt />}
-                sx={{
-                  backgroundColor: '#8D6E63',
-                  '&:hover': {
-                    backgroundColor: '#6D4C41',
-                  },
-                }}
-              >
-                {isGenerating
-                  ? t('actions.generating', { defaultValue: 'Generating...' })
-                  : t('actions.generateImage', { defaultValue: 'Generate Image' })
-                }
-              </Button>
-            )}
+            <Button
+              variant="contained"
+              onClick={() => {
+                 console.log('Generate button clicked, history_curage:', history_curage);
+                 if (history_curage === 3) {
+                   // For 3-year-olds, directly generate default image
+                   console.log('Age is 3, calling handleGenerateImage');
+                   handleGenerateImage();
+                 } else {
+                   // For ages > 3, check payment status before generating
+                   console.log('Age > 3, hasPaid:', hasPaid);
+                   if (hasPaid) {
+                     handleGenerateImage();
+                   } else {
+                     console.log('Setting showPaywall to true');
+                     setShowPaywall(true);
+                   }
+                 }
+               }}
+              disabled={isGenerating || generatedImage !== null}
+              startIcon={isGenerating ? <CircularProgress size={20} /> : <CameraAlt />}
+              sx={{
+                backgroundColor: '#8D6E63',
+                '&:hover': {
+                  backgroundColor: '#6D4C41',
+                },
+              }}
+            >
+              {isGenerating
+                ? t('actions.generating', { defaultValue: 'Generating...' })
+                : t('actions.generateImage', { defaultValue: 'Generate Image' })
+              }
+            </Button>
             
             <Button
               variant="outlined"
@@ -272,17 +357,50 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
         </CardContent>
       </PromptCard>
       
-      {showPaywall && (
-        <PaywallGate 
-          childName={gameState.child?.name || 'Child'}
-          onCreditConsumed={() => {
-            // 这里可以添加解锁成功后的逻辑
-            setShowPaywall(false);
-          }}
-        >
-          <div />
-        </PaywallGate>
-      )}
-    </>
+      {(() => {
+         console.log('PaywallUI render check - showPaywall:', showPaywall);
+         return (
+           <PaywallUI 
+             open={showPaywall}
+             onClose={() => setShowPaywall(false)}
+             childName={gameState.child?.name || 'Child'}
+             mode="image"
+             onCreditsGained={() => {
+               // 付费成功后自动生成图片
+               console.log('PaywallUI onCreditsGained called');
+               setShowPaywall(false);
+               handleGenerateImage();
+             }}
+           />
+         );
+       })()}
+      
+      {/* Skip Confirmation Dialog */}
+      <Dialog open={showSkipConfirm} onClose={handleCancelSkip}>
+        <DialogTitle>
+          {t('ui.skipConfirmTitle', {
+            childName: gameState.child.name,
+            defaultValue: `确定不想要见到${gameState.child.name}吗？`
+          })}
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            {t('ui.skipConfirmMessage', {
+              childName: gameState.child.name,
+              age: currentAge - 1,
+              defaultValue: `跳过后将无法看到${gameState.child.name}的照片。`
+            })}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelSkip} color="primary">
+            {t('actions.cancel', { defaultValue: '取消' })}
+          </Button>
+          <Button onClick={handleConfirmSkip} color="primary" variant="contained">
+            {t('actions.confirmSkip', { defaultValue: '确定跳过' })}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
   );
 };

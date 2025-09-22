@@ -61,6 +61,7 @@ interface GameStoreState {
   
   // Image generation tracking
   generatedImageAges: number[]; // Track ages at which images have been generated
+  hasSkippedImageGeneration: boolean; // Track if user has ever skipped image generation in this session
   shouldGenerateImage: boolean; // Flag to indicate if image should be generated at current age
   generatedImages: { age: number; imageBase64?: string; imageUrl?: string }[]; // Store generated images data
   
@@ -91,6 +92,7 @@ interface GameStoreState {
   testEnding: () => Promise<void>; // Dev function to test ending screen
   toggleStreaming: () => void; // Toggle streaming mode
   addGeneratedImage: (age: number, imageData: { imageBase64?: string; imageUrl?: string }) => void; // Store generated image
+  skipImageGeneration: () => void; // Mark that user has skipped image generation in this session
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
@@ -190,7 +192,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
   type GameStoreData = Omit<GameStoreState, 
     'initializeGame' | 'startGame' | 'continueSavedGame' | 'loadQuestion' | 
     'loadQuestionStreaming' | 'selectOption' | 'selectOptionStreaming' | 
-    'continueGame' | 'resetToWelcome' | 'testEnding' | 'toggleStreaming' | 'addGeneratedImage'
+    'continueGame' | 'resetToWelcome' | 'testEnding' | 'toggleStreaming' | 'addGeneratedImage' | 'skipImageGeneration'
   >;
   
   const initialState: GameStoreData = {
@@ -223,6 +225,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
 
     // ——— 1.4) IMAGE GENERATION TRACKING ——————————————————————————————
     generatedImageAges: [],
+    hasSkippedImageGeneration: false,
     shouldGenerateImage: false,
     generatedImages: [],
     
@@ -463,6 +466,13 @@ const useGameStore = create<GameStoreState>((set, get) => {
 
     startGame: (player: Player, child: Child, playerDescription: string, childDescription: string) => {
       const currentPhase = get().gamePhase;
+      
+      // Reset hasSkippedImageGeneration when starting a new game
+      set(prevState => ({ 
+        ...prevState, 
+        hasSkippedImageGeneration: false 
+      }));
+      
       if (currentPhase === 'uninitialized' || currentPhase === 'initialization_failed') {
         // Correctly set child age to 1 for preloadedState
         get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 1 }, playerDescription, childDescription, isSingleParent: false } });
@@ -752,13 +762,16 @@ const useGameStore = create<GameStoreState>((set, get) => {
       } else {
         // Not ending, advance age and load next question.
         logger.debug("Advancing to next age:", currentChildAge + 1);
+        const history_curage = history && history.length ? history[history.length - 1].age : 0;
         const nextAge = currentChildAge + 1;
         const nextPlayerAge = (player?.age ?? 0) + 1;
         
-        // Check if we should generate an image at this age (every 3 years: 3, 6, 9, 12, 15, 18)
-        const { generatedImageAges } = get();
-        const shouldGenerateImage = (currentChildAge % 1 === 0) && !generatedImageAges.includes(currentChildAge);
-        // const shouldGenerateImage = (nextAge % 1 === 0) && !generatedImageAges.includes(nextAge);
+        // Check if we should generate an image at this age (starting from age 3, then every 3 years: 3, 6, 9, 12, 15, 18)
+        const { generatedImageAges, hasSkippedImageGeneration } = get();
+        // Start from age 3, then every 3 years, but not if user has ever skipped image generation in this session
+        const shouldGenerateImage = (history_curage >= 3 && history_curage % 3 === 0) && 
+          !generatedImageAges.includes(history_curage) && 
+          !hasSkippedImageGeneration;
         
         if (shouldGenerateImage) {
           logger.info(`🎨 Image generation triggered for age ${nextAge}`);
@@ -1283,6 +1296,15 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
       console.log('💿 imageData Saving game state...');
       saveGameState(get());
       console.log('✅ imageData Game state saved');
+    },
+
+    skipImageGeneration: () => {
+      set(state => ({
+        ...state,
+        hasSkippedImageGeneration: true,
+        shouldGenerateImage: false
+      }));
+      saveGameState(get());
     },
 
     

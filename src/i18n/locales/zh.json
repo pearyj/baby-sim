@@ -27,7 +27,11 @@
     "light": "浅色",
     "darkcurly": "深色卷发",
     "blonde": "金发",
-    "curlyligh": "卷曲浅色"
+    "curlyligh": "卷曲浅色",
+    "whitePeople": "白人",
+    "asianPeople": "亚洲人",
+    "blackPeople": "黑人",
+    "LatinPeople": "拉丁裔人"
   },
   "wealth": {
     "poor": "贫困",
@@ -131,6 +135,10 @@
     "refresh": "刷新",
     "generateImage": "生成图片",
     "imageGenerated": "图片生成成功！",
+    "skipConfirmTitle": "跳过图片生成？",
+    "skipConfirmMessage": "您确定要跳过为这个里程碑生成图片吗？以后的里程碑将不再提示您生成图片。",
+    "skipConfirmCancel": "取消",
+    "skipConfirmConfirm": "跳过所有未来图片",
     "skip": "跳过",
     "unlock": "解锁",
     "errorGeneratingSummary": "错误：无法生成摘要。",
