@@ -136,6 +136,7 @@
     "selectThisOption": "これを選択します",
     "refresh": "更新",
     "generateImage": "画像を生成する",
+    "takePhoto": "写真を撮る",
     "imageGenerated": "画像が生成されました！",
     "skip": "スキップ",
     "skipConfirmTitle": "画像生成をスキップしますか？",

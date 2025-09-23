@@ -23,12 +23,12 @@ export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || process.env.ST
 export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 export const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-08-27.basil',
 }) : null;
 
 export const PRICE_CONFIG = {
-  USD: { basePrice: 199, baseCredits: 2, additionalCreditPrice: 100 },
-  RMB: { basePrice: 600, baseCredits: 1, additionalCreditPrice: 600 },
+  USD: { basePrice: 299, baseCredits: 2, additionalCreditPrice: 150 },
+  RMB: { basePrice: 990, baseCredits: 1, additionalCreditPrice: 990 },
 } as const;
 
 // Display text explaining premium GPT-5 usage for embedding in the paywall where needed
@@ -46,4 +46,4 @@ export function calculateAmountAndCredits(units: number, currency: Currency) {
     amount: cfg.basePrice + (units - 1) * cfg.additionalCreditPrice,
     credits: cfg.baseCredits + (units - 1),
   };
-} 
+}

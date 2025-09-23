@@ -104,7 +104,8 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
-  const { hasPaid, isLoading } = usePaymentStatus();
+  const [showLastPhotoWarning, setShowLastPhotoWarning] = useState(false);
+  const { hasPaid, isLoading, needsAgeCheck } = usePaymentStatus();
   const { anonId, kidId } = usePaymentStore(state => ({ anonId: state.anonId, kidId: state.kidId }));
   
   // Get the correct age from history instead of using currentAge which is already incremented
@@ -141,7 +142,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
 
     try {
       if (history_curage === 3) {
-        // For 3-year-olds, use default image based on race and gender
+        // For 3-year-olds, use default image based on race and gender (no credit consumption)
         console.log('Getting default image for race:', gameState.child.race, 'gender:', gameState.child.gender);
         const defaultImage = getDefaultImage();
         console.log('Default image result:', defaultImage);
@@ -159,16 +160,9 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
           }));
         }
       } else {
-        // For ages > 3, call the actual image generation API
-        const result = await generateEndingImage(gameState, history_curage.toString());
-        if (result.success && result.imageUrl) {
-          setGeneratedImage(result);
-          onImageGenerated?.(result);
-        } else {
-          setError(t('messages.imageGenerationFailed', {
-            defaultValue: 'Failed to generate image'
-          }));
-        }
+        // For ages > 3, show paywall to handle credit consumption
+        // This should not directly call the API, but go through PaywallGate
+        setShowPaywall(true);
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -312,9 +306,18 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
                    handleGenerateImage();
                  } else {
                    // For ages > 3, check payment status before generating
-                   console.log('Age > 3, hasPaid:', hasPaid);
+                   console.log('Age > 3, hasPaid:', hasPaid, 'needsAgeCheck:', needsAgeCheck);
                    if (hasPaid) {
                      handleGenerateImage();
+                   } else if (needsAgeCheck) {
+                     // Check if current age is 18
+                     if (history_curage === 18) {
+                       // 18岁可以生成最后一张照片
+                       handleGenerateImage();
+                     } else {
+                       // 不是18岁，显示警告弹窗
+                       setShowLastPhotoWarning(true);
+                     }
                    } else {
                      console.log('Setting showPaywall to true');
                      setShowPaywall(true);
@@ -365,11 +368,33 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
              onClose={() => setShowPaywall(false)}
              childName={gameState.child?.name || 'Child'}
              mode="image"
-             onCreditsGained={() => {
+             onCreditsGained={async () => {
                // 付费成功后自动生成图片
                console.log('PaywallUI onCreditsGained called');
                setShowPaywall(false);
-               handleGenerateImage();
+               setIsGenerating(true);
+               setError(null);
+               
+               try {
+                 // For ages > 3, call the actual image generation API after payment
+                 const result = await generateEndingImage(gameState, history_curage.toString());
+                 if (result.success && result.imageUrl) {
+                   setGeneratedImage(result);
+                   onImageGenerated?.(result);
+                 } else {
+                   setError(t('messages.imageGenerationFailed', {
+                     defaultValue: 'Failed to generate image'
+                   }));
+                 }
+               } catch (err) {
+                 const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+                 setError(t('messages.imageGenerationError', {
+                   error: errorMessage,
+                   defaultValue: `Error generating image: ${errorMessage}`
+                 }));
+               } finally {
+                 setIsGenerating(false);
+               }
              }}
            />
          );
@@ -388,7 +413,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
             {t('ui.skipConfirmMessage', {
               childName: gameState.child.name,
               age: currentAge - 1,
-              defaultValue: `跳过后将无法看到${gameState.child.name}的照片。`
+              defaultValue: `跳过后将无法看到${gameState.child.name}在${currentAge - 1}岁时的照片。`
             })}
           </Typography>
         </DialogContent>
@@ -398,6 +423,23 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
           </Button>
           <Button onClick={handleConfirmSkip} color="primary" variant="contained">
             {t('actions.confirmSkip', { defaultValue: '确定跳过' })}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Last Photo Warning Dialog */}
+      <Dialog open={showLastPhotoWarning} onClose={() => setShowLastPhotoWarning(false)}>
+        <DialogTitle>
+          最后一张照片提醒
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            只剩一张照片了，建议留到18毕业的时候再拍！
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowLastPhotoWarning(false)} color="primary">
+            我知道了
           </Button>
         </DialogActions>
       </Dialog>

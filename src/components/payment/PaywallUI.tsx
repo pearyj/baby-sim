@@ -226,7 +226,8 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
     if (currency === 'USD') {
       return `$${amount.toFixed(2)}`;
     } else {
-      return `¥${amount.toFixed(0)}`;
+      // 保留一位小数以正确显示9.9元等价格
+      return `¥${amount.toFixed(1)}`;
     }
   };
 

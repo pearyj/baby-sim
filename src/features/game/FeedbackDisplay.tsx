@@ -10,10 +10,12 @@ import {
   LinearProgress,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { PlayArrow, Flag, Start } from '@mui/icons-material';
+import { PlayArrow, Flag, Start, CameraAlt } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { TextDisplay } from '../../components/ui/TextDisplay';
 import { StreamingTextDisplay } from '../../components/ui/StreamingTextDisplay';
+import { AgeImagePrompt } from '../../components/AgeImagePrompt';
+import useGameStore from '../../stores/useGameStore';
 import logger from '../../utils/logger';
 
 interface FeedbackDisplayProps {
@@ -25,6 +27,17 @@ interface FeedbackDisplayProps {
   childName?: string;
   isStreaming?: boolean;
   streamingContent?: string;
+  gameState?: {
+    player: any;
+    child: any;
+    history: any[];
+    playerDescription: string;
+    childDescription: string;
+    finance: number;
+    marital: number;
+    isSingleParent: boolean;
+  };
+  currentAge?: number;
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -68,9 +81,12 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
   childName = '',
   isStreaming = false,
   streamingContent = '',
+  gameState,
+  currentAge,
 }) => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
+  const [showAgeImagePrompt, setShowAgeImagePrompt] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Animation effect when component mounts
@@ -229,41 +245,135 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
               
               <Zoom in={isVisible} timeout={700} style={{ transitionDelay: '300ms' }}>
                 <Box>
-                  <ContinueButton
-                    fullWidth
-                    variant="contained"
-                    color={isEnding ? 'warning' : 'primary'}
-                    onClick={handleContinue}
-                    disabled={(isLoadingFirstQuestion && isFirstQuestion) || isStreaming}
-                    sx={{
-                      ...(isStreaming && {
-                        backgroundColor: '#424242',
-                        color: '#ffffff',
-                        '&:hover': {
-                          backgroundColor: '#424242',
-                        },
-                        '&.Mui-disabled': {
+                  {/* Show photo button alongside continue button when it's actions.continue and we have game state */}
+                  {buttonText === t('actions.continue') && gameState && currentAge ? (
+                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                      <ContinueButton
+                        fullWidth
+                        variant="contained"
+                        className='continue-button'
+                        color={isEnding ? 'warning' : 'primary'}
+                        onClick={handleContinue}
+                        disabled={(isLoadingFirstQuestion && isFirstQuestion) || isStreaming}
+                        sx={{
+                          ...(isStreaming && {
+                            backgroundColor: '#424242',
+                            color: '#ffffff',
+                            '&:hover': {
+                              backgroundColor: '#424242',
+                            },
+                            '&.Mui-disabled': {
+                              backgroundColor: '#424242',
+                              color: '#ffffff',
+                            },
+                          }),
+                          ...(isEnding && !isStreaming && {
+                            background: 'linear-gradient(135deg, #6750A4 0%, #7D5260 100%)',
+                            '&:hover': {
+                              background: 'linear-gradient(135deg, #4F378B 0%, #633B48 100%)',
+                            },
+                          }),
+                        }}
+                        startIcon={getButtonIcon()}
+                      >
+                        {buttonText}
+                      </ContinueButton>
+                      
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => setShowAgeImagePrompt(true)}
+                        disabled={(isLoadingFirstQuestion && isFirstQuestion) || isStreaming}
+                        startIcon={<CameraAlt />}
+                        sx={{
+                          borderRadius: 3,
+                          padding: '12px 24px',
+                          fontSize: '1.125rem',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          minHeight: 56,
+                          minWidth: 140,
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          borderColor: '#8D6E63',
+                          color: '#8D6E63',
+                          '&:hover': {
+                            borderColor: '#6D4C41',
+                            backgroundColor: 'rgba(141, 110, 99, 0.04)',
+                            transform: 'translateY(-2px)',
+                          },
+                          '&:active': {
+                            transform: 'translateY(0)',
+                          },
+                        }}
+                      >
+                        {t('actions.takePhoto', { defaultValue: '拍照' })}
+                      </Button>
+                    </Box>
+                  ) : (
+                    <ContinueButton
+                      fullWidth
+                      variant="contained"
+                      className='continue-button'
+                      color={isEnding ? 'warning' : 'primary'}
+                      onClick={handleContinue}
+                      disabled={(isLoadingFirstQuestion && isFirstQuestion) || isStreaming}
+                      sx={{
+                        ...(isStreaming && {
                           backgroundColor: '#424242',
                           color: '#ffffff',
-                        },
-                      }),
-                      ...(isEnding && !isStreaming && {
-                        background: 'linear-gradient(135deg, #6750A4 0%, #7D5260 100%)',
-                        '&:hover': {
-                          background: 'linear-gradient(135deg, #4F378B 0%, #633B48 100%)',
-                        },
-                      }),
-                    }}
-                    startIcon={getButtonIcon()}
-                  >
-                    {buttonText}
-                  </ContinueButton>
+                          '&:hover': {
+                            backgroundColor: '#424242',
+                          },
+                          '&.Mui-disabled': {
+                            backgroundColor: '#424242',
+                            color: '#ffffff',
+                          },
+                        }),
+                        ...(isEnding && !isStreaming && {
+                          background: 'linear-gradient(135deg, #6750A4 0%, #7D5260 100%)',
+                          '&:hover': {
+                            background: 'linear-gradient(135deg, #4F378B 0%, #633B48 100%)',
+                          },
+                        }),
+                      }}
+                      startIcon={getButtonIcon()}
+                    >
+                      {buttonText}
+                    </ContinueButton>
+                  )}
                 </Box>
               </Zoom>
             </CardContent>
           </StyledCard>
         </Fade>
       </Box>
+      
+      {/* Age Image Prompt Modal */}
+      {showAgeImagePrompt && gameState && currentAge && (
+        <AgeImagePrompt
+          gameState={{
+            player: gameState.player,
+            child: gameState.child,
+            history: gameState.history,
+            playerDescription: gameState.playerDescription,
+            childDescription: gameState.childDescription,
+            finance: gameState.finance,
+            marital: gameState.marital,
+            isSingleParent: gameState.isSingleParent,
+            pendingChoice: null,
+            currentQuestion: null,
+            feedbackText: null,
+            endingSummaryText: null
+          }}
+          currentAge={currentAge}
+          onDismiss={() => setShowAgeImagePrompt(false)}
+          onImageGenerated={(imageResult) => {
+            // Handle image generation result if needed
+            console.log('Image generated:', imageResult);
+            setShowAgeImagePrompt(false);
+          }}
+        />
+      )}
     </Box>
   );
 }; 

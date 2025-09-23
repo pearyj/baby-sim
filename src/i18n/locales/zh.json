@@ -134,6 +134,7 @@
     "copyJourney": "复制成长历程文本",
     "refresh": "刷新",
     "generateImage": "生成图片",
+    "takePhoto": "拍照",
     "imageGenerated": "图片生成成功！",
     "skipConfirmTitle": "跳过图片生成？",
     "skipConfirmMessage": "您确定要跳过为这个里程碑生成图片吗？以后的里程碑将不再提示您生成图片。",

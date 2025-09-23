@@ -142,6 +142,7 @@
     "copyJourney": "Copy journey as text",
     "refresh": "Refresh",
     "generateImage": "Generate Image",
+    "takePhoto": "Take Photo",
     "imageGenerated": "Image generated successfully!",
     "skip": "Skip",
     "unlock": "Unlock",

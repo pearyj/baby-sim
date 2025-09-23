@@ -530,6 +530,17 @@ function App() {
               childName={child?.name || t('game.childName')}
               isStreaming={isStreaming && streamingType === 'outcome'}
               streamingContent={streamingContent}
+              gameState={player && child ? {
+                player,
+                child,
+                history,
+                playerDescription: playerDescription || '',
+                childDescription: childDescription || '',
+                finance,
+                marital,
+                isSingleParent
+              } : undefined}
+              currentAge={currentAge}
             />
           );
       }

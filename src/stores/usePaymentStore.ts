@@ -17,9 +17,10 @@ interface PaymentState {
   setEmail: (email: string) => void;
   fetchCredits: (email?: string) => Promise<void>;
   createCheckoutSession: (request: Omit<CheckoutSessionRequest, 'anonId'> & { embedded?: boolean }) => Promise<CheckoutSessionResponse>;
-  consumeCredit: (email?: string) => Promise<boolean>;
+  consumeCredit: (email?: string, amount?: number) => Promise<boolean>;
   resetError: () => void;
   setKidId: (kidId: string) => void;
+
 }
 
 export const usePaymentStore = create<PaymentState>()(
@@ -124,4 +125,4 @@ export const usePaymentStore = create<PaymentState>()(
       }),
     }
   )
-); 
+);
