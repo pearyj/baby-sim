@@ -137,6 +137,8 @@
     "refresh": "更新",
     "generateImage": "画像を生成する",
     "takePhoto": "写真を撮る",
+    "wantToSeeHim": "彼に会いたい",
+    "wantToSeeHer": "彼女に会いたい",
     "imageGenerated": "画像が生成されました！",
     "skip": "スキップ",
     "skipConfirmTitle": "画像生成をスキップしますか？",

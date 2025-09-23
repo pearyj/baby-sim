@@ -330,32 +330,8 @@ function App() {
         return <WelcomeScreen onTestEnding={isDevelopment ? testEnding : undefined} />;
       }
       
-      // Check if we should show age image generation prompt
-      if (shouldGenerateImage && player && child) {
-        return (
-          <AgeImagePrompt 
-            gameState={{
-              player,
-              child,
-              history,
-              playerDescription: playerDescription || '',
-              childDescription: childDescription || '',
-              finance,
-              marital,
-              isSingleParent,
-              pendingChoice: null,
-              currentQuestion: null,
-              feedbackText: null,
-              endingSummaryText: endingSummaryText || null
-            }}
-            currentAge={currentAge}
-            onDismiss={() => {
-              // Hide the AgeImagePrompt when user clicks skip
-              useGameStore.setState({ shouldGenerateImage: false });
-            }}
-          />
-        );
-      }
+      // Age image generation is now only triggered manually by user clicking the photo button
+      // Remove automatic prompt display
 
       if (isEndingPhase) {
         return (

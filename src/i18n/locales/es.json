@@ -135,6 +135,8 @@
     "refresh": "Actualizar",
     "generateImage": "Generar Imagen",
     "takePhoto": "Tomar Foto",
+    "wantToSeeHim": "Quiero verlo",
+    "wantToSeeHer": "Quiero verla",
     "imageGenerated": "Imagen Generada con Éxito!",
     "skipConfirmTitle": "¿Omitir generación de imagen?",
     "skipConfirmMessage": "¿Estás seguro de que quieres omitir la generación de una imagen para este hito? No se te volverá a preguntar para futuros hitos.",

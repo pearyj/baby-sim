@@ -120,10 +120,26 @@ const generateNarrative = (scenarioState: {
   
   // Construct the narrative based on current language
   if (i18n.language === 'en') {
-    return `As a ${playerDesc.toLowerCase()} (${scenarioState.player.age} years old), you are about to begin the journey of raising your child ${scenarioState.child.name} (${childDesc.toLowerCase()}, just born).\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
+    return `As a ${playerDesc.toLowerCase()} (${scenarioState.player.age} years old), you are about to begin the journey of raising your child ${scenarioState.child.name} (${childDesc.toLowerCase()}, just born).
+
+${scenarioState.playerDescription}
+
+${scenarioState.childDescription}
+
+${journeyStart}
+
+${readyToBegin}`;
   } else {
     // Chinese version (default)
-    return `作为${playerDesc}（${scenarioState.player.age}岁），你即将开始养育你的孩子${scenarioState.child.name}（${childDesc}，${childHairColorDesc}头发，${childRaceKey}，刚刚出生）的旅程。\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
+    return `作为${playerDesc}（${scenarioState.player.age}岁），你即将开始养育你的孩子${scenarioState.child.name}（${childDesc}，${childHairColorDesc}头发，${childRaceKey}，刚刚出生）的旅程。
+
+${scenarioState.playerDescription}
+
+${scenarioState.childDescription}
+
+${journeyStart}
+
+${readyToBegin}`;
   }
 };
 
@@ -768,10 +784,9 @@ const useGameStore = create<GameStoreState>((set, get) => {
         
         // Check if we should generate an image at this age (starting from age 3, then every 3 years: 3, 6, 9, 12, 15, 18)
         const { generatedImageAges, hasSkippedImageGeneration } = get();
-        // Start from age 3, then every 3 years, but not if user has ever skipped image generation in this session
-        const shouldGenerateImage = (history_curage >= 3 && history_curage % 3 === 0) && 
-          !generatedImageAges.includes(history_curage) && 
-          !hasSkippedImageGeneration;
+        // Image generation is now only triggered manually by user clicking the photo button
+        // Remove automatic image generation every 3 years
+        const shouldGenerateImage = false;
         
         if (shouldGenerateImage) {
           logger.info(`🎨 Image generation triggered for age ${nextAge}`);
