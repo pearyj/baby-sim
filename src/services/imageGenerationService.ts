@@ -274,7 +274,7 @@ const generateImagePrompt = async (
     template
       .replace('{childGender}', childGender)
       .replace('{parentGender}', parentGender)
-      .replace('{childAge}', (gameState.child.age - 1).toString())
+      .replace('{childAge}', (gameState.child.age).toString())
       .replace('{relationshipDynamic}', relationshipDynamic)
       .replace('{aiOutcome}', childCurAgeStatusForImage)
       .replace('{childHairColor}', childHairColor)

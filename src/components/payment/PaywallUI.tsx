@@ -14,11 +14,12 @@ import {
   Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Favorite, CreditCard } from '@mui/icons-material';
+import { Favorite, CreditCard, Shield } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { usePaymentStore } from '../../stores/usePaymentStore';
 import { calculatePricing } from '../../services/paymentService';
 import { EmbeddedCheckout } from './EmbeddedCheckout';
+import { EmailVerificationDialog } from '../EmailVerificationDialog';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { isMobileDevice } from '../../utils/deviceDetection';
 import { isApplePaySupported } from '../../utils/deviceDetection';
@@ -72,6 +73,10 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [checkingCredits, setCheckingCredits] = useState(false);
   const [checkMessage, setCheckMessage] = useState<string | null>(null);
+  const [showVerificationDialog, setShowVerificationDialog] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [verifiedEmail, setVerifiedEmail] = useState('');
+  const [verificationEnabled, setVerificationEnabled] = useState(true); // 邮箱验证功能是否启用
 
   // References for popup handling
   const popupRef = useRef<Window | null>(null);
@@ -88,9 +93,50 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
       setDonatedUnits(i18n.language === 'zh' ? 3 : 1);
       setEmailState('');
       setEmailError('');
+      setShowVerificationDialog(false);
+      setEmailVerified(false);
+      setVerifiedEmail('');
+      setVerificationEnabled(true);
       resetError();
     }
   }, [open, resetError, i18n.language]);
+
+  // Check email verification status when email changes
+  useEffect(() => {
+    const checkEmailVerification = async () => {
+      if (email && /^\S+@\S+\.\S+$/.test(email)) {
+        try {
+          const response = await fetch(`/api/check-email-verification?email=${encodeURIComponent(email)}`);
+          const data = await response.json();
+          
+          // 如果验证功能还未启用，则不显示验证状态（既不显示已验证，也不要求验证）
+          if (data.reason === 'verification_not_enabled') {
+            setEmailVerified(false); // 不显示已验证状态
+            setVerifiedEmail(''); // 清空已验证邮箱
+            setVerificationEnabled(false); // 标记验证功能未启用
+            return;
+          }
+          
+          setVerificationEnabled(true); // 验证功能已启用
+          
+          setEmailVerified(data.verified === true);
+          if (data.verified) {
+            setVerifiedEmail(email);
+          }
+        } catch (error) {
+          console.error('Failed to check email verification:', error);
+          // 发生错误时，为了不影响用户体验，不显示验证状态
+          setEmailVerified(false);
+          setVerifiedEmail('');
+        }
+      } else {
+        setEmailVerified(false);
+        setVerifiedEmail('');
+      }
+    };
+
+    checkEmailVerification();
+  }, [email]);
 
   const validateEmail = (input: string) => {
     if (!input) {
@@ -106,8 +152,29 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
     return true;
   };
 
+  const handleEmailVerified = (verifiedEmailAddress: string) => {
+    setEmailState(verifiedEmailAddress);
+    setVerifiedEmail(verifiedEmailAddress);
+    setEmailVerified(true);
+    setShowVerificationDialog(false);
+  };
+
+  const requireEmailVerification = () => {
+    if (!validateEmail(email)) return false;
+    // 如果验证功能未启用，则跳过验证步骤
+    if (!verificationEnabled) {
+      return true;
+    }
+    // 如果验证功能已启用，则检查验证状态
+    if (!emailVerified) {
+      setShowVerificationDialog(true);
+      return false;
+    }
+    return true;
+  };
+
   const handlePayment = async () => {
-    if (!validateEmail(email)) return;
+    if (!requireEmailVerification()) return;
     resetError();
     
     const trimmedEmail = email.trim();
@@ -256,7 +323,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
   const [hasSubscribed, setHasSubscribed] = useState(false);
 
   const handleCheckCredits = async () => {
-    if (!validateEmail(email)) return;
+    if (!requireEmailVerification()) return;
     const trimmedEmail = email.trim();
 
     // Try to add the email to the subscribers table (one-time per dialog open)
@@ -341,8 +408,21 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
           onBlur={(e) => validateEmail(e.target.value)}
           error={!!emailError}
           helperText={emailError}
+          InputProps={{
+            endAdornment: (verificationEnabled && emailVerified) ? (
+              <Shield sx={{ color: 'green', fontSize: 20 }} titleAccess={t('emailVerification.verified')} />
+            ) : null
+          }}
           sx={{ mb: 2 }}
         />
+
+        {(verificationEnabled && emailVerified) && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            <Typography variant="body2">
+              ✓ {t('emailVerification.emailVerifiedMessage', { email: verifiedEmail })}
+            </Typography>
+          </Alert>
+        )}
 
         {/* Agreement line */}
         <Typography
@@ -457,7 +537,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
         <Button
           variant="contained"
           onClick={handlePayment}
-          disabled={isLoading || !!emailError || !email}
+          disabled={isLoading || !!emailError || !email || (verificationEnabled && !emailVerified)}
           startIcon={isLoading ? <CircularProgress size={20} /> : <CreditCard />}
           sx={{
             background: 'linear-gradient(45deg, #8D6E63 30%, #5D4037 90%)',
@@ -474,6 +554,14 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
           </DialogActions>
         </>
       )}
+
+      {/* Email Verification Dialog */}
+      <EmailVerificationDialog
+        open={showVerificationDialog}
+        onClose={() => setShowVerificationDialog(false)}
+        onVerified={handleEmailVerified}
+        initialEmail={email}
+      />
     </StyledDialog>
   );
 };

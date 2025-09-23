@@ -14,8 +14,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ credits: 999, bypass: true });
   }
 
+  // Allow email-only queries for testing, but still require anonId for production use
   if (!anonId || Array.isArray(anonId)) {
-    return res.status(400).json({ error: 'anonId required' });
+    // If email is provided, allow query without anonId for debugging
+    if (!email || Array.isArray(email)) {
+      return res.status(400).json({ error: 'anonId required' });
+    }
   }
 
   let credits = 0;
@@ -32,9 +36,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // If email is provided, search strictly by email to avoid mixing balances
     if (email && typeof email === 'string' && email.length > 0) {
       query = query.eq('email', email);
-    } else {
+    } else if (anonId) {
       // Otherwise, search only by anon_id (existing behavior)
       query = query.eq('anon_id', anonId);
+    } else {
+      // This shouldn't happen due to validation above, but just in case
+      return [] as any[];
     }
 
     const { data, error } = await query;

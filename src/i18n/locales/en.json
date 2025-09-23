@@ -319,6 +319,31 @@
     "postPaymentReminder": "If the page doesn't refresh after payment, you can return to this website in the same browser and your credits should load automatically. If you encounter any issues with payments, please email dev@babysim.fun.",
     "gpt5AccessWarning": "Important: The GPT‑5 API is restricted in certain countries/regions. Before donating, ensure you can access GPT. We recommend opening the ChatGPT website to verify. The image generation feature is not subject to this restriction."
   },
+  "emailVerification": {
+    "title": "Email Verification",
+    "subtitle": "To protect your credits, we need to verify that you own this email address.",
+    "verificationCode": "Verification Code",
+    "codeSubtitle": "A verification code has been sent to {{email}}. Please check your email and enter the 6-digit code.",
+    "codeRequired": "Please enter the verification code",
+    "codeInvalid": "Please enter a 6-digit verification code",
+    "codeExpired": "Verification code is invalid or expired, please get a new one",
+    "sendCode": "Send Code",
+    "resendCode": "Resend Code",
+    "resendIn": "Resend in {{seconds}}s",
+    "verify": "Verify",
+    "verified": "Verified",
+    "emailVerifiedMessage": "Email {{email}} is verified",
+    "codeSent": "Verification code sent, please check your email",
+    "verifySuccess": "Email verified successfully!",
+    "sendFailed": "Failed to send verification code, please try again",
+    "verifyFailed": "Verification failed, please check the code",
+    "rateLimited": "Too many requests, please try again later",
+    "securityNotice": "We will never share your email with third parties. It's only used for credit verification and important notifications."
+  },
+  "common": {
+    "back": "Back",
+    "processing": "Processing..."
+  },
   "gameStyle": {
     "realistic": "Realistic",
     "fantasy": "Fantasy",

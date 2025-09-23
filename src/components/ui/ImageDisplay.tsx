@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import useGameStore from '../../stores/useGameStore';
 import { PaywallUI } from '../payment/PaywallUI';
 import { usePaymentStatus } from '../../hooks/usePaymentStatus';
+import { usePaymentStore } from '../../stores/usePaymentStore';
+import { generateEndingImage } from '../../services/imageGenerationService';
 
 interface ImageDisplayProps {
   currentAge: number;
@@ -12,6 +14,10 @@ interface ImageDisplayProps {
 export const ImageDisplay: React.FC<ImageDisplayProps> = ({ currentAge }) => {
   const { t } = useTranslation();
   const { history } = useGameStore();
+
+  // 检查整个游戏中是否已经点击过多次"我想见他"按钮（查看是否有多个年龄有图片）
+  const clickedGenerateCount = history.filter(entry => entry.imageUrl).length;
+  const hasEverClickedGenerate = clickedGenerateCount > 0;
 
 
 
@@ -67,11 +73,57 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({ currentAge }) => {
 const BlurredImageContainer: React.FC<{ currentImage: any }> = ({ currentImage }) => {
   const { t } = useTranslation();
   const [showPaywall, setShowPaywall] = useState(false);
-  const { child } = useGameStore();
-  const { hasPaid, isLoading } = usePaymentStatus();
+  const [isUnlocked, setIsUnlocked] = useState(false); // 追踪图片是否已被解锁
+  const { child, history } = useGameStore();
+  const { credits, consumeCredit } = usePaymentStore(state => ({ credits: state.credits, consumeCredit: state.consumeCredit }));
 
-  const handleUnblurClick = () => {
-    setShowPaywall(true);
+  // 检查整个游戏中点击"我想见他"的次数
+  const clickedGenerateCount = history.filter(entry => entry.imageUrl).length;
+  // 判断是否应该显示模糊：第一次点击且年龄≤3岁且未解锁
+  const shouldShowBlurred = clickedGenerateCount === 1 && currentImage.age <= 3 && !isUnlocked;
+
+  const handleUnblurClick = async () => {
+    const UNLOCK_COST = 0.15;
+    
+    // Check if user has enough credits
+    if (credits < UNLOCK_COST) {
+      console.log('余额不足，显示充值弹窗', { credits, required: UNLOCK_COST });
+      setShowPaywall(true);
+      return;
+    }
+    
+    try {
+      // Consume 0.15 credits
+      const success = await consumeCredit(undefined, UNLOCK_COST);
+      if (success) {
+        console.log('扣费成功，生成真实图片并更新游戏数据');
+        
+        // 生成真实图片并更新游戏数据
+        const gameState = {
+          child: { name: child?.name || 'Child', age: currentImage.age },
+          history: history.filter(entry => entry.age === currentImage.age)
+        };
+        const currentOutcome = history.find(entry => entry.age === currentImage.age)?.outcome || '';
+        const endingSummary = currentOutcome || `${child?.name || 'Child'} at age ${currentImage.age}`;
+        
+        const result = await generateEndingImage(gameState as any, endingSummary, { size: '1920x640', quality: 'standard' });
+        if (result.success && (result.imageUrl || result.imageBase64)) {
+          // 更新游戏数据中的图片
+          const { addGeneratedImage } = useGameStore.getState();
+          addGeneratedImage(currentImage.age, result);
+          setIsUnlocked(true); // 设置为已解锁
+        } else {
+          console.error('图片生成失败');
+          setShowPaywall(true);
+        }
+      } else {
+        console.log('扣费失败');
+        setShowPaywall(true);
+      }
+    } catch (err) {
+      console.error('扣费过程中出错:', err);
+      setShowPaywall(true);
+    }
   };
 
   const handlePaywallClose = () => {
@@ -88,7 +140,7 @@ const BlurredImageContainer: React.FC<{ currentImage: any }> = ({ currentImage }
         position: 'relative',
       }}>
         <img 
-          src={currentImage.imageUrl}
+          src={currentImage.imageUrl || `data:image/png;base64,${currentImage.imageBase64}`}
           alt="Generated AI image"
           style={{
             display: 'block',
@@ -96,11 +148,11 @@ const BlurredImageContainer: React.FC<{ currentImage: any }> = ({ currentImage }
             height: 'auto',
             maxHeight: '200px',
             objectFit: 'cover',
-            filter: hasPaid ? 'none' : 'blur(8px)',
+            filter: shouldShowBlurred ? 'blur(8px)' : 'none', // 根据游戏状态决定是否模糊
           }}
         />
-        {/* 付费提示覆盖层 - 只在未付费时显示 */}
-        {!hasPaid && !isLoading && (
+        {/* 付费提示覆盖层 - 只在应该显示模糊时显示 */}
+        {shouldShowBlurred && (
           <Box sx={{
             position: 'absolute',
             top: 0,
@@ -153,8 +205,8 @@ const BlurredImageContainer: React.FC<{ currentImage: any }> = ({ currentImage }
         }}
         childName={child?.name || 'Child'}
         mode="image"
-        onCreditsGained={(newCredits) => {
-          // 这里可以添加解锁成功后的逻辑
+        onCreditsGained={() => {
+          // 充值成功后关闭弹窗
           setShowPaywall(false);
         }}
       />

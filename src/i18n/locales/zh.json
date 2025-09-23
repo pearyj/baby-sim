@@ -307,6 +307,31 @@
     "postPaymentReminder": "如果支付完成后页面没有刷新，请使用同一浏览器返回此网站，积分应会自动加载。如遇支付问题，请发送邮件至 dev@babysim.fun。",
     "gpt5AccessWarning": "注意！GPT-5 API对特定国家和地区有访问限制，在打赏前请确认你可以正常访问GPT，建议另外开启ChatGPT官网以检查可以正常访问。生图功能不受此限制。"
   },
+  "emailVerification": {
+    "title": "邮箱验证",
+    "subtitle": "为了保护您的积分安全，我们需要验证您的邮箱所有权。",
+    "verificationCode": "验证码",
+    "codeSubtitle": "验证码已发送至 {{email}}，请查收并输入6位验证码。",
+    "codeRequired": "请输入验证码",
+    "codeInvalid": "请输入6位数字验证码",
+    "codeExpired": "验证码无效或已过期，请重新获取",
+    "sendCode": "发送验证码",
+    "resendCode": "重新发送",
+    "resendIn": "{{seconds}}秒后可重发",
+    "verify": "验证",
+    "verified": "已验证",
+    "emailVerifiedMessage": "邮箱 {{email}} 已验证",
+    "codeSent": "验证码已发送，请查收邮件",
+    "verifySuccess": "邮箱验证成功！",
+    "sendFailed": "验证码发送失败，请稍后重试",
+    "verifyFailed": "验证失败，请检查验证码",
+    "rateLimited": "操作过于频繁，请稍后再试",
+    "securityNotice": "我们不会向第三方分享您的邮箱，仅用于积分验证和重要通知。"
+  },
+  "common": {
+    "back": "返回",
+    "processing": "处理中..."
+  },
   "gameStyle": {
     "realistic": "现实",
     "fantasy": "奇幻",

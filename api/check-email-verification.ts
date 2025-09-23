@@ -1,0 +1,66 @@
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import { supabaseAdmin } from './supabaseAdmin';
+import { applyCors, handlePreflight, rateLimit } from './_utils';
+
+/**
+ * GET /api/check-email-verification
+ * 检查邮箱验证状态
+ */
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (handlePreflight(req, res)) return;
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  applyCors(req, res);
+  
+  if (!rateLimit(req, res, 'check-email-verification', 30)) return;
+
+  const { email } = req.query;
+
+  if (!email || Array.isArray(email)) {
+    return res.status(400).json({ error: 'email_required' });
+  }
+
+  try {
+    // 首先检查 subscribers 表是否存在 verified 字段
+    const { data: columns, error: schemaError } = await supabaseAdmin
+      .from('information_schema.columns')
+      .select('column_name')
+      .eq('table_name', 'subscribers')
+      .eq('column_name', 'verified');
+
+    // 如果 verified 字段不存在，返回 false（未验证）
+    if (schemaError || !columns || columns.length === 0) {
+      console.log('subscribers table does not have verified column yet');
+      return res.status(200).json({ 
+        verified: false,
+        verifiedAt: null,
+        reason: 'verification_not_enabled'
+      });
+    }
+
+    // 检查 subscribers 表中的验证状态
+    const { data: subscriber, error: selectError } = await supabaseAdmin
+      .from('subscribers')
+      .select('verified, verified_at')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (selectError) {
+      console.error('Failed to check email verification:', selectError);
+      return res.status(500).json({ error: 'db_error', details: selectError.message });
+    }
+
+    const isVerified = subscriber?.verified === true;
+
+    return res.status(200).json({ 
+      verified: isVerified,
+      verifiedAt: subscriber?.verified_at || null
+    });
+
+  } catch (error) {
+    console.error('Check email verification error:', error);
+    return res.status(500).json({ 
+      error: 'internal_error', 
+      details: error instanceof Error ? error.message : String(error)
+    });
+  }
+}
