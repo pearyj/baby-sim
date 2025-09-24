@@ -1,0 +1,45 @@
+# Development files
+.env*.local
+.env.development
+.env.test
+
+# Source files not needed for deployment
+src/
+scripts/
+docs/
+
+# Configuration files that aren't needed in production
+eslint.config.js
+vite.config.ts
+tsconfig*.json
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Test files
+*.test.*
+*.spec.*
+__tests__/
+
+# Documentation
+*.md
+!README.md
+
+# Other development artifacts
+.git/
+node_modules/
+
+# Marketing and temporary files
+marketing_screenshots/
+temp_*

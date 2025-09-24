@@ -15,6 +15,7 @@ export default defineConfig({
   build: {
     // Enable dead code elimination
     minify: 'terser',
+    outDir: 'dist',
     terserOptions: {
       compress: {
         // Remove console.log and console.debug in production, but keep console.warn and console.error

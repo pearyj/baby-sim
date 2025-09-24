@@ -1,5 +1,5 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
-import { applyCors, handlePreflight, rateLimit } from './_utils.js';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { applyCors, handlePreflight, rateLimit } from './_utils';
 
 // Define response type for Doubao image generation API
 interface DoubaoImageResponse {
@@ -102,7 +102,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    const data: DoubaoImageResponse = await response.json();
+    const data = await response.json() as DoubaoImageResponse;
 
     if (process.env.NODE_ENV === 'development') {
       console.log('✅ Received image generation response from Doubao');
