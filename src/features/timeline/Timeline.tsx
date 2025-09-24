@@ -15,7 +15,6 @@ import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { getTimelineIcon, getCurrentAgeColor, DEVELOPMENTAL_STAGE_KEYS } from '../../constants/timelineIcons';
 import type { GameState } from '../../types/game';
-import { AdDisplay } from '../../components/ads/AdDisplay';
 import { ImageDisplay } from '../../components/ui/ImageDisplay';
 
 interface TimelineProps {

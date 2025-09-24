@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -13,7 +13,7 @@ import {
   DialogActions,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { CameraAlt, Close, LockOpen } from '@mui/icons-material';
+import { CameraAlt, Close } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { generateEndingImage } from '../services/imageGenerationService';
 import type { GameState } from '../types/game';
@@ -71,27 +71,6 @@ const BlurredImageContainer = styled(Box)(({ theme }) => ({
   overflow: 'hidden',
 }));
 
-const BlurOverlay = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  borderRadius: theme.spacing(1),
-  zIndex: 10,
-}));
-
-const UnlockButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#8D6E63',
-  '&:hover': {
-    backgroundColor: '#6D4C41',
-  },
-}));
-
 export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   gameState,
   currentAge,
@@ -106,7 +85,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   const [showPaywall, setShowPaywall] = useState(false);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
   const [showLastPhotoWarning, setShowLastPhotoWarning] = useState(false);
-  const { hasPaid, isLoading, needsAgeCheck } = usePaymentStatus();
+  const { hasPaid, isLoading } = usePaymentStatus();
   const { anonId, kidId } = usePaymentStore(state => ({ anonId: state.anonId, kidId: state.kidId }));
   const { credits, consumeCredit } = usePaymentStore(state => ({ credits: state.credits, consumeCredit: state.consumeCredit }));
   
@@ -281,40 +260,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
     onDismiss?.();
   };
 
-  const handleUnlockImage = async () => {
-    console.log('解锁按钮被点击，检查余额和扣费');
-    const UNLOCK_COST = 0.15;
-    
-    // Check if user has enough credits
-    if (credits < UNLOCK_COST) {
-      console.log('余额不足，显示充值弹窗', { credits, required: UNLOCK_COST });
-      setShowPaywall(true);
-      return;
-    }
-    
-    try {
-      // Consume 0.15 credits
-      const success = await consumeCredit(undefined, UNLOCK_COST);
-      if (success) {
-        console.log('扣费成功，解锁图片');
-        // Update the image to mark it as unlocked
-        if (generatedImage) {
-          // 直接显示清晰图片，通过重新设置来触发重新渲染
-          setGeneratedImage({...generatedImage});
-        }
-      } else {
-        console.log('扣费失败');
-        setError(t('messages.unlockFailed', {
-          defaultValue: '解锁失败，请重试'
-        }));
-      }
-    } catch (err) {
-      console.error('扣费过程中出错:', err);
-      setError(t('messages.unlockError', {
-        defaultValue: '解锁过程中出现错误'
-      }));
-    }
-  };
+
 
 
 
@@ -445,8 +391,8 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
                console.log('PaywallUI onCreditsGained called - user topped up credits');
                setShowPaywall(false);
                
-               // 如果当前有默认图片，则用户是想生成真实图片
-               if (generatedImage && generatedImage.isDefault) {
+               // 如果当前有图片，则用户是想生成真实图片
+               if (generatedImage) {
                  setIsGenerating(true);
                  setError(null);
                  

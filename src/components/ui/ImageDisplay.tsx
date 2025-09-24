@@ -3,7 +3,6 @@ import { Box, Paper, Typography, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import useGameStore from '../../stores/useGameStore';
 import { PaywallUI } from '../payment/PaywallUI';
-import { usePaymentStatus } from '../../hooks/usePaymentStatus';
 import { usePaymentStore } from '../../stores/usePaymentStore';
 import { generateEndingImage } from '../../services/imageGenerationService';
 
@@ -14,10 +13,6 @@ interface ImageDisplayProps {
 export const ImageDisplay: React.FC<ImageDisplayProps> = ({ currentAge }) => {
   const { t } = useTranslation();
   const { history } = useGameStore();
-
-  // 检查整个游戏中是否已经点击过多次"我想见他"按钮（查看是否有多个年龄有图片）
-  const clickedGenerateCount = history.filter(entry => entry.imageUrl).length;
-  const hasEverClickedGenerate = clickedGenerateCount > 0;
 
 
 
@@ -124,10 +119,6 @@ const BlurredImageContainer: React.FC<{ currentImage: any }> = ({ currentImage }
       console.error('扣费过程中出错:', err);
       setShowPaywall(true);
     }
-  };
-
-  const handlePaywallClose = () => {
-    setShowPaywall(false);
   };
 
   return (

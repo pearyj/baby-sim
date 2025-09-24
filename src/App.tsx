@@ -43,7 +43,7 @@ import GalleryCarousel from './components/GalleryCarousel';
 import { debugPrintActiveModel, isPremiumStyleActive } from './services/gptServiceUnified';
 import { PaywallUI } from './components/payment/PaywallUI';
 import { usePaymentStore } from './stores/usePaymentStore';
-import { AgeImagePrompt } from './components/AgeImagePrompt';
+
 import React from 'react';
 import * as storageService from './services/storageService';
 
@@ -139,7 +139,6 @@ function App() {
     finance,
     marital,
     isSingleParent,
-    shouldGenerateImage,
   } = useGameStore(state => ({
     gamePhase: state.gamePhase,
     player: state.player,

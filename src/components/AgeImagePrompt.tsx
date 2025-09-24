@@ -77,7 +77,7 @@ const BlurOverlay = styled(Box)(({ theme }) => ({
   zIndex: 10,
 }));
 
-const UnlockButton = styled(Button)(({ theme }) => ({
+const UnlockButton = styled(Button)(() => ({
   backgroundColor: '#8D6E63',
   '&:hover': {
     backgroundColor: '#6D4C41',
@@ -94,7 +94,6 @@ const GeneratedImage = styled('img')(({ theme }) => ({
 
 export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   gameState,
-  currentAge,
   onImageGenerated,
   onDismiss,
 }) => {
@@ -105,7 +104,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
-  const { hasPaid, isLoading, needsAgeCheck } = usePaymentStatus();
+  const { hasPaid } = usePaymentStatus();
   const { anonId, kidId } = usePaymentStore(state => ({ anonId: state.anonId, kidId: state.kidId }));
   const { credits, consumeCredit } = usePaymentStore(state => ({ credits: state.credits, consumeCredit: state.consumeCredit }));
   
@@ -275,7 +274,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   };
 
   // 判断是否应该显示模糊效果
-  const shouldShowBlurred = hasClickedGenerate && !hasClickedGenerate; // 简化：第一次点击后显示模糊，第二次点击后显示清晰
+
 
   return (
     <div className='age-image-prompt'>

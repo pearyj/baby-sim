@@ -169,13 +169,12 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
       };
 
       // Get outcome from history for current age as aiGeneratedText
-      const currentAgeOutcome = gameState.history.find(entry => entry.age === gameState.child.age)?.outcome;
+  
       
       const result = await generateEndingImage(
         gameState,
         endingSummary,
-        options,
-        currentAgeOutcome // Use current age outcome as AI generated text
+        options
       );
       
       console.log('🎨 AIImageGenerator result:', result);

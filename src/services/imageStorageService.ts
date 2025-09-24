@@ -32,8 +32,7 @@ export interface StoredImageData {
  */
 export const uploadImageToStorage = async (
   imageBase64: string,
-  age: number,
-  kidId: string
+  age: number
 ): Promise<ImageUploadResult> => {
   try {
     // 1. 处理base64数据
@@ -187,7 +186,7 @@ export const processAndStoreImage = async (
 ): Promise<ImageUploadResult & { imageData?: StoredImageData }> => {
   try {
     // 1. 上传图片到Supabase
-    const uploadResult = await uploadImageToStorage(imageBase64, age, kidId);
+    const uploadResult = await uploadImageToStorage(imageBase64, age);
     
     if (!uploadResult.success || !uploadResult.imageUrl) {
       return uploadResult;

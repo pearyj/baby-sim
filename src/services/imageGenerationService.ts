@@ -185,8 +185,7 @@ const summarizeOutcome = async (outcome: string): Promise<string> => {
 const generateImagePrompt = async (
   gameState: GameState, 
   endingSummary: string,
-  options: ImageGenerationOptions = {},
-  aiGeneratedText?: string // AI generated text from chat API
+  options: ImageGenerationOptions = {}
 ): Promise<string> => {
   const { customArtStyle } = options;
   
@@ -225,28 +224,22 @@ const generateImagePrompt = async (
   }
   
   // Build a richer child description using the ending-card field when available
-  const rawChildDescription = (gameState.childDescription ?? '').trim();
+
   
   // Find the outcome for the current age from history
   const currentAge = gameState.child.age;
   const currentAgeHistory = gameState.history.find(h => h.age === (currentAge -1 ));
   const rawChildCurAgeDescription = currentAgeHistory?.outcome || '';
   
-  // Fallback to the child's name if the rich description is absent
-  const childDescriptionForPrompt = rawChildDescription.length > 0 ? rawChildDescription : gameState.child.name;
   // Truncate extremely long descriptions to keep the prompt concise
   // English: 160 chars (more verbose), Chinese: 120 chars (more information-dense)
   const maxLength = lang === 'zh' ? 120 : 160;
-  const truncatedChildDescription = childDescriptionForPrompt.length > maxLength
-    ? `${childDescriptionForPrompt.slice(0, maxLength)}...`
-    : childDescriptionForPrompt;
-
+  
   const truncatedCurAgeDescription = rawChildCurAgeDescription.length > maxLength
-    ? `${rawChildCurAgeDescription.slice(0, maxLength)}...`
+    ? rawChildCurAgeDescription.substring(0, maxLength) + '...'
     : rawChildCurAgeDescription;
   
   // Use child status at 18 if available, otherwise fall back to gameState.childDescription
-  const childStatusForImage = childStatusAt18 || truncatedChildDescription;
   const childCurAgeStatusForImage = await summarizeOutcome(truncatedCurAgeDescription);
   console.log("childCurAgeStatusForImage", childCurAgeStatusForImage)
 
@@ -480,8 +473,7 @@ const makeDirectImageRequest = async (
 export const generateEndingImage = async (
   gameState: GameState,
   endingSummary: string,
-  options: ImageGenerationOptions = {},
-  aiGeneratedText?: string // AI generated text from chat API
+  options: ImageGenerationOptions = {}
 ): Promise<ImageGenerationResult> => {
   logger.info("🎨 Starting image generation for ending card");
   
@@ -497,7 +489,7 @@ export const generateEndingImage = async (
       }
       
       // Generate the image prompt
-      const prompt = await generateImagePrompt(gameState, endingSummary, options, aiGeneratedText);
+      const prompt = await generateImagePrompt(gameState, endingSummary, options);
       
       // Debug log the full prompt for debugging purposes
       logger.debugImagePrompt(prompt, options);

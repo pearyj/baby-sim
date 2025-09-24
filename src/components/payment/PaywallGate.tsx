@@ -41,17 +41,6 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
   const [hasInitialized, setHasInitialized] = useState(false);
   const [waitingForCredit, setWaitingForCredit] = useState(false);
 
-  // Production debugging: Log PaywallGate initialization - only during ending phase
-  const isEndingPhase = React.Children.toArray(children).some(child => {
-    if (React.isValidElement(child) && child.type) {
-      const hasGameState = (child.props as any)?.gameState;
-      const hasEndingSummary = (child.props as any)?.endingSummary;
-      const componentName = (child.type as any).name || (child.type as any).displayName || 'Unknown';
-      return componentName === 'AIImageGenerator' || (hasGameState && hasEndingSummary);
-    }
-    return false;
-  });
-
   // Feature flag check - if paywall is off AND not in dev, allow bypass
   if (PAYWALL_VERSION === 'off' && !IS_DEV) {
     return <>{children}</>;

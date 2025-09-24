@@ -778,12 +778,11 @@ const useGameStore = create<GameStoreState>((set, get) => {
       } else {
         // Not ending, advance age and load next question.
         logger.debug("Advancing to next age:", currentChildAge + 1);
-        const history_curage = history && history.length ? history[history.length - 1].age : 0;
         const nextAge = currentChildAge + 1;
         const nextPlayerAge = (player?.age ?? 0) + 1;
         
         // Check if we should generate an image at this age (starting from age 3, then every 3 years: 3, 6, 9, 12, 15, 18)
-        const { generatedImageAges, hasSkippedImageGeneration } = get();
+        const { generatedImageAges } = get();
         // Image generation is now only triggered manually by user clicking the photo button
         // Remove automatic image generation every 3 years
         const shouldGenerateImage = false;

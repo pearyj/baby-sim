@@ -38,29 +38,33 @@ export const testPromptGeneration = (): void => {
   const sampleGameState = {
     player: {
       gender: 'female' as const,
-      age: 32,
+      age: 30,
     },
     child: {
-      name: '小雨',
+      name: 'Emma',
       gender: 'female' as const,
-      age: 3,
+      age: 5,
+      haircolor: 'brown',
+      race: 'asian'
     },
-    playerDescription: '你是一名中学语文老师，温柔耐心，注重孩子的人文素养培养。',
-    childDescription: '小雨是一个聪明好学的女孩，喜欢阅读和绘画。',
-    finance: 5,
-    marital: 6,
+    playerDescription: 'A caring mother who works as a teacher',
+    childDescription: 'A curious and energetic 5-year-old girl',
+    finance: 7,
+    marital: 8,
     isSingleParent: false,
     history: [
       {
-        age: 1,
-        question: '孩子总是哭闹，你会怎么办？',
-        choice: '耐心安抚并寻找原因',
-        outcome: '通过你的耐心，孩子逐渐安静下来，你们的关系更加亲密。'
+        age: 3,
+        question: 'Should you enroll Emma in preschool?',
+        choice: 'Yes, enroll her in a local preschool',
+        outcome: 'Emma adapted well to preschool and made new friends.',
+        finance: 6,
+        marital: 8
       }
     ],
     currentQuestion: null,
-    feedbackText: '这是一个样本反馈。',
-    endingSummaryText: '这是样本结局。',
+    feedbackText: '',
+    endingSummaryText: '',
   };
   
   try {
@@ -79,6 +83,8 @@ export const testPromptGeneration = (): void => {
       sampleGameState,
       'Should you enroll Emma in swimming lessons?',
       'Yes, enroll her in swimming lessons',
+      true,
+      true,
       true
     );
     logger.info('✅ Outcome prompt generated successfully');
@@ -92,7 +98,13 @@ export const testPromptGeneration = (): void => {
     // Test ending prompt
     const endingPrompt = promptService.generateEndingPrompt({
       ...sampleGameState,
-      child: { ...sampleGameState.child, age: 18 }
+      child: { 
+        age: 18, 
+        name: 'Emma', 
+        gender: 'female' as const,
+        haircolor: 'brown',
+        race: 'asian'
+      }
     });
     logger.info('✅ Ending prompt generated successfully');
     logger.info('📝 Ending prompt preview:', endingPrompt.substring(0, 100) + '...');
@@ -115,4 +127,4 @@ export const testPromptGeneration = (): void => {
 export default {
   checkAllPrompts,
   testPromptGeneration
-}; 
+};

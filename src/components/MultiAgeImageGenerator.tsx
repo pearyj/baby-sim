@@ -6,9 +6,7 @@ import {
   Typography,
   Alert,
   Card,
-  CardContent,
   TextField,
-  Grid,
   Chip,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -175,7 +173,7 @@ export const MultiAgeImageGenerator: React.FC<MultiAgeImageGeneratorProps> = ({
       console.log(`📝 Using outcome for age ${age}:`, ageOutcome ? ageOutcome.substring(0, 100) + '...' : 'No outcome found');
       
       console.log(`🚀 Calling generateEndingImage for age ${age}`);
-      const result = await generateEndingImage(ageGameState, endingSummary, options, ageOutcome);
+      const result = await generateEndingImage(ageGameState, endingSummary, options);
       console.log(`🎨 generateEndingImage returned for age ${age}:`, result);
       
       return result;

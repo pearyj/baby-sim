@@ -15,7 +15,6 @@ import { useTranslation } from 'react-i18next';
 import { TextDisplay } from '../../components/ui/TextDisplay';
 import { StreamingTextDisplay } from '../../components/ui/StreamingTextDisplay';
 import { AgeImagePrompt } from '../../components/AgeImagePrompt';
-import useGameStore from '../../stores/useGameStore';
 import logger from '../../utils/logger';
 
 interface FeedbackDisplayProps {
@@ -376,4 +375,4 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
       )}
     </Box>
   );
-}; 
+};
