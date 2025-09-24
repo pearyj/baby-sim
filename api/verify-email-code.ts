@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabaseAdmin } from './supabaseAdmin.js';
-import { applyCors, handlePreflight, rateLimit } from './_utils.js';
+import { supabaseAdmin } from './supabaseAdmin';
+import { applyCors, handlePreflight, rateLimit } from './_utils';
 
 /**
  * POST /api/verify-email-code

@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabaseAdmin } from './supabaseAdmin.js';
+import { supabaseAdmin } from './supabaseAdmin';
 
 // Simple health-check endpoint to verify Supabase connectivity & table visibility
 // GET /api/supabase-health

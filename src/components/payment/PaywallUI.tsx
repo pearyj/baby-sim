@@ -152,27 +152,40 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
     return true;
   };
 
-  const handleEmailVerified = (verifiedEmailAddress: string) => {
+  const handleEmailVerified = async (verifiedEmailAddress: string) => {
     setEmailState(verifiedEmailAddress);
     setVerifiedEmail(verifiedEmailAddress);
     setEmailVerified(true);
     setShowVerificationDialog(false);
+    
+    // 验证成功后，重新检查邮箱验证状态以确保状态同步
+    try {
+      const response = await fetch(`/api/check-email-verification?email=${encodeURIComponent(verifiedEmailAddress)}`);
+      const data = await response.json();
+      
+      if (data.verified === true) {
+        setEmailVerified(true);
+        setVerifiedEmail(verifiedEmailAddress);
+        setVerificationEnabled(true);
+      }
+    } catch (error) {
+      console.error('Failed to re-check email verification after verification:', error);
+      // 即使检查失败，也保持本地验证状态为true，因为验证刚刚成功
+    }
   };
 
   const requireEmailVerification = () => {
     if (!validateEmail(email)) return false;
-    // 如果验证功能未启用，仍然要求验证（可以根据需求修改此行为）
-    if (!verificationEnabled) {
-      // 可以选择显示验证对话框或直接返回true
-      setShowVerificationDialog(true);
-      return false;
+    
+    // 如果邮箱已经验证（无论验证功能是否启用），直接通过
+    if (emailVerified && verifiedEmail === email.trim()) {
+      return true;
     }
-    // 如果验证功能已启用，则检查验证状态
-    if (!emailVerified) {
-      setShowVerificationDialog(true);
-      return false;
-    }
-    return true;
+    
+    // 如果验证功能未启用，但用户可以选择手动验证
+    // 这里为了更好的用户体验，依然允许验证
+    setShowVerificationDialog(true);
+    return false;
   };
 
   const handlePayment = async () => {

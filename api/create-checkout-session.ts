@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { stripe, PAYWALL_VERSION, calculateAmountAndCredits } from './paymentShared.js';
+import { stripe, PAYWALL_VERSION, calculateAmountAndCredits } from './paymentShared';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

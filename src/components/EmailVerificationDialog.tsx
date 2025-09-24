@@ -12,7 +12,7 @@ import {
   CircularProgress,
   InputAdornment,
 } from '@mui/material';
-import { Email as EmailIcon, Verified as VerifiedIcon } from '@mui/icons-material';
+import { Email as EmailIcon, Verified as VerifiedIcon, CheckCircle, Error } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
 interface EmailVerificationDialogProps {
@@ -200,7 +200,12 @@ export const EmailVerificationDialog: React.FC<EmailVerificationDialogProps> = (
                   </InputAdornment>
                 ),
               }}
-              sx={{ mb: 2 }}
+              sx={{ 
+                mb: 2,
+                '& .MuiInputBase-root': {
+                  backgroundColor: 'white'
+                }
+              }}
             />
           </>
         )}
@@ -224,7 +229,12 @@ export const EmailVerificationDialog: React.FC<EmailVerificationDialogProps> = (
                 maxLength: 6,
                 style: { textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.5rem' }
               }}
-              sx={{ mb: 2 }}
+              sx={{ 
+                mb: 2,
+                '& .MuiInputBase-root': {
+                  backgroundColor: 'white'
+                }
+              }}
             />
 
             <Box sx={{ textAlign: 'center', mb: 2 }}>
@@ -245,7 +255,21 @@ export const EmailVerificationDialog: React.FC<EmailVerificationDialogProps> = (
 
         {message && (
           <Alert 
-            severity={message.includes('success') || message.includes('发送') ? 'success' : 'info'} 
+            severity={
+              // 成功状态：验证码发送成功或验证成功
+              message === t('emailVerification.codeSent') || 
+              message === t('emailVerification.verifySuccess')
+                ? 'success'
+                // 错误状态：包含失败、错误等关键词
+                : message === t('emailVerification.sendFailed') ||
+                  message.includes('失败') || 
+                  message.includes('错误') ||
+                  message.includes('过期') ||
+                  message.includes('无效')
+                  ? 'error'
+                  // 默认信息状态
+                  : 'info'
+            } 
             sx={{ mb: 2 }}
           >
             {message}

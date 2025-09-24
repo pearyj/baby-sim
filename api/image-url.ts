@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabaseAdmin } from './supabaseAdmin.js';
-import { applyCors, handlePreflight, rateLimit } from './_utils.js';
+import { supabaseAdmin } from './supabaseAdmin';
+import { applyCors, handlePreflight, rateLimit } from './_utils';
 
 // Define response type for Doubao image generation API
 interface DoubaoImageResponse {

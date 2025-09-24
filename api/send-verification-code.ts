@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabaseAdmin } from './supabaseAdmin.js';
-import { applyCors, handlePreflight, rateLimit } from './_utils.js';
+import { supabaseAdmin } from './supabaseAdmin';
+import { applyCors, handlePreflight, rateLimit } from './_utils';
 
 /**
  * POST /api/send-verification-code
@@ -119,7 +119,7 @@ async function sendVerificationEmail(email: string, code: string): Promise<boole
     }
 
     const emailContent = {
-      from: 'BabySim <noreply@babysim.fun>',
+      from: 'BabySim <onboarding@resend.dev>',
       to: email,
       subject: '邮箱验证码 - BabySim 养娃模拟器',
       html: `

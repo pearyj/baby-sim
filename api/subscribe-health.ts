@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabaseAdmin } from './supabaseAdmin.js';
+import { supabaseAdmin } from './supabaseAdmin';
 
 /**
  * GET /api/subscribe-health
