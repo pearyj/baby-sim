@@ -161,9 +161,11 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
 
   const requireEmailVerification = () => {
     if (!validateEmail(email)) return false;
-    // 如果验证功能未启用，则跳过验证步骤
+    // 如果验证功能未启用，仍然要求验证（可以根据需求修改此行为）
     if (!verificationEnabled) {
-      return true;
+      // 可以选择显示验证对话框或直接返回true
+      setShowVerificationDialog(true);
+      return false;
     }
     // 如果验证功能已启用，则检查验证状态
     if (!emailVerified) {
@@ -345,11 +347,11 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
           onCreditsGained(c, prevCredits);
         }
         setCheckMessage(t(mode === 'llm' ? 'paywall.creditsFound_llm' : 'paywall.creditsFound', { count: c }));
-        // auto-close after brief delay
-        setTimeout(() => {
-          setCheckingCredits(false);
-          onClose();
-        }, 1500);
+        // auto-close after brief delay - 可以注释掉以禁用自动关闭
+        // setTimeout(() => {
+        //   setCheckingCredits(false);
+        //   onClose();
+        // }, 1500);
       } else {
         setCheckMessage(t('paywall.noCreditsFound'));
       }

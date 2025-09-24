@@ -31,10 +31,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10分钟后过期
 
     // 清理该邮箱的旧验证码
-    await supabaseAdmin
+    const { error: deleteError } = await supabaseAdmin
       .from('email_verifications')
       .delete()
       .eq('email', email);
+
+    if (deleteError && deleteError.code === '42P01') {
+      console.error('email_verifications table does not exist:', deleteError);
+      return res.status(500).json({ 
+        error: 'table_not_found', 
+        message: 'email_verifications table does not exist. Please run database migration.' 
+      });
+    }
 
     // 插入新的验证码
     const { error: insertError } = await supabaseAdmin
@@ -47,8 +55,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
 
     if (insertError) {
-      console.error('Failed to insert verification code:', insertError);
-      return res.status(500).json({ error: 'db_error' });
+      console.error('Failed to insert verification code:', {
+        error: insertError,
+        code: insertError.code,
+        message: insertError.message,
+        details: insertError.details,
+        hint: insertError.hint
+      });
+      
+      // 如果是表不存在的错误，返回更具体的错误信息
+      if (insertError.code === '42P01') {
+        return res.status(500).json({ 
+          error: 'table_not_found', 
+          message: 'email_verifications table does not exist. Please run database migration.' 
+        });
+      }
+      
+      return res.status(500).json({ 
+        error: 'db_error',
+        details: insertError.message
+      });
     }
 
     // 发送邮件
