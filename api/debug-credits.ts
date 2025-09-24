@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabaseAdmin } from './supabaseAdmin';
-import { applyCors, handlePreflight } from './_utils';
+import { supabaseAdmin } from './supabaseAdmin.js';
+import { applyCors, handlePreflight } from './_utils.js';
 
 /**
  * GET /api/debug-credits

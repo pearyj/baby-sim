@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabaseAdmin } from './supabaseAdmin';
+import { supabaseAdmin } from './supabaseAdmin.js';
 
 /**
  * POST /api/session-flag

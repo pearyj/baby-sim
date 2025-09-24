@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { stripe, STRIPE_WEBHOOK_SECRET, creditsStorage } from './paymentShared';
-import { supabaseAdmin } from './supabaseAdmin';
+import { stripe, STRIPE_WEBHOOK_SECRET, creditsStorage } from './paymentShared.js';
+import { supabaseAdmin } from './supabaseAdmin.js';
 import type Stripe from 'stripe';
 
 export const config = {
