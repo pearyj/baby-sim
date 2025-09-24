@@ -4,25 +4,13 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        configure: (proxy) => {
-          // Handle proxy errors
-          proxy.on('error', (err) => {
-            console.log('proxy error', err);
-          });
-          proxy.on('proxyReq', (_, req) => {
-            console.log('Sending Request to the Target:', req.method, req.url);
-          });
-          proxy.on('proxyRes', (proxyRes, req) => {
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
-          });
-        },
-      },
-    },
+  define: {
+    // Expose non-VITE prefixed environment variables to the client
+    // This allows compatibility with existing Vercel deployments
+    'import.meta.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL),
+    'import.meta.env.SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY),
+    'import.meta.env.STRIPE_PUBLISHABLE_KEY': JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY),
+    'import.meta.env.PAYWALL_VERSION': JSON.stringify(process.env.PAYWALL_VERSION),
   },
   build: {
     // Enable dead code elimination
