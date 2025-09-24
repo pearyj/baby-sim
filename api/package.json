@@ -1,0 +1,7 @@
+{
+  "type": "commonjs",
+  "dependencies": {
+    "stripe": "^14.19.0",
+    "@supabase/supabase-js": "^2.49.8"
+  }
+}

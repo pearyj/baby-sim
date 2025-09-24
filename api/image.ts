@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 import { applyCors, handlePreflight, rateLimit } from './_utils.js';
 
 // Define response type for Doubao image generation API

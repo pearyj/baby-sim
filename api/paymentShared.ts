@@ -12,7 +12,6 @@ export interface CreditEntry {
 }
 
 export const creditsStorage: Map<string, CreditEntry> = globalThis.__CREDITS_STORE__ || new Map();
-// @ts-ignore
 if (!globalThis.__CREDITS_STORE__) globalThis.__CREDITS_STORE__ = creditsStorage;
 
 // Feature flag
