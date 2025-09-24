@@ -1,9 +1,7 @@
 {
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
-    "@vercel/node": "^5.2.0",
-    "stripe": "^18.5.0",
-    "@supabase/supabase-js": "^2.49.8",
-    "zod": "^4.1.8"
+    "stripe": "^14.19.0",
+    "@supabase/supabase-js": "^2.49.8"
   }
 }
