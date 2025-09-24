@@ -113,8 +113,11 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   const { history } = useGameStore();
   const history_curage = history && history.length ? history[history.length - 1].age : 0;
   
-  // 检查整个游戏中是否已经点击过“我想见他”按钮（查看是否有任何年龄有图片）
+  // 检查整个游戏中是否已经点击过"我想见他"按钮（查看是否有任何年龄有图片）
   const hasEverClickedGenerate = history.some(entry => entry.imageUrl);
+    
+  // 检查当前年龄是否已经生成过图片
+  const currentAgeHasImage = history.some(entry => entry.age === history_curage && entry.imageUrl);
 
   // Get random default image from available images
   const getRandomDefaultImage = () => {
@@ -178,7 +181,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
           const currentOutcome = gameState.history.find(entry => entry.age === history_curage)?.outcome || '';
           const endingSummary = currentOutcome || `${gameState.child.name} at age ${history_curage}`;
           
-          const result = await generateEndingImage(gameState, endingSummary, { size: '768x768', quality: 'standard' });
+          const result = await generateEndingImage(gameState, endingSummary, { size: '1920x640', quality: 'standard' });
           console.log('API返回结果:', result);
           
           if (result.success && (result.imageUrl || result.imageBase64)) {
@@ -344,7 +347,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
             <Button
               variant="contained"
               onClick={handleGenerateImage}
-              disabled={isGenerating || hasClickedGenerate}
+              disabled={isGenerating || currentAgeHasImage}
               startIcon={isGenerating ? <CircularProgress size={20} /> : <CameraAlt />}
               sx={{
                 backgroundColor: '#8D6E63',

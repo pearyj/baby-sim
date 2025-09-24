@@ -163,7 +163,7 @@ export const AIImageGenerator: React.FC<AIImageGeneratorProps> = ({
       const sanitizedArtStyle = artStyleInput.trim().substring(0, getMaxArtStyleLength(currentLanguage));
       
       const options: ImageGenerationOptions = {
-        size: '768x768',
+        size: '1920x640',
         quality: 'standard',
         ...(sanitizedArtStyle !== '' ? { customArtStyle: sanitizedArtStyle } : {})
       };
