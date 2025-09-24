@@ -49,14 +49,14 @@ const getProvider = (providerName: string): ModelProvider => {
         name: 'volcengine',
         apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
         apiKey: process.env.ARK_API_KEY || process.env.VOLCENGINE_LLM_API_KEY || process.env.VITE_VOLCENGINE_LLM_API_KEY || '',
-        model: 'doubao-pro-32k-241215',
+        model: 'deepseek-v3-250324',
       };
     default:
       return {
         name: 'volcengine',
         apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
         apiKey: process.env.VOLCENGINE_LLM_API_KEY || process.env.VITE_VOLCENGINE_LLM_API_KEY || '',
-        model: 'deepseek-v3-250324',
+        model: 'doubao-pro-4k',
       };
   }
 };
