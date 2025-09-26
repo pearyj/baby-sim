@@ -119,7 +119,7 @@ async function sendVerificationEmail(email: string, code: string): Promise<boole
     }
 
     const emailContent = {
-      from: 'BabySim <onboarding@resend.dev>',
+      from: 'BabySim <noreply@babysim.fun>',
       to: email,
       subject: '邮箱验证码 - BabySim 养娃模拟器',
       html: `
