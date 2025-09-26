@@ -12,7 +12,7 @@ import {
   CircularProgress,
   InputAdornment,
 } from '@mui/material';
-import { Email as EmailIcon, Verified as VerifiedIcon, CheckCircle, Error } from '@mui/icons-material';
+import { Email as EmailIcon, Verified as VerifiedIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
 interface EmailVerificationDialogProps {
