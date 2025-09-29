@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -108,6 +108,9 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   const { hasPaid } = usePaymentStatus();
   const { anonId, kidId } = usePaymentStore(state => ({ anonId: state.anonId, kidId: state.kidId }));
   const { credits, consumeCredit } = usePaymentStore(state => ({ credits: state.credits, consumeCredit: state.consumeCredit }));
+  
+  // 创建按钮引用，用于自动点击
+  const generateButtonRef = useRef<HTMLButtonElement>(null);
   
   // Get the correct age from history
   const { history } = useGameStore();
@@ -338,6 +341,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
             <Button
               variant="contained"
+              ref={generateButtonRef}
               onClick={handleGenerateImage}
               disabled={isGenerating || currentAgeHasImage}
               startIcon={isGenerating ? <CircularProgress size={20} /> : <CameraAlt />}
@@ -382,7 +386,6 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
         mode="image"
         onCreditsGained={async () => {
           console.log('充值成功，自动解锁图片');
-          setShowPaywall(false);
           
           // 充值成功后自动执行解锁逻辑（只需要去掉模糊效果）
           if (generatedImage) {
@@ -400,6 +403,14 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
               console.error('充值后扣费过程中出错:', err);
               setError('解锁过程中出现错误');
             }
+          } else {
+            // 如果没有生成的图片，自动点击"我想见他/她"按钮
+            console.log('充值成功，自动点击"我想见他/她"按钮');
+            setTimeout(() => {
+              if (generateButtonRef.current && !generateButtonRef.current.disabled) {
+                generateButtonRef.current.click();
+              }
+            }, 100); // 延迟100ms确保状态更新完成
           }
         }}
       />

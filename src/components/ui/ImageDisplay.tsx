@@ -180,21 +180,21 @@ const BlurredImageContainer: React.FC<{ currentImage: any }> = ({ currentImage }
         childName={child?.name || 'Child'}
         mode="image"
         onCreditsGained={async () => {
-          console.log('充值成功，自动解锁图片');
-          setShowPaywall(false);
+          console.log('查询到积分，但不自动关闭弹窗');
+          // 移除 setShowPaywall(false); 让用户手动关闭弹窗
           
           // 充值成功后自动执行解锁逻辑（只需要去掉模糊效果）
           try {
             const UNLOCK_COST = 0.15;
             const success = await consumeCredit(undefined, UNLOCK_COST);
             if (success) {
-              console.log('充值后自动扣费成功，解锁图片');
+              console.log('自动扣费成功，解锁图片');
               useGameStore.getState().unlockImage(currentImage.age);
             } else {
-              console.error('充值后扣费失败');
+              console.error('扣费失败');
             }
           } catch (err) {
-            console.error('充值后扣费过程中出错:', err);
+            console.error('扣费过程中出错:', err);
           }
         }}
       />
