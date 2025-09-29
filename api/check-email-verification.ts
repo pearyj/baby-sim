@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabaseAdmin } from './supabaseAdmin';
 import { applyCors, handlePreflight, rateLimit } from './_utils';
+import { ensureSubscriberVerified, isEmailVerificationWhitelisted } from './emailVerificationWhitelist';
 
 /**
  * GET /api/check-email-verification
@@ -17,6 +18,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (!email || Array.isArray(email)) {
     return res.status(400).json({ error: 'email_required' });
+  }
+
+  if (isEmailVerificationWhitelisted(email)) {
+    await ensureSubscriberVerified(email);
+    return res.status(200).json({
+      verified: true,
+      verifiedAt: new Date().toISOString(),
+      verificationBypassed: true,
+    });
   }
 
   try {

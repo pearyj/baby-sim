@@ -23,6 +23,7 @@ import { EmailVerificationDialog } from '../EmailVerificationDialog';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { isMobileDevice } from '../../utils/deviceDetection';
 import { isApplePaySupported } from '../../utils/deviceDetection';
+import { isEmailWhitelisted } from '../../constants/emailWhitelist';
 
 interface PaywallUIProps {
   open: boolean;
@@ -66,7 +67,7 @@ const PAYWALL_VERSION = import.meta.env.VITE_PAYWALL_VERSION || 'test';
 export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, mode = 'image', onCreditsGained }) => {
   const { t, i18n } = useTranslation();
   const { createCheckoutSession, isLoading, error, resetError, setEmail, fetchCredits } = usePaymentStore();
-  const [donatedUnits, setDonatedUnits] = useState(i18n.language === 'zh' ? 3 : 1);
+  const [donatedUnits, setDonatedUnits] = useState(i18n.language === 'zh' ? 1 : 1);
   const [email, setEmailState] = useState('');
   const [emailError, setEmailError] = useState('');
   const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
@@ -77,6 +78,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
   const [emailVerified, setEmailVerified] = useState(false);
   const [verifiedEmail, setVerifiedEmail] = useState('');
   const [verificationEnabled, setVerificationEnabled] = useState(true); // 邮箱验证功能是否启用
+  const [bypassVerification, setBypassVerification] = useState(false);
 
   // References for popup handling
   const popupRef = useRef<Window | null>(null);
@@ -105,10 +107,25 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
   useEffect(() => {
     const checkEmailVerification = async () => {
       if (email && /^\S+@\S+\.\S+$/.test(email)) {
+        const whitelisted = isEmailWhitelisted(email);
+        setBypassVerification(whitelisted);
+        if (whitelisted) {
+          setEmailVerified(true);
+          setVerifiedEmail(email);
+        }
+
         try {
           const response = await fetch(`/api/check-email-verification?email=${encodeURIComponent(email)}`);
           const data = await response.json();
-          
+
+          if (data.verificationBypassed) {
+            setBypassVerification(true);
+            setEmailVerified(true);
+            setVerifiedEmail(email);
+          } else {
+            setBypassVerification(false);
+          }
+
           // 如果验证功能还未启用，则不显示验证状态（既不显示已验证，也不要求验证）
           if (data.reason === 'verification_not_enabled') {
             setEmailVerified(false); // 不显示已验证状态
@@ -119,8 +136,9 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
           
           setVerificationEnabled(true); // 验证功能已启用
           
-          setEmailVerified(data.verified === true);
-          if (data.verified) {
+          const isVerified = data.verified === true || data.verificationBypassed === true;
+          setEmailVerified(isVerified);
+          if (isVerified) {
             setVerifiedEmail(email);
           }
         } catch (error) {
@@ -132,6 +150,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
       } else {
         setEmailVerified(false);
         setVerifiedEmail('');
+        setBypassVerification(false);
       }
     };
 
@@ -165,8 +184,9 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
       
       if (data.verified === true) {
         setEmailVerified(true);
-        setVerifiedEmail(verifiedEmailAddress);
-        setVerificationEnabled(true);
+          setVerifiedEmail(verifiedEmailAddress);
+          setVerificationEnabled(true);
+          setBypassVerification(isEmailWhitelisted(verifiedEmailAddress));
       }
     } catch (error) {
       console.error('Failed to re-check email verification after verification:', error);
@@ -176,6 +196,10 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
 
   const requireEmailVerification = () => {
     if (!validateEmail(email)) return false;
+    
+    if (bypassVerification || isEmailWhitelisted(email)) {
+      return true;
+    }
     
     // 如果邮箱已经验证（无论验证功能是否启用），直接通过
     if (emailVerified && verifiedEmail === email.trim()) {
@@ -294,7 +318,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
     setShowEmbeddedCheckout(false);
     setClientSecret(null);
     // Reset form state
-    setDonatedUnits(i18n.language === 'zh' ? 3 : 1);
+    setDonatedUnits(i18n.language === 'zh' ? 1 : 1);
     setEmailState('');
     setEmailError('');
     resetError();
@@ -576,6 +600,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
         onClose={() => setShowVerificationDialog(false)}
         onVerified={handleEmailVerified}
         initialEmail={email}
+        bypassed={bypassVerification}
       />
     </StyledDialog>
   );

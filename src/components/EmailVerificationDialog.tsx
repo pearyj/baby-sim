@@ -14,19 +14,22 @@ import {
 } from '@mui/material';
 import { Email as EmailIcon, Verified as VerifiedIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { isEmailWhitelisted } from '../constants/emailWhitelist';
 
 interface EmailVerificationDialogProps {
   open: boolean;
   onClose: () => void;
   onVerified: (email: string) => void;
   initialEmail?: string;
+  bypassed?: boolean;
 }
 
 export const EmailVerificationDialog: React.FC<EmailVerificationDialogProps> = ({
   open,
   onClose,
   onVerified,
-  initialEmail = ''
+  initialEmail = '',
+  bypassed = false,
 }) => {
   const { t } = useTranslation();
   const [step, setStep] = useState<'email' | 'code'>('email');
@@ -48,8 +51,16 @@ export const EmailVerificationDialog: React.FC<EmailVerificationDialogProps> = (
       setCodeError('');
       setMessage('');
       setResendCooldown(0);
+    } else {
+      const normalizedEmail = initialEmail?.trim() || '';
+      if (normalizedEmail && normalizedEmail !== email) {
+        setEmail(normalizedEmail);
+      }
+      if (bypassed || isEmailWhitelisted(normalizedEmail)) {
+        triggerVerificationSuccess(200, normalizedEmail);
+      }
     }
-  }, [open, initialEmail]);
+  }, [open, initialEmail, bypassed]);
 
   // 倒计时
   useEffect(() => {
@@ -87,6 +98,14 @@ export const EmailVerificationDialog: React.FC<EmailVerificationDialogProps> = (
     return true;
   };
 
+  const triggerVerificationSuccess = (delay: number, targetEmail?: string) => {
+    setMessage(t('emailVerification.verifySuccess'));
+    setTimeout(() => {
+      onVerified(targetEmail ?? email);
+      onClose();
+    }, delay);
+  };
+
   const sendVerificationCode = async () => {
     if (!validateEmail(email)) return;
 
@@ -103,6 +122,10 @@ export const EmailVerificationDialog: React.FC<EmailVerificationDialogProps> = (
       const data = await response.json();
 
       if (response.ok && data.success) {
+        if (bypassed || data.verificationBypassed) {
+          triggerVerificationSuccess(500, email);
+          return;
+        }
         setStep('code');
         setMessage(t('emailVerification.codeSent'));
         setResendCooldown(60); // 60秒倒计时
@@ -133,11 +156,7 @@ export const EmailVerificationDialog: React.FC<EmailVerificationDialogProps> = (
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setMessage(t('emailVerification.verifySuccess'));
-        setTimeout(() => {
-          onVerified(email);
-          onClose();
-        }, 1000);
+        triggerVerificationSuccess(data.verificationBypassed ? 500 : 1000, email);
       } else {
         setCodeError(getErrorMessage(data.error) || t('emailVerification.verifyFailed'));
       }

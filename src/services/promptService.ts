@@ -10,12 +10,12 @@ import jaPrompts from '../i18n/prompts/ja.json';
 import esPrompts from '../i18n/prompts/es.json';
 
 // Import activeGameStyle from gptServiceUnified
-// Initialize default style based on language to match gptServiceUnified
+// Initialize default style to realistic for all languages
 const initialLangForStyle = (() => {
   const lang = i18n.language;
   return isSupportedLanguage(lang) ? lang : 'en';
 })();
-let activeGameStyle: GameStyle = initialLangForStyle === 'zh' ? 'realistic' : 'ultra';
+let activeGameStyle: GameStyle = 'realistic';
 
 type PromptResources = {
   [key in SupportedLanguage]: any;

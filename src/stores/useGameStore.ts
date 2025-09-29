@@ -117,6 +117,7 @@ const generateNarrative = (scenarioState: {
   const childHairColorDesc = i18n.t(`game.${childHairColorKey}`);
   const journeyStart = i18n.t('ui.journeyStart');
   const readyToBegin = i18n.t('ui.readyToBegin');
+  const childRace = i18n.t(`game.${childRaceKey}`)
   
   // Construct the narrative based on current language
   if (i18n.language === 'en') {
@@ -131,7 +132,7 @@ ${journeyStart}
 ${readyToBegin}`;
   } else {
     // Chinese version (default)
-    return `作为${playerDesc}（${scenarioState.player.age}岁），你即将开始养育你的孩子${scenarioState.child.name}（${childDesc}，${childHairColorDesc}头发，${childRaceKey}，刚刚出生）的旅程。
+    return `作为${playerDesc}（${scenarioState.player.age}岁），你即将开始养育你的孩子${scenarioState.child.name}（${childDesc}，${childHairColorDesc}头发，${childRace}，刚刚出生）的旅程。
 
 ${scenarioState.playerDescription}
 

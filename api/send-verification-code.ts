@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabaseAdmin } from './supabaseAdmin';
 import { applyCors, handlePreflight, rateLimit } from './_utils';
+import { ensureSubscriberVerified, isEmailVerificationWhitelisted } from './emailVerificationWhitelist';
 
 /**
  * POST /api/send-verification-code
@@ -23,6 +24,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // 基础邮箱格式验证
   if (!/^\S+@\S+\.\S+$/.test(email)) {
     return res.status(400).json({ error: 'email_invalid' });
+  }
+
+  if (isEmailVerificationWhitelisted(email)) {
+    await ensureSubscriberVerified(email.toLowerCase());
+    return res.status(200).json({
+      success: true,
+      verificationBypassed: true,
+      message: 'whitelisted_email',
+    });
   }
 
   try {
