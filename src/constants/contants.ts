@@ -21,7 +21,7 @@ export const RACE_GENDER_IMAGE_MAP = {
             'https://xjrzbtzbdvyirtnupraz.supabase.co/storage/v1/object/public/ending-cards/uploads/wf-1758526018366-57288775.png'
         ],
     },
-    asianPeople: {
+    blackPeople: {
         male: [
             'https://xjrzbtzbdvyirtnupraz.supabase.co/storage/v1/object/public/ending-cards/uploads/bf-1758526223956-7b225995.png',
             'https://xjrzbtzbdvyirtnupraz.supabase.co/storage/v1/object/public/ending-cards/uploads/bf-1758526223956-7b225995.png',
@@ -43,7 +43,7 @@ export const RACE_GENDER_IMAGE_MAP = {
             'https://xjrzbtzbdvyirtnupraz.supabase.co/storage/v1/object/public/ending-cards/uploads/bg-1758526280611-dd6c3f2e.png'
         ],
     },
-    blackPeople: {
+    asianPeople: {
         male: [
             'https://xjrzbtzbdvyirtnupraz.supabase.co/storage/v1/object/public/ending-cards/uploads/am-1758526429313-c8802424.png',
             'https://xjrzbtzbdvyirtnupraz.supabase.co/storage/v1/object/public/ending-cards/uploads/am-1758526429313-c8802424.png',
