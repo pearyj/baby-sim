@@ -1,6 +1,5 @@
 import { API_CONFIG } from '../config/api';
 import i18n from '../i18n';
-import { isSupportedLanguage } from '../utils/languageDetection';
 import { throttledFetch } from '../utils/throttledFetch';
 import type { Question, GameState } from '../types/game';
 import logger from '../utils/logger';
@@ -228,11 +227,6 @@ const writePersistedProviderOverride = (key: ProviderOverrideKey): void => {
   }
 };
 
-// Default to ultra for non-Chinese languages, realistic for Chinese
-const initialLang = (() => {
-  const lang = i18n.language;
-  return isSupportedLanguage(lang) ? lang : 'en';
-})();
 // Prefer persisted style if available, otherwise default to realistic for all languages
 const persistedStyle = readPersistedGameStyle();
 let activeGameStyle: GameStyle = persistedStyle ?? 'realistic';
