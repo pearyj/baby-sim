@@ -16,7 +16,7 @@ I've successfully implemented an MVP for AI image generation as an optional feat
 
 ### 2. API Endpoint (`api/image.ts`)
 - **Serverless function** for Doubao image generation (updated to latest API)
-- **New API**: Uses Doubao's latest REST API (doubao-seedream-3-0-t2i-250415)
+- **New API**: Uses Doubao's latest REST API (doubao-seedream-4-0-250828)
 - **Security**: Uses server-side Bearer token authentication (same key as LLM API)
 - **Key Configuration**: Uses VOLCENGINE_LLM_API_KEY (shared with LLM service)
 - **CORS support** for client requests
@@ -148,4 +148,4 @@ The feature is **completely isolated** - you can:
 4. **Testable** - isolated components with clear interfaces
 5. **Performant** - async, non-blocking operations
 
-This implementation provides a solid foundation for AI image generation while maintaining the app's stability and user experience. 
+This implementation provides a solid foundation for AI image generation while maintaining the app's stability and user experience.

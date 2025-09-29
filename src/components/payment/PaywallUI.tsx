@@ -92,7 +92,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
     if (!open) {
       setShowEmbeddedCheckout(false);
       setClientSecret(null);
-      setDonatedUnits(i18n.language === 'zh' ? 3 : 1);
+      setDonatedUnits(i18n.language === 'zh' ? 1 : 1);
       setEmailState('');
       setEmailError('');
       setShowVerificationDialog(false);
@@ -265,7 +265,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
                 popupRef.current = null;
                 // Refresh credits and close dialog
                 const prevCredits = usePaymentStore.getState().credits ?? 0;
-                await fetchCredits(trimmedEmail);
+                await fetchCredits(trimmedEmail, true); // 强制刷新积分
                 const newCredits = usePaymentStore.getState().credits ?? 0;
                 if (typeof onCreditsGained === 'function' && newCredits > prevCredits) {
                   onCreditsGained(newCredits, prevCredits);
@@ -294,9 +294,9 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
       const trimmedEmail = email.trim();
       const prevCredits = usePaymentStore.getState().credits ?? 0;
       if (trimmedEmail) {
-        await fetchCredits(trimmedEmail);
+        await fetchCredits(trimmedEmail, true); // 强制刷新积分
       } else {
-        await fetchCredits();
+        await fetchCredits(undefined, true); // 强制刷新积分
       }
       const newCredits = usePaymentStore.getState().credits ?? 0;
       if (typeof onCreditsGained === 'function' && newCredits > prevCredits) {
@@ -377,7 +377,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
     try {
       // Pass the email directly to ensure it's used for the lookup
       const prevCredits = usePaymentStore.getState().credits ?? 0;
-      await fetchCredits(trimmedEmail);
+      await fetchCredits(trimmedEmail, true); // 强制刷新积分
       const c = usePaymentStore.getState().credits;
       if (c > 0) {
         if (typeof onCreditsGained === 'function' && c > prevCredits) {

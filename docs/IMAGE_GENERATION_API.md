@@ -45,7 +45,7 @@ Content-Type: application/json
   "imageBase64": "iVBORw0KGgoAAAANSUhEUgAA...",
   "imageUrl": "https://example.com/image.jpg",
   "provider": "doubao",
-  "model": "doubao-seedream-3-0-t2i-250415",
+  "model": "doubao-seedream-4-0-250828",
   "prompt": "一个可爱的婴儿在公园里玩耍，阳光明媚，卡通风格",
   "size": "1024x1024",
   "quality": "hd"
@@ -234,7 +234,7 @@ curl -X POST https://www.babysim.fun/api/image \
 
 ### AI模型
 - **提供商**: 火山引擎 (Volcengine)
-- **模型**: `doubao-seedream-3-0-t2i-250415`
+- **模型**: `doubao-seedream-4-0-250828`
 - **API端点**: `https://ark.cn-beijing.volces.com/api/v3/images/generations`
 
 ### 安全特性

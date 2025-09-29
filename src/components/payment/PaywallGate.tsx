@@ -64,7 +64,7 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
   useEffect(() => {
     // Fetch credits when initialized
     if (anonId && hasInitialized) {
-      fetchCredits();
+      fetchCredits(); // 使用缓存机制，不强制刷新
     }
   }, [anonId, hasInitialized, fetchCredits]);
 

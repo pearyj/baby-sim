@@ -132,7 +132,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       imageBase64,
       imageUrl,
       provider: 'doubao',
-      model: 'doubao-seedream-3-0-t2i-250415',
+      model: 'doubao-seedream-4-0-250828',
       prompt: prompt.substring(0, 100) + (prompt.length > 100 ? '...' : ''),
       size: finalSize,
       quality,
