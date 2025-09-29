@@ -64,6 +64,7 @@ interface GameStoreState {
   hasSkippedImageGeneration: boolean; // Track if user has ever skipped image generation in this session
   shouldGenerateImage: boolean; // Flag to indicate if image should be generated at current age
   generatedImages: { age: number; imageBase64?: string; imageUrl?: string }[]; // Store generated images data
+  unlockedImageAges: number[]; // Track ages at which images have been unlocked (for 1-3 age blur removal)
   
   // Streaming state
   isStreaming: boolean; // Whether any content is currently streaming
@@ -93,6 +94,7 @@ interface GameStoreState {
   toggleStreaming: () => void; // Toggle streaming mode
   addGeneratedImage: (age: number, imageData: { imageBase64?: string; imageUrl?: string }) => void; // Store generated image
   skipImageGeneration: () => void; // Mark that user has skipped image generation in this session
+  unlockImage: (age: number) => void; // Mark that image at specific age has been unlocked
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
@@ -209,7 +211,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
   type GameStoreData = Omit<GameStoreState, 
     'initializeGame' | 'startGame' | 'continueSavedGame' | 'loadQuestion' | 
     'loadQuestionStreaming' | 'selectOption' | 'selectOptionStreaming' | 
-    'continueGame' | 'resetToWelcome' | 'testEnding' | 'toggleStreaming' | 'addGeneratedImage' | 'skipImageGeneration'
+    'continueGame' | 'resetToWelcome' | 'testEnding' | 'toggleStreaming' | 'addGeneratedImage' | 'skipImageGeneration' | 'unlockImage'
   >;
   
   const initialState: GameStoreData = {
@@ -245,6 +247,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
     hasSkippedImageGeneration: false,
     shouldGenerateImage: false,
     generatedImages: [],
+    unlockedImageAges: [], // Track ages at which images have been unlocked
     
     // ——— 1.5) STREAMING STATE ————————————————————————————————————————
     isStreaming: false,
@@ -1272,25 +1275,28 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
       set(prevState => {
         console.log('📝 imageData Current history length:', prevState.history.length);
         
-        // Always add image data to the last history entry
+        // Find the history entry with the matching age and update it
         const updatedHistory = [...prevState.history];
-        if (updatedHistory.length > 0) {
-          const lastIndex = updatedHistory.length - 1;
-          console.log('📋 imageData Last history entry before update:', updatedHistory[lastIndex]);
+        const targetIndex = updatedHistory.findIndex(entry => entry.age === age);
+        
+        if (targetIndex >= 0) {
+          console.log('📋 imageData Found history entry at index', targetIndex, 'for age', age, ':', updatedHistory[targetIndex]);
           
           // For localStorage optimization, only store imageUrl, never imageBase64
           const optimizedImageData = imageData.imageUrl 
             ? { imageUrl: imageData.imageUrl } 
             : {}; // Don't store anything if no imageUrl
           
-          updatedHistory[lastIndex] = { 
-            ...updatedHistory[lastIndex], 
+          updatedHistory[targetIndex] = { 
+            ...updatedHistory[targetIndex], 
             ...optimizedImageData 
           };
           
-          console.log('✅ imageData Last history entry after update:', updatedHistory[lastIndex]);
-          console.log('🖼️ imageData Updated entry has imageBase64?', !!updatedHistory[lastIndex].imageBase64);
-          console.log('🔗 imageData Updated entry has imageUrl?', !!updatedHistory[lastIndex].imageUrl);
+          console.log('✅ imageData History entry after update:', updatedHistory[targetIndex]);
+          console.log('🖼️ imageData Updated entry has imageBase64?', !!updatedHistory[targetIndex].imageBase64);
+          console.log('🔗 imageData Updated entry has imageUrl?', !!updatedHistory[targetIndex].imageUrl);
+        } else {
+          console.warn('⚠️ imageData No history entry found for age:', age);
         }
         
         const newState = {
@@ -1318,6 +1324,14 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
         ...state,
         hasSkippedImageGeneration: true,
         shouldGenerateImage: false
+      }));
+      saveGameState(get());
+    },
+
+    unlockImage: (age: number) => {
+      set(state => ({
+        ...state,
+        unlockedImageAges: [...state.unlockedImageAges, age]
       }));
       saveGameState(get());
     },

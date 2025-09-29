@@ -104,6 +104,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+  const [isImageUnlocked, setIsImageUnlocked] = useState(false); // 跟踪图片是否已解锁
   const { hasPaid } = usePaymentStatus();
   const { anonId, kidId } = usePaymentStore(state => ({ anonId: state.anonId, kidId: state.kidId }));
   const { credits, consumeCredit } = usePaymentStore(state => ({ credits: state.credits, consumeCredit: state.consumeCredit }));
@@ -252,18 +253,10 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
       // Consume 0.15 credits
       const success = await consumeCredit(undefined, UNLOCK_COST);
       if (success) {
-        console.log('扣费成功，生成真实图片');
-        // 扣费成功后直接生成真实图片
-        const currentOutcome = gameState.history.find(entry => entry.age === history_curage)?.outcome || '';
-        const endingSummary = currentOutcome || `${gameState.child.name} at age ${history_curage}`;
-        
-        const result = await generateEndingImage(gameState, endingSummary, { size: '1920x640', quality: 'standard' });
-        if (result.success && (result.imageUrl || result.imageBase64)) {
-          setGeneratedImage(result);
-          useGameStore.getState().addGeneratedImage(history_curage, result);
-        } else {
-          setError('图片生成失败');
-        }
+        console.log('扣费成功，解锁图片（去掉模糊效果）');
+        // 扣费成功后设置解锁状态，并同步到全局状态
+        setIsImageUnlocked(true);
+        useGameStore.getState().unlockImage(history_curage);
       } else {
         setError('扣费失败');
       }
@@ -305,8 +298,8 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
 
           {generatedImage && generatedImage.success && (
             <Box sx={{ textAlign: 'center', mb: 2 }}>
-              {/* 第一次点击且年龄≤3岁时显示模糊图片，其他情况显示清晰图片 */}
-              {(generatedImage.imageUrl && !generatedImage.imageBase64 && history_curage <= 3) ? (
+              {/* 第一次点击且年龄≤3岁且未解锁时显示模糊图片，其他情况显示清晰图片 */}
+              {(generatedImage.imageUrl && !generatedImage.imageBase64 && history_curage <= 3 && !isImageUnlocked) ? (
                 <BlurredImageContainer>
                   <GeneratedImage
                     src={generatedImage.imageUrl}
@@ -337,7 +330,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
                 />
               )}
               <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#666' }}>
-                {(generatedImage.imageUrl && !generatedImage.imageBase64 && history_curage <= 3) ? '点击解锁按钮生成清晰图片' : '图片生成成功!'}
+                {(generatedImage.imageUrl && !generatedImage.imageBase64 && history_curage <= 3 && !isImageUnlocked) ? '点击解锁按钮查看清晰图片' : '图片生成成功!'}
               </Typography>
             </Box>
           )}
@@ -387,9 +380,27 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
         onClose={() => setShowPaywall(false)}
         childName={gameState.child?.name || 'Child'}
         mode="image"
-        onCreditsGained={() => {
-          console.log('充值成功，关闭弹窗');
+        onCreditsGained={async () => {
+          console.log('充值成功，自动解锁图片');
           setShowPaywall(false);
+          
+          // 充值成功后自动执行解锁逻辑（只需要去掉模糊效果）
+          if (generatedImage) {
+            try {
+              const UNLOCK_COST = 0.15;
+              const success = await consumeCredit(undefined, UNLOCK_COST);
+              if (success) {
+                console.log('充值后自动扣费成功，解锁图片');
+                setIsImageUnlocked(true);
+                useGameStore.getState().unlockImage(history_curage);
+              } else {
+                setError('扣费失败');
+              }
+            } catch (err) {
+              console.error('充值后扣费过程中出错:', err);
+              setError('解锁过程中出现错误');
+            }
+          }
         }}
       />
       

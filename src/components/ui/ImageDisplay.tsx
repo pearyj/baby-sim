@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import useGameStore from '../../stores/useGameStore';
 import { PaywallUI } from '../payment/PaywallUI';
 import { usePaymentStore } from '../../stores/usePaymentStore';
-import { generateEndingImage } from '../../services/imageGenerationService';
+
 
 interface ImageDisplayProps {
   currentAge: number;
@@ -68,13 +68,13 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({ currentAge }) => {
 const BlurredImageContainer: React.FC<{ currentImage: any }> = ({ currentImage }) => {
   const { t } = useTranslation();
   const [showPaywall, setShowPaywall] = useState(false);
-  const [isUnlocked, setIsUnlocked] = useState(false); // 追踪图片是否已被解锁
-  const { child, history } = useGameStore();
+  const { child, history, unlockedImageAges } = useGameStore();
   const { credits, consumeCredit } = usePaymentStore(state => ({ credits: state.credits, consumeCredit: state.consumeCredit }));
 
   // 检查整个游戏中点击"我想见他"的次数
   const clickedGenerateCount = history.filter(entry => entry.imageUrl).length;
   // 判断是否应该显示模糊：第一次点击且年龄≤3岁且未解锁
+  const isUnlocked = unlockedImageAges.includes(currentImage.age);
   const shouldShowBlurred = clickedGenerateCount === 1 && currentImage.age <= 3 && !isUnlocked;
 
   const handleUnblurClick = async () => {
@@ -91,26 +91,9 @@ const BlurredImageContainer: React.FC<{ currentImage: any }> = ({ currentImage }
       // Consume 0.15 credits
       const success = await consumeCredit(undefined, UNLOCK_COST);
       if (success) {
-        console.log('扣费成功，生成真实图片并更新游戏数据');
-        
-        // 生成真实图片并更新游戏数据
-        const gameState = {
-          child: { name: child?.name || 'Child', age: currentImage.age },
-          history: history.filter(entry => entry.age === currentImage.age)
-        };
-        const currentOutcome = history.find(entry => entry.age === currentImage.age)?.outcome || '';
-        const endingSummary = currentOutcome || `${child?.name || 'Child'} at age ${currentImage.age}`;
-        
-        const result = await generateEndingImage(gameState as any, endingSummary, { size: '1920x640', quality: 'standard' });
-        if (result.success && (result.imageUrl || result.imageBase64)) {
-          // 更新游戏数据中的图片
-          const { addGeneratedImage } = useGameStore.getState();
-          addGeneratedImage(currentImage.age, result);
-          setIsUnlocked(true); // 设置为已解锁
-        } else {
-          console.error('图片生成失败');
-          setShowPaywall(true);
-        }
+        console.log('扣费成功，解锁图片');
+        // 更新全局状态中的解锁状态
+        useGameStore.getState().unlockImage(currentImage.age);
       } else {
         console.log('扣费失败');
         setShowPaywall(true);
@@ -196,9 +179,23 @@ const BlurredImageContainer: React.FC<{ currentImage: any }> = ({ currentImage }
         }}
         childName={child?.name || 'Child'}
         mode="image"
-        onCreditsGained={() => {
-          // 充值成功后关闭弹窗
+        onCreditsGained={async () => {
+          console.log('充值成功，自动解锁图片');
           setShowPaywall(false);
+          
+          // 充值成功后自动执行解锁逻辑（只需要去掉模糊效果）
+          try {
+            const UNLOCK_COST = 0.15;
+            const success = await consumeCredit(undefined, UNLOCK_COST);
+            if (success) {
+              console.log('充值后自动扣费成功，解锁图片');
+              useGameStore.getState().unlockImage(currentImage.age);
+            } else {
+              console.error('充值后扣费失败');
+            }
+          } catch (err) {
+            console.error('充值后扣费过程中出错:', err);
+          }
         }}
       />
     </>
