@@ -22,7 +22,7 @@ export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || process.env.ST
 export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 export const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2025-08-27.basil',
+  apiVersion: '2023-10-16',
 }) : null;
 
 export const PRICE_CONFIG = {
