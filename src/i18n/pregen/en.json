@@ -216,7 +216,7 @@
       "gender": "female",
       "age": 1,
       "haircolor": "light",
-      "race": "Caucasian"
+      "race": "whitePeople"
     },
     "playerDescription": "You are a recently retired Parisian pastry chef who thought your baking days were over until surprise parenthood through late-life adoption. Pension is steady but modest, so you reopen a tiny weekend macaron stall with a playpen behind the counter. Kneading dough doubles as storytelling, and you pipe frosting letters to spell her name.",
     "childDescription": "Liora’s cheeks resemble rose macarons. She squints with serious concentration when you sift powdered sugar, then erupts in laughter when it snows down on her toy rolling pin.",
@@ -234,7 +234,7 @@
       "gender": "female",
       "age": 1,
       "haircolor": "blonde",
-      "race": "Caucasian"
+      "race": "whitePeople"
     },
     "playerDescription": "You are a Calgary wildfire firefighter who alternates two-week shifts on the front lines with two weeks at home. During deployments, Nova stays with your younger brother, and you read her video bedtime stories from smoky campsites. Hazard pay boosts savings, but every siren makes you question this balance.",
     "childDescription": "Nova clutches plush Dalmatian pups and tilts her head at the crackle of campfires on your phone. She recognizes your soot-smudged face instantly, beaming even through a screen.",
@@ -252,7 +252,7 @@
       "gender": "female",
       "age": 1,
       "haircolor": "light",
-      "race": "Caucasian"
+      "race": "whitePeople"
     },
     "playerDescription": "You are a deaf software accessibility advocate in Sydney, coding open-source caption plugins by day and performing silent comedy at night. Your husband is a sign-language interpreter for parliament. Together you plan immersive ASL bedtime routines, signing fairy tales under LED stars.",
     "childDescription": "Harper’s tiny hands already mimic rhythmic motions when she’s excited. She calms when feeling bass vibrations against your chest and brightens whenever colorful hand-shapes dance in her line of sight.",
@@ -288,7 +288,7 @@
       "gender": "female",
       "age": 1,
       "haircolor": "light",
-      "race": "Caucasian"
+      "race": "whitePeople"
     },
     "playerDescription": "You are an indie folk musician touring small European festivals in a refurbished double-decker bus that now serves as stage and nursery. Your partner manages merch, and your bandmates built a soundproof crib below the upper bunk. Ticket sales ebb and flow, yet you pledge to sing Saffron a new lullaby in every country.",
     "childDescription": "Saffron has a tuft of auburn hair and hums along to backstage tuning sessions. She naps best when the bus tires thrum over cobblestones, as if applause were rocking her to sleep.",
@@ -342,7 +342,7 @@
       "gender": "male",
       "age": 1,
       "haircolor": "light",
-      "race": "Caucasian"
+      "race": "whitePeople"
     },
     "playerDescription": "You run a regenerative micro-farm in New Zealand’s South Island, swapping corporate life for soil and solar panels. Days start before dawn: you strap Atlas into a sling, inspect mushroom logs, and update your CSA newsletter during nap breaks. Grants for sustainable agriculture cover most costs, but droughts keep your savings razor-thin.",
     "childDescription": "Atlas giggles whenever irrigation misters spray fine rainbows. He chews on kale stems and watches earthworms wriggle with solemn wonder, already at home in the dirt-perfumed air.",
@@ -360,7 +360,7 @@
       "gender": "female",
       "age": 1,
       "haircolor": "darkcurly",
-      "race": "Mixed"
+      "race": "blackPeople"
     },
     "playerDescription": "You are a Boston biotech grad student racing to patent a low-cost gene-editing kit. Fellowship stipends barely cover rent, so you moonlight as a campus lab safety tutor while balancing childcare in the department lounge. Lab mates built a makeshift playpen out of autoclave crates, and you recite protein sequences as lullabies.",
     "childDescription": "Aria’s eyes dart toward every pipette’s dripping colors. She presses chubby palms against chilled incubator glass, mesmerized by swirling cell cultures, and coos when fluorescent labels glow.",

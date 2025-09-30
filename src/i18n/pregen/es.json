@@ -1,7 +1,7 @@
 [
   {
     "player": { "gender": "female", "age": 28 },
-    "child":  { "name": "Sofía", "gender": "female", "age": 1, "haircolor": "light", "race": "LatinPeople" },
+    "child":  { "name": "Sofía", "gender": "female", "age": 1, "haircolor": "light", "race": "whitePeople" },
     "playerDescription": "Eres una profesional de marketing de 28 años que vive en una ciudad bulliciosa. Eres ambiciosa, creativa y valoras el equilibrio trabajo-vida. Creciste en una familia de clase media y crees en proporcionar a tu hija experiencias diversas y oportunidades.",
     "childDescription": "Sofía es una bebé curiosa y enérgica con ojos brillantes y una sonrisa contagiosa. Le encanta explorar su entorno y muestra signos tempranos de ser muy social y expresiva.",
     "finance": 5,
@@ -28,7 +28,7 @@
   },
   {
     "player": { "gender": "male", "age": 29 },
-    "child":  { "name": "Mateo", "gender": "male", "age": 1, "haircolor": "black", "race": "LatinPeople" },
+    "child":  { "name": "Diego", "gender": "male", "age": 1, "haircolor": "black", "race": "LatinPeople" },
     "playerDescription": "Eres un chef de 29 años que tiene un pequeño restaurante. Eres creativo, trabajador y apasionado por la cultura gastronómica. Creciste en una familia grande y unida y quieres transmitir tradiciones mientras fomentas los intereses individuales de tu hijo.",
     "childDescription": "Mateo es un bebé activo y curioso que parece disfrutar diferentes texturas y sabores. Tiene una personalidad vivaz y muestra signos tempranos de ser aventurero y ansioso por explorar nuevas experiencias.",
     "finance": 5,
@@ -73,7 +73,7 @@
   },
   {
     "player": { "gender": "female", "age": 27 },
-    "child":  { "name": "Camila", "gender": "female", "age": 1, "haircolor": "light", "race": "LatinPeople" },
+    "child":  { "name": "Camila", "gender": "female", "age": 1, "haircolor": "light", "race": "whitePeople" },
     "playerDescription": "Eres una científica investigadora de 27 años que es curiosa y orientada a los detalles. Eres intelectual, metódica y crees en la crianza basada en evidencia. Vienes de una familia inmigrante y valoras la educación y la preservación cultural.",
     "childDescription": "Camila es una bebé inquisitiva y alerta que parece fascinada por causa y efecto. Tiene un temperamento enfocado y muestra signos tempranos de ser analítica y con mentalidad científica.",
     "finance": 6,
@@ -82,7 +82,7 @@
   },
   {
     "player": { "gender": "male", "age": 33 },
-    "child":  { "name": "Lucas", "gender": "male", "age": 1, "haircolor": "blonde", "race": "LatinPeople" },
+    "child":  { "name": "Lucas", "gender": "male", "age": 1, "haircolor": "blonde", "race": "whitePeople" },
     "playerDescription": "Eres un entrenador personal de 33 años que es consciente de la salud y enérgico. Eres motivacional, disciplinado y crees en la importancia del fitness físico y el bienestar mental. Creciste jugando deportes y quieres inculcar hábitos saludables en tu hijo.",
     "childDescription": "Lucas es un bebé activo y enérgico que parece disfrutar el movimiento y el juego físico. Tiene una personalidad dinámica y muestra signos tempranos de ser atlético y físicamente coordinado.",
     "finance": 5,
@@ -91,7 +91,7 @@
   },
   {
     "player": { "gender": "female", "age": 34 },
-    "child":  { "name": "Elena", "gender": "female", "age": 1, "haircolor": "light", "race": "LatinPeople" },
+    "child":  { "name": "Elena", "gender": "female", "age": 1, "haircolor": "light", "race": "whitePeople" },
     "playerDescription": "Eres una abogada ambiental de 34 años apasionada por la sostenibilidad y la justicia social. Eres principista, elocuente y crees en criar a tu hija para que sea ambientalmente consciente y socialmente responsable.",
     "childDescription": "Elena es una bebé reflexiva y consciente que parece muy receptiva a su entorno. Tiene una naturaleza contemplativa y muestra signos tempranos de ser ambientalmente sensible y socialmente consciente.",
     "finance": 9,
