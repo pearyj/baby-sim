@@ -313,6 +313,35 @@
     "otherKids": "Otros Niños",
     "noImages": "No hay imágenes compartidas aún. ¡Sé el primero en criar un niño hasta los 18 y compartir!"
   },
+  "emailVerification": {
+    "title": "Verificación de Correo",
+    "subtitle": "Para proteger tus créditos, necesitamos verificar que eres el propietario de esta dirección de correo.",
+    "verificationCode": "Código de Verificación",
+    "codeSubtitle": "Se ha enviado un código de verificación a {{email}}. Por favor revisa tu correo e ingresa el código de 6 dígitos.",
+    "codeRequired": "Por favor ingresa el código de verificación",
+    "codeInvalid": "Por favor ingresa un código de verificación de 6 dígitos",
+    "codeExpired": "El código de verificación es inválido o ha expirado, por favor obtén uno nuevo",
+    "sendCode": "Enviar Código",
+    "resendCode": "Reenviar Código",
+    "resendIn": "Reenviar en {{seconds}}s",
+    "verify": "Verificar",
+    "verified": "Verificado",
+    "emailVerifiedMessage": "El correo {{email}} está verificado",
+    "codeSent": "Código de verificación enviado, por favor revisa tu correo",
+    "verifySuccess": "¡Correo verificado exitosamente!",
+    "sendFailed": "Error al enviar el código de verificación, por favor intenta de nuevo",
+    "verifyFailed": "Verificación fallida, por favor revisa el código",
+    "rateLimited": "Demasiadas solicitudes, por favor intenta más tarde",
+    "securityNotice": "Nunca compartiremos tu correo con terceros. Solo se usa para verificación de créditos y notificaciones importantes.",
+    "emailContent": {
+      "subject": "Tu Código de Verificación de BabySim",
+      "greeting": "¡Hola!",
+      "message": "Tu código de verificación es:",
+      "expiry": "Este código expirará en 10 minutos.",
+      "security": "Si no solicitaste este código, por favor ignora este correo.",
+      "footer": "¡Feliz crianza!<br>El Equipo de BabySim"
+    }
+  },
   "gentleReminder": {
     "title": "Un recordatorio amable",
     "body": "En la vida, no siempre podemos elegir a nuestro hijo. A veces el mundo nos entrega un pequeño ser humano para amar tal como es. Considera continuar el viaje con el niño que tienes: puede sorprenderte a dónde los lleva.",

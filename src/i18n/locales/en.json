@@ -338,7 +338,15 @@
     "sendFailed": "Failed to send verification code, please try again",
     "verifyFailed": "Verification failed, please check the code",
     "rateLimited": "Too many requests, please try again later",
-    "securityNotice": "We will never share your email with third parties. It's only used for credit verification and important notifications."
+    "securityNotice": "We will never share your email with third parties. It's only used for credit verification and important notifications.",
+    "emailContent": {
+      "subject": "Your BabySim Verification Code",
+      "greeting": "Hello!",
+      "message": "Your verification code is:",
+      "expiry": "This code will expire in 10 minutes.",
+      "security": "If you didn't request this code, please ignore this email.",
+      "footer": "Happy parenting!<br>The BabySim Team"
+    }
   },
   "common": {
     "back": "Back",

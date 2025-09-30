@@ -31,7 +31,7 @@ export const EmailVerificationDialog: React.FC<EmailVerificationDialogProps> = (
   initialEmail = '',
   bypassed = false,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState('');
@@ -113,10 +113,16 @@ export const EmailVerificationDialog: React.FC<EmailVerificationDialogProps> = (
     setMessage('');
 
     try {
+      // Get current language from localStorage or i18n
+      const currentLanguage = localStorage.getItem('i18nextLng') || i18n.language || 'en';
+      
       const response = await fetch('/api/send-verification-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ 
+          email,
+          language: currentLanguage 
+        }),
       });
 
       const data = await response.json();

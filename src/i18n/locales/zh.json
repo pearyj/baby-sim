@@ -326,7 +326,15 @@
     "sendFailed": "验证码发送失败，请稍后重试",
     "verifyFailed": "验证失败，请检查验证码",
     "rateLimited": "操作过于频繁，请稍后再试",
-    "securityNotice": "我们不会向第三方分享您的邮箱，仅用于积分验证和重要通知。"
+    "securityNotice": "我们不会向第三方分享您的邮箱，仅用于积分验证和重要通知。",
+    "emailContent": {
+      "subject": "您的养娃模拟器验证码",
+      "greeting": "您好！",
+      "message": "您的验证码是：",
+      "expiry": "此验证码将在10分钟后过期。",
+      "security": "如果您没有请求此验证码，请忽略此邮件。",
+      "footer": "祝您游戏愉快！<br>养娃模拟器团队"
+    }
   },
   "common": {
     "back": "返回",
