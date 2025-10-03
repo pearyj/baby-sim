@@ -10,7 +10,7 @@ import {
   Chip,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Image, AutoAwesome, CheckCircle } from '@mui/icons-material';
+import { Image, AutoAwesome } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { track } from '@vercel/analytics';
 import { generateEndingImage, type ImageGenerationOptions, type ImageGenerationResult } from '../services/imageGenerationService';
@@ -116,7 +116,7 @@ export const MultiAgeImageGenerator: React.FC<MultiAgeImageGeneratorProps> = ({
   const [generatedImages, setGeneratedImages] = useState<{ [age: number]: ImageGenerationResult }>({});
   const [error, setError] = useState<string | null>(null);
   const [artStyleInput, setArtStyleInput] = useState<string>('');
-  const [currentGeneratingAge, setCurrentGeneratingAge] = useState<number | null>(null);
+  // const [currentGeneratingAge, setCurrentGeneratingAge] = useState<number | null>(null);
 
   // Get current language from i18n
   const currentLanguage = i18n.language;
@@ -209,7 +209,7 @@ export const MultiAgeImageGenerator: React.FC<MultiAgeImageGeneratorProps> = ({
       
       // Generate images sequentially to avoid overwhelming the API
       for (const age of imageAges) {
-        setCurrentGeneratingAge(age);
+        // setCurrentGeneratingAge(age);
         
         try {
           const result = await generateImageForAge(age);
@@ -260,7 +260,7 @@ export const MultiAgeImageGenerator: React.FC<MultiAgeImageGeneratorProps> = ({
       track('Multi-Age Image Generation Error', { error: errorMessage || 'unknown-error' });
     } finally {
       setIsGenerating(false);
-      setCurrentGeneratingAge(null);
+      // setCurrentGeneratingAge(null);
     }
   };
 
@@ -336,26 +336,19 @@ export const MultiAgeImageGenerator: React.FC<MultiAgeImageGeneratorProps> = ({
         </GenerateImageContainer>
       )}
 
-      {/* {isGenerating && (
+      {isGenerating && (
         <GenerateImageContainer>
           <Box sx={{ mb: 2 }}>
             <CircularProgress size={40} sx={{ color: '#8D6E63', mb: 2 }} />
-            <Typography variant="h6" sx={{ 
+          <Typography variant="h6" sx={{ 
               color: '#5D4037', 
               fontWeight: 600,
               mb: 1 
             }}>
-              {currentGeneratingAge 
-                ? t('messages.generatingAgeImage', { 
-                    childName: gameState.child.name, 
-                    age: currentGeneratingAge,
-                    defaultValue: `Generating ${gameState.child.name} at age ${currentGeneratingAge}...`
-                  })
-                : t('messages.generatingImages', { 
-                    childName: gameState.child.name,
-                    defaultValue: `Generating ${gameState.child.name}'s images...`
-                  })
-              }
+              {t('messages.generatingImages', { 
+                childName: gameState.child.name,
+                defaultValue: `Generating ${gameState.child.name}'s images...`
+              })}
             </Typography>
             <Typography variant="body2" sx={{ 
               color: '#8D6E63',
@@ -374,14 +367,14 @@ export const MultiAgeImageGenerator: React.FC<MultiAgeImageGeneratorProps> = ({
                   key={age}
                   label={`${age - 1}岁`}
                   size="small"
-                  color={generatedImages[age] ? 'success' : currentGeneratingAge === age ? 'primary' : 'default'}
-                  icon={generatedImages[age] ? <CheckCircle /> : undefined}
+                  color={generatedImages[age] ? 'success' : 'default'}
+                  icon={generatedImages[age] ? <AutoAwesome /> : undefined}
                 />
               ))}
             </Box>
           </Box>
         </GenerateImageContainer>
-      )} */}
+      )}
 
       {error && (
         <Alert 

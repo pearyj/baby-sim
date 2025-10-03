@@ -19,7 +19,7 @@ import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
 import { track } from '@vercel/analytics';
 import { AIImageGenerator } from './AIImageGenerator';
-import { MultiAgeImageGenerator } from './MultiAgeImageGenerator';
+// import { MultiAgeImageGenerator } from './MultiAgeImageGenerator';
 import { PaywallGate } from './payment/PaywallGate';
 import type { GameState } from '../types/game';
 import type { ImageGenerationResult } from '../services/imageGenerationService';
@@ -114,7 +114,7 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
   const { t } = useTranslation();
   const cardRef = useRef<HTMLDivElement>(null);
   const [generatedImageResult, setGeneratedImageResult] = useState<ImageGenerationResult | null>(null);
-  const [multiAgeImages, setMultiAgeImages] = useState<{ [age: number]: ImageGenerationResult }>({});
+  const multiAgeImages: { [age: number]: ImageGenerationResult } = {};
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -314,18 +314,18 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
     }
   };
 
-  const handleMultiAgeImagesGenerated = (images: { [age: number]: ImageGenerationResult }) => {
-    setMultiAgeImages(images);
-    const successCount = Object.values(images).filter(img => img.success).length;
-    setSnackbar({
-      open: true,
-      message: t('messages.multiAgeImagesGenerated', {
-        count: successCount,
-        defaultValue: `Generated ${successCount} images successfully!`
-      }),
-      severity: 'success',
-    });
-  };
+  // const handleMultiAgeImagesGenerated = (images: { [age: number]: ImageGenerationResult }) => {
+  //   setMultiAgeImages(images);
+  //   const successCount = Object.values(images).filter(img => img.success).length;
+  //   setSnackbar({
+  //     open: true,
+  //     message: t('messages.multiAgeImagesGenerated', {
+  //       count: successCount,
+  //       defaultValue: `Generated ${successCount} images successfully!`
+  //     }),
+  //     severity: 'success',
+  //   });
+  // };
 
   return (
     <>
