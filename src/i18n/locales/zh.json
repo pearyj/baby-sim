@@ -161,6 +161,7 @@
     "modelToggle": "模型"
   },
   "messages": {
+    "imageCreditsRemaining": "0.15积分可以生成1张图片，您还可以生成{{remainingCount}}张",
     "error": "发生错误",
     "journeyComplete": "赛博养娃之旅圆满结束",
     "childGrownUp": "{{childName}} 已经长大成人，18岁了",
@@ -290,6 +291,7 @@
     "checkCredits": "查询积分",
     "donationAmount": "捐赠金额：",
     "getCredits": "获得 {{count}} 个积分",
+    "imageCreditUnitHint": "0.15积分可以生成1张图片",
     "creditsLabel": "积分",
     "paymentSecure": "支付由Stripe安全处理。Stripe每次交易会收取手续费，如果您想多次生成照片，建议选择总金额一次性支付。您可以以后用您的邮箱地址继续生图。",
     "paymenttestnotice": "支付功能测试中，请直接点击继续支付宝扫码按照指示进行，无需真实付费。",
@@ -297,6 +299,7 @@
     "continueAndPay": "继续支付",
     "supportMore": "继续支持",
     "processing": "处理中...",
+    "checkingCreditsProgress": "查询积分中...",
     "creditsFound": "您有 {{count}} 个积分，可立即生成娃的图片。",
     "creditsFound_llm": "您有 {{count}} 个积分，现在可以继续使用 GPT‑5。",
     "noCreditsFound": "没有找到积分，请捐赠以获得积分。",

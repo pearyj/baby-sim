@@ -160,7 +160,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
             setGeneratedImage(randomImage);
             useGameStore.getState().addGeneratedImage(history_curage, randomImage);
           } else {
-            setError('获取默认图片失败');
+            setError('error');
           }
         } else {
           // 年龄>3岁，显示PaywallUI

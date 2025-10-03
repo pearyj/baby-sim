@@ -9,12 +9,14 @@ import {
   TextField,
   Slider,
   Box,
+  IconButton,
   Alert,
   CircularProgress,
   Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Favorite, CreditCard, Shield } from '@mui/icons-material';
+import Close from '@mui/icons-material/Close';
 import { useTranslation } from 'react-i18next';
 import { usePaymentStore } from '../../stores/usePaymentStore';
 import { calculatePricing } from '../../services/paymentService';
@@ -107,55 +109,56 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
   useEffect(() => {
     const checkEmailVerification = async () => {
       if (email && /^\S+@\S+\.\S+$/.test(email)) {
+        // 本地白名单：在白名单内直接视为已验证并关闭弹窗
         const whitelisted = isEmailWhitelisted(email);
-        setBypassVerification(whitelisted);
         if (whitelisted) {
+          setVerificationEnabled(true);
+          setBypassVerification(true);
           setEmailVerified(true);
           setVerifiedEmail(email);
+          setShowVerificationDialog(false);
+          return;
         }
-
         try {
           const response = await fetch(`/api/check-email-verification?email=${encodeURIComponent(email)}`);
           const data = await response.json();
-
-          if (data.verificationBypassed) {
-            setBypassVerification(true);
-            setEmailVerified(true);
-            setVerifiedEmail(email);
-          } else {
-            setBypassVerification(false);
-          }
-
-          // 如果验证功能还未启用，则不显示验证状态（既不显示已验证，也不要求验证）
-          if (data.reason === 'verification_not_enabled') {
-            setEmailVerified(false); // 不显示已验证状态
-            setVerifiedEmail(''); // 清空已验证邮箱
-            setVerificationEnabled(false); // 标记验证功能未启用
-            return;
-          }
-          
-          setVerificationEnabled(true); // 验证功能已启用
-          
-          const isVerified = data.verified === true || data.verificationBypassed === true;
-          setEmailVerified(isVerified);
-          if (isVerified) {
-            setVerifiedEmail(email);
+          const verificationNotEnabled = data.reason === 'verification_not_enabled';
+          const verificationBypassed = data.verificationBypassed === true;
+          const verified = data.verified === true || verificationBypassed;
+          setVerificationEnabled(!verificationNotEnabled);
+          setBypassVerification(verificationBypassed);
+          setEmailVerified(verified);
+          setVerifiedEmail(verified ? email : '');
+          if (verified) {
+            setShowVerificationDialog(false);
           }
         } catch (error) {
           console.error('Failed to check email verification:', error);
-          // 发生错误时，为了不影响用户体验，不显示验证状态
+          setVerificationEnabled(true);
+          setBypassVerification(false);
           setEmailVerified(false);
           setVerifiedEmail('');
         }
       } else {
+        setVerificationEnabled(true);
+        setBypassVerification(false);
         setEmailVerified(false);
         setVerifiedEmail('');
-        setBypassVerification(false);
       }
     };
 
     checkEmailVerification();
   }, [email]);
+
+  // 当邮箱验证状态变为已验证且与当前输入邮箱匹配时，自动关闭验证码弹窗
+  useEffect(() => {
+    const normalizedInput = email.trim().toLowerCase();
+    const normalizedVerified = verifiedEmail.trim().toLowerCase();
+    if (emailVerified && normalizedVerified && normalizedVerified === normalizedInput) {
+      
+      setShowVerificationDialog(false);
+    }
+  }, [emailVerified, email, verifiedEmail]);
 
   const validateEmail = (input: string) => {
     if (!input) {
@@ -171,43 +174,62 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
     return true;
   };
 
+  // 当验证码刚刚通过时，使用一次性绕过标记以避免同一渲染周期内的竞态导致再次弹窗
+  const justVerifiedEmailRef = useRef<string | null>(null);
+
   const handleEmailVerified = async (verifiedEmailAddress: string) => {
+    // 标记本次已通过验证的邮箱，避免同一tick内重复打开验证弹窗
+    justVerifiedEmailRef.current = verifiedEmailAddress;
     setEmailState(verifiedEmailAddress);
-    setVerifiedEmail(verifiedEmailAddress);
-    setEmailVerified(true);
     setShowVerificationDialog(false);
-    
-    // 验证成功后，重新检查邮箱验证状态以确保状态同步
+    // 在查询积分前增加loading与短暂延时，确保状态同步
+    setCheckingCredits(true);
     try {
       const response = await fetch(`/api/check-email-verification?email=${encodeURIComponent(verifiedEmailAddress)}`);
       const data = await response.json();
-      
-      if (data.verified === true) {
-        setEmailVerified(true);
-          setVerifiedEmail(verifiedEmailAddress);
-          setVerificationEnabled(true);
-          setBypassVerification(isEmailWhitelisted(verifiedEmailAddress));
-      }
+      const verificationNotEnabled = data.reason === 'verification_not_enabled';
+      const verificationBypassed = data.verificationBypassed === true;
+      const verified = data.verified === true || verificationBypassed;
+      setVerificationEnabled(!verificationNotEnabled);
+      setBypassVerification(verificationBypassed);
+      setEmailVerified(verified);
+      setVerifiedEmail(verified ? verifiedEmailAddress : '');
     } catch (error) {
       console.error('Failed to re-check email verification after verification:', error);
-      // 即使检查失败，也保持本地验证状态为true，因为验证刚刚成功
+      setEmailVerified(false);
+      setVerifiedEmail('');
+      setBypassVerification(false);
     }
+    // 等待几秒以避免 requireEmailVerification 读取旧状态
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await handleCheckCredits(verifiedEmailAddress);
   };
 
-  const requireEmailVerification = () => {
-    if (!validateEmail(email)) return false;
-    
-    if (bypassVerification || isEmailWhitelisted(email)) {
+  const requireEmailVerification = (inputEmail?: string) => {
+    const candidate = (inputEmail ?? email).trim();
+    if (!validateEmail(candidate)) return false;
+
+    // 刚刚完成验证的邮箱，在当前渲染周期内允许直接通过，避免竞态条件
+    const normalizedCandidate = candidate.toLowerCase();
+    const normalizedJustVerified = (justVerifiedEmailRef.current ?? '').trim().toLowerCase();
+    if (normalizedJustVerified && normalizedJustVerified === normalizedCandidate) {
       return true;
     }
-    
-    // 如果邮箱已经验证（无论验证功能是否启用），直接通过
-    if (emailVerified && verifiedEmail === email.trim()) {
+
+    // 本地白名单直接通过
+    if (isEmailWhitelisted(candidate)) {
       return true;
     }
-    
-    // 如果验证功能未启用，但用户可以选择手动验证
-    // 这里为了更好的用户体验，依然允许验证
+
+    const candidateNormalized = candidate.toLowerCase();
+    const verifiedMatches = emailVerified && verifiedEmail.trim().toLowerCase() === candidateNormalized;
+
+    // 统一依据后端状态：验证未启用、已验证、或被绕过，均无需弹窗
+    if (!verificationEnabled || verifiedMatches || bypassVerification) {
+      return true;
+    }
+
+    // 需要进行邮箱验证时，打开弹窗
     setShowVerificationDialog(true);
     return false;
   };
@@ -361,9 +383,12 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
   // Track if we've already attempted to subscribe during this dialog session
   const [hasSubscribed, setHasSubscribed] = useState(false);
 
-  const handleCheckCredits = async () => {
-    if (!requireEmailVerification()) return;
-    const trimmedEmail = email.trim();
+  const handleCheckCredits = async (emailOverride?: string) => {
+    // Guard against accidental event objects from onClick; only accept string overrides
+    const raw = typeof emailOverride === 'string' ? emailOverride : email;
+    const effectiveEmail = (raw ?? '').toString().trim();
+    if (!requireEmailVerification(effectiveEmail)) return;
+    const trimmedEmail = effectiveEmail;
 
     // Try to add the email to the subscribers table (one-time per dialog open)
     if (!hasSubscribed) {
@@ -397,6 +422,8 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
       setCheckMessage(t('paywall.checkCreditsFailed'));
     } finally {
       setCheckingCredits(false);
+      // 清除一次性绕过标记
+      justVerifiedEmailRef.current = null;
     }
   };
 
@@ -409,6 +436,15 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
 
   return (
     <StyledDialog open={open} onClose={onClose} maxWidth={showEmbeddedCheckout ? "md" : "sm"}>
+      {/* Top-right close button */}
+      <IconButton
+        aria-label={i18n.language === 'zh' ? '关闭' : 'Close'}
+        onClick={onClose}
+        disabled={isLoading}
+        sx={{ position: 'absolute', right: 8, top: 8 }}
+      >
+        <Close />
+      </IconButton>
       {showEmbeddedCheckout && clientSecret ? (
         <EmbeddedCheckout
           clientSecret={clientSecret}
@@ -452,7 +488,29 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
               <Shield sx={{ color: 'green', fontSize: 20 }} titleAccess={t('emailVerification.verified')} />
             ) : null
           }}
-          sx={{ mb: 2 }}
+          sx={{
+            mb: 2,
+            // 保持所有状态下白色背景与黑色文字（含输入后、聚焦、悬停、自动填充）
+            '& .MuiInputBase-root': {
+              backgroundColor: 'white',
+            },
+            '& .MuiInputBase-root.Mui-focused': {
+              backgroundColor: 'white',
+            },
+            '& .MuiOutlinedInput-root': {
+              backgroundColor: 'white',
+            },
+            '& .MuiInputBase-input': {
+              color: 'black',
+            },
+            '& .MuiOutlinedInput-input': {
+              color: 'black',
+            },
+            '& input:-webkit-autofill': {
+              WebkitBoxShadow: '0 0 0 1000px white inset',
+              WebkitTextFillColor: '#000',
+            },
+          }}
         />
 
         {(verificationEnabled && emailVerified) && (
@@ -473,9 +531,17 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
         </Typography>
 
         {/* Check Credits Button */}
-        <Button variant="outlined" fullWidth onClick={handleCheckCredits} disabled={checkingCredits || !!emailError || !email} sx={{ mb: 2 }}>
+        <Button variant="outlined" fullWidth onClick={() => handleCheckCredits()} disabled={checkingCredits || !!emailError || !email} sx={{ mb: 2 }}>
           {t('paywall.checkCredits')}
         </Button>
+
+        {checkingCredits && (
+          <Alert severity="info" sx={{ mb:2 }} icon={<CircularProgress size={20} />}>
+            <Typography variant="body2">
+              {t('paywall.checkingCreditsProgress')}
+            </Typography>
+          </Alert>
+        )}
 
         {checkMessage && (
           <Alert severity="info" sx={{ mb:2 }} icon={<CheckCircleIcon />}>
@@ -513,7 +579,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
             {formatPrice(pricing.totalAmount)}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {t('paywall.getCredits', { count: pricing.totalCredits })}
+            {t('paywall.getCredits', { count: pricing.totalCredits })}｜ {t('paywall.imageCreditUnitHint')}
           </Typography>
         </PriceDisplay>
 
@@ -576,7 +642,7 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
         <Button
           variant="contained"
           onClick={handlePayment}
-          disabled={isLoading || !!emailError || !email || (verificationEnabled && !emailVerified)}
+          disabled={isLoading || !!emailError || !email || (verificationEnabled && !emailVerified && !bypassVerification && !isEmailWhitelisted(email))}
           startIcon={isLoading ? <CircularProgress size={20} /> : <CreditCard />}
           sx={{
             background: 'linear-gradient(45deg, #8D6E63 30%, #5D4037 90%)',

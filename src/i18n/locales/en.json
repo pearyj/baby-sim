@@ -165,6 +165,7 @@
     "modelToggle": "Model"
   },
   "messages": {
+    "imageCreditsRemaining": "0.15 credits generate 1 image. You can still generate {{remainingCount}} more.",
     "error": "An error occurred",
     "journeyComplete": "Cyber-Parenting Journey Complete",
     "childGrownUp": "{{childName}} has grown up and is now 18 years old",
@@ -299,6 +300,7 @@
     "checkCredits": "Check for Existing Credits",
     "donationAmount": "Donation Amount:",
     "getCredits": "Get {{count}} credit",
+    "imageCreditUnitHint": "0.15 credits can generate 1 image",
     "getCredits_plural": "Get {{count}} credits",
     "creditsLabel": "Credits",
     "paymentSecure": "Payment securely processed by Stripe. Note that Stripe takes a 2.9% + 30 cents fee for each payment so please choose a higher amount in one transaction if you'd like to generate multiple times! You will be able to reuse them in the future with your email address.",
@@ -307,6 +309,7 @@
     "continueAndPay": "Continue & Pay",
     "supportMore": "Support More",
     "processing": "Processing...",
+    "checkingCreditsProgress": "Checking credits...",
     "creditsFound": "You have {{count}} credit. You can generate your photo now.",
     "creditsFound_plural": "You have {{count}} credits. You can generate your photo now.",
     "creditsFound_llm": "You have {{count}} credit. You can continue with GPT‑5 now.",

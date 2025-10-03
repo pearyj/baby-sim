@@ -160,6 +160,7 @@
     "modelToggle": "Modelo"
   },
   "messages": {
+    "imageCreditsRemaining": "0.15 créditos generan 1 imagen. Aún puedes generar {{remainingCount}} más.",
     "error": "Ocurrió un error",
     "journeyComplete": "Viaje de Crianza Cibernética Completo",
     "childGrownUp": "{{childName}} ha crecido y ahora tiene 18 años",
@@ -288,8 +289,10 @@
     "paymenttestnotice": "Ten en cuenta que como actualmente estamos en pruebas y dando créditos gratis, por favor ingresa 4242424242424242 como número de tarjeta de crédito, y recibirás créditos sin cargar tu tarjeta real.",
     "cancel": "Cancelar",
     "continueAndPay": "Continuar y Pagar",
+    "imageCreditUnitHint": "0.15 créditos pueden generar 1 imagen",
     "supportMore": "Apoyar Más",
     "processing": "Procesando...",
+    "checkingCreditsProgress": "Verificando créditos...",
     "creditsFound": "Tienes {{count}} crédito. Puedes generar tu foto ahora.",
     "creditsFound_plural": "Tienes {{count}} créditos. Puedes generar tu foto ahora.",
     "creditsFound_llm": "Tienes {{count}} crédito. Ya puedes continuar con GPT‑5.",

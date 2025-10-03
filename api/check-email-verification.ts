@@ -30,24 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // 首先检查 subscribers 表是否存在 verified 字段
-    const { data: columns, error: schemaError } = await supabaseAdmin
-      .from('information_schema.columns')
-      .select('column_name')
-      .eq('table_name', 'subscribers')
-      .eq('column_name', 'verified');
-
-    // 如果 verified 字段不存在，返回 false（未验证）
-    if (schemaError || !columns || columns.length === 0) {
-      console.log('subscribers table does not have verified column yet');
-      return res.status(200).json({ 
-        verified: false,
-        verifiedAt: null,
-        reason: 'verification_not_enabled'
-      });
-    }
-
-    // 检查 subscribers 表中的验证状态
+    // 直接检查 subscribers 表中的验证状态
     const { data: subscriber, error: selectError } = await supabaseAdmin
       .from('subscribers')
       .select('verified, verified_at')
@@ -55,6 +38,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .maybeSingle();
 
     if (selectError) {
+      // 如果出现列不存在等模式相关错误，降级为未启用验证功能
+      const msg = selectError.message?.toLowerCase() || '';
+      if (msg.includes('does not exist') || msg.includes('column') && msg.includes('verified')) {
+        console.warn('Verification column not available, treating as not enabled');
+        return res.status(200).json({
+          verified: false,
+          verifiedAt: null,
+          reason: 'verification_not_enabled'
+        });
+      }
       console.error('Failed to check email verification:', selectError);
       return res.status(500).json({ error: 'db_error', details: selectError.message });
     }
