@@ -481,8 +481,8 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
           )}
 
           {/* Multi-Age Image Generator with Paywall wrapper */}
-          {gameState && Object.keys(multiAgeImages).length === 0 && !generatedImageResult && (
-            <PaywallGate childName={childName} onCreditConsumed={() => { /* optional: could show message */ }}>
+          {/* {gameState && Object.keys(multiAgeImages).length === 0 && !generatedImageResult && (
+            <PaywallGate childName={childName} onCreditConsumed={() => {  }}>
               <MultiAgeImageGenerator
                 gameState={gameState}
                 endingSummary={endingSummaryText}
@@ -490,7 +490,7 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
                 className="hide-in-export"
               />
             </PaywallGate>
-          )}
+          )} */}
 
           {/* Single Age Image Generator (fallback option) */}
           {gameState && Object.keys(multiAgeImages).length === 0 && !generatedImageResult && (

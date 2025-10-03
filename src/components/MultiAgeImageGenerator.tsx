@@ -336,7 +336,7 @@ export const MultiAgeImageGenerator: React.FC<MultiAgeImageGeneratorProps> = ({
         </GenerateImageContainer>
       )}
 
-      {isGenerating && (
+      {/* {isGenerating && (
         <GenerateImageContainer>
           <Box sx={{ mb: 2 }}>
             <CircularProgress size={40} sx={{ color: '#8D6E63', mb: 2 }} />
@@ -381,7 +381,7 @@ export const MultiAgeImageGenerator: React.FC<MultiAgeImageGeneratorProps> = ({
             </Box>
           </Box>
         </GenerateImageContainer>
-      )}
+      )} */}
 
       {error && (
         <Alert 
