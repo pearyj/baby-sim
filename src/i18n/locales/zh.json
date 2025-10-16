@@ -60,11 +60,12 @@
     "currentAge": "当前年龄",
     "situation": "状况：",
     "growthStage": "成长期",
-    "ageImagePromptTitle": "您的孩子{{age}}岁了！",
-    "ageImagePromptDescription": "你的孩子已经{{age}}岁了！是否生成一个特殊的图片来纪念这一里程碑？",
+    "ageImagePromptTitle": "{{childName}}已经{{age}}岁了！",
+    "ageImagePromptDescription": "生成一张特别的照片来纪念这一里程碑吧！",
     "selectImagePrompt": "请选择一张图片:",
     "generatedImageAlt": "生成的{{age}}岁的{{gender}}的图片",
-    "imageGenerated": "图片生成成功！"
+    "imageGenerated": "图片生成成功！",
+    "unlockToViewClearImage": "点击解锁按钮查看清晰图片"
   },
   "developmentalStages": {
     "newborn": "新生儿期",

@@ -86,7 +86,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
   // Game style selection state
   // ─────────────────────────────────────────────
   type GameStyle = 'realistic' | 'fantasy' | 'cool' | 'ultra';
-  const defaultStyle: GameStyle = (i18n.language === 'zh') ? 'realistic' : 'ultra';
+  const defaultStyle: GameStyle = 'realistic';
   const [gameStyle, setGameStyle] = useState<GameStyle>(defaultStyle);
 
   // Persisted style key (must match gptServiceUnified)

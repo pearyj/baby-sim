@@ -63,10 +63,11 @@
     "growthStage": "成長段階",
     "sponsored": "スポンサー",
     "adPlaceholder": "広告スペース",
-    "ageImagePromptTitle": "{{age}}歳！",
-    "ageImagePromptDescription": "あなたの子供は{{age}}歳です！この時点で特殊な画像を生成して、この瞬間を記録しましょう。",
+    "ageImagePromptTitle": "{{childName}}は{{age}}歳！",
+    "ageImagePromptDescription": "この節目を記念する特別な画像を生成しますか？",
     "generatedImageAlt": "生成された{{age}}歳の{{gender}}の画像",
-    "imageGenerated": "画像が生成されました！"
+    "imageGenerated": "画像が生成されました！",
+    "unlockToViewClearImage": "「解除」を押すと鮮明な画像が表示されます"
   },
   "developmentalStages": {
     "newborn": "新生児",

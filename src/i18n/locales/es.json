@@ -63,8 +63,10 @@
     "growthStage": "Etapa de Crecimiento",
     "sponsored": "Patrocinado",
     "adPlaceholder": "Espacio Publicitario",
-    "ageImagePromptTitle": "{{age}} años!",
-    "ageImagePromptDescription": "Tu hijo ha alcanzado {{age}} años! ¿Quieres generar una imagen especial para recordar este momento?"
+    "ageImagePromptTitle": "¡{{childName}} tiene {{age}} años!",
+    "ageImagePromptDescription": "¿Quieres generar una imagen especial para recordar este momento?",
+    "imageGenerated": "¡Imagen generada con éxito!",
+    "unlockToViewClearImage": "Pulsa desbloquear para ver la imagen nítida"
   },
   "developmentalStages": {
     "newborn": "Recién Nacido",

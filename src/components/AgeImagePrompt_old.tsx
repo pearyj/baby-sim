@@ -273,7 +273,8 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
             <Typography variant="h6" sx={{ fontWeight: 600, color: '#5D4037' }}>
               {t('ui.ageImagePromptTitle', {
                 age: history_curage,
-                defaultValue: `${history_curage} Years Old!`
+                childName: gameState.child.name,
+                defaultValue: `${gameState.child.name} is ${history_curage} years old!`
               })}
             </Typography>
             <Button
@@ -288,6 +289,7 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
           <Typography variant="body2" sx={{ mb: 3, color: '#666' }}>
             {t('ui.ageImagePromptDescription', {
               age: history_curage,
+              childName: gameState.child.name,
             })}
           </Typography>
 

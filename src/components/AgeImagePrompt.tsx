@@ -97,7 +97,44 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
   onImageGenerated,
   onDismiss,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const getCurrentLanguageString = React.useCallback(
+    (key: string) => {
+      const resource = i18n.getResource(i18n.language, 'translation', key);
+      return typeof resource === 'string' ? resource : undefined;
+    },
+    [i18n]
+  );
+  const translateWithFallback = React.useCallback(
+    (primaryKey: string, fallbackKey: string | null, defaultText: string) => {
+      return (
+        getCurrentLanguageString(primaryKey) ??
+        (fallbackKey ? getCurrentLanguageString(fallbackKey) : undefined) ??
+        defaultText
+      );
+    },
+    [getCurrentLanguageString]
+  );
+  const skipConfirmTitleText = translateWithFallback(
+    'ui.skipConfirmTitle',
+    'actions.skipConfirmTitle',
+    'Skip Image Generation?'
+  );
+  const skipConfirmMessageText = translateWithFallback(
+    'ui.skipConfirmMessage',
+    'actions.skipConfirmMessage',
+    "Are you sure you want to skip generating an image for this milestone? You won't be prompted again for future milestones."
+  );
+  const skipConfirmCancelText = translateWithFallback(
+    'ui.skipConfirmCancel',
+    'actions.skipConfirmCancel',
+    'Cancel'
+  );
+  const skipConfirmConfirmText = translateWithFallback(
+    'ui.skipConfirmConfirm',
+    'actions.skipConfirmConfirm',
+    'Skip All Future Images'
+  );
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<ImageGenerationResult | null>(null);
   const [hasClickedGenerate, setHasClickedGenerate] = useState(false);
@@ -280,8 +317,9 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 600, color: '#5D4037' }}>
               {t('ui.ageImagePromptTitle', {
+                childName: gameState.child.name,
                 age: history_curage,
-                defaultValue: `${history_curage} Years Old!`
+                defaultValue: `${gameState.child.name} is ${history_curage} years old!`
               })}
             </Typography>
             <Button size="small" onClick={handleDismiss} sx={{ minWidth: 'auto', p: 0.5 }}>
@@ -290,7 +328,10 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
           </Box>
 
           <Typography variant="body2" sx={{ mb: 3, color: '#666' }}>
-            {t('ui.ageImagePromptDescription', { age: history_curage })}
+            {t('ui.ageImagePromptDescription', { 
+              childName: gameState.child.name,
+              age: history_curage 
+            })}
           </Typography>
 
           {error && (
@@ -416,13 +457,15 @@ export const AgeImagePrompt: React.FC<AgeImagePromptProps> = ({
       />
       
       <Dialog open={showSkipConfirm} onClose={handleCancelSkip}>
-        <DialogTitle>跳过图片生成?</DialogTitle>
+        <DialogTitle>{skipConfirmTitleText}</DialogTitle>
         <DialogContent>
-          <Typography>确定要跳过生成图片吗？</Typography>
+          <Typography>{skipConfirmMessageText}</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelSkip}>取消</Button>
-          <Button onClick={handleConfirmSkip} variant="contained">确定跳过</Button>
+          <Button onClick={handleCancelSkip}>{skipConfirmCancelText}</Button>
+          <Button onClick={handleConfirmSkip} variant="contained">
+            {skipConfirmConfirmText}
+          </Button>
         </DialogActions>
       </Dialog>
     </div>
