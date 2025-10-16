@@ -43,6 +43,7 @@ import GalleryCarousel from './components/GalleryCarousel';
 import { debugPrintActiveModel, isPremiumStyleActive } from './services/gptServiceUnified';
 import { PaywallUI } from './components/payment/PaywallUI';
 import { usePaymentStore } from './stores/usePaymentStore';
+
 import React from 'react';
 import * as storageService from './services/storageService';
 
@@ -165,6 +166,7 @@ function App() {
     finance: state.finance,
     marital: state.marital,
     isSingleParent: state.isSingleParent,
+    shouldGenerateImage: state.shouldGenerateImage,
   }))
 
   // Payment store for premium gating
@@ -327,10 +329,13 @@ function App() {
         return <WelcomeScreen onTestEnding={isDevelopment ? testEnding : undefined} />;
       }
       
+      // Age image generation is now only triggered manually by user clicking the photo button
+      // Remove automatic prompt display
+
       if (isEndingPhase) {
         return (
-          <Container maxWidth="md" sx={{ py: 3 }}>
-            <Fade in timeout={500}>
+          <Container maxWidth="md" sx={{ py: 4 }}>
+            <Fade in timeout={800}>
               <Box>
                 {/* Show loading encouragement instead of shareable card while results are loading */}
                 {isLoading && gamePhase === 'ending_game' ? (
@@ -500,6 +505,17 @@ function App() {
               childName={child?.name || t('game.childName')}
               isStreaming={isStreaming && streamingType === 'outcome'}
               streamingContent={streamingContent}
+              gameState={player && child ? {
+                player,
+                child,
+                history,
+                playerDescription: playerDescription || '',
+                childDescription: childDescription || '',
+                finance,
+                marital,
+                isSingleParent
+              } : undefined}
+              currentAge={currentAge}
             />
           );
       }

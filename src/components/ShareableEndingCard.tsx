@@ -19,6 +19,7 @@ import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
 import { track } from '@vercel/analytics';
 import { AIImageGenerator } from './AIImageGenerator';
+// import { MultiAgeImageGenerator } from './MultiAgeImageGenerator';
 import { PaywallGate } from './payment/PaywallGate';
 import type { GameState } from '../types/game';
 import type { ImageGenerationResult } from '../services/imageGenerationService';
@@ -113,6 +114,7 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
   const { t } = useTranslation();
   const cardRef = useRef<HTMLDivElement>(null);
   const [generatedImageResult, setGeneratedImageResult] = useState<ImageGenerationResult | null>(null);
+  const multiAgeImages: { [age: number]: ImageGenerationResult } = {};
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -312,6 +314,19 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
     }
   };
 
+  // const handleMultiAgeImagesGenerated = (images: { [age: number]: ImageGenerationResult }) => {
+  //   setMultiAgeImages(images);
+  //   const successCount = Object.values(images).filter(img => img.success).length;
+  //   setSnackbar({
+  //     open: true,
+  //     message: t('messages.multiAgeImagesGenerated', {
+  //       count: successCount,
+  //       defaultValue: `Generated ${successCount} images successfully!`
+  //     }),
+  //     severity: 'success',
+  //   });
+  // };
+
   return (
     <>
       <ShareableCard ref={cardRef} elevation={3} data-card-ref="true">
@@ -465,8 +480,20 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
             </Box>
           )}
 
-          {/* AI Image Generator with Paywall wrapper */}
-          {gameState && (
+          {/* Multi-Age Image Generator with Paywall wrapper */}
+          {/* {gameState && Object.keys(multiAgeImages).length === 0 && !generatedImageResult && (
+            <PaywallGate childName={childName} onCreditConsumed={() => {  }}>
+              <MultiAgeImageGenerator
+                gameState={gameState}
+                endingSummary={endingSummaryText}
+                onImagesGenerated={handleMultiAgeImagesGenerated}
+                className="hide-in-export"
+              />
+            </PaywallGate>
+          )} */}
+
+          {/* Single Age Image Generator (fallback option) */}
+          {gameState && Object.keys(multiAgeImages).length === 0 && !generatedImageResult && (
             <PaywallGate childName={childName} onCreditConsumed={() => { /* optional: could show message */ }}>
               <AIImageGenerator
                 gameState={gameState}
@@ -523,4 +550,4 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
       </Snackbar>
     </>
   );
-}; 
+};

@@ -22,7 +22,16 @@
     "loading": "Cargando...",
     "yearsOld": "años",
     "year": "Año {{year}}",
-    "checkFinance": "Verificar el estado financiero actual"
+    "checkFinance": "Verificar el estado financiero actual",
+    "black": "Negro",
+    "light": "Claro",
+    "darkcurly": "Rizado Oscuro",
+    "blonde": "Rubio",
+    "curlyligh": "Rizado Claro",
+    "whitePeople": "Blanco",
+    "asianPeople": "Asiático",
+    "blackPeople": "Negro",
+    "LatinPeople": "Latino"
   },
   "wealth": {
     "poor": "Pobre",
@@ -53,7 +62,9 @@
     "situation": "Situación:",
     "growthStage": "Etapa de Crecimiento",
     "sponsored": "Patrocinado",
-    "adPlaceholder": "Espacio Publicitario"
+    "adPlaceholder": "Espacio Publicitario",
+    "ageImagePromptTitle": "{{age}} años!",
+    "ageImagePromptDescription": "Tu hijo ha alcanzado {{age}} años! ¿Quieres generar una imagen especial para recordar este momento?"
   },
   "developmentalStages": {
     "newborn": "Recién Nacido",
@@ -121,7 +132,24 @@
     "testAdTimeline": "(Dev) Probar Línea de Tiempo de Anuncios",
     "chooseGameStyle": "Elige un Estilo",
     "selectThisOption": "Haré esto",
-    "refresh": "Actualizar"
+    "refresh": "Actualizar",
+    "generateImage": "Generar Imagen",
+    "takePhoto": "Tomar Foto",
+    "wantToSeeHim": "Quiero verlo",
+    "wantToSeeHer": "Quiero verla",
+    "imageGenerated": "Imagen Generada con Éxito!",
+    "skipConfirmTitle": "¿Omitir generación de imagen?",
+    "skipConfirmMessage": "¿Estás seguro de que quieres omitir la generación de una imagen para este hito? No se te volverá a preguntar para futuros hitos.",
+    "skipConfirmCancel": "Cancelar",
+    "skipConfirmConfirm": "Omitir todas las imágenes futuras",
+    "skip": "Saltar",
+    "unlock": "Desbloquear",
+    "errorGeneratingSummary": "Error: No se pudo generar el resumen.",
+    "shareCarouselHeading": "{{childName}} es increíble!",
+    "thankYouSupport": "¡Gracias por tu apoyo!",
+    "createImages": "Crear Imágenes",
+    "useCreditsHint": "Pista: Puedes usar créditos para {{childName}} para generar imágenes.",
+    "creditsUsageShort": "Créditos pueden usarse para GPT-5 y generación de imágenes."
   },
   "header": {
     "title": "El Simulador de Bebés",
@@ -132,6 +160,7 @@
     "modelToggle": "Modelo"
   },
   "messages": {
+    "imageCreditsRemaining": "0.15 créditos generan 1 imagen. Aún puedes generar {{remainingCount}} más.",
     "error": "Ocurrió un error",
     "journeyComplete": "Viaje de Crianza Cibernética Completo",
     "childGrownUp": "{{childName}} ha crecido y ahora tiene 18 años",
@@ -260,8 +289,10 @@
     "paymenttestnotice": "Ten en cuenta que como actualmente estamos en pruebas y dando créditos gratis, por favor ingresa 4242424242424242 como número de tarjeta de crédito, y recibirás créditos sin cargar tu tarjeta real.",
     "cancel": "Cancelar",
     "continueAndPay": "Continuar y Pagar",
+    "imageCreditUnitHint": "0.15 créditos pueden generar 1 imagen",
     "supportMore": "Apoyar Más",
     "processing": "Procesando...",
+    "checkingCreditsProgress": "Verificando créditos...",
     "creditsFound": "Tienes {{count}} crédito. Puedes generar tu foto ahora.",
     "creditsFound_plural": "Tienes {{count}} créditos. Puedes generar tu foto ahora.",
     "creditsFound_llm": "Tienes {{count}} crédito. Ya puedes continuar con GPT‑5.",
@@ -284,6 +315,35 @@
   "gallery": {
     "otherKids": "Otros Niños",
     "noImages": "No hay imágenes compartidas aún. ¡Sé el primero en criar un niño hasta los 18 y compartir!"
+  },
+  "emailVerification": {
+    "title": "Verificación de Correo",
+    "subtitle": "Para proteger tus créditos, necesitamos verificar que eres el propietario de esta dirección de correo.",
+    "verificationCode": "Código de Verificación",
+    "codeSubtitle": "Se ha enviado un código de verificación a {{email}}. Por favor revisa tu correo e ingresa el código de 6 dígitos.",
+    "codeRequired": "Por favor ingresa el código de verificación",
+    "codeInvalid": "Por favor ingresa un código de verificación de 6 dígitos",
+    "codeExpired": "El código de verificación es inválido o ha expirado, por favor obtén uno nuevo",
+    "sendCode": "Enviar Código",
+    "resendCode": "Reenviar Código",
+    "resendIn": "Reenviar en {{seconds}}s",
+    "verify": "Verificar",
+    "verified": "Verificado",
+    "emailVerifiedMessage": "El correo {{email}} está verificado",
+    "codeSent": "Código de verificación enviado, por favor revisa tu correo",
+    "verifySuccess": "¡Correo verificado exitosamente!",
+    "sendFailed": "Error al enviar el código de verificación, por favor intenta de nuevo",
+    "verifyFailed": "Verificación fallida, por favor revisa el código",
+    "rateLimited": "Demasiadas solicitudes, por favor intenta más tarde",
+    "securityNotice": "Nunca compartiremos tu correo con terceros. Solo se usa para verificación de créditos y notificaciones importantes.",
+    "emailContent": {
+      "subject": "Tu Código de Verificación de BabySim",
+      "greeting": "¡Hola!",
+      "message": "Tu código de verificación es:",
+      "expiry": "Este código expirará en 10 minutos.",
+      "security": "Si no solicitaste este código, por favor ignora este correo.",
+      "footer": "¡Feliz crianza!<br>El Equipo de BabySim"
+    }
   },
   "gentleReminder": {
     "title": "Un recordatorio amable",

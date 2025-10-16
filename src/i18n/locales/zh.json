@@ -22,7 +22,16 @@
     "loading": "加载中...",
     "yearsOld": "岁",
     "year": "第{{year}}年",
-    "checkFinance": "查看当前财务状况"
+    "checkFinance": "查看当前财务状况",
+    "black": "黑色",
+    "light": "浅色",
+    "darkcurly": "深色卷发",
+    "blonde": "金发",
+    "curlyligh": "卷曲浅色",
+    "whitePeople": "白人",
+    "asianPeople": "亚洲人",
+    "blackPeople": "黑人",
+    "LatinPeople": "拉丁裔人"
   },
   "wealth": {
     "poor": "贫困",
@@ -50,7 +59,12 @@
     "readyToBegin": "准备好开始这段旅程了吗？",
     "currentAge": "当前年龄",
     "situation": "状况：",
-    "growthStage": "成长期"
+    "growthStage": "成长期",
+    "ageImagePromptTitle": "您的孩子{{age}}岁了！",
+    "ageImagePromptDescription": "你的孩子已经{{age}}岁了！是否生成一个特殊的图片来纪念这一里程碑？",
+    "selectImagePrompt": "请选择一张图片:",
+    "generatedImageAlt": "生成的{{age}}岁的{{gender}}的图片",
+    "imageGenerated": "图片生成成功！"
   },
   "developmentalStages": {
     "newborn": "新生儿期",
@@ -119,7 +133,24 @@
     "selectThisOption": "选择这个方案",
     "selectedThisOption": "我选择了这个方案",
     "copyJourney": "复制成长历程文本",
-    "refresh": "刷新"
+    "refresh": "刷新",
+    "generateImage": "生成图片",
+    "takePhoto": "拍照",
+    "wantToSeeHim": "我想见他",
+    "wantToSeeHer": "我想见她",
+    "imageGenerated": "图片生成成功！",
+    "skipConfirmTitle": "跳过图片生成？",
+    "skipConfirmMessage": "您确定要跳过为这个里程碑生成图片吗？以后的里程碑将不再提示您生成图片。",
+    "skipConfirmCancel": "取消",
+    "skipConfirmConfirm": "跳过所有未来图片",
+    "skip": "跳过",
+    "unlock": "解锁",
+    "errorGeneratingSummary": "错误：无法生成摘要。",
+    "shareCarouselHeading": "{{childName}}这么可爱，生张图晒晒吧！",
+    "thankYouSupport": "感谢您的支持！",
+    "createImages": "生成图片",
+    "useCreditsHint": "提示：您可以使用积分为{{childName}}生成结尾图片。",
+    "creditsUsageShort": "积分可用于高级 GPT‑5 与图片生成。"
   },
   "header": {
     "title": "养娃模拟器",
@@ -130,6 +161,7 @@
     "modelToggle": "模型"
   },
   "messages": {
+    "imageCreditsRemaining": "0.15积分可以生成1张图片，您还可以生成{{remainingCount}}张",
     "error": "发生错误",
     "journeyComplete": "赛博养娃之旅圆满结束",
     "childGrownUp": "{{childName}} 已经长大成人，18岁了",
@@ -153,6 +185,8 @@
     "generatingImage": "正在为{{childName}}生成图片...",
     "imageGenerated": "图片生成成功！",
     "imageGenerationFailed": "图片生成失败，请重试。",
+    "unlockFailed": "解锁失败，请重试",
+    "unlockError": "解锁过程中出现错误",
     "imageGenerationOptional": "为我娃生成AI毕业照",
     "copySuccess": "已复制！",
     "copyError": "复制失败，请重试。",
@@ -171,12 +205,10 @@
     "listenToChild": "耐心倾听并理解孩子的需求",
     "giveGuidance": "给予适当的引导和建议",
     "encourageThinking": "鼓励孩子独立思考解决问题",
-    "errorGeneratingSummary": "错误：无法生成摘要。",
-    "shareCarouselHeading": "{{childName}}这么可爱，生张图晒晒吧！",
-    "thankYouSupport": "感谢您的支持！",
-    "createImages": "生成图片",
-    "useCreditsHint": "提示：您可以使用积分为{{childName}}生成结尾图片。",
-    "creditsUsageShort": "积分可用于高级 GPT‑5 与图片生成。"
+    "blurredImageHint": "解锁查看清晰图片",
+    "imageBlurredHint": "图片已生成，付费后可查看清晰版本",
+    "creditsUsageShort": "积分使用",
+    "useCreditsHint": "使用积分解锁功能"
   },
   "share": {
     "title": "我在《养娃模拟器》把{{childName}}养到18岁啦！",
@@ -259,6 +291,7 @@
     "checkCredits": "查询积分",
     "donationAmount": "捐赠金额：",
     "getCredits": "获得 {{count}} 个积分",
+    "imageCreditUnitHint": "0.15积分可以生成1张图片",
     "creditsLabel": "积分",
     "paymentSecure": "支付由Stripe安全处理。Stripe每次交易会收取手续费，如果您想多次生成照片，建议选择总金额一次性支付。您可以以后用您的邮箱地址继续生图。",
     "paymenttestnotice": "支付功能测试中，请直接点击继续支付宝扫码按照指示进行，无需真实付费。",
@@ -266,6 +299,7 @@
     "continueAndPay": "继续支付",
     "supportMore": "继续支持",
     "processing": "处理中...",
+    "checkingCreditsProgress": "查询积分中...",
     "creditsFound": "您有 {{count}} 个积分，可立即生成娃的图片。",
     "creditsFound_llm": "您有 {{count}} 个积分，现在可以继续使用 GPT‑5。",
     "noCreditsFound": "没有找到积分，请捐赠以获得积分。",
@@ -275,6 +309,39 @@
     "emailPrivacyNotice": "隐私声明 – 通过提供您的邮箱，您同意BabySim可能将其与您的游戏活动关联，仅用于分析和产品改进，符合我们的隐私政策。您可以随时取消关联或删除此数据。",
     "postPaymentReminder": "如果支付完成后页面没有刷新，请使用同一浏览器返回此网站，积分应会自动加载。如遇支付问题，请发送邮件至 dev@babysim.fun。",
     "gpt5AccessWarning": "注意！GPT-5 API对特定国家和地区有访问限制，在打赏前请确认你可以正常访问GPT，建议另外开启ChatGPT官网以检查可以正常访问。生图功能不受此限制。"
+  },
+  "emailVerification": {
+    "title": "邮箱验证",
+    "subtitle": "为了保护您的积分安全，我们需要验证您的邮箱所有权。",
+    "verificationCode": "验证码",
+    "codeSubtitle": "验证码已发送至 {{email}}，请查收并输入6位验证码。",
+    "codeRequired": "请输入验证码",
+    "codeInvalid": "请输入6位数字验证码",
+    "codeExpired": "验证码无效或已过期，请重新获取",
+    "sendCode": "发送验证码",
+    "resendCode": "重新发送",
+    "resendIn": "{{seconds}}秒后可重发",
+    "verify": "验证",
+    "verified": "已验证",
+    "emailVerifiedMessage": "邮箱 {{email}} 已验证",
+    "codeSent": "验证码已发送，请查收邮件",
+    "verifySuccess": "邮箱验证成功！",
+    "sendFailed": "验证码发送失败，请稍后重试",
+    "verifyFailed": "验证失败，请检查验证码",
+    "rateLimited": "操作过于频繁，请稍后再试",
+    "securityNotice": "我们不会向第三方分享您的邮箱，仅用于积分验证和重要通知。",
+    "emailContent": {
+      "subject": "您的养娃模拟器验证码",
+      "greeting": "您好！",
+      "message": "您的验证码是：",
+      "expiry": "此验证码将在10分钟后过期。",
+      "security": "如果您没有请求此验证码，请忽略此邮件。",
+      "footer": "祝您游戏愉快！<br>养娃模拟器团队"
+    }
+  },
+  "common": {
+    "back": "返回",
+    "processing": "处理中..."
   },
   "gameStyle": {
     "realistic": "现实",
@@ -295,4 +362,4 @@
     "body": "现实里，孩子不是我们能挑选的。有时，世界把一个小生命交到我们手上，需要我们如其所是地去爱。也许试着继续和这位孩子一起走走看，你会遇见意想不到的风景。",
     "ok": "我明白了"
   }
-} 
+}

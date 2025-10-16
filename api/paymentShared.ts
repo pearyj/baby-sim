@@ -12,7 +12,6 @@ export interface CreditEntry {
 }
 
 export const creditsStorage: Map<string, CreditEntry> = globalThis.__CREDITS_STORE__ || new Map();
-// @ts-ignore
 if (!globalThis.__CREDITS_STORE__) globalThis.__CREDITS_STORE__ = creditsStorage;
 
 // Feature flag
@@ -27,8 +26,8 @@ export const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY, {
 }) : null;
 
 export const PRICE_CONFIG = {
-  USD: { basePrice: 199, baseCredits: 2, additionalCreditPrice: 100 },
-  RMB: { basePrice: 600, baseCredits: 1, additionalCreditPrice: 600 },
+  USD: { basePrice: 299, baseCredits: 2, additionalCreditPrice: 150 },
+  RMB: { basePrice: 990, baseCredits: 1, additionalCreditPrice: 990 },
 } as const;
 
 // Display text explaining premium GPT-5 usage for embedding in the paywall where needed
@@ -46,4 +45,4 @@ export function calculateAmountAndCredits(units: number, currency: Currency) {
     amount: cfg.basePrice + (units - 1) * cfg.additionalCreditPrice,
     credits: cfg.baseCredits + (units - 1),
   };
-} 
+}

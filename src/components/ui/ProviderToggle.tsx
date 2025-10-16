@@ -90,7 +90,7 @@ export const ProviderToggle: React.FC = () => {
         }}
       >
         <ToggleButton value="volcengine" aria-label="Volcengine">
-          Volcengine
+          Deepseek
         </ToggleButton>
         <ToggleButton value="gpt5" aria-label="GPT-5">
           GPT-5

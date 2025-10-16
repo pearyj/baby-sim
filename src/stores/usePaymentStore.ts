@@ -9,17 +9,20 @@ interface PaymentState {
   kidId: string;
   email: string;
   credits: number;
+  creditsLastFetched: number; // 积分最后获取时间戳
   isLoading: boolean;
   error: string | null;
   
   // Actions
   initializeAnonymousId: () => void;
   setEmail: (email: string) => void;
-  fetchCredits: (email?: string) => Promise<void>;
+  fetchCredits: (email?: string, forceRefresh?: boolean) => Promise<void>;
   createCheckoutSession: (request: Omit<CheckoutSessionRequest, 'anonId'> & { embedded?: boolean }) => Promise<CheckoutSessionResponse>;
-  consumeCredit: (email?: string) => Promise<boolean>;
+  consumeCredit: (email?: string, amount?: number) => Promise<boolean>;
   resetError: () => void;
   setKidId: (kidId: string) => void;
+  isCreditsCacheValid: () => boolean;
+
 }
 
 export const usePaymentStore = create<PaymentState>()(
@@ -29,6 +32,7 @@ export const usePaymentStore = create<PaymentState>()(
       kidId: '',
       email: '',
       credits: 0,
+      creditsLastFetched: 0,
       isLoading: false,
       error: null,
 
@@ -41,10 +45,22 @@ export const usePaymentStore = create<PaymentState>()(
         set({ email });
       },
 
-      fetchCredits: async (emailParam?: string) => {
-        const { anonId, email } = get();
+      isCreditsCacheValid: () => {
+        const { creditsLastFetched } = get();
+        const now = Date.now();
+        const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
+        return now - creditsLastFetched < CACHE_DURATION;
+      },
+
+      fetchCredits: async (emailParam?: string, forceRefresh?: boolean) => {
+        const { anonId, email, isCreditsCacheValid } = get();
         if (!anonId) {
           set({ error: 'Anonymous ID not initialized' });
+          return;
+        }
+
+        // 如果缓存有效且不强制刷新，直接返回
+        if (!forceRefresh && isCreditsCacheValid()) {
           return;
         }
 
@@ -53,7 +69,11 @@ export const usePaymentStore = create<PaymentState>()(
         set({ isLoading: true, error: null });
         try {
           const result = await paymentService.fetchCredits(anonId, emailToUse);
-          set({ credits: result.credits, isLoading: false });
+          set({ 
+            credits: result.credits, 
+            creditsLastFetched: Date.now(),
+            isLoading: false 
+          });
         } catch (error) {
           set({ 
             error: error instanceof Error ? error.message : 'Failed to fetch credits', 
@@ -102,7 +122,10 @@ export const usePaymentStore = create<PaymentState>()(
 
         try {
           const result = await paymentService.consumeCreditAPI(anonId, emailToUse, amount);
-          set({ credits: result.remaining });
+          set({ 
+            credits: result.remaining,
+            creditsLastFetched: Date.now() // 更新缓存时间戳
+          });
           return true;
         } catch (error) {
           return false;
@@ -121,7 +144,9 @@ export const usePaymentStore = create<PaymentState>()(
         anonId: state.anonId,
         kidId: state.kidId,
         email: state.email,
+        credits: state.credits,
+        creditsLastFetched: state.creditsLastFetched,
       }),
     }
   )
-); 
+);

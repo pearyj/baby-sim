@@ -25,18 +25,25 @@ export interface Child {
   name: string;
   gender: 'male' | 'female'; // Children remain binary for now
   age: number;
+  haircolor: string;
+  race: string;
   [key: string]: any; // Consider making this more specific if possible
+}
+
+// Add HistoryEntry interface
+export interface HistoryEntry {
+  age: number; 
+  question: string; 
+  choice: string; 
+  outcome: string;
+  imageUrl?: string; // Generated image URL
+  imageBase64?: string; // Generated image base64 data
 }
 
 export interface GameState {
   player: Player; // Use the exported Player interface
   child: Child;   // Use the exported Child interface
-  history: {
-    age: number;
-    question: string;
-    choice: string;
-    outcome: string;
-  }[];
+  history: HistoryEntry[];
   playerDescription: string;
   childDescription: string;
   finance: number; // Finance level 0-10 (0=bankrupt, 10=wealthy)
@@ -53,12 +60,4 @@ export interface GameState {
   endingSummaryText: string | null;
 }
 
-// Add HistoryEntry interface
-export interface HistoryEntry {
-  age: number; 
-  question: string; 
-  choice: string; 
-  outcome: string; 
-}
-
-//   
+//

@@ -47,8 +47,9 @@ export function getOrCreateAnonymousId(): string {
 
 // Price configuration (should match backend)
 export const PRICE_CONFIG = {
-  USD: { basePrice: 199, baseCredits: 2, additionalCreditPrice: 100 },
-  RMB: { basePrice: 600, baseCredits: 1, additionalCreditPrice: 600 },
+  USD: { basePrice: 299, baseCredits: 2, additionalCreditPrice: 150 },
+  // RMB: { basePrice: 600, baseCredits: 1, additionalCreditPrice: 600 },
+  RMB: { basePrice: 990, baseCredits: 1, additionalCreditPrice: 990 },
 };
 
 export function calculatePricing(donatedUnits: number, currency: 'USD' | 'RMB') {
@@ -70,4 +71,4 @@ export function calculatePricing(donatedUnits: number, currency: 'USD' | 'RMB') 
     totalCredits,
     currency,
   };
-} 
+}

@@ -1,6 +1,5 @@
 import { API_CONFIG } from '../config/api';
 import i18n from '../i18n';
-import { isSupportedLanguage } from '../utils/languageDetection';
 import { throttledFetch } from '../utils/throttledFetch';
 import type { Question, GameState } from '../types/game';
 import logger from '../utils/logger';
@@ -228,14 +227,9 @@ const writePersistedProviderOverride = (key: ProviderOverrideKey): void => {
   }
 };
 
-// Default to ultra for non-Chinese languages, realistic for Chinese
-const initialLang = (() => {
-  const lang = i18n.language;
-  return isSupportedLanguage(lang) ? lang : 'en';
-})();
-// Prefer persisted style if available, otherwise default by language
+// Prefer persisted style if available, otherwise default to realistic for all languages
 const persistedStyle = readPersistedGameStyle();
-let activeGameStyle: GameStyle = persistedStyle ?? (initialLang === 'zh' ? 'realistic' : 'ultra');
+let activeGameStyle: GameStyle = persistedStyle ?? 'realistic';
 let providerOverride: ProviderOverrideKey = readPersistedProviderOverride();
 // Keep promptService in sync with the resolved style at startup
 setActiveGameStyle(activeGameStyle);
@@ -263,6 +257,221 @@ export const setSpecialRequirements = (requirements?: string) => {
   } else {
     logger.info('📌 Cleared special requirements for prompts');
   }
+};
+
+// ──────────────────────────────────────────────────────────────────────────────
+// |                    INITIAL STATE NORMALIZATION HELPERS                      |
+// ──────────────────────────────────────────────────────────────────────────────
+
+const KNOWN_HAIR_COLORS = new Set(['black', 'light', 'darkcurly', 'blonde', 'curlyligh']);
+
+const HAIR_COLOR_MAP: Record<string, string> = {
+  black: 'black',
+  'black hair': 'black',
+  '黑发': 'black',
+  '黑色': 'black',
+  '乌黑': 'black',
+  '乌黑头发': 'black',
+  '深色': 'black',
+  'dark': 'black',
+  'dark hair': 'black',
+  'dark-haired': 'black',
+  'jet black': 'black',
+  '深色头发': 'black',
+  'dark curly': 'darkcurly',
+  'dark curls': 'darkcurly',
+  'curly hair': 'darkcurly',
+  '卷发': 'darkcurly',
+  '卷曲的头发': 'darkcurly',
+  '卷曲的黑发': 'darkcurly',
+  '自然卷': 'darkcurly',
+  'blonde': 'blonde',
+  'blond': 'blonde',
+  'blonde hair': 'blonde',
+  '金发': 'blonde',
+  '金色': 'blonde',
+  '金色头发': 'blonde',
+  'light': 'light',
+  'light hair': 'light',
+  '浅色': 'light',
+  '浅色头发': 'light',
+  '浅发': 'light',
+  '浅棕': 'light',
+  '棕色': 'light',
+  '棕发': 'light',
+  brown: 'light',
+  'brown hair': 'light',
+  'auburn': 'light',
+  'auburn hair': 'light',
+  'red hair': 'light',
+  'ginger': 'light',
+  '浅金': 'light',
+  'ash blonde': 'light',
+  'strawberry blonde': 'light',
+  'light brown': 'light',
+  'bronze': 'light',
+  'caramel': 'light',
+  '浅色卷发': 'curlyligh',
+  'curly light': 'curlyligh',
+  'soft curls': 'curlyligh',
+  '金色卷发': 'curlyligh',
+};
+
+const HAIR_COLOR_KEYWORDS: Array<{ key: string; keywords: string[] }> = [
+  { key: 'blonde', keywords: ['blonde', 'blond', '金发', '金色'] },
+  { key: 'curlyligh', keywords: ['curly light', '浅色卷发', '金色卷发', '浅卷发'] },
+  { key: 'darkcurly', keywords: ['dark curly', 'curly hair', '卷发', '自然卷', '螺旋卷'] },
+  { key: 'light', keywords: ['light hair', '浅色', '浅发', 'fair hair', 'fair-haired', '浅棕'] },
+  { key: 'black', keywords: ['black hair', '乌黑', '黑发', '深色头发', 'jet black'] },
+];
+
+const KNOWN_RACES = new Set(['whitePeople', 'asianPeople', 'blackPeople', 'LatinPeople']);
+
+const RACE_MAP: Record<string, string> = {
+  white: 'whitePeople',
+  'white people': 'whitePeople',
+  caucasian: 'whitePeople',
+  european: 'whitePeople',
+  '白人': 'whitePeople',
+  '高加索': 'whitePeople',
+  '高加索人': 'whitePeople',
+  asian: 'asianPeople',
+  'asian people': 'asianPeople',
+  chinese: 'asianPeople',
+  japanese: 'asianPeople',
+  korean: 'asianPeople',
+  'asian-american': 'asianPeople',
+  '亚洲人': 'asianPeople',
+  '汉族': 'asianPeople',
+  '黄种人': 'asianPeople',
+  black: 'blackPeople',
+  'black people': 'blackPeople',
+  african: 'blackPeople',
+  afro: 'blackPeople',
+  '非洲人': 'blackPeople',
+  '黑人': 'blackPeople',
+  latin: 'LatinPeople',
+  latino: 'LatinPeople',
+  latina: 'LatinPeople',
+  hispanic: 'LatinPeople',
+  '拉丁裔': 'LatinPeople',
+  '拉丁人': 'LatinPeople',
+  '拉美裔': 'LatinPeople',
+  '拉美人': 'LatinPeople',
+  '拉丁': 'LatinPeople',
+  mixed: 'LatinPeople',
+  'mixed race': 'LatinPeople',
+  'mixed heritage': 'LatinPeople',
+  biracial: 'LatinPeople',
+  '混血': 'LatinPeople',
+  '混血儿': 'LatinPeople',
+};
+
+const RACE_KEYWORDS: Array<{ key: string; keywords: string[] }> = [
+  { key: 'whitePeople', keywords: ['caucasian', 'white', '欧洲人', '白人'] },
+  { key: 'asianPeople', keywords: ['asian', '亚洲', '汉族', '东亚', '华裔', '日裔', '韩裔'] },
+  { key: 'blackPeople', keywords: ['african', '黑人', '非洲裔', 'black'] },
+  { key: 'LatinPeople', keywords: ['latin', 'latino', 'latina', '拉丁', 'hispanic', '墨西哥裔', '南美裔'] },
+];
+
+const DEFAULT_HAIR_COLOR_BY_LANG: Record<string, string> = {
+  zh: 'black',
+  ja: 'black',
+  es: 'light',
+  en: 'light',
+};
+
+const DEFAULT_RACE_BY_LANG: Record<string, string> = {
+  zh: 'asianPeople',
+  ja: 'asianPeople',
+  es: 'LatinPeople',
+  en: 'whitePeople',
+};
+
+const normalizeHairColor = (input?: string, contextTexts: Array<string | undefined> = []): string => {
+  const normalizedInput = (() => {
+    if (!input) return undefined;
+    const trimmed = input.trim();
+    if (!trimmed) return undefined;
+    const lower = trimmed.toLowerCase();
+    if (KNOWN_HAIR_COLORS.has(lower)) return lower;
+    if (HAIR_COLOR_MAP[lower]) return HAIR_COLOR_MAP[lower];
+    if (HAIR_COLOR_MAP[trimmed]) return HAIR_COLOR_MAP[trimmed];
+    const compact = lower.replace(/\s+/g, '');
+    if (KNOWN_HAIR_COLORS.has(compact)) return compact;
+    if (HAIR_COLOR_MAP[compact]) return HAIR_COLOR_MAP[compact];
+    return undefined;
+  })();
+
+  if (normalizedInput) return normalizedInput;
+
+  const context = contextTexts.filter(Boolean).join(' ').toLowerCase();
+  for (const { key, keywords } of HAIR_COLOR_KEYWORDS) {
+    if (keywords.some(keyword => context.includes(keyword.toLowerCase()))) {
+      return key;
+    }
+  }
+
+  const lang = i18n.language?.split('-')[0] || 'zh';
+  return DEFAULT_HAIR_COLOR_BY_LANG[lang] || 'black';
+};
+
+const normalizeRace = (input?: string, contextTexts: Array<string | undefined> = []): string => {
+  const normalizedInput = (() => {
+    if (!input) return undefined;
+    const trimmed = input.trim();
+    if (!trimmed) return undefined;
+    const lower = trimmed.toLowerCase();
+    if (KNOWN_RACES.has(lower)) return lower;
+    if (RACE_MAP[lower]) return RACE_MAP[lower];
+    if (RACE_MAP[trimmed]) return RACE_MAP[trimmed];
+    const compact = lower.replace(/\s+/g, '');
+    if (KNOWN_RACES.has(compact)) return compact;
+    if (RACE_MAP[compact]) return RACE_MAP[compact];
+    return undefined;
+  })();
+
+  if (normalizedInput && KNOWN_RACES.has(normalizedInput)) return normalizedInput;
+
+  const context = contextTexts.filter(Boolean).join(' ').toLowerCase();
+  for (const { key, keywords } of RACE_KEYWORDS) {
+    if (keywords.some(keyword => context.includes(keyword.toLowerCase()))) {
+      return key;
+    }
+  }
+
+  const lang = i18n.language?.split('-')[0] || 'zh';
+  return DEFAULT_RACE_BY_LANG[lang] || 'asianPeople';
+};
+
+const enrichInitialStateChild = (state: GameState, specialRequirements?: string): GameState => {
+  if (!state?.child) {
+    logger.warn('⚠️ Initial state missing child data, returning as-is');
+    return state;
+  }
+
+  const contextSources = [state.childDescription, state.playerDescription, specialRequirements];
+  const haircolor = normalizeHairColor(state.child.haircolor, contextSources);
+  const race = normalizeRace(state.child.race, contextSources);
+
+  if (state.child.haircolor !== haircolor) {
+    const original = state.child.haircolor ?? 'undefined';
+    logger.info(`🎨 Child haircolor normalized from "${original}" to "${haircolor}"`);
+  }
+
+  if (state.child.race !== race) {
+    const original = state.child.race ?? 'undefined';
+    logger.info(`🌍 Child race normalized from "${original}" to "${race}"`);
+  }
+
+  return {
+    ...state,
+    child: {
+      ...state.child,
+      haircolor,
+      race,
+    },
+  };
 };
 
 export const setGameStyle = (style: GameStyle) => {
@@ -659,6 +868,8 @@ export interface InitialStateType {
     name: string;
     gender: 'male' | 'female';
     age: number;
+    haircolor?: string;
+    race?: string;
   };
   playerDescription: string;
   childDescription: string;
@@ -715,6 +926,11 @@ export const generateInitialState = async (
       logger.info("🔄 Using preloaded initial state:", preloadedState);
       return {
         ...preloadedState,
+        child: {
+          ...preloadedState.child,
+          haircolor: preloadedState.child.haircolor || 'black',
+          race: preloadedState.child.race || '汉族'
+        },
         history: [],
         currentQuestion: null,
         feedbackText: null,
@@ -740,6 +956,8 @@ export const generateEnding = async (
     return generateEndingSync(gameState);
   }
 };
+
+
 
 // Synchronous implementations
 const generateQuestionSync = async (gameState: GameState): Promise<Question & { isExtremeEvent: boolean }> => {
@@ -962,9 +1180,11 @@ const generateInitialStateSync = async (specialRequirements?: string): Promise<G
       const content = data.choices[0].message.content;
       logger.info('📄 API response content (initial state):', content.substring(0, 300) + (content.length > 300 ? "..." : ""));
       
-      return performanceMonitor.timeSync('safeJsonParse-initialState', 'local', () => {
-        return safeJsonParse(content);
+      const parsedState = performanceMonitor.timeSync('safeJsonParse-initialState', 'local', () => {
+        return safeJsonParse(content) as GameState;
       });
+
+      return enrichInitialStateChild(parsedState, specialRequirements);
     } catch (error) {
       logger.error('❌ Error generating initial state:', error);
       throw error;
@@ -1008,6 +1228,8 @@ const generateEndingSync = async (gameState: GameState): Promise<string> => {
     }
   });
 };
+
+
 
 // Streaming implementations
 

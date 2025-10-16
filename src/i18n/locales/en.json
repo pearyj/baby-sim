@@ -22,7 +22,16 @@
     "loading": "Loading...",
     "yearsOld": "years old",
     "year": "Year {{year}}",
-    "checkFinance": "Check current financial status"
+    "checkFinance": "Check current financial status",
+    "black": "Black",
+    "light": "Light",
+    "darkcurly": "Dark Curly",
+    "blonde": "Blonde",
+    "curlyligh": "Curly Light",
+    "whitePeople": "White",
+    "asianPeople": "Asian",
+    "blackPeople": "Black",
+    "LatinPeople": "Latin"
   },
   "wealth": {
     "poor": "Poor",
@@ -52,7 +61,17 @@
     "situation": "Situation:",
     "growthStage": "Growth Stage",
     "sponsored": "Sponsored",
-    "adPlaceholder": "Advertisement Space"
+    "adPlaceholder": "Advertisement Space",
+    "ageImagePromptTitle": "{{age}} Years Old!",
+    "ageImagePromptDescription": "Your child has reached {{age}} years old! Would you like to generate a special image to commemorate this milestone?",
+    "selectImagePrompt": "Please select an image:",
+    "generatedImageAlt": "Generated {{age}} years old {{gender}} image",
+    "imageGenerated": "Image generated successfully!",
+    "generateImage": "Generate Image",
+    "skipConfirmTitle": "Skip Image Generation?",
+    "skipConfirmMessage": "Are you sure you want to skip generating an image for this milestone? You won't be prompted again for future milestones.",
+    "skipConfirmCancel": "Cancel",
+    "skipConfirmConfirm": "Skip All Future Images"
   },
   "developmentalStages": {
     "newborn": "Newborn",
@@ -122,7 +141,20 @@
     "selectThisOption": "I'll do this",
     "selectedThisOption": "I did this",
     "copyJourney": "Copy journey as text",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "generateImage": "Generate Image",
+    "takePhoto": "Take Photo",
+    "wantToSeeHim": "I want to see him",
+    "wantToSeeHer": "I want to see her",
+    "imageGenerated": "Image generated successfully!",
+    "skip": "Skip",
+    "unlock": "Unlock",
+    "errorGeneratingSummary": "Error: Failed to generate summary.",
+    "shareCarouselHeading": "{{childName}} is awesome!",
+    "thankYouSupport": "Thank you for your support!",
+    "createImages": "Create Images",
+    "useCreditsHint": "Hint: You can use credits for {{childName}} to generate images.",
+    "creditsUsageShort": "Credits can be used for GPT-5 and image generation."
   },
   "header": {
     "title": "The Baby Simulator",
@@ -133,6 +165,7 @@
     "modelToggle": "Model"
   },
   "messages": {
+    "imageCreditsRemaining": "0.15 credits generate 1 image. You can still generate {{remainingCount}} more.",
     "error": "An error occurred",
     "journeyComplete": "Cyber-Parenting Journey Complete",
     "childGrownUp": "{{childName}} has grown up and is now 18 years old",
@@ -156,6 +189,8 @@
     "generatingImage": "Generating {{childName}}'s image...",
     "imageGenerated": "Image generated successfully!",
     "imageGenerationFailed": "Failed to generate image. Please try again.",
+    "unlockFailed": "Unlock failed, please try again",
+    "unlockError": "Error occurred during unlock process",
     "imageGenerationOptional": "Generate a personalized AI image for my baby",
     "copySuccess": "Copied to clipboard!",
     "copyError": "Copy failed. Please try again.",
@@ -174,12 +209,10 @@
     "listenToChild": "Listen patiently and understand the child's needs",
     "giveGuidance": "Provide appropriate guidance and advice",
     "encourageThinking": "Encourage the child to think and solve problems independently",
-    "errorGeneratingSummary": "Error: Could not generate summary.",
-    "shareCarouselHeading": "Join others in showing how amazing {{childName}} is with an image!",
-    "thankYouSupport": "Thank you for your support!",
-    "createImages": "Create Images",
-    "useCreditsHint": "Tip: You can use credits to generate the ending image for {{childName}}.",
-    "creditsUsageShort": "Use credits for premium GPT‑5 and image generation."
+    "blurredImageHint": "Unlock to view clear image",
+    "imageBlurredHint": "Image generated, pay to view clear version",
+    "creditsUsageShort": "Credits Usage",
+    "useCreditsHint": "Use credits to unlock features"
   },
   "gentleReminder": {
     "title": "A gentle reminder",
@@ -267,6 +300,7 @@
     "checkCredits": "Check for Existing Credits",
     "donationAmount": "Donation Amount:",
     "getCredits": "Get {{count}} credit",
+    "imageCreditUnitHint": "0.15 credits can generate 1 image",
     "getCredits_plural": "Get {{count}} credits",
     "creditsLabel": "Credits",
     "paymentSecure": "Payment securely processed by Stripe. Note that Stripe takes a 2.9% + 30 cents fee for each payment so please choose a higher amount in one transaction if you'd like to generate multiple times! You will be able to reuse them in the future with your email address.",
@@ -275,6 +309,7 @@
     "continueAndPay": "Continue & Pay",
     "supportMore": "Support More",
     "processing": "Processing...",
+    "checkingCreditsProgress": "Checking credits...",
     "creditsFound": "You have {{count}} credit. You can generate your photo now.",
     "creditsFound_plural": "You have {{count}} credits. You can generate your photo now.",
     "creditsFound_llm": "You have {{count}} credit. You can continue with GPT‑5 now.",
@@ -286,6 +321,39 @@
     "emailPrivacyNotice": "Privacy notice – By providing your e-mail you agree that BabySim may link it to your gameplay activity solely for analytics and product-improvement in line with our Privacy Policy. You can unlink or delete this data at any time.",
     "postPaymentReminder": "If the page doesn't refresh after payment, you can return to this website in the same browser and your credits should load automatically. If you encounter any issues with payments, please email dev@babysim.fun.",
     "gpt5AccessWarning": "Important: The GPT‑5 API is restricted in certain countries/regions. Before donating, ensure you can access GPT. We recommend opening the ChatGPT website to verify. The image generation feature is not subject to this restriction."
+  },
+  "emailVerification": {
+    "title": "Email Verification",
+    "subtitle": "To protect your credits, we need to verify that you own this email address.",
+    "verificationCode": "Verification Code",
+    "codeSubtitle": "A verification code has been sent to {{email}}. Please check your email and enter the 6-digit code.",
+    "codeRequired": "Please enter the verification code",
+    "codeInvalid": "Please enter a 6-digit verification code",
+    "codeExpired": "Verification code is invalid or expired, please get a new one",
+    "sendCode": "Send Code",
+    "resendCode": "Resend Code",
+    "resendIn": "Resend in {{seconds}}s",
+    "verify": "Verify",
+    "verified": "Verified",
+    "emailVerifiedMessage": "Email {{email}} is verified",
+    "codeSent": "Verification code sent, please check your email",
+    "verifySuccess": "Email verified successfully!",
+    "sendFailed": "Failed to send verification code, please try again",
+    "verifyFailed": "Verification failed, please check the code",
+    "rateLimited": "Too many requests, please try again later",
+    "securityNotice": "We will never share your email with third parties. It's only used for credit verification and important notifications.",
+    "emailContent": {
+      "subject": "Your BabySim Verification Code",
+      "greeting": "Hello!",
+      "message": "Your verification code is:",
+      "expiry": "This code will expire in 10 minutes.",
+      "security": "If you didn't request this code, please ignore this email.",
+      "footer": "Happy parenting!<br>The BabySim Team"
+    }
+  },
+  "common": {
+    "back": "Back",
+    "processing": "Processing..."
   },
   "gameStyle": {
     "realistic": "Realistic",
@@ -301,4 +369,4 @@
     "noImages": "No shared images yet. Be the first to raise a kid to 18 and share!",
     "raiseBaby": "I'd love to raise a baby too!"
   }
-} 
+}

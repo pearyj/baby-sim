@@ -37,6 +37,7 @@ export const FeedbackButton: React.FC = () => {
   }, [anonId, initializeAnonymousId]);
 
   const handlePaywallClick = useCallback(async () => {
+    debugger
     ensureSetup();
     if (!email || (typeof credits === 'number' && credits <= 0)) {
       setShowPaywall(true);
@@ -88,7 +89,7 @@ export const FeedbackButton: React.FC = () => {
 
       {/* Credits Info Dialog */}
       <Dialog open={showCreditsDialog} onClose={() => setShowCreditsDialog(false)}>
-        <DialogTitle>{credits > 0 ? (t('messages.thankYouSupport') || 'Thank you for your support!') : (t('paywall.checkCredits') || 'Credits & Support')}</DialogTitle>
+        <DialogTitle>{credits > 0 ? (t('actions.thankYouSupport') || 'Thank you for your support!') : (t('paywall.checkCredits') || 'Credits & Support')}</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 280 }}>
             {checkingCredits || isLoading ? (
@@ -112,9 +113,13 @@ export const FeedbackButton: React.FC = () => {
                   <Typography variant="h4" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
                     {credits ?? 0}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  {/* <Typography variant="caption" color="text.secondary">
                     {t('messages.creditsUsageShort') || 'Use credits for premium GPT‑5 and image generation.'}
+                  </Typography> */}
+                  <Typography variant="caption" color="text.secondary">
+                    {t('messages.imageCreditsRemaining', { remainingCount: Math.floor(((credits ?? 0) as number) / 0.15) }) || `0.15积分可以生成1张图片，您还可以生成${Math.floor(((credits ?? 0) as number) / 0.15)}张`}
                   </Typography>
+                  
                 </Box>
                 {childName && (
                   <Typography variant="caption" color="text.secondary">

@@ -48,7 +48,7 @@ const getProvider = (providerName: string): ModelProvider => {
       return {
         name: 'volcengine',
         apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-        apiKey: process.env.VOLCENGINE_LLM_API_KEY || process.env.VITE_VOLCENGINE_LLM_API_KEY || '',
+        apiKey: process.env.ARK_API_KEY || process.env.VOLCENGINE_LLM_API_KEY || process.env.VITE_VOLCENGINE_LLM_API_KEY || '',
         model: 'deepseek-v3-250324',
       };
     default:
@@ -56,7 +56,7 @@ const getProvider = (providerName: string): ModelProvider => {
         name: 'volcengine',
         apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
         apiKey: process.env.VOLCENGINE_LLM_API_KEY || process.env.VITE_VOLCENGINE_LLM_API_KEY || '',
-        model: 'deepseek-v3-250324',
+        model: 'doubao-pro-4k',
       };
   }
 };
@@ -72,6 +72,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   
   // CORS preflight
   if (handlePreflight(req, res)) return;
+
+
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -204,4 +206,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-} 
+}

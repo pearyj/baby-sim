@@ -59,6 +59,13 @@ interface GameStoreState {
   isEnding: boolean; // True when the game is in the process of ending, before the summary
   showEndingSummary: boolean;
   
+  // Image generation tracking
+  generatedImageAges: number[]; // Track ages at which images have been generated
+  hasSkippedImageGeneration: boolean; // Track if user has ever skipped image generation in this session
+  shouldGenerateImage: boolean; // Flag to indicate if image should be generated at current age
+  generatedImages: { age: number; imageBase64?: string; imageUrl?: string }[]; // Store generated images data
+  unlockedImageAges: number[]; // Track ages at which images have been unlocked (for 1-3 age blur removal)
+  
   // Streaming state
   isStreaming: boolean; // Whether any content is currently streaming
   streamingContent: string; // Current streaming content
@@ -85,6 +92,9 @@ interface GameStoreState {
   resetToWelcome: () => void; // New function to reset to the welcome screen
   testEnding: () => Promise<void>; // Dev function to test ending screen
   toggleStreaming: () => void; // Toggle streaming mode
+  addGeneratedImage: (age: number, imageData: { imageBase64?: string; imageUrl?: string }) => void; // Store generated image
+  skipImageGeneration: () => void; // Mark that user has skipped image generation in this session
+  unlockImage: (age: number) => void; // Mark that image at specific age has been unlocked
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
@@ -94,25 +104,45 @@ interface GameStoreState {
 // Helper function to generate narrative with translations
 const generateNarrative = (scenarioState: {
   player: { gender: 'male' | 'female' | 'nonBinary'; age: number };
-  child: { name: string; gender: 'male' | 'female' };
+  child: { name: string ; gender: 'male' | 'female'; haircolor: string; race: string; };
   playerDescription: string;
   childDescription: string;
 }): string => {
   const playerGenderKey = scenarioState.player.gender === 'male' ? 'father' :
                          scenarioState.player.gender === 'female' ? 'mother' : 'parent';
   const childGenderKey = scenarioState.child.gender === 'male' ? 'boy' : 'girl';
+  const childHairColorKey = scenarioState.child.haircolor;
+  const childRaceKey = scenarioState.child.race;
   
   const playerDesc = i18n.t(`game.${playerGenderKey}`);
   const childDesc = i18n.t(`game.${childGenderKey}`);
+  const childHairColorDesc = i18n.t(`game.${childHairColorKey}`);
   const journeyStart = i18n.t('ui.journeyStart');
   const readyToBegin = i18n.t('ui.readyToBegin');
+  const childRace = i18n.t(`game.${childRaceKey}`)
   
   // Construct the narrative based on current language
   if (i18n.language === 'en') {
-    return `As a ${playerDesc.toLowerCase()} (${scenarioState.player.age} years old), you are about to begin the journey of raising your child ${scenarioState.child.name} (${childDesc.toLowerCase()}, just born).\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
+    return `As a ${playerDesc.toLowerCase()} (${scenarioState.player.age} years old), you are about to begin the journey of raising your child ${scenarioState.child.name} (${childDesc.toLowerCase()}, just born).
+
+${scenarioState.playerDescription}
+
+${scenarioState.childDescription}
+
+${journeyStart}
+
+${readyToBegin}`;
   } else {
     // Chinese version (default)
-    return `作为${playerDesc}（${scenarioState.player.age}岁），你即将开始养育你的孩子${scenarioState.child.name}（${childDesc}，刚刚出生）的旅程。\n\n${scenarioState.playerDescription}\n\n${scenarioState.childDescription}\n\n${journeyStart}\n\n${readyToBegin}`;
+    return `作为${playerDesc}（${scenarioState.player.age}岁），你即将开始养育你的孩子${scenarioState.child.name}（${childDesc}，${childHairColorDesc}头发，${childRace}，刚刚出生）的旅程。
+
+${scenarioState.playerDescription}
+
+${scenarioState.childDescription}
+
+${journeyStart}
+
+${readyToBegin}`;
   }
 };
 
@@ -140,6 +170,8 @@ const saveGameState = (state: GameStoreState) => {
       name: state.child.name,
       gender: state.child.gender,
       age: state.child.age,
+      haircolor: state.child.haircolor,
+      race: state.child.race,
       description: state.childDescription || '',
     },
     history: state.history,
@@ -154,6 +186,8 @@ const saveGameState = (state: GameStoreState) => {
     isEnding: state.isEnding,
     showEndingSummary: state.showEndingSummary,
     gamePhase: state.gamePhase,
+    // Generated images data
+    generatedImages: state.generatedImages,
   };
   
   logger.debug("Saving game state to localStorage:", stateToStore);
@@ -177,7 +211,7 @@ const useGameStore = create<GameStoreState>((set, get) => {
   type GameStoreData = Omit<GameStoreState, 
     'initializeGame' | 'startGame' | 'continueSavedGame' | 'loadQuestion' | 
     'loadQuestionStreaming' | 'selectOption' | 'selectOptionStreaming' | 
-    'continueGame' | 'resetToWelcome' | 'testEnding' | 'toggleStreaming'
+    'continueGame' | 'resetToWelcome' | 'testEnding' | 'toggleStreaming' | 'addGeneratedImage' | 'skipImageGeneration' | 'unlockImage'
   >;
   
   const initialState: GameStoreData = {
@@ -208,7 +242,14 @@ const useGameStore = create<GameStoreState>((set, get) => {
     showEndingSummary: false,
     pendingChoice: null,
 
-    // ——— 1.4) STREAMING STATE ————————————————————————————————————————
+    // ——— 1.4) IMAGE GENERATION TRACKING ——————————————————————————————
+    generatedImageAges: [],
+    hasSkippedImageGeneration: false,
+    shouldGenerateImage: false,
+    generatedImages: [],
+    unlockedImageAges: [], // Track ages at which images have been unlocked
+    
+    // ——— 1.5) STREAMING STATE ————————————————————————————————————————
     isStreaming: false,
     streamingContent: '',
     streamingType: null,
@@ -237,6 +278,8 @@ const useGameStore = create<GameStoreState>((set, get) => {
       name: savedState.child.name,
       gender: savedState.child.gender,
       age: authorizedAge,
+      haircolor: savedState.child.haircolor,
+      race: savedState.child.race,
       profile: {},
       traits: [],
     };
@@ -253,6 +296,9 @@ const useGameStore = create<GameStoreState>((set, get) => {
     initialState.endingSummaryText = savedState.endingSummaryText ?? null;
     initialState.showEndingSummary = savedState.showEndingSummary ?? false;
     initialState.isEnding = savedState.isEnding ?? false;
+    
+    // Restore generated images if present
+    initialState.generatedImages = savedState.generatedImages ?? [];
 
     // If the saved state indicates we were on the summary screen, restore directly to it
     if (savedState.showEndingSummary || savedState.gamePhase === 'summary') {
@@ -440,6 +486,13 @@ const useGameStore = create<GameStoreState>((set, get) => {
 
     startGame: (player: Player, child: Child, playerDescription: string, childDescription: string) => {
       const currentPhase = get().gamePhase;
+      
+      // Reset hasSkippedImageGeneration when starting a new game
+      set(prevState => ({ 
+        ...prevState, 
+        hasSkippedImageGeneration: false 
+      }));
+      
       if (currentPhase === 'uninitialized' || currentPhase === 'initialization_failed') {
         // Correctly set child age to 1 for preloadedState
         get().initializeGame({ specialRequirements: '', preloadedState: { player, child: { ...child, age: 1 }, playerDescription, childDescription, isSingleParent: false } });
@@ -731,6 +784,17 @@ const useGameStore = create<GameStoreState>((set, get) => {
         logger.debug("Advancing to next age:", currentChildAge + 1);
         const nextAge = currentChildAge + 1;
         const nextPlayerAge = (player?.age ?? 0) + 1;
+        
+        // Check if we should generate an image at this age (starting from age 3, then every 3 years: 3, 6, 9, 12, 15, 18)
+        const { generatedImageAges } = get();
+        // Image generation is now only triggered manually by user clicking the photo button
+        // Remove automatic image generation every 3 years
+        const shouldGenerateImage = false;
+        
+        if (shouldGenerateImage) {
+          logger.info(`🎨 Image generation triggered for age ${nextAge}`);
+        }
+        
         const newState = {
             showFeedback: false, 
             feedbackText: null,
@@ -738,7 +802,9 @@ const useGameStore = create<GameStoreState>((set, get) => {
             currentAge: nextAge,
             player: player ? { ...player, age: nextPlayerAge } : player,
             gamePhase: 'loading_question' as GamePhase,
-            isLoading: true
+            isLoading: true,
+            shouldGenerateImage,
+            generatedImageAges: shouldGenerateImage ? [...generatedImageAges, nextAge] : generatedImageAges
         };
         set(prevState => ({ ...prevState, ...newState }));
         
@@ -841,7 +907,9 @@ const useGameStore = create<GameStoreState>((set, get) => {
       const mockChild: Child = {
         name: selectedMockData.child.name,
         gender: selectedMockData.child.gender,
-        age: 18,
+        age: 18, 
+        haircolor: selectedMockData.child.haircolor,
+        race: selectedMockData.child.race,
         profile: selectedMockData.child.profile || {},
         traits: selectedMockData.child.traits || [],
       };
@@ -1197,6 +1265,75 @@ Thank you for your dedication. This parenting journey has come to a beautiful co
           feedbackText: i18n.t('messages.processChoiceError', { errorMessage })
         }));
       }
+    },
+
+    addGeneratedImage: (age: number, imageData: { imageBase64?: string; imageUrl?: string }) => {
+      console.log('🔍 imageData addGeneratedImage called with age:', age, 'imageData:', imageData);
+      console.log('📊 imageData has imageBase64?', !!imageData.imageBase64);
+      console.log('🔗 imageData has imageUrl?', !!imageData.imageUrl);
+      
+      set(prevState => {
+        console.log('📝 imageData Current history length:', prevState.history.length);
+        
+        // Find the history entry with the matching age and update it
+        const updatedHistory = [...prevState.history];
+        const targetIndex = updatedHistory.findIndex(entry => entry.age === age);
+        
+        if (targetIndex >= 0) {
+          console.log('📋 imageData Found history entry at index', targetIndex, 'for age', age, ':', updatedHistory[targetIndex]);
+          
+          // For localStorage optimization, only store imageUrl, never imageBase64
+          const optimizedImageData = imageData.imageUrl 
+            ? { imageUrl: imageData.imageUrl } 
+            : {}; // Don't store anything if no imageUrl
+          
+          updatedHistory[targetIndex] = { 
+            ...updatedHistory[targetIndex], 
+            ...optimizedImageData 
+          };
+          
+          console.log('✅ imageData History entry after update:', updatedHistory[targetIndex]);
+          console.log('🖼️ imageData Updated entry has imageBase64?', !!updatedHistory[targetIndex].imageBase64);
+          console.log('🔗 imageData Updated entry has imageUrl?', !!updatedHistory[targetIndex].imageUrl);
+        } else {
+          console.warn('⚠️ imageData No history entry found for age:', age);
+        }
+        
+        const newState = {
+          ...prevState,
+          history: updatedHistory,
+          // Keep the generatedImages array for backward compatibility, also optimize storage
+          generatedImages: [...prevState.generatedImages, { 
+            age, 
+            imageBase64: imageData.imageUrl ? undefined : imageData.imageBase64,
+            imageUrl: imageData.imageUrl 
+          }]
+        };
+        
+        console.log('💾 imageData New state history:', newState.history);
+        return newState;
+      });
+      
+      console.log('💿 imageData Saving game state...');
+      saveGameState(get());
+      console.log('✅ imageData Game state saved');
+    },
+
+    skipImageGeneration: () => {
+      set(state => ({
+        ...state,
+        hasSkippedImageGeneration: true,
+        shouldGenerateImage: false
+      }));
+      saveGameState(get());
+    },
+
+    unlockImage: (age: number) => {
+      set(state => ({
+        ...state,
+        unlockedImageAges: [...state.unlockedImageAges, age]
+      }));
+      saveGameState(get());
     },
 
     

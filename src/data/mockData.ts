@@ -43,6 +43,8 @@ export const mockGameStateEnglish: GameState = {
     name: 'Emily',
     gender: 'female' as const,
     age: 18,
+    haircolor: 'brown',
+    race: 'caucasian',
   },
   history: [
     {
@@ -118,6 +120,8 @@ export const mockGameStateChinese: GameState = {
     name: '小明',
     gender: 'male' as const,
     age: 18,
+    haircolor: 'black',
+    race: 'asian',
   },
   history: [
     {
@@ -187,4 +191,4 @@ export const mockGameStateChinese: GameState = {
 export const mockGameStates = {
   english: mockGameStateEnglish,
   chinese: mockGameStateChinese,
-}; 
+};

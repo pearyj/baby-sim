@@ -23,6 +23,7 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
   requiresCredits = true,
   onCreditConsumed 
 }) => {
+  console.log('[PaywallGate] 组件被渲染, childName:', childName, 'requiresCredits:', requiresCredits);
   const { i18n } = useTranslation();
   const { 
     anonId, 
@@ -40,17 +41,6 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
   const [hasInitialized, setHasInitialized] = useState(false);
   const [waitingForCredit, setWaitingForCredit] = useState(false);
 
-  // Production debugging: Log PaywallGate initialization - only during ending phase
-  const isEndingPhase = React.Children.toArray(children).some(child => {
-    if (React.isValidElement(child) && child.type) {
-      const hasGameState = (child.props as any)?.gameState;
-      const hasEndingSummary = (child.props as any)?.endingSummary;
-      const componentName = (child.type as any).name || (child.type as any).displayName || 'Unknown';
-      return componentName === 'AIImageGenerator' || (hasGameState && hasEndingSummary);
-    }
-    return false;
-  });
-
   // Feature flag check - if paywall is off AND not in dev, allow bypass
   if (PAYWALL_VERSION === 'off' && !IS_DEV) {
     return <>{children}</>;
@@ -64,19 +54,19 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
   }
 
   useEffect(() => {
-    // Only initialize payment store when we're actually in the ending phase
-    if (!hasInitialized && isEndingPhase) {
+    // Initialize payment store when PaywallGate is used
+    if (!hasInitialized) {
       initializeAnonymousId();
       setHasInitialized(true);
     }
-  }, [hasInitialized, initializeAnonymousId, isEndingPhase]);
+  }, [hasInitialized, initializeAnonymousId]);
 
   useEffect(() => {
-    // Only fetch credits when we're in the ending phase
-    if (anonId && hasInitialized && isEndingPhase) {
-      fetchCredits();
+    // Fetch credits when initialized
+    if (anonId && hasInitialized) {
+      fetchCredits(); // 使用缓存机制，不强制刷新
     }
-  }, [anonId, hasInitialized, fetchCredits, isEndingPhase]);
+  }, [anonId, hasInitialized, fetchCredits]);
 
   // Allow generation if credits available, but don't deduct yet.
   const handleGenerateImage = () => {
@@ -209,6 +199,7 @@ export const PaywallGate: React.FC<PaywallGateProps> = ({
         childName={childName}
         mode={'image'}
       />
+      {console.log('[PaywallGate] PaywallUI渲染状态 - open:', showPaywall, 'credits:', credits, 'anonId:', anonId)}
     </>
   );
-}; 
+};

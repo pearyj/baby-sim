@@ -1,7 +1,7 @@
 [
   {
     "player": { "gender": "female", "age": 28 },
-    "child":  { "name": "あかり", "gender": "female", "age": 1 },
+    "child":  { "name": "あかり", "gender": "female", "age": 1, "haircolor": "black", "race": "asianPeople" },
     "playerDescription": "あなたは28歳のマーケティング専門職で、賑やかな都市に住んでいます。野心的で創造的、ワークライフバランスを重視しています。中流階級の家庭で育ち、子どもに多様な体験と機会を提供することを信じています。",
     "childDescription": "あかりは好奇心旺盛で活発な女の子で、明るい目と人を引きつける笑顔を持っています。周囲を探索することが大好きで、とても社交的で表現豊かな兆候を早くから見せています。",
     "finance": 5,
@@ -10,7 +10,7 @@
   },
   {
     "player": { "gender": "male", "age": 32 },
-    "child":  { "name": "たくや", "gender": "male", "age": 1 },
+    "child":  { "name": "たくや", "gender": "male", "age": 1, "haircolor": "black", "race": "asianPeople" },
     "playerDescription": "あなたは32歳のソフトウェアエンジニアで、リモートワークをしています。分析的で忍耐強く、問題解決を楽しんでいます。技術に精通した背景から来て、子どもにSTEM分野を紹介しながら、バランスの取れた教育を確保したいと考えています。",
     "childDescription": "たくやは落ち着いていて観察力のある男の子で、パターンや音に魅力を感じているようです。穏やかな気質で、新しい体験に対して思慮深く方法論的にアプローチする兆候を早くから見せています。",
     "finance": 8,
@@ -19,7 +19,7 @@
   },
   {
     "player": { "gender": "female", "age": 25 },
-    "child":  { "name": "みお", "gender": "female", "age": 1 },
+    "child":  { "name": "みお", "gender": "female", "age": 1, "haircolor": "light", "race": "asianPeople" },
     "playerDescription": "あなたは25歳の教師で、教育と子どもの発達に情熱を注いでいます。育成的で忍耐強く、遊びを通じた学習の力を信じています。教育者の家庭出身で、感情的知性と並んで学術的成果を重視しています。",
     "childDescription": "みおは優しくて反応の良い女の子で、音楽と物語を楽しんでいるようです。穏やかな性格で、周囲に対して共感的で注意深い兆候を早くから見せています。",
     "finance": 4,
@@ -28,7 +28,7 @@
   },
   {
     "player": { "gender": "male", "age": 29 },
-    "child":  { "name": "けんた", "gender": "male", "age": 1 },
+    "child":  { "name": "けんた", "gender": "male", "age": 1, "haircolor": "black", "race": "asianPeople" },
     "playerDescription": "あなたは29歳のシェフで、小さなレストランを経営しています。創造的で勤勉、食文化に情熱を注いでいます。大きくて結束の固い家族で育ち、子どもの個人的な興味を促進しながら伝統を受け継ぎたいと思っています。",
     "childDescription": "けんたは活発で好奇心旺盛な男の子で、異なる食感や味を楽しんでいるようです。活気のある性格で、冒険好きで新しい体験を熱心に探求する兆候を早くから見せています。",
     "finance": 5,
@@ -37,7 +37,7 @@
   },
   {
     "player": { "gender": "male", "age": 35 },
-    "child":  { "name": "はると", "gender": "male", "age": 1 },
+    "child":  { "name": "はると", "gender": "male", "age": 1, "haircolor": "light", "race": "asianPeople" },
     "playerDescription": "あなたは35歳のファイナンシャルアドバイザーで、安定性と長期計画を重視しています。方法論的で責任感があり、実用的な生活スキルを教えることを信じています。質素な背景から来て、経済的安定を達成するために懸命に働きました。",
     "childDescription": "はるとは思慮深く観察力のある男の子で、ルーチンと予測可能性を楽しんでいるようです。安定した気質で、分析的で詳細志向の兆候を早くから見せています。",
     "finance": 8,
@@ -46,7 +46,7 @@
   },
   {
     "player": { "gender": "female", "age": 31 },
-    "child":  { "name": "さくら", "gender": "female", "age": 1 },
+    "child":  { "name": "さくら", "gender": "female", "age": 1, "haircolor": "black", "race": "asianPeople" },
     "playerDescription": "あなたは31歳のグラフィックデザイナーで、フリーランスで働いています。芸術的で独立心があり、創造性と自己表現を重視しています。芸術的な家庭で育ち、実用的なスキルを提供しながら子どもの創造的な潜在能力を促進したいと考えています。",
     "childDescription": "さくらは表現豊かで想像力豊かな女の子で、色や視覚的刺激に引かれているようです。活気のある性格で、創造的で感情的に表現豊かな兆候を早くから見せています。",
     "finance": 4,
@@ -55,7 +55,7 @@
   },
   {
     "player": { "gender": "female", "age": 26 },
-    "child":  { "name": "ゆい", "gender": "female", "age": 1 },
+    "child":  { "name": "ゆい", "gender": "female", "age": 1, "haircolor": "light", "race": "asianPeople" },
     "playerDescription": "あなたは26歳の看護師で、他者を助けることに思いやりと献身を持っています。共感的で強く、健康と福祉の重要性を信じています。労働者階級の家庭出身で、勤勉と忍耐を重視しています。",
     "childDescription": "ゆいは優しくて敏感な女の子で、感情的な手がかりに非常に反応するようです。思いやりのある性質で、直感的で感情的に知的な兆候を早くから見せています。",
     "finance": 2,
@@ -64,7 +64,7 @@
   },
   {
     "player": { "gender": "female", "age": 30 },
-    "child":  { "name": "そら", "gender": "male", "age": 1 },
+    "child":  { "name": "そら", "gender": "male", "age": 1, "haircolor": "black", "race": "asianPeople" },
     "playerDescription": "あなたは30歳の社会福祉士で、コミュニティ志向で賢明、文化的遺産に深くつながっています。強い文化的アイデンティティを持って子どもを育てながら、現代世界に備えさせることを信じています。",
     "childDescription": "そらは落ち着いていて観察力のある男の子で、自然と周囲に非常につながっているようです。平和な気質で、賢明で精神的に意識的な兆候を早くから見せています。",
     "finance": 3,
@@ -73,7 +73,7 @@
   },
   {
     "player": { "gender": "female", "age": 27 },
-    "child":  { "name": "りん", "gender": "female", "age": 1 },
+    "child":  { "name": "りん", "gender": "female", "age": 1, "haircolor": "black", "race": "asianPeople" },
     "playerDescription": "あなたは27歳の研究科学者で、好奇心旺盛で詳細志向です。知的で方法論的、証拠に基づく子育てを信じています。移民家庭出身で、教育と文化保存を重視しています。",
     "childDescription": "りんは探究心旺盛で機敏な女の子で、因果関係に魅力を感じているようです。集中力のある気質で、分析的で科学的思考の兆候を早くから見せています。",
     "finance": 6,
@@ -82,7 +82,7 @@
   },
   {
     "player": { "gender": "male", "age": 33 },
-    "child":  { "name": "だいき", "gender": "male", "age": 1 },
+    "child":  { "name": "だいき", "gender": "male", "age": 1, "haircolor": "light", "race": "asianPeople" },
     "playerDescription": "あなたは33歳のパーソナルトレーナーで、健康意識が高くエネルギッシュです。意欲的で規律正しく、身体の健康と精神的な福祉の重要性を信じています。スポーツをして育ち、子どもに健康的な習慣を植え付けたいと思っています。",
     "childDescription": "だいきは活発でエネルギッシュな男の子で、動きと身体的な遊びを楽しんでいるようです。動的な性格で、運動能力があり身体的に協調性のある兆候を早くから見せています。",
     "finance": 5,
@@ -91,7 +91,7 @@
   },
   {
     "player": { "gender": "female", "age": 34 },
-    "child":  { "name": "あおい", "gender": "female", "age": 1 },
+    "child":  { "name": "あおい", "gender": "female", "age": 1, "haircolor": "black", "race": "asianPeople" },
     "playerDescription": "あなたは34歳の環境弁護士で、持続可能性と社会正義に情熱を注いでいます。原則的で雄弁、環境意識と社会的責任を持った子どもを育てることを信じています。",
     "childDescription": "あおいは思慮深く意識的な女の子で、環境に非常に反応するようです。熟考的な性質で、環境に敏感で社会的に意識的な兆候を早くから見せています。",
     "finance": 9,
@@ -100,7 +100,7 @@
   },
   {
     "player": { "gender": "male", "age": 28 },
-    "child":  { "name": "ここな", "gender": "female", "age": 1 },
+    "child":  { "name": "ここな", "gender": "female", "age": 1, "haircolor": "black", "race": "asianPeople" },
     "playerDescription": "あなたは28歳の音楽家で、芸術と文化に情熱を注いでいます。創造的で表現豊か、子どもの発達における音楽と芸術の力を信じています。音楽的な家庭出身で、子どもの個人的な才能を促進しながら音楽への愛を分かち合いたいと思っています。",
     "childDescription": "ここなは表現豊かでリズミカルな女の子で、音楽と音に自然に引かれているようです。活気のある性格で、音楽的な才能があり芸術的に傾向がある兆候を早くから見せています。",
     "finance": 2,
@@ -115,7 +115,9 @@
     "child": {
       "name": "かいと",
       "gender": "male",
-      "age": 1
+      "age": 1,
+      "haircolor": "light",
+      "race": "asianPeople"
     },
     "playerDescription": "あなたは東京でIT企業に勤める29歳のシングルマザーです。毎朝かいとを保育園に預けて満員電車で通勤し、夜遅くお迎えに行く日々です。実家の両親が時々サポートしてくれますが、基本的に一人で子育てをしています。",
     "childDescription": "かいとは砂色の髪と好奇心いっぱいの目をした男の子です。電車の音が聞こえると手をパタパタと振り、窓から見える景色をじっと見つめています。",
@@ -131,7 +133,9 @@
     "child": {
       "name": "ひなた",
       "gender": "female",
-      "age": 1
+      "age": 1,
+      "haircolor": "light",
+      "race": "asianPeople"
     },
     "playerDescription": "あなたは大阪で町工場を経営する38歳の職人です。伝統的な技術を守りながら、新しい技術も取り入れようと努力しています。妻は看護師で夜勤もあるため、ひなたの面倒を見ることも多く、工場の作業台の隣にベビーベッドを置いています。",
     "childDescription": "ひなたは機械の音を聞くと目を輝かせ、金属の光る部品に手を伸ばそうとします。工場の温かい雰囲気の中で、安心して眠ります。",

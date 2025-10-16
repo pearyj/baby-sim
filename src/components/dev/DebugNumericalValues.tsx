@@ -185,4 +185,4 @@ export const DebugNumericalValues: React.FC = () => {
       </Typography>
     </DebugPanel>
   );
-}; 
+};

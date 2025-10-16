@@ -22,7 +22,16 @@
     "loading": "読み込み中...",
     "yearsOld": "歳",
     "year": "{{year}}年目",
-    "checkFinance": "現在の家計状況を確認"
+    "checkFinance": "現在の家計状況を確認",
+    "black": "黒髪",
+    "light": "明るい髪",
+    "darkcurly": "暗いカール",
+    "blonde": "金髪",
+    "curlyligh": "明るいカール",
+    "whitePeople": "白人",
+    "asianPeople": "アジア人",
+    "blackPeople": "黒人",
+    "LatinPeople": "ラテン人"
   },
   "wealth": {
     "poor": "貧しい",
@@ -53,7 +62,11 @@
     "situation": "状況:",
     "growthStage": "成長段階",
     "sponsored": "スポンサー",
-    "adPlaceholder": "広告スペース"
+    "adPlaceholder": "広告スペース",
+    "ageImagePromptTitle": "{{age}}歳！",
+    "ageImagePromptDescription": "あなたの子供は{{age}}歳です！この時点で特殊な画像を生成して、この瞬間を記録しましょう。",
+    "generatedImageAlt": "生成された{{age}}歳の{{gender}}の画像",
+    "imageGenerated": "画像が生成されました！"
   },
   "developmentalStages": {
     "newborn": "新生児",
@@ -121,7 +134,24 @@
     "testAdTimeline": "（開発用）広告タイムラインのテスト",
     "chooseGameStyle": "スタイルを選択",
     "selectThisOption": "これを選択します",
-    "refresh": "更新"
+    "refresh": "更新",
+    "generateImage": "画像を生成する",
+    "takePhoto": "写真を撮る",
+    "wantToSeeHim": "彼に会いたい",
+    "wantToSeeHer": "彼女に会いたい",
+    "imageGenerated": "画像が生成されました！",
+    "skip": "スキップ",
+    "skipConfirmTitle": "画像生成をスキップしますか？",
+    "skipConfirmMessage": "このマイルストーンの画像生成をスキップしてもよろしいですか？今後のマイルストーンでは画像生成の提案は表示されません。",
+    "skipConfirmCancel": "キャンセル",
+    "skipConfirmConfirm": "今後の画像をすべてスキップ",
+    "unlock": "アンロック",
+    "errorGeneratingSummary": "エラー：要約を生成できませんでした。",
+    "shareCarouselHeading": "{{childName}}はこんな顔をしています！",
+    "thankYouSupport": "ありがとうございます！サポートを提供してくださった方に感謝します！",
+    "createImages": "画像を生成する",
+    "useCreditsHint": "ヒント：{{childName}}の画像を生成するには、{{childName}}のクレジットを使用してください。",
+    "creditsUsageShort": "クレジットは、高度なGPT-5と画像生成の使用を可能にします。"
   },
   "header": {
     "title": "ベビーシミュレーター",
@@ -132,6 +162,7 @@
     "modelToggle": "モデル"
   },
   "messages": {
+    "imageCreditsRemaining": "0.15クレジットで画像を1枚生成できます。あと{{remainingCount}}枚生成できます。",
     "error": "エラーが発生しました",
     "journeyComplete": "サイバー子育ての旅完了",
     "childGrownUp": "{{childName}}は成長し、18歳になりました",
@@ -254,6 +285,7 @@
     "checkCredits": "既存のクレジットを確認",
     "donationAmount": "寄付金額：",
     "getCredits": "{{count}}クレジットを獲得",
+    "imageCreditUnitHint": "0.15クレジットで画像を1枚生成できます",
     "getCredits_plural": "{{count}}クレジットを獲得",
     "creditsLabel": "クレジット",
     "paymentSecure": "決済はStripeによって安全に処理されます。Stripeは各決済に対して2.9% + 30セントの手数料を徴収するため、複数回生成したい場合は1回の取引でより高い金額を選択してください！将来的にメールアドレスで再利用できます。",
@@ -262,6 +294,7 @@
     "continueAndPay": "続行して支払う",
     "supportMore": "さらに支援する",
     "processing": "処理中...",
+    "checkingCreditsProgress": "クレジット確認中...",
     "creditsFound": "{{count}}クレジットがあります。今すぐ写真を生成できます。",
     "creditsFound_plural": "{{count}}クレジットがあります。今すぐ写真を生成できます。",
     "creditsFound_llm": "{{count}}クレジットがあります。GPT‑5 で続行できます。",
@@ -284,6 +317,35 @@
   "gallery": {
     "otherKids": "他の子どもたち",
     "noImages": "まだ共有された画像がありません。18歳まで子どもを育てて共有する最初の人になりましょう！"
+  },
+  "emailVerification": {
+    "title": "メール認証",
+    "subtitle": "クレジットを保護するため、このメールアドレスの所有者であることを確認する必要があります。",
+    "verificationCode": "認証コード",
+    "codeSubtitle": "認証コードが{{email}}に送信されました。メールを確認して6桁のコードを入力してください。",
+    "codeRequired": "認証コードを入力してください",
+    "codeInvalid": "6桁の認証コードを入力してください",
+    "codeExpired": "認証コードが無効または期限切れです。新しいコードを取得してください",
+    "sendCode": "コード送信",
+    "resendCode": "再送信",
+    "resendIn": "{{seconds}}秒後に再送信",
+    "verify": "認証",
+    "verified": "認証済み",
+    "emailVerifiedMessage": "メール{{email}}が認証されました",
+    "codeSent": "認証コードを送信しました。メールを確認してください",
+    "verifySuccess": "メール認証が成功しました！",
+    "sendFailed": "認証コードの送信に失敗しました。後でもう一度お試しください",
+    "verifyFailed": "認証に失敗しました。コードを確認してください",
+    "rateLimited": "リクエストが多すぎます。後でもう一度お試しください",
+    "securityNotice": "メールアドレスを第三者と共有することはありません。クレジット認証と重要な通知のためのみに使用されます。",
+    "emailContent": {
+      "subject": "BabySimの認証コード",
+      "greeting": "こんにちは！",
+      "message": "認証コードは：",
+      "expiry": "このコードは10分後に期限切れになります。",
+      "security": "このコードをリクエストしていない場合は、このメールを無視してください。",
+      "footer": "楽しい子育てを！<br>BabySimチーム"
+    }
   },
   "gentleReminder": {
     "title": "ささやかなお願い",
