@@ -20,6 +20,7 @@ import {
   getSharedCardsCount,
 } from '../services/galleryService';
 import type { GalleryItem } from '../services/galleryService';
+import { filterGalleryItemsByAspect } from '../utils/galleryFilters';
 
 const Caption = styled('p')(({ theme }) => ({
   marginTop: theme.spacing(0.5),
@@ -29,6 +30,11 @@ const Caption = styled('p')(({ theme }) => ({
 }));
 
 const BATCH_SIZE = 24;
+const FETCH_MULTIPLIER = 2;
+const GALLERY_ASPECT_RANGE = {
+  minAspectRatio: 0.9,
+  maxAspectRatio: 1.3,
+};
 
 export const InfiniteGallery: React.FC = () => {
   const { t } = useTranslation();
@@ -62,19 +68,34 @@ export const InfiniteGallery: React.FC = () => {
       console.debug('[InfiniteGallery] fetchBatch offset', batchOffset);
       setLoading(true);
       try {
-        const newItems = await getGalleryItems(BATCH_SIZE, batchOffset);
+        const fetchLimit = BATCH_SIZE * FETCH_MULTIPLIER;
+        const rawItems = await getGalleryItems(fetchLimit, batchOffset);
+        let filteredItems = await filterGalleryItemsByAspect(rawItems, GALLERY_ASPECT_RANGE);
+
+        if (filteredItems.length === 0 && rawItems.length > 0) {
+          console.warn('[InfiniteGallery] Aspect filter removed all candidates, falling back to raw batch.');
+          filteredItems = rawItems;
+        }
+
+        const limitedItems = filteredItems.slice(0, BATCH_SIZE);
+        if (limitedItems.length === 0) {
+          console.debug('[InfiniteGallery] No additional items to append; stopping inf-scroll.');
+          setHasMore(false);
+          return;
+        }
+
         let nextLength = 0;
         setItems((prev) => {
           const existingIds = new Set(prev.map((i) => i.id));
-          const filtered = newItems.filter((i) => !existingIds.has(i.id));
-          filtered.sort((a, b) => b.hearts - a.hearts);
-          const next = [...prev, ...filtered];
-          nextLength = next.length;
-          return next;
+          const deduped = limitedItems.filter((i) => !existingIds.has(i.id));
+          deduped.sort((a, b) => b.hearts - a.hearts);
+          nextLength = prev.length + deduped.length;
+          return [...prev, ...deduped];
         });
-        setOffset(batchOffset + BATCH_SIZE);
+
+        setOffset(batchOffset + fetchLimit);
         if (total !== null && nextLength >= total) {
-          console.debug('[InfiniteGallery] All items loaded');
+          console.debug('[InfiniteGallery] All items loaded based on Supabase count.');
           setHasMore(false);
         }
       } catch (err) {
@@ -97,7 +118,8 @@ export const InfiniteGallery: React.FC = () => {
         setHasMore(false);
         return;
       }
-      const maxStart = Math.max(0, count - BATCH_SIZE);
+      const fetchLimit = BATCH_SIZE * FETCH_MULTIPLIER;
+      const maxStart = Math.max(0, count - fetchLimit);
       const start = Math.floor(Math.random() * (maxStart + 1));
       await fetchBatch(start);
     } catch (err) {

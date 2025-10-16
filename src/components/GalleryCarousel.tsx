@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getGalleryItems } from '../services/galleryService';
 import type { GalleryItem } from '../services/galleryService';
+import { filterGalleryItemsByAspect } from '../utils/galleryFilters';
 
 /**
  * Carousel showcasing community shared ending images.
@@ -12,6 +13,11 @@ import type { GalleryItem } from '../services/galleryService';
  * while still allowing manual horizontal scroll via arrows or swipe.
  */
 const AUTO_INTERVAL_MS = 2000; // 2 seconds per photo
+const CAROUSEL_ASPECT_RANGE = {
+  minAspectRatio: 0.9,
+  maxAspectRatio: 1.3,
+};
+const CANDIDATE_FETCH_LIMIT = 60;
 
 function shuffleArray<T>(array: T[]): T[] {
   return array
@@ -37,8 +43,19 @@ const GalleryCarousel: React.FC<GalleryCarouselProps> = ({ title }) => {
     (async () => {
       try {
         // Fetch a larger pool then sample client-side for randomness
-        const rows = await getGalleryItems(40, 0);
-        const eligible = rows.filter((r) => (r.hearts ?? 0) >= 1);
+        const rows = await getGalleryItems(CANDIDATE_FETCH_LIMIT, 0);
+        let filtered = await filterGalleryItemsByAspect(rows, CAROUSEL_ASPECT_RANGE);
+
+        if (filtered.length === 0) {
+          console.warn('[GalleryCarousel] Aspect filter removed all candidates, falling back to unfiltered pool.');
+          filtered = rows;
+        }
+
+        let eligible = filtered.filter((r) => (r.hearts ?? 0) >= 1);
+        if (eligible.length === 0) {
+          eligible = filtered;
+        }
+
         setItems(shuffleArray(eligible).slice(0, 12));
       } catch (err) {
         console.error('[GalleryCarousel] Failed to load items:', err);
