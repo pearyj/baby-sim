@@ -76,6 +76,20 @@ i18n
     },
   });
 
+// Keep <html lang="..."> in sync with i18n
+try {
+  const setLang = (lng: string) => {
+    const base = (lng || 'en').split('-')[0];
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('lang', base);
+    }
+  };
+  setLang(i18n.language);
+  i18n.on('languageChanged', setLang);
+} catch (_) {
+  // noop in non-DOM environments
+}
+
 // Log the detected language for debugging
 if (process.env.NODE_ENV === 'development') {
   const systemLang = detectSystemLanguage();

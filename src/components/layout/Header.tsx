@@ -9,9 +9,12 @@ import { useTranslation } from 'react-i18next';
 import useGameStore from '../../stores/useGameStore';
 import { useNavigate } from 'react-router-dom';
 
-const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-  boxShadow: '0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)',
+const StyledAppBar = styled(AppBar)(() => ({
+  background: `linear-gradient(135deg, rgba(255, 107, 53, 0.9) 0%, rgba(229, 90, 43, 0.9) 100%)`,
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  borderBottom: '1px solid rgba(255, 255, 255, 0.24)',
+  boxShadow: '0 14px 30px rgba(30,30,30,0.12)'
 }));
 
 const StyledTitle = styled(Typography)(({ theme }) => ({

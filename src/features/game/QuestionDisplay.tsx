@@ -135,7 +135,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
       <Box sx={{ width: '100%', px: { xs: 2, sm: 3 } }} ref={containerRef}>
         <Box sx={{ maxWidth: '48rem', mx: 'auto' }}>
           <Fade in timeout={500}>
-            <StyledCard elevation={2}>
+            <StyledCard elevation={2} variant="glass">
               <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
                 <StreamingTextDisplay
                   content={streamingContent}
@@ -161,7 +161,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
       <Box sx={{ width: '100%', px: { xs: 2, sm: 3 } }} ref={containerRef}>
         <Box sx={{ maxWidth: '48rem', mx: 'auto' }}>
           <Fade in timeout={500}>
-            <StyledCard elevation={2}>
+            <StyledCard elevation={2} variant="glass">
               <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
                 <Typography variant="h6" color="text.secondary" sx={{ textAlign: 'center' }}>
                   {t('ui.loadingQuestion')}
@@ -181,7 +181,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
     <Box sx={{ width: '100%', px: { xs: 2, sm: 3 } }} ref={containerRef}>
       <Box sx={{ maxWidth: '48rem', mx: 'auto' }}>
         <Fade in timeout={500}>
-          <StyledCard elevation={2}>
+          <StyledCard elevation={2} variant="glass">
             <LoadingOverlay open={isLoading}>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
                 <CircularProgress size={48} thickness={4} />

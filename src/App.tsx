@@ -47,12 +47,13 @@ import { usePaymentStore } from './stores/usePaymentStore';
 import React from 'react';
 import * as storageService from './services/storageService';
 
-const MainContainer = styled(Box)(({ theme }) => ({
+const MainContainer = styled(Box)({
   minHeight: '100vh',
-  backgroundColor: theme.palette.background.default,
+  // Transparent to reveal gradient canvas background
+  backgroundColor: 'transparent',
   display: 'flex',
   flexDirection: 'column',
-}));
+});
 
 const ContentArea = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -285,7 +286,7 @@ function App() {
     return performanceMonitor.timeSync('render-main-content', 'ui', () => {
       if (gamePhase === 'initializing') {
         return (
-          <LoadingCard>
+          <LoadingCard variant="glass">
             <CardContent>
               <CircularProgress size={60} sx={{ mb: 3 }} />
               <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
@@ -566,7 +567,7 @@ function App() {
           }
           
           return (
-            <LoadingCard>
+            <LoadingCard variant="glass">
               <CardContent>
                 <CircularProgress size={40} sx={{ mb: 2 }} />
                 <Typography variant="h6" color="text.secondary">
@@ -580,7 +581,7 @@ function App() {
       
       if (isLoading) { 
           return (
-            <LoadingCard>
+            <LoadingCard variant="glass">
               <CardContent>
                 <CircularProgress size={40} sx={{ mb: 2 }} />
                 <Typography variant="h6" color="text.secondary">
@@ -592,7 +593,7 @@ function App() {
       }
 
       return (
-        <LoadingCard>
+        <LoadingCard variant="glass">
           <CardContent>
             <Typography variant="h6" color="text.secondary">
               {t('messages.gameStateUnclear', { gamePhase })}

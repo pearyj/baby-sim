@@ -182,7 +182,7 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
     <Box className="feedback-display" sx={{ width: '100%', marginLeft: '24px', px: { xs: 2, sm: 3 } }} ref={containerRef}>
       <Box sx={{ maxWidth: '48rem', mx: 'auto' }}>
         <Fade in={isVisible} timeout={500}>
-          <StyledCard elevation={3}>
+          <StyledCard elevation={3} variant="glass">
             <CardContent sx={{ p: { xs: 3, sm: 4, md: 5 } }}>
               {isLoadingFirstQuestion && isFirstQuestion && (
                 <Box sx={{ mb: 3 }}>

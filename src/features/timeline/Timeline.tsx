@@ -160,7 +160,7 @@ export const Timeline: React.FC<TimelineProps> = ({
               </Tooltip>
               
               {isCurrent ? (
-                <CurrentAgeCard elevation={2} onClick={() => handleToggleExpand(event.age)}>
+                <CurrentAgeCard variant="glass" elevation={2} onClick={() => handleToggleExpand(event.age)}>
                   <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -214,7 +214,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                   </CardContent>
                 </CurrentAgeCard>
               ) : (
-                <TimelineCard elevation={1} onClick={() => handleToggleExpand(event.age)}>
+                <TimelineCard variant="glass" elevation={1} onClick={() => handleToggleExpand(event.age)}>
                   <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

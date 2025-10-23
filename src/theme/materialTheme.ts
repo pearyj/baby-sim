@@ -155,7 +155,7 @@ export const materialTheme = createTheme({
     },
   },
   shape: {
-    borderRadius: 12, // Material Design 3 uses larger border radius
+    borderRadius: 16, // Slightly larger for softer, modern feel
   },
   shadows: [
     'none',
@@ -184,6 +184,31 @@ export const materialTheme = createTheme({
     '0px 10px 10px 0px rgba(0, 0, 0, 0.3), 0px 14px 18px 12px rgba(0, 0, 0, 0.15)',
     '0px 12px 12px 0px rgba(0, 0, 0, 0.3), 0px 16px 20px 14px rgba(0, 0, 0, 0.15)',
   ] as any,
+  // Custom tokens for glassmorphism and motion
+  // Note: These live under theme.custom.* and are referenced by component styles
+  custom: {
+    glass: {
+      bg: 'rgba(255, 255, 255, 0.6)',
+      hoverBg: 'rgba(255, 255, 255, 0.68)',
+      border: '1px solid rgba(255, 255, 255, 0.35)',
+      divider: '1px solid rgba(0, 0, 0, 0.06)',
+      blur: '12px',
+      shadow: '0 10px 30px rgba(30, 30, 30, 0.08)',
+      insetHighlight: 'inset 0 1px 0 rgba(255, 255, 255, 0.20)'
+    },
+    radius: {
+      sm: 12,
+      md: 16,
+      lg: 20,
+      xl: 24,
+    },
+    motion: {
+      fast: '120ms',
+      standard: '200ms',
+      slow: '320ms',
+      easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+    }
+  },
   components: {
     MuiButton: {
       styleOverrides: {
@@ -201,21 +226,75 @@ export const materialTheme = createTheme({
           },
         },
       },
+      variants: [
+        {
+          props: { variant: 'soft' as any },
+          style: {
+            backgroundColor: 'rgba(255, 107, 53, 0.12)',
+            color: '#E55A2B',
+            border: '1px solid rgba(255, 107, 53, 0.24)',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 107, 53, 0.18)'
+            }
+          }
+        },
+        {
+          props: { variant: 'tonal' as any },
+          style: {
+            background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.18) 0%, rgba(224, 159, 62, 0.18) 100%)',
+            color: '#E55A2B',
+            border: '1px solid rgba(255, 255, 255, 0.28)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.24) 0%, rgba(224, 159, 62, 0.24) 100%)'
+            }
+          }
+        }
+      ]
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 16,
           boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15)',
         },
       },
+      variants: [
+        {
+          props: { variant: 'glass' as any },
+          style: {
+            backgroundColor: 'rgba(255, 255, 255, 0.6)',
+            border: '1px solid rgba(255, 255, 255, 0.35)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            boxShadow: '0 10px 30px rgba(30, 30, 30, 0.08)',
+            transition: 'transform 200ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+            '&:hover': {
+              transform: 'translateY(-1px)',
+              boxShadow: '0 12px 34px rgba(30, 30, 30, 0.10)'
+            }
+          }
+        }
+      ]
     },
     MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 16,
         },
       },
+      variants: [
+        {
+          props: { variant: 'glass' as any },
+          style: {
+            backgroundColor: 'rgba(255, 255, 255, 0.6)',
+            border: '1px solid rgba(255, 255, 255, 0.35)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            boxShadow: '0 10px 30px rgba(30, 30, 30, 0.08)'
+          }
+        }
+      ]
     },
     MuiTextField: {
       styleOverrides: {
@@ -226,6 +305,37 @@ export const materialTheme = createTheme({
         },
       },
     },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: 'rgba(255, 255, 255, 0.65)',
+          border: '1px solid rgba(255, 255, 255, 0.35)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          boxShadow: '0 16px 40px rgba(30, 30, 30, 0.16)',
+          borderRadius: 20
+        }
+      }
+    },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.12)'
+        }
+      }
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: 'rgba(33, 33, 33, 0.9)',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)'
+        }
+      }
+    }
   },
 });
 
@@ -254,4 +364,54 @@ declare module '@mui/material/styles' {
       variant: string;
     };
   }
-} 
+
+  interface Theme {
+    custom: {
+      glass: {
+        bg: string;
+        hoverBg: string;
+        border: string;
+        divider: string;
+        blur: string;
+        shadow: string;
+        insetHighlight: string;
+      };
+      radius: {
+        sm: number;
+        md: number;
+        lg: number;
+        xl: number;
+      };
+      motion: {
+        fast: string;
+        standard: string;
+        slow: string;
+        easing: string;
+      };
+    };
+  }
+
+  interface ThemeOptions {
+    custom?: Theme['custom'];
+  }
+}
+
+// Allow custom variants on specific components
+declare module '@mui/material/Paper' {
+  interface PaperPropsVariantOverrides {
+    glass: true;
+  }
+}
+
+declare module '@mui/material/Card' {
+  interface CardPropsVariantOverrides {
+    glass: true;
+  }
+}
+
+declare module '@mui/material/Button' {
+  interface ButtonPropsVariantOverrides {
+    soft: true;
+    tonal: true;
+  }
+}

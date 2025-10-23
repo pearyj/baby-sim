@@ -56,6 +56,9 @@
   word-wrap: break-word;
   hyphens: auto;
   text-align: left;
+  /* Fiction-friendly Latin stack */
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-feature-settings: 'liga' 1, 'onum' 0;
 }
 
 .text-display p {
@@ -64,6 +67,17 @@
 
 .text-display p:last-child {
   margin-bottom: 0;
+}
+
+/* Language-aware stacks so Chinese remains sans, Japanese uses serif */
+.text-display:lang(zh),
+:lang(zh) .text-display {
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+}
+
+.text-display:lang(ja),
+:lang(ja) .text-display {
+  font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
 }
 
 /* 添加响应式文本大小 */

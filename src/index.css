@@ -127,3 +127,33 @@ button:focus-visible {
   width: 24px;
   height: 24px;
 }
+
+/* Warm gradient background canvas */
+body {
+  background:
+    radial-gradient(1200px 600px at 10% 0%, rgba(255, 185, 151, 0.35), transparent 50%),
+    radial-gradient(1200px 600px at 100% 0%, rgba(224, 159, 62, 0.25), transparent 50%),
+    linear-gradient(180deg, #FFF7F3 0%, #FFFAF6 40%, #FCEFE5 100%);
+  background-attachment: fixed;
+}
+
+/* Global language-aware font stacks */
+:lang(en) body,
+:lang(en) .MuiTypography-root {
+  font-family: Georgia, 'Times New Roman', Times, serif !important;
+}
+
+:lang(es) body,
+:lang(es) .MuiTypography-root {
+  font-family: Georgia, 'Times New Roman', Times, serif !important;
+}
+
+:lang(ja) body,
+:lang(ja) .MuiTypography-root {
+  font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif !important;
+}
+
+:lang(zh) body,
+:lang(zh) .MuiTypography-root {
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif !important;
+}
