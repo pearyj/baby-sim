@@ -220,6 +220,13 @@
     "body": "In life, we don't always get to choose our child. Sometimes the world hands us a little human to love just as they are. Consider continuing the journey with the kid you've got — you might be surprised where it goes.",
     "ok": "Got it"
   },
+  "announcement": {
+    "title": "Hi! Just a quick Thank You!",
+    "body1": "Since launching in May, I've been amazed to see over 20,000 babies raised by players from all over the world. Hearing your wonderful stories and experiences has been a true highlight for me.",
+    "body2": "I've just updated the website with Gemini and am continuing to make improvements to give you the best experience possible.",
+    "body3": "If you have any feedback or just want to share a story, please feel free to email me - I'd love to hear from you. Thank you again for playing, and I hope you enjoy the journey with your little one!",
+    "dismissHint": "Click anywhere to dismiss"
+  },
   "share": {
     "title": "I've raised {{childName}} to 18 at the Baby Simulator!",
     "text": "Join me and try raising a baby yourself at https://babysim.fun!",
@@ -239,8 +246,8 @@
     "feature1": "AI-generated character backgrounds, parenting scenarios, and storylines",
     "feature2": "Every decision affects your child's path",
     "feature3": "See a timeline of your parenting journey until your child reaches adulthood at 18, and reflect on what kind of parent you are",
-    "feature4": "[Updated + Beta] Generate a photo of your 18-year-old child in the style you prefer",
-    "feature5": "[Beta] Upgrade to the latest GPT‑5 model for better scenario generation and writing",
+    "feature4": "Generate a photo of your 18-year-old child in the style you prefer",
+    "feature5": "Upgrade to Gemini 3.0 Pro for better scenario generation and writing",
     "startGameInfo": "Click start game to randomly generate a parent character and basic child information.",
     "specialRequirements": "Special Requirements (Optional)",
     "specialRequirementsPlaceholder": "I want an ugly cute kid",

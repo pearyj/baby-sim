@@ -114,7 +114,7 @@ export const FeedbackButton: React.FC = () => {
                     {credits ?? 0}
                   </Typography>
                   {/* <Typography variant="caption" color="text.secondary">
-                    {t('messages.creditsUsageShort') || 'Use credits for premium GPT‑5 and image generation.'}
+                    {t('messages.creditsUsageShort') || 'Use credits for premium Gemini 3.0 Pro and image generation.'}
                   </Typography> */}
                   <Typography variant="caption" color="text.secondary">
                     {t('messages.imageCreditsRemaining', { remainingCount: Math.floor(((credits ?? 0) as number) / 0.15) }) || `0.15积分可以生成1张图片，您还可以生成${Math.floor(((credits ?? 0) as number) / 0.15)}张`}

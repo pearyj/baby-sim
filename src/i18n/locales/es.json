@@ -223,8 +223,8 @@
     "feature1": "Antecedentes de personajes, escenarios de crianza e historias generadas por IA",
     "feature2": "Cada decisión afecta el camino de tu hijo",
       "feature3": "Ve una línea de tiempo de tu viaje de crianza hasta que tu hijo alcance la edad adulta a los 18, y reflexiona sobre qué tipo de padre eres",
-      "feature4": "[Actualizado + Beta] Genera una foto de tu hijo de 18 años en el estilo que prefieras",
-      "feature5": "[Beta] Actualiza al modelo GPT‑5 más reciente para disfrutar de una mejor generación de escenarios y escritura",
+      "feature4": "Genera una foto de tu hijo de 18 años en el estilo que prefieras",
+      "feature5": "Actualiza a Gemini 3.0 Pro para disfrutar de una mejor generación de escenarios y escritura",
     "startGameInfo": "Haz clic en iniciar juego para generar aleatoriamente un personaje padre e información básica del niño.",
     "specialRequirements": "Requisitos Especiales (Opcional)",
     "specialRequirementsPlaceholder": "Quiero un niño feo pero tierno",
@@ -346,6 +346,13 @@
       "security": "Si no solicitaste este código, por favor ignora este correo.",
       "footer": "¡Feliz crianza!<br>El Equipo de BabySim"
     }
+  },
+  "announcement": {
+    "title": "¡Gracias por apoyar The Baby Simulator!",
+    "body1": "Desde el lanzamiento en mayo, más de 20,000 bebés han sido criados por jugadores de todo el mundo. Me hace muy feliz conocer las maravillosas historias que han compartido sobre sus experiencias.",
+    "body2": "He actualizado el sitio con Gemini y sigo trabajando en mejoras para ofrecerles una experiencia cada vez mejor.",
+    "body3": "Si tienes alguna sugerencia o quieres compartir una historia, no dudes en escribirme por correo; me encantaría charlar contigo. ¡Gracias de nuevo por jugar y espero que sigas disfrutando este viaje con tu bebé!",
+    "dismissHint": "Haz clic en cualquier lugar para cerrar"
   },
   "gentleReminder": {
     "title": "Un recordatorio amable",

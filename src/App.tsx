@@ -35,6 +35,7 @@ import { StreamingTextDisplay } from './components/ui/StreamingTextDisplay'
 import { PerformanceMonitor } from './components/dev/PerformanceMonitor'
 import { DebugNumericalValues } from './components/dev/DebugNumericalValues'
 import { FeedbackButton } from './components/ui/FeedbackButton'
+import { AnnouncementOverlay } from './components/ui/AnnouncementOverlay'
 import { AdTestPage } from './pages/AdTestPage'
 import { PaymentTestPage } from './pages/PaymentTestPage'
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
@@ -100,11 +101,14 @@ const EndingCard = styled(Card)(({ theme }) => ({
   },
 }));
 
+const THANK_YOU_ANNOUNCEMENT_STORAGE_KEY = 'thankYouAnnouncementDismissed_v1';
+
 function App() {
   useGameFlow() // Initialize game flow logic
   const { t } = useTranslation();
   const [showLLMPaywall, setShowLLMPaywall] = React.useState(false);
   const [showGiveUpReminder, setShowGiveUpReminder] = React.useState(false);
+  const [showAnnouncement, setShowAnnouncement] = React.useState(false);
   // const [isWaitingForPremiumCredit, setIsWaitingForPremiumCredit] = React.useState(false);
   
   // Determine if in development mode
@@ -235,6 +239,27 @@ function App() {
   useEffect(() => {
     debugPrintActiveModel();
   }, []);
+
+  // Show announcement once per user until dismissed
+  useEffect(() => {
+    try {
+      const dismissed = localStorage.getItem(THANK_YOU_ANNOUNCEMENT_STORAGE_KEY);
+      if (dismissed !== 'true') {
+        setShowAnnouncement(true);
+      }
+    } catch (_) {
+      setShowAnnouncement(true);
+    }
+  }, []);
+
+  const handleDismissAnnouncement = () => {
+    setShowAnnouncement(false);
+    try {
+      localStorage.setItem(THANK_YOU_ANNOUNCEMENT_STORAGE_KEY, 'true');
+    } catch (_) {
+      // ignore
+    }
+  };
 
   // Check give up streak whenever entering welcome or when app mounts
   useEffect(() => {
@@ -663,6 +688,10 @@ function App() {
           </Routes>
         </MainContentArea>
       </ContentArea>
+      <AnnouncementOverlay
+        open={showAnnouncement}
+        onClose={handleDismissAnnouncement}
+      />
       <FeedbackButton />
 
       {/* Gentle reminder dialog for repeated give-ups */}
