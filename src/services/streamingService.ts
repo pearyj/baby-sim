@@ -166,10 +166,10 @@ export const makeStreamingRequest = async (
 
       options.onComplete(fullContent, usage);
 
-      // Charge fractional credit if using GPT-5 (ultra)
+      // Charge fractional credit if using the premium Gemini model (ultra)
       try {
         const currentEffective = getEffectiveProviderKey();
-        if (currentEffective === 'gpt5') {
+        if (currentEffective === 'gemini-pro') {
           const anonId = getOrCreateAnonymousId();
           const email = (() => {
             try { return usePaymentStore.getState().email || undefined; } catch (_) { return undefined; }
@@ -204,13 +204,13 @@ const makeDirectStreamingRequest = async (
   options: StreamOptions
 ): Promise<void> => {
   // Create the request body based on provider
-  const isGpt5 = (provider.model || '').startsWith('gpt-5');
+  const isPremiumGemini = provider.name === 'gemini' && provider.model.includes('pro');
   let requestBody: any = {
     model: provider.model,
     messages: messages,
     stream: true, // Enable streaming
   };
-  if (!isGpt5) {
+  if (!isPremiumGemini) {
     requestBody = {
       ...requestBody,
       temperature: 0.7,
@@ -240,6 +240,7 @@ const makeDirectStreamingRequest = async (
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${provider.apiKey}`,
+      ...(provider.name === 'gemini' ? { 'x-goog-api-key': provider.apiKey } : {}),
       'Accept': 'text/event-stream',
     },
     body: JSON.stringify(requestBody)
@@ -319,10 +320,10 @@ const makeDirectStreamingRequest = async (
 
     options.onComplete(fullContent, usage);
     
-    // Charge fractional credit if using GPT-5 (ultra) in direct mode
+    // Charge fractional credit if using premium Gemini in direct mode
     try {
-      const isGpt5Effective = (provider.model || '').startsWith('gpt-5');
-      if (isGpt5Effective) {
+      const isPremium = provider.name === 'gemini' && provider.model.includes('pro');
+      if (isPremium) {
         const anonId = getOrCreateAnonymousId();
         const result = await consumeCreditAPI(anonId, undefined, 0.05);
         try {

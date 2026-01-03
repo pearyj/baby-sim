@@ -469,7 +469,7 @@ function App() {
             childName: child?.name
           });
 
-          // Create a safe wrapper for continueGame with premium (ultra) gating on every GPT-5 call
+          // Create a safe wrapper for continueGame with premium (ultra) gating on every Gemini 3.0 Pro call
           const safeContinue = async () => {
             const storeContinueGame = useGameStore.getState().continueGame;
 
@@ -481,7 +481,7 @@ function App() {
                 }
                 await fetchCredits();
               } catch (_) {}
-              // Require email and at least 0.05 credits for GPT-5 interactions
+              // Require email and at least 0.05 credits for premium interactions
               if (!email || typeof credits !== 'number' || credits < 0.05) {
                 setShowLLMPaywall(true);
                 return;
@@ -523,7 +523,7 @@ function App() {
 
       if (isGamePlayPhase) {
         if (currentQuestion) {
-          // Wrap selectOption to gate GPT-5 usage by credits
+          // Wrap selectOption to gate premium Gemini usage by credits
           const storeSelectOption = enableStreaming ? selectOptionStreaming : selectOption;
           const safeSelectOption = async (optionId: string) => {
             if (isPremiumStyleActive()) {

@@ -16,7 +16,7 @@
 ```typescript
 interface RequestBody {
   messages: ChatMessage[];           // 聊天消息数组
-  provider?: 'openai' | 'deepseek' | 'volcengine' | 'gpt5';  // AI提供商
+  provider?: 'openai' | 'deepseek' | 'volcengine' | 'gemini-flash' | 'gemini-pro' | 'gpt5';  // AI提供商（gpt5 为兼容别名）
   streaming?: boolean;               // 是否流式响应
 }
 
@@ -42,13 +42,15 @@ interface ChatMessage {
 
 **支持的AI模型**:
 - OpenAI: `gpt-4o-mini`
-- GPT-5: `gpt-5-mini-2025-08-07`
+- Gemini Flash: `gemini-2.5-flash`
+- Gemini 3.0 Pro (含 gpt5 兼容别名): `gemini-3.0-pro`
 - DeepSeek: `deepseek-chat`
-- Volcengine: `ep-20241230105129-8xqkz`
+- Volcengine: `deepseek-v3-250324`
 
 **环境变量**:
 - `OPENAI_API_KEY`
 - `DEEPSEEK_API_KEY`
+- `GEMINI_API_KEY`
 - `VOLCENGINE_LLM_API_KEY`
 
 ---

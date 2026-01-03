@@ -14,7 +14,7 @@ const DevModelSwitcher: React.FC<DevModelSwitcherProps> = ({ className }) => {
   if (!import.meta.env.DEV) {
     return null;
   }
-  // Hide entirely when ultra style is active (locked to GPT-5)
+  // Hide entirely when ultra style is active (locked to premium Gemini)
   if (isPremiumStyleActive()) {
     return null;
   }

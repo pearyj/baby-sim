@@ -596,8 +596,8 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
           </Typography>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
             {i18n.language === 'zh'
-              ? '高级 GPT‑5 模型有更高的 Token 成本，可能需要 VPN；同一套积分也可用于游戏结尾的图片生成。'
-              : 'Premium GPT‑5 model has higher token cost and may require VPN; the same token credits can be used for the end-of-game image generation.'}
+              ? '高级 Gemini 3.0 Pro 成本更高，部分地区访问可能受限；同一套积分也可用于游戏结尾的图片生成。'
+              : 'Premium Gemini 3.0 Pro costs more and may have regional access limits; the same credits can be used for the end-of-game image generation.'}
           </Typography>
 
         {/* Reminder for post-payment refresh issues */}
@@ -605,11 +605,11 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
           {t('paywall.postPaymentReminder')}
         </Typography>
 
-        {/* GPT-5 access region reminder (LLM only) */}
+        {/* Premium model access reminder (LLM only) */}
         {mode === 'llm' && (
           <Alert severity="warning" sx={{ mt: 2 }}>
             <Typography variant="body2">
-              {t('paywall.gpt5AccessWarning')}
+              {t('paywall.premiumAccessWarning')}
             </Typography>
           </Alert>
         )}

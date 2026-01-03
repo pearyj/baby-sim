@@ -10,7 +10,7 @@ import {
 } from '../../services/gptServiceUnified';
 import useGameStore from '../../stores/useGameStore';
 
-type ProviderChoice = 'volcengine' | 'gpt5';
+type ProviderChoice = 'volcengine' | 'gemini-flash';
 
 export const ProviderToggle: React.FC = () => {
   const { t } = useTranslation();
@@ -34,10 +34,10 @@ export const ProviderToggle: React.FC = () => {
     const update = () => {
       const eff = getEffectiveProviderKey();
       const rawOverride = getProviderOverride();
-      const override = rawOverride === 'deepseek' ? 'volcengine' : rawOverride;
+      const override = rawOverride ?? null;
       const isLocked = isPremiumStyleActive();
       setLocked(isLocked);
-      const nextChoice: ProviderChoice = override ? override : (eff === 'gpt5' ? 'gpt5' : 'volcengine');
+      const nextChoice: ProviderChoice = override ? override : (eff === 'gemini-flash' ? 'gemini-flash' : 'volcengine');
       setChoice(nextChoice);
       setLabel(getCurrentModel());
     };
@@ -56,13 +56,11 @@ export const ProviderToggle: React.FC = () => {
     setProviderOverride(value);
   };
 
-  const gpt5Note = t('gameStyle.ultraExplanation') || 'Premium feature – GPT‑5 for an ultra-realistic experience';
-
-  // Hide when not in game or when style is locked to GPT-5 (ultra)
+  // Hide when not in game or when style is locked to premium (ultra)
   if (!isInGame || locked) return null;
 
   return (
-    <Tooltip title={choice === 'gpt5' ? gpt5Note : t('header.modelToggle') || 'Model'}>
+    <Tooltip title={t('header.modelToggle') || 'Model'}>
       <ToggleButtonGroup
         size="small"
         exclusive
@@ -92,8 +90,8 @@ export const ProviderToggle: React.FC = () => {
         <ToggleButton value="volcengine" aria-label="Volcengine">
           Deepseek
         </ToggleButton>
-        <ToggleButton value="gpt5" aria-label="GPT-5">
-          GPT-5
+        <ToggleButton value="gemini-flash" aria-label="Gemini">
+          Gemini
         </ToggleButton>
       </ToggleButtonGroup>
     </Tooltip>
@@ -101,5 +99,3 @@ export const ProviderToggle: React.FC = () => {
 };
 
 export default ProviderToggle;
-
-

@@ -151,7 +151,7 @@
     "thankYouSupport": "感谢您的支持！",
     "createImages": "生成图片",
     "useCreditsHint": "提示：您可以使用积分为{{childName}}生成结尾图片。",
-    "creditsUsageShort": "积分可用于高级 GPT‑5 与图片生成。"
+    "creditsUsageShort": "积分可用于高级 Gemini 3.0 Pro 与图片生成。"
   },
   "header": {
     "title": "养娃模拟器",
@@ -282,7 +282,7 @@
   },
   "paywall": {
     "title": "感谢游玩！生成{{childName}}的照片",
-    "title_llm": "为更好的{{childName}}体验，您正在使用成本较高的 GPT-5！",
+    "title_llm": "为更好的{{childName}}体验，您正在使用高级 Gemini 3.0 Pro！",
     "title_support": "打赏支持养娃模拟器",
     "subtitle": "AI 生成有成本——按您希望的金额打赏以支持本游戏，并获得积分以使用高级语言模型、生成专属 AI 照片",
     "subtitle_llm": "AI 生成有成本——按您希望的金额打赏以支持本游戏，并获得积分以使用高级语言模型、生成专属 AI 照片",
@@ -302,14 +302,14 @@
     "processing": "处理中...",
     "checkingCreditsProgress": "查询积分中...",
     "creditsFound": "您有 {{count}} 个积分，可立即生成娃的图片。",
-    "creditsFound_llm": "您有 {{count}} 个积分，现在可以继续使用 GPT‑5。",
+    "creditsFound_llm": "您有 {{count}} 个积分，现在可以继续使用 Gemini 3.0 Pro。",
     "noCreditsFound": "没有找到积分，请捐赠以获得积分。",
     "checkCreditsFailed": "查询积分失败",
     "emailReceiptCopy": "邮箱以接受收据和并未来继续使用生图功能",
     "emailAgreement": "输入邮箱即代表您同意我们的隐私政策和服务条款。",
     "emailPrivacyNotice": "隐私声明 – 通过提供您的邮箱，您同意BabySim可能将其与您的游戏活动关联，仅用于分析和产品改进，符合我们的隐私政策。您可以随时取消关联或删除此数据。",
     "postPaymentReminder": "如果支付完成后页面没有刷新，请使用同一浏览器返回此网站，积分应会自动加载。如遇支付问题，请发送邮件至 dev@babysim.fun。",
-    "gpt5AccessWarning": "注意！GPT-5 API对特定国家和地区有访问限制，在打赏前请确认你可以正常访问GPT，建议另外开启ChatGPT官网以检查可以正常访问。生图功能不受此限制。"
+    "premiumAccessWarning": "注意：Gemini API 在部分地区可能受限，打赏前请确认您的账号可以正常访问。生图功能不受此限制。"
   },
   "emailVerification": {
     "title": "邮箱验证",
@@ -348,8 +348,8 @@
     "realistic": "现实",
     "fantasy": "奇幻",
     "cool": "酷炫",
-    "ultra": "上新：超写实GPT-5",
-    "ultraExplanation": "付费功能——使用 GPT‑5 带来超写实体验。在部分地区访问 GPT‑5 可能需要梯子/VPN。"
+    "ultra": "上新：超写实 Gemini 3.0 Pro",
+    "ultraExplanation": "付费功能——使用 Gemini 3.0 Pro 带来超写实体验。不同地区的访问质量可能有差异，该模式按次扣除积分。"
   },
   "gallery": {
     "otherKids": "画廊：看看别人晒的娃",

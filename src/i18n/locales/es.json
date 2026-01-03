@@ -151,7 +151,7 @@
     "thankYouSupport": "¡Gracias por tu apoyo!",
     "createImages": "Crear Imágenes",
     "useCreditsHint": "Pista: Puedes usar créditos para {{childName}} para generar imágenes.",
-    "creditsUsageShort": "Créditos pueden usarse para GPT-5 y generación de imágenes."
+    "creditsUsageShort": "Los créditos sirven para Gemini 3.0 Pro y la generación de imágenes."
   },
   "header": {
     "title": "El Simulador de Bebés",
@@ -201,7 +201,7 @@
     "encourageThinking": "Alentar al niño a pensar y resolver problemas independientemente",
     "errorGeneratingSummary": "Error: No se pudo generar resumen.",
     "thankYouSupport": "¡Gracias por tu apoyo!",
-    "creditsUsageShort": "Usa créditos para GPT‑5 premium y generación de imágenes.",
+    "creditsUsageShort": "Usa créditos para Gemini 3.0 Pro y generación de imágenes.",
     "useCreditsHint": "Consejo: Puedes usar créditos para generar la imagen final de {{childName}}."
   },
   "share": {
@@ -275,7 +275,7 @@
   },
   "paywall": {
     "title": "¡Gracias por jugar! Ver a {{childName}} en una foto",
-    "title_llm": "¡Estás usando el costoso modelo GPT-5 para una mejor experiencia con {{childName}}!",
+    "title_llm": "¡Estás usando el modelo premium Gemini 3.0 Pro para una mejor experiencia con {{childName}}!",
     "title_support": "Apoya el Simulador de Bebés",
     "subtitle": "Las generaciones de IA tienen un costo — dona al precio que prefieras para apoyar el juego y recibir créditos para usar modelos de lenguaje premium y generar fotos AI personalizadas",
     "subtitle_llm": "Las generaciones de IA tienen un costo — dona al precio que prefieras para apoyar el juego y recibir créditos para usar modelos de lenguaje premium y generar fotos AI personalizadas",
@@ -297,22 +297,22 @@
     "checkingCreditsProgress": "Verificando créditos...",
     "creditsFound": "Tienes {{count}} crédito. Puedes generar tu foto ahora.",
     "creditsFound_plural": "Tienes {{count}} créditos. Puedes generar tu foto ahora.",
-    "creditsFound_llm": "Tienes {{count}} crédito. Ya puedes continuar con GPT‑5.",
-    "creditsFound_llm_plural": "Tienes {{count}} créditos. Ya puedes continuar con GPT‑5.",
+    "creditsFound_llm": "Tienes {{count}} crédito. Ya puedes continuar con Gemini 3.0 Pro.",
+    "creditsFound_llm_plural": "Tienes {{count}} créditos. Ya puedes continuar con Gemini 3.0 Pro.",
     "noCreditsFound": "No se encontraron créditos. Por favor dona para obtener créditos.",
     "checkCreditsFailed": "Error al verificar créditos",
     "emailReceiptCopy": "Comparte tu correo electrónico para el recibo y para recuperar tus créditos de imagen para futuros niños",
     "emailAgreement": "Al compartir tu correo electrónico aceptas nuestra Política de Privacidad y Términos de Servicio.",
     "emailPrivacyNotice": "Aviso de privacidad – Al proporcionar tu correo electrónico aceptas que BabySim puede vincularlo a tu actividad de juego únicamente para análisis y mejora del producto de acuerdo con nuestra Política de Privacidad. Puedes desvincular o eliminar estos datos en cualquier momento.",
     "postPaymentReminder": "Si la página no se actualiza después del pago, puedes regresar a este sitio web en el mismo navegador y tus créditos deberían cargarse automáticamente. Si encuentras algún problema con los pagos, por favor envía un correo a dev@babysim.fun.",
-    "gpt5AccessWarning": "Importante: La API de GPT‑5 está restringida en ciertos países/regiones. Antes de donar, asegúrate de poder acceder a GPT. Recomendamos abrir el sitio web de ChatGPT para verificar. La función de generación de imágenes no está sujeta a esta restricción."
+    "premiumAccessWarning": "Importante: La disponibilidad de la API de Gemini varía según el país/región. Antes de donar, verifica que tu cuenta pueda acceder a Gemini. La función de generación de imágenes no está sujeta a esta restricción."
   },
   "gameStyle": {
     "realistic": "Realista",
     "fantasy": "Fantasía",
     "cool": "Emocionante",
-    "ultra": "Nuevo: Ultra-realista con GPT-5",
-    "ultraExplanation": "Función premium: usa GPT‑5 para una experiencia ultrarrealista. En algunas regiones puede requerirse una VPN para acceder a GPT‑5."
+    "ultra": "Nuevo: Ultra-realista con Gemini 3.0 Pro",
+    "ultraExplanation": "Función premium: usa Gemini 3.0 Pro para una experiencia ultrarrealista y consume créditos por interacción; la disponibilidad puede variar por región."
   },
   "gallery": {
     "otherKids": "Otros Niños",

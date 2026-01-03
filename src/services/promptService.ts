@@ -397,7 +397,7 @@ export const generateOutcomeAndNextQuestionPrompt = (
   }
   
   // Do NOT append guardrails here. Guardrails are appended conditionally
-  // in the service layer based on the effective provider (GPT-5).
+// in the service layer based on the effective provider (premium Gemini).
   return basePrompt + formatSection;
 };
 
@@ -440,6 +440,7 @@ export const generateEndingHistoryContext = (gameState: GameState): string => {
 
 /**
  * Get the localized concise note for outcome prompts
+ * Legacy name kept for compatibility; used for the premium (ultra) model.
  */
 export const getGpt5UltraGuardrails = (): string => {
   const note = getPrompt('outcome.gpt5UltraGuardrails');

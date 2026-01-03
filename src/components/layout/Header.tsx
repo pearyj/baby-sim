@@ -65,7 +65,7 @@ export const Header: React.FC = () => {
           {/* Language Toggle */}
           <LanguageToggle />
 
-          {/* Provider Toggle (DeepSeek ↔ GPT-5) - only during gameplay and not in ultra style */}
+          {/* Provider Toggle (DeepSeek ↔ Gemini Flash) - only during gameplay and not in ultra style */}
           {isInGame && !isPremiumStyleActive() && <ProviderToggle />}
           
           {/* Only show streaming toggle in development mode */}

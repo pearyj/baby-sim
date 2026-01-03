@@ -78,10 +78,12 @@ export const getActiveProvider = (): ModelProvider => {
 };
 
 export const getProviderByKey = (
-  key: 'openai' | 'gpt5' | 'deepseek' | 'volcengine'
+  key: 'openai' | 'deepseek' | 'volcengine' | 'gemini-flash' | 'gemini-pro' | 'gpt5'
 ): ModelProvider => {
   // Helper to read provider keys from Vite env ─ only needed for DIRECT_API_MODE=true.
   const env = import.meta.env;
+  const geminiApiUrl = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
+  const geminiApiKey = env.VITE_GEMINI_API_KEY || env.GEMINI_API_KEY || '';
 
   const providers: Record<string, ModelProvider> = {
     openai: {
@@ -89,12 +91,6 @@ export const getProviderByKey = (
       apiUrl: 'https://api.openai.com/v1/chat/completions',
       apiKey: env.VITE_OPENAI_API_KEY || '',
       model: 'gpt-4o-mini',
-    },
-    gpt5: {
-      name: 'openai',
-      apiUrl: 'https://api.openai.com/v1/chat/completions',
-      apiKey: env.VITE_OPENAI_API_KEY || '',
-      model: 'gpt-5-mini-2025-08-07',
     },
     deepseek: {
       name: 'deepseek',
@@ -107,8 +103,25 @@ export const getProviderByKey = (
       apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
       apiKey: env.VITE_VOLCENGINE_LLM_API_KEY || '',
       model: 'deepseek-v3-250324',
+    },
+    'gemini-flash': {
+      name: 'gemini',
+      apiUrl: geminiApiUrl,
+      apiKey: geminiApiKey,
+      model: 'gemini-2.5-flash',
+    },
+    'gemini-pro': {
+      name: 'gemini',
+      apiUrl: geminiApiUrl,
+      apiKey: geminiApiKey,
+      model: 'gemini-3.0-pro',
     }
   };
+
+  if (key === 'gpt5') {
+    logger.info('🔁 Legacy provider key "gpt5" detected, redirecting to Gemini 3.0 Pro');
+    return providers['gemini-pro'];
+  }
 
   return providers[key] || providers.volcengine;
 };
@@ -131,7 +144,7 @@ export const debugPrintActiveModel = (): void => {
 };
 
 export const switchProvider = (): ModelProvider => {
-  const providers = ['openai', 'gpt5', 'deepseek', 'volcengine'] as const;
+  const providers = ['openai', 'gemini-pro', 'gemini-flash', 'deepseek', 'volcengine'] as const;
   const currentIndex = providers.indexOf(API_CONFIG.ACTIVE_PROVIDER as any);
   const nextIndex = (currentIndex + 1) % providers.length;
   
@@ -170,7 +183,7 @@ export const resetTokenUsageStats = (): void => {
 
 // Local persistence helpers (scoped here to avoid cross-module coupling)
 const GAME_STYLE_STORAGE_KEY = 'childSimGameStyle';
-const PROVIDER_OVERRIDE_STORAGE_KEY = 'childSimProvider'; // allowed: 'deepseek' | 'gpt5'
+const PROVIDER_OVERRIDE_STORAGE_KEY = 'childSimProvider'; // allowed: 'volcengine' | 'gemini-flash'
 const isLocalStorageAvailableForStyle = (): boolean => {
   try {
     const testKey = '__styleLocalStorageTest__';
@@ -204,13 +217,15 @@ const writePersistedGameStyle = (style: GameStyle): void => {
   }
 };
 
-type ProviderOverrideKey = 'volcengine' | 'deepseek' | 'gpt5' | null;
+type ProviderOverrideKey = 'volcengine' | 'gemini-flash' | null;
 
 const readPersistedProviderOverride = (): ProviderOverrideKey => {
   if (!isLocalStorageAvailableForStyle()) return null;
   try {
     const raw = localStorage.getItem(PROVIDER_OVERRIDE_STORAGE_KEY);
-    if (raw === 'volcengine' || raw === 'gpt5') return raw;
+    if (raw === 'volcengine' || raw === 'gemini-flash') return raw;
+    if (raw === 'deepseek') return 'volcengine'; // legacy alias
+    if (raw === 'gpt5') return null; // legacy premium override not allowed anymore
     return null;
   } catch (_) {
     return null;
@@ -233,9 +248,9 @@ let activeGameStyle: GameStyle = persistedStyle ?? 'realistic';
 let providerOverride: ProviderOverrideKey = readPersistedProviderOverride();
 // Keep promptService in sync with the resolved style at startup
 setActiveGameStyle(activeGameStyle);
-// Initialize provider by style. If ultra, ignore persisted overrides and lock to GPT-5
+// Initialize provider by style. If ultra, ignore persisted overrides and lock to premium Gemini
 if (activeGameStyle === 'ultra') {
-  (API_CONFIG as any).ACTIVE_PROVIDER = 'gpt5';
+  (API_CONFIG as any).ACTIVE_PROVIDER = 'gemini-pro';
   providerOverride = null; // lock mode: overrides disabled in ultra
 } else if (providerOverride) {
   (API_CONFIG as any).ACTIVE_PROVIDER = providerOverride;
@@ -482,10 +497,10 @@ export const setGameStyle = (style: GameStyle) => {
   writePersistedGameStyle(style);
   // Enforce provider policy per style
   if (style === 'ultra') {
-    // Lock to GPT-5 and clear any override
+    // Lock to Gemini 3.0 Pro and clear any override
     providerOverride = null;
-    (API_CONFIG as any).ACTIVE_PROVIDER = 'gpt5';
-    logger.info('🔒 Ultra mode: locking to GPT-5 and disabling overrides');
+    (API_CONFIG as any).ACTIVE_PROVIDER = 'gemini-pro';
+    logger.info('🔒 Ultra mode: locking to Gemini 3.0 Pro and disabling overrides');
   } else {
     // Non-ultra: default Volcengine unless user has an override
     (API_CONFIG as any).ACTIVE_PROVIDER = providerOverride || 'volcengine';
@@ -504,10 +519,10 @@ export const isPremiumStyleActive = (): boolean => activeGameStyle === 'ultra';
 export const getProviderOverride = (): ProviderOverrideKey => providerOverride;
 
 export const setProviderOverride = (key: ProviderOverrideKey): void => {
-  // If ultra is active, ignore overrides and keep GPT-5
+  // If ultra is active, ignore overrides and keep Gemini 3.0 Pro
   if (activeGameStyle === 'ultra') {
     providerOverride = null;
-    (API_CONFIG as any).ACTIVE_PROVIDER = 'gpt5';
+    (API_CONFIG as any).ACTIVE_PROVIDER = 'gemini-pro';
     writePersistedProviderOverride(providerOverride);
     try { window.dispatchEvent(new CustomEvent('model-provider-changed')); } catch (_) {}
     return;
@@ -521,11 +536,11 @@ export const setProviderOverride = (key: ProviderOverrideKey): void => {
   } catch (_) {}
 };
 
-export const getEffectiveProviderKey = (): 'openai' | 'volcengine' | 'gpt5' | 'deepseek' => {
-  // Ultra style is locked to GPT-5
-  if (activeGameStyle === 'ultra') return 'gpt5';
+export const getEffectiveProviderKey = (): 'openai' | 'volcengine' | 'gemini-pro' | 'gemini-flash' | 'deepseek' => {
+  // Ultra style is locked to Gemini 3.0 Pro
+  if (activeGameStyle === 'ultra') return 'gemini-pro';
   // Otherwise respect explicit override, fallback to Volcengine
-  if (providerOverride === 'volcengine' || providerOverride === 'gpt5') return providerOverride;
+  if (providerOverride === 'volcengine' || providerOverride === 'gemini-flash') return providerOverride;
   return 'volcengine';
 };
 
@@ -637,11 +652,11 @@ const safeJsonParse = (content: string): any => {
   }
 };
 
-// Helper to charge credits for premium GPT-5 interactions
+// Helper to charge credits for premium Gemini interactions
 const chargePremiumInteraction = async (): Promise<void> => {
-  // Charge only when GPT-5 is the effective provider
+  // Charge only when premium Gemini is the effective provider
   const effectiveKey = getEffectiveProviderKey();
-  if (effectiveKey !== 'gpt5') return;
+  if (effectiveKey !== 'gemini-pro') return;
 
   const anonId = getOrCreateAnonymousId();
   // Prefer charging against email balance first to avoid "no_credits" on anon_id
@@ -786,7 +801,6 @@ const makeDirectAPIRequest = async (messages: ChatMessage[], provider: ModelProv
     messages: messages,
   };
   
-  const isGpt5 = (provider.model || '').startsWith('gpt-5');
   if (provider.name === 'deepseek') {
     requestBody = {
       ...requestBody,
@@ -796,8 +810,8 @@ const makeDirectAPIRequest = async (messages: ChatMessage[], provider: ModelProv
       frequency_penalty: 0,
       presence_penalty: 0,
     };
-  } else if (!isGpt5) {
-    // Only include temperature for non-GPT-5 models
+  } else {
+    // Include a gentle temperature for providers that support it
     requestBody = {
       ...requestBody,
       temperature: 0.7,
@@ -808,7 +822,8 @@ const makeDirectAPIRequest = async (messages: ChatMessage[], provider: ModelProv
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${provider.apiKey}`
+      'Authorization': `Bearer ${provider.apiKey}`,
+      ...(provider.name === 'gemini' ? { 'x-goog-api-key': provider.apiKey } : {})
     },
     body: JSON.stringify(requestBody)
   });
@@ -979,7 +994,7 @@ const generateQuestionSync = async (gameState: GameState): Promise<Question & { 
       console.log(JSON.stringify(gameState, null, 2));
     }
     
-    const conciseNote = (getEffectiveProviderKey() === 'gpt5') ? getGpt5UltraGuardrailsI18n() : '';
+    const conciseNote = (getEffectiveProviderKey() === 'gemini-pro') ? getGpt5UltraGuardrailsI18n() : '';
     const combinedSystem = `${systemPrompt}\n\n${systemQuestionPrompt}${conciseNote ? `\n\n${conciseNote}` : ''}`;
     const messages: ChatMessage[] = [
       { role: 'system', content: combinedSystem },
@@ -1081,8 +1096,8 @@ const generateOutcomeAndNextQuestionSync = async (
       console.log(`Should generate next question: ${shouldGenerateNextQuestion}`);
     }
     
-    // Append concise note whenever effective provider is GPT-5
-    const conciseNote = (getEffectiveProviderKey() === 'gpt5') ? getGpt5UltraGuardrailsI18n() : '';
+    // Append concise note whenever premium Gemini is active
+    const conciseNote = (getEffectiveProviderKey() === 'gemini-pro') ? getGpt5UltraGuardrailsI18n() : '';
     const combinedSystem = `${systemPrompt}\n\n${systemOutcomePrompt}${conciseNote ? `\n\n${conciseNote}` : ''}`;
     const messages: ChatMessage[] = [
       { role: 'system', content: combinedSystem },
@@ -1165,7 +1180,7 @@ const generateInitialStateSync = async (specialRequirements?: string): Promise<G
   return performanceMonitor.timeAsync('generateInitialState-full', 'api', async () => {
     const systemPrompt = generateSystemPrompt();
     const systemInitPrompt = generateInitialStatePrompt(specialRequirements, false);
-    const conciseNote = (getEffectiveProviderKey() === 'gpt5') ? getGpt5UltraGuardrailsI18n() : '';
+    const conciseNote = (getEffectiveProviderKey() === 'gemini-pro') ? getGpt5UltraGuardrailsI18n() : '';
     const combinedSystem = `${systemPrompt}\n\n${systemInitPrompt}${conciseNote ? `\n\n${conciseNote}` : ''}`;
     const messages: ChatMessage[] = [
       { role: 'system', content: combinedSystem }
@@ -1242,7 +1257,7 @@ const generateQuestionStreaming = async (
   const systemPrompt = generateSystemPrompt();
   const systemQuestionPrompt = generateQuestionPrompt(gameState, false, false);
   const assistantHistory = generateRecentHistoryContextI18n(gameState);
-  const streamingGuardrails = (getEffectiveProviderKey() === 'gpt5') ? getGpt5UltraGuardrailsI18n() : '';
+  const streamingGuardrails = (getEffectiveProviderKey() === 'gemini-pro') ? getGpt5UltraGuardrailsI18n() : '';
   const messages: ChatMessage[] = [
     { role: 'system', content: systemPrompt },
     { role: 'system', content: systemQuestionPrompt + (streamingGuardrails ? `\n\n${streamingGuardrails}` : '') },
@@ -1312,7 +1327,7 @@ const generateOutcomeAndNextQuestionStreaming = async (
   );
   const assistantHistory = generateRecentHistoryContextI18n(gameState);
   const userChoiceLines = generateOutcomeUserLinesI18n(question, choice);
-  const streamingGuardrails2 = (getEffectiveProviderKey() === 'gpt5') ? getGpt5UltraGuardrailsI18n() : '';
+  const streamingGuardrails2 = (getEffectiveProviderKey() === 'gemini-pro') ? getGpt5UltraGuardrailsI18n() : '';
   const messages: ChatMessage[] = [
     { role: 'system', content: systemPrompt },
     { role: 'system', content: systemOutcomePrompt + (streamingGuardrails2 ? `\n\n${streamingGuardrails2}` : '') },

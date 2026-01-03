@@ -16,7 +16,7 @@ const ModelSwitcher: React.FC<ModelSwitcherProps> = ({ className = '' }) => {
     // Get the initial model on component mount
     setCurrentModel(getCurrentModel());
     
-    // Listen for provider changes triggered elsewhere (e.g., ultra mode forcing GPT-5)
+    // Listen for provider changes triggered elsewhere (e.g., ultra mode forcing premium Gemini)
     const handleExternalChange = () => {
       setCurrentModel(getCurrentModel());
     };

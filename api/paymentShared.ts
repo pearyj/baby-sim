@@ -30,11 +30,11 @@ export const PRICE_CONFIG = {
   RMB: { basePrice: 990, baseCredits: 1, additionalCreditPrice: 990 },
 } as const;
 
-// Display text explaining premium GPT-5 usage for embedding in the paywall where needed
+// Display text explaining premium Gemini usage for embedding in the paywall where needed
 export const PREMIUM_NOTICE_EN =
-  'Premium GPT‑5 model has higher token cost and may require VPN. Your token credits can also be used for image generation at the end of the game.';
+  'Premium Gemini 3.0 Pro costs more and may have regional access limits. Your credits can also be used for image generation at the end of the game.';
 export const PREMIUM_NOTICE_ZH =
-  '高级 GPT‑5 模型有更高的 Token 成本，可能需要 VPN。同一套积分也可用于游戏结尾的图片生成。';
+  '高级 Gemini 3.0 Pro 成本更高，部分地区访问可能受限。同一套积分也可用于游戏结尾的图片生成。';
 
 type Currency = keyof typeof PRICE_CONFIG;
 

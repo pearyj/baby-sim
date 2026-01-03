@@ -16,7 +16,7 @@ interface ModelProvider {
 
 interface RequestBody {
   messages: ChatMessage[];
-  provider?: 'openai' | 'deepseek' | 'volcengine' | 'gpt5';
+  provider?: 'openai' | 'deepseek' | 'volcengine' | 'gemini-flash' | 'gemini-pro' | 'gpt5';
   streaming?: boolean;
 }
 
@@ -43,6 +43,21 @@ const getProvider = (providerName: string): ModelProvider => {
         apiUrl: 'https://api.deepseek.com/v1/chat/completions',
         apiKey: process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY || '',
         model: 'deepseek-chat',
+      };
+    case 'gemini-flash':
+      return {
+        name: 'gemini',
+        apiUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+        apiKey: process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '',
+        model: 'gemini-2.5-flash',
+      };
+    case 'gemini-pro':
+    case 'gpt5': // legacy alias maps to Gemini 3.0 Pro
+      return {
+        name: 'gemini',
+        apiUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+        apiKey: process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '',
+        model: 'gemini-3.0-pro',
       };
     case 'volcengine':
       return {
@@ -107,18 +122,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Validate provider (allow alias 'gpt5')
-    if (!['openai', 'deepseek', 'volcengine', 'gpt5'].includes(provider)) {
+    if (!['openai', 'deepseek', 'volcengine', 'gemini-flash', 'gemini-pro', 'gpt5'].includes(provider)) {
       return res.status(400).json({ error: 'Invalid provider' });
     }
 
-    const providerConfig = getProvider(provider);
+    const normalizedProvider = provider === 'gpt5' ? 'gemini-pro' : provider;
+    const providerConfig = getProvider(normalizedProvider);
     
     if (!providerConfig.apiKey) {
       return res.status(500).json({ error: `API key not configured for ${provider}` });
     }
 
     // Prepare request body
-    const supportsTemperature = !(providerConfig.model || '').startsWith('gpt-5');
+    const supportsTemperature = true;
     let requestBody: any = {
       model: providerConfig.model,
       messages: messages,
@@ -127,7 +143,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     // Add provider-specific parameters
-    if (provider === 'deepseek') {
+    if (normalizedProvider === 'deepseek') {
       requestBody = {
         ...requestBody,
         max_tokens: 2048,
@@ -135,7 +151,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         frequency_penalty: 0,
         presence_penalty: 0,
       };
-    } else if (provider === 'openai') {
+    } else if (normalizedProvider === 'openai') {
       requestBody = {
         ...requestBody,
         max_tokens: 2048,
@@ -148,6 +164,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${providerConfig.apiKey}`,
+        ...(providerConfig.name === 'gemini' ? { 'x-goog-api-key': providerConfig.apiKey } : {}),
         ...(streaming && { 'Accept': 'text/event-stream' }),
       },
       body: JSON.stringify(requestBody),
@@ -155,9 +172,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`API Error from ${provider}:`, response.status, errorText);
+      console.error(`API Error from ${normalizedProvider}:`, response.status, errorText);
       return res.status(response.status).json({ 
-        error: `Failed request to ${provider}: ${response.statusText}` 
+        error: `Failed request to ${normalizedProvider}: ${response.statusText}` 
       });
     }
 

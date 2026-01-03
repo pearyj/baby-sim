@@ -152,7 +152,7 @@
     "thankYouSupport": "ありがとうございます！サポートを提供してくださった方に感謝します！",
     "createImages": "画像を生成する",
     "useCreditsHint": "ヒント：{{childName}}の画像を生成するには、{{childName}}のクレジットを使用してください。",
-    "creditsUsageShort": "クレジットは、高度なGPT-5と画像生成の使用を可能にします。"
+    "creditsUsageShort": "クレジットは、Gemini 3.0 Pro と画像生成に使えます。"
   },
   "header": {
     "title": "ベビーシミュレーター",
@@ -202,7 +202,7 @@
     "encourageThinking": "子どもが考えて問題を自分で解決することを促す",
     "errorGeneratingSummary": "エラー：要約を生成できませんでした。",
     "thankYouSupport": "ご支援ありがとうございます！",
-    "creditsUsageShort": "クレジットはプレミアム GPT‑5 と画像生成に使用できます。",
+    "creditsUsageShort": "クレジットは Gemini 3.0 Pro と画像生成に使用できます。",
     "useCreditsHint": "ヒント：クレジットを使用して{{childName}}のエンディング画像を生成できます。"
   },
   "share": {
@@ -276,7 +276,7 @@
   },
   "paywall": {
     "title": "プレイしていただき、ありがとうございます！{{childName}}を写真で見る",
-    "title_llm": "{{childName}}とのより良い体験のため、コストの高い GPT-5 を使用しています！",
+    "title_llm": "{{childName}}とのより良い体験のため、プレミアムの Gemini 3.0 Pro を使用しています！",
     "title_support": "ベビーシミュレーターを応援する",
     "subtitle": "AI 生成にはコストがかかります — ご希望の金額で寄付してゲームを支援し、プレミアム言語モデルの利用やパーソナライズされた AI 写真の生成に使えるクレジットを受け取りましょう",
     "subtitle_llm": "AI 生成にはコストがかかります — ご希望の金額で寄付してゲームを支援し、プレミアム言語モデルの利用やパーソナライズされた AI 写真の生成に使えるクレジットを受け取りましょう",
@@ -298,22 +298,22 @@
     "checkingCreditsProgress": "クレジット確認中...",
     "creditsFound": "{{count}}クレジットがあります。今すぐ写真を生成できます。",
     "creditsFound_plural": "{{count}}クレジットがあります。今すぐ写真を生成できます。",
-    "creditsFound_llm": "{{count}}クレジットがあります。GPT‑5 で続行できます。",
-    "creditsFound_llm_plural": "{{count}}クレジットがあります。GPT‑5 で続行できます。",
+    "creditsFound_llm": "{{count}}クレジットがあります。Gemini 3.0 Pro で続行できます。",
+    "creditsFound_llm_plural": "{{count}}クレジットがあります。Gemini 3.0 Pro で続行できます。",
     "noCreditsFound": "クレジットが見つかりません。クレジットを獲得するために寄付してください。",
     "checkCreditsFailed": "クレジットの確認に失敗しました",
     "emailReceiptCopy": "領収書と将来の子どもの画像クレジットの回復のためにメールアドレスを共有してください",
     "emailAgreement": "メールアドレスを共有することにより、プライバシーポリシーと利用規約に同意します。",
     "emailPrivacyNotice": "プライバシー通知 – メールアドレスを提供することにより、BabySimがプライバシーポリシーに従って分析と製品改善のためだけにゲームプレイ活動にリンクすることに同意します。このデータはいつでもリンクを解除または削除できます。",
     "postPaymentReminder": "決済後にページが更新されない場合は、同じブラウザでこのウェブサイトに戻ると、クレジットが自動的に読み込まれます。決済に問題が発生した場合は、dev@babysim.funまでメールしてください。",
-    "gpt5AccessWarning": "重要：GPT‑5 API は一部の国や地域で制限されています。寄付の前に GPT にアクセスできることを確認してください。確認のために ChatGPT の公式サイトを開くことをおすすめします。画像生成機能にはこの制限は適用されません。"
+    "premiumAccessWarning": "重要：Gemini API は地域によって利用状況が異なります。寄付前にアカウントで Gemini にアクセスできるかご確認ください。画像生成機能にはこの制限はありません。"
   },
   "gameStyle": {
     "realistic": "リアリスティック",
     "fantasy": "ファンタジー",
     "cool": "スリリング",
-    "ultra": "新機能：GPT‑5で超リアル",
-    "ultraExplanation": "有料機能 – GPT‑5 を使用して超リアルな体験を実現します。一部の地域では GPT‑5 へのアクセスに VPN が必要な場合があります。"
+    "ultra": "新機能：Gemini 3.0 Pro で超リアル",
+    "ultraExplanation": "有料機能 – Gemini 3.0 Pro を使用して超リアルな体験を提供し、1回ごとにクレジットを消費します。地域によって利用状況や遅延が異なる場合があります。"
   },
   "gallery": {
     "otherKids": "他の子どもたち",
