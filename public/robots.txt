@@ -1,0 +1,35 @@
+# robots.txt for babysim.fun
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://babysim.fun/sitemap.xml
+
+# Disallow development and test pages
+Disallow: /ad-test-page
+Disallow: /test/
+Disallow: /payment-test-page
+
+# Disallow API endpoints (if accidentally exposed)
+Disallow: /api/
+
+# Allow all major crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /

@@ -18,6 +18,7 @@ import GavelIcon from '@mui/icons-material/Gavel';
 import WarningIcon from '@mui/icons-material/Warning';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useNavigate } from 'react-router-dom';
+import { useSEO } from '../hooks/useSEO';
 
 const SectionIcon = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -42,6 +43,13 @@ export const InfoPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  // SEO for info page
+  useSEO({
+    title: 'Info Center - Baby Simulator | Privacy, Terms & Support',
+    description: 'Learn about Baby Simulator privacy policy, terms of service, and get support. Contact us for help with your parenting simulation game experience.',
+    path: '/info',
+  });
 
   const handleSubscribe = async () => {
     setError('');

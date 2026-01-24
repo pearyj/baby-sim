@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { InfiniteGallery } from '../components/InfiniteGallery';
+import { useSEO } from '../hooks/useSEO';
 
 const FloatingButton = styled(Button)(({ theme }) => ({
   position: 'fixed',
@@ -22,6 +23,13 @@ const FloatingButton = styled(Button)(({ theme }) => ({
 export const GalleryPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  // SEO for gallery page
+  useSEO({
+    title: 'Gallery - Baby Simulator | See Kids Raised by Other Players',
+    description: 'Browse the gallery of AI-generated images showing children raised by other Baby Simulator players. Get inspired for your own parenting journey!',
+    path: '/gallery',
+  });
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>

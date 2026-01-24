@@ -46,16 +46,21 @@ export const Header: React.FC = () => {
   );
 
   return (
-    <StyledAppBar position="fixed" elevation={2}>
-      <Toolbar sx={{ maxWidth: '3xl', mx: 'auto', width: '100%', px: 2 }}>
+    <StyledAppBar position="fixed" elevation={2} component="header" role="banner">
+      <Toolbar sx={{ maxWidth: '3xl', mx: 'auto', width: '100%', px: 2 }} component="nav" aria-label="Main navigation">
         <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-          <StyledTitle 
-            variant="h4" 
-            sx={{ 
+          <StyledTitle
+            variant="h4"
+            component="h1"
+            sx={{
               fontSize: { xs: '1.5rem', sm: '2rem' },
               textAlign: 'center'
             }}
             onClick={() => navigate('/')}
+            role="link"
+            tabIndex={0}
+            onKeyDown={(e: React.KeyboardEvent) => e.key === 'Enter' && navigate('/')}
+            aria-label="Baby Simulator - Go to home page"
           >
             {t('header.title')}
           </StyledTitle>

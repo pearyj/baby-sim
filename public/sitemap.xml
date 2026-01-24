@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Homepage -->
+  <url>
+    <loc>https://babysim.fun/</loc>
+    <lastmod>2025-01-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/"/>
+  </url>
+
+  <!-- Information/About Page -->
+  <url>
+    <loc>https://babysim.fun/info</loc>
+    <lastmod>2025-01-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Gallery Page -->
+  <url>
+    <loc>https://babysim.fun/gallery</loc>
+    <lastmod>2025-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>

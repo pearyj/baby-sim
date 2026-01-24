@@ -20,6 +20,7 @@ import './App.css'
 
 import useGameStore from './stores/useGameStore'
 import { useGameFlow } from './hooks/useGameFlow'
+import { useGameSEO } from './hooks/useSEO'
 import logger from './utils/logger'
 import { performanceMonitor } from './utils/performanceMonitor'
 import { checkAllPrompts, testPromptGeneration } from './utils/promptChecker'
@@ -106,6 +107,11 @@ const THANK_YOU_ANNOUNCEMENT_STORAGE_KEY = 'thankYouAnnouncementDismissed_v1';
 function App() {
   useGameFlow() // Initialize game flow logic
   const { t } = useTranslation();
+
+  // Get child info for SEO - need to access store directly here
+  const childForSEO = useGameStore(state => state.child);
+  const ageForSEO = useGameStore(state => state.currentAge);
+  useGameSEO(childForSEO?.name, ageForSEO);
   const [showLLMPaywall, setShowLLMPaywall] = React.useState(false);
   const [showGiveUpReminder, setShowGiveUpReminder] = React.useState(false);
   const [showAnnouncement, setShowAnnouncement] = React.useState(false);
