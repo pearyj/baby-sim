@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary Meta Tags (optimized for keywords) -->
+  <title>Baby Simulator - Virtual Parenting Game | Raise a Baby Online</title>
+  <meta name="title" content="Baby Simulator - Virtual Parenting Game | Raise a Baby Online">
+  <meta name="description" content="Play the #1 AI baby raising simulator. Make parenting decisions from birth to 18. Every choice shapes your virtual child's future. Free to play!">
+  <meta name="keywords" content="baby simulator, parenting game, raise a baby game, virtual baby game, AI parenting game, baby raising simulator, child raising simulation, virtual parenting">
+  <meta name="author" content="BabySim">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://babysim.fun/landing.html">
+
+  <!-- Hreflang for multi-language -->
+  <link rel="alternate" hreflang="en" href="https://babysim.fun/landing.html">
+  <link rel="alternate" hreflang="zh" href="https://babysim.fun/landing-zh.html">
+  <link rel="alternate" hreflang="x-default" href="https://babysim.fun/landing.html">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://babysim.fun/landing.html">
+  <meta property="og:title" content="Baby Simulator - Raise Your Virtual Baby from Birth to Adulthood">
+  <meta property="og:description" content="An AI-powered parenting simulation where every choice shapes their future. Experience 18 years of raising a child in this unique game.">
+  <meta property="og:image" content="https://babysim.fun/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Baby Simulator">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="zh_CN">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://babysim.fun/landing.html">
+  <meta name="twitter:title" content="Baby Simulator - Raise Your Virtual Baby from Birth to Adulthood">
+  <meta name="twitter:description" content="An AI-powered parenting simulation where every choice shapes their future. Free to play!">
+  <meta name="twitter:image" content="https://babysim.fun/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#FF6B35">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Baby Simulator",
+    "alternateName": ["Baby Raising Simulator", "Virtual Baby Game", "Parenting Simulator"],
+    "url": "https://babysim.fun",
+    "description": "An AI-powered text-based simulation game where you raise a virtual baby from birth to age 18. Every parenting decision shapes your child's personality, interests, and future.",
+    "genre": ["Simulation", "Life Simulation", "Casual"],
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.5",
+      "ratingCount": "20000",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "BabySim"
+    },
+    "inLanguage": ["en", "zh", "ja", "es"],
+    "numberOfPlayers": {
+      "@type": "QuantitativeValue",
+      "minValue": 1,
+      "maxValue": 1
+    },
+    "playMode": "SinglePlayer"
+  }
+  </script>
+
+  <!-- WebApplication Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Baby Simulator",
+    "url": "https://babysim.fun",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Web Browser",
+    "browserRequirements": "Requires JavaScript",
+    "softwareVersion": "1.0",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #FFFBF5;
+    }
+
+    /* Header */
+    .header {
+      background: rgba(255, 251, 245, 0.95);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #FF6B35;
+      text-decoration: none;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .lang-switch a {
+      color: #666;
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+
+    .lang-switch a:hover,
+    .lang-switch a.active {
+      background: #FF6B35;
+      color: white;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 50%, #FFDAB9 100%);
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      color: #2D2D2D;
+      max-width: 800px;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, #FF6B35, #E09F3E);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero .subtitle {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      color: #5D4037;
+      max-width: 600px;
+      margin-bottom: 2.5rem;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, #FF6B35, #FF8C5A);
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(255, 107, 53, 0.5);
+    }
+
+    .cta-button .arrow {
+      transition: transform 0.3s;
+    }
+
+    .cta-button:hover .arrow {
+      transform: translateX(5px);
+    }
+
+    /* Features Section */
+    .features {
+      padding: 5rem 2rem;
+      background: white;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: #2D2D2D;
+      margin-bottom: 3rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: #FFFBF5;
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #2D2D2D;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    /* Social Proof Section */
+    .social-proof {
+      padding: 5rem 2rem;
+      background: linear-gradient(135deg, #FF6B35, #E09F3E);
+      color: white;
+      text-align: center;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+    }
+
+    .stat-label {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .testimonials {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .testimonial {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 1.5rem;
+      max-width: 350px;
+      text-align: left;
+    }
+
+    .testimonial p {
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+
+    .testimonial .author {
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    /* How It Works Section */
+    .how-it-works {
+      padding: 5rem 2rem;
+      background: #FFFBF5;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .step {
+      text-align: center;
+      padding: 1.5rem;
+    }
+
+    .step-number {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #FF6B35, #E09F3E);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 auto 1rem;
+    }
+
+    .step h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2D2D2D;
+      margin-bottom: 0.5rem;
+    }
+
+    .step p {
+      color: #666;
+    }
+
+    /* CTA Section */
+    .final-cta {
+      padding: 5rem 2rem;
+      background: white;
+      text-align: center;
+    }
+
+    .final-cta h2 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: #2D2D2D;
+      margin-bottom: 1rem;
+    }
+
+    .final-cta p {
+      color: #666;
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Footer */
+    .footer {
+      background: #2D2D2D;
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .footer-links a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: #FF6B35;
+    }
+
+    .footer-lang {
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-lang a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      margin: 0 0.5rem;
+    }
+
+    .footer-lang a:hover {
+      color: #FF6B35;
+    }
+
+    .footer-copyright {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header {
+        padding: 1rem;
+      }
+
+      .hero {
+        padding: 5rem 1rem 3rem;
+      }
+
+      .stats {
+        gap: 2rem;
+      }
+
+      .testimonials {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <a href="/" class="logo">Baby Simulator</a>
+    <nav class="lang-switch" aria-label="Language selection">
+      <a href="/landing.html" class="active">English</a>
+      <a href="/landing-zh.html">中文</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Raise Your <span>Virtual Baby</span> from Birth to Adulthood</h1>
+    <p class="subtitle">An AI-powered parenting simulation where every choice shapes their future. Experience 18 years of parenthood in this unique game.</p>
+    <a href="/" class="cta-button">
+      Start Your Parenting Journey
+      <span class="arrow">&rarr;</span>
+    </a>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <h2 class="section-title">Why Players Love Baby Simulator</h2>
+      <div class="features-grid">
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">&#129302;</div>
+          <h3>AI-Generated Stories</h3>
+          <p>Every playthrough is unique. Our AI creates personalized storylines based on your choices, making each baby's journey one-of-a-kind.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">&#128197;</div>
+          <h3>18 Years of Choices</h3>
+          <p>Watch your baby grow from newborn to adult. Make decisions at every stage that shape their personality, interests, and future.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">&#10084;&#65039;</div>
+          <h3>No Right Answers</h3>
+          <p>Just like real parenting, there's no perfect way to raise a child. Every choice has consequences, creating an authentic experience.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">&#128247;</div>
+          <h3>Generate Photos</h3>
+          <p>See your grown-up child with AI-generated portraits. Visualize the person your parenting choices helped create.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Proof Section -->
+  <section class="social-proof">
+    <div class="container">
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-number">20,000+</div>
+          <div class="stat-label">Babies Raised</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">4.5/5</div>
+          <div class="stat-label">Player Rating</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">4</div>
+          <div class="stat-label">Languages</div>
+        </div>
+      </div>
+      <div class="testimonials">
+        <div class="testimonial">
+          <p>"This game made me appreciate my parents so much more. Every decision felt meaningful and I was genuinely invested in my virtual child's future."</p>
+          <div class="author">- Sarah M.</div>
+        </div>
+        <div class="testimonial">
+          <p>"My partner and I played this together before we started planning our family. It was fun, emotional, and surprisingly thought-provoking."</p>
+          <div class="author">- James K.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works">
+    <div class="container">
+      <h2 class="section-title">How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Create Your Baby</h3>
+          <p>Give your baby a name and start your parenting journey from day one.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Make Decisions</h3>
+          <p>Face realistic parenting scenarios and choose how to respond at each stage.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Watch Them Grow</h3>
+          <p>See how your choices shape your child's personality and life path.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <h3>See The Result</h3>
+          <p>Generate an AI portrait and biography of your grown-up child.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA Section -->
+  <section class="final-cta">
+    <h2>Ready to Start Your Parenting Journey?</h2>
+    <p>Free to play. No account required. Start raising your virtual baby now.</p>
+    <a href="/" class="cta-button">
+      Play Baby Simulator
+      <span class="arrow">&rarr;</span>
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <nav class="footer-links" aria-label="Footer navigation">
+      <a href="/">Play Game</a>
+      <a href="/info">About</a>
+      <a href="/gallery">Gallery</a>
+    </nav>
+    <div class="footer-lang">
+      <a href="/landing.html">English</a>
+      <a href="/landing-zh.html">中文</a>
+    </div>
+    <p class="footer-copyright">&copy; 2025 Baby Simulator. All rights reserved.</p>
+  </footer>
+</body>
+</html>
