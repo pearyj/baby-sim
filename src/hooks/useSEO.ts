@@ -102,10 +102,7 @@ function getLocale(lang: string): string {
  * Hook for game-specific SEO when a child name is known
  */
 export function useGameSEO(childName?: string, age?: number) {
-  const { t, i18n } = useTranslation();
-  const lang = i18n.language?.substring(0, 2) || 'en';
-
-  const config: SEOConfig = childName
+  const config: SEOConfig | undefined = childName
     ? {
         title: `Raising ${childName}${age ? ` (Age ${age})` : ''} | Baby Simulator`,
         description: `Follow the journey of raising ${childName} in Baby Simulator. Make meaningful parenting decisions and see how your choices shape their future.`,
