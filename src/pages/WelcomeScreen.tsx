@@ -37,33 +37,60 @@ interface WelcomeScreenProps {
 }
 
 const WelcomeCard = styled(Card)(({ theme }) => ({
-  background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
+  background: 'rgba(255, 255, 255, 0.7)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  border: '1px solid rgba(255, 255, 255, 0.5)',
+  boxShadow: '0 12px 40px rgba(30, 30, 30, 0.08)',
   marginBottom: theme.spacing(3),
+  borderRadius: 24,
+  transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
 }));
 
 const FeatureCard = styled(Card)(({ theme }) => ({
-  background: `linear-gradient(135deg, ${theme.palette.primary.light}10 0%, ${theme.palette.secondary.light}10 100%)`,
-  border: `1px solid ${theme.palette.primary.light}30`,
+  background: 'rgba(255, 255, 255, 0.5)',
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  border: '1px solid rgba(255, 107, 53, 0.15)',
+  boxShadow: '0 4px 20px rgba(255, 107, 53, 0.06)',
   marginBottom: theme.spacing(2),
+  borderRadius: 16,
+  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 8px 28px rgba(255, 107, 53, 0.12)',
+    border: '1px solid rgba(255, 107, 53, 0.25)',
+  },
 }));
 
 const SavedGameCard = styled(Card)(({ theme }) => ({
-  background: `linear-gradient(135deg, ${theme.palette.warning.light}15 0%, ${theme.palette.info.light}15 100%)`,
-  border: `1px solid ${theme.palette.warning.light}`,
+  background: 'linear-gradient(135deg, rgba(224, 159, 62, 0.12) 0%, rgba(255, 185, 151, 0.12) 100%)',
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  border: '1px solid rgba(224, 159, 62, 0.3)',
+  boxShadow: '0 8px 24px rgba(224, 159, 62, 0.1)',
   marginBottom: theme.spacing(3),
+  borderRadius: 20,
 }));
 
 const ActionButton = styled(Button)(({ theme }) => ({
-  borderRadius: theme.spacing(3),
+  borderRadius: 24,
   padding: theme.spacing(1.5, 4),
   fontSize: '1.125rem',
   fontWeight: 600,
   textTransform: 'none',
   minHeight: 56,
   marginBottom: theme.spacing(2),
+  background: 'linear-gradient(135deg, #FF6B35 0%, #E55A2B 100%)',
+  boxShadow: '0 4px 16px rgba(255, 107, 53, 0.3)',
   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   '&:hover': {
-    transform: 'translateY(-2px)',
+    transform: 'translateY(-3px)',
+    boxShadow: '0 8px 24px rgba(255, 107, 53, 0.4)',
+    background: 'linear-gradient(135deg, #FF8A5B 0%, #FF6B35 100%)',
+  },
+  '&:active': {
+    transform: 'translateY(-1px)',
   },
 }));
 
@@ -370,11 +397,13 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                 <Typography variant="h4" sx={{ 
                   textAlign: 'center', 
                   mb: 2, 
-                  fontWeight: 600,
-                  background: 'linear-gradient(45deg, #6750A4 30%, #7D5260 90%)',
+                  fontWeight: 700,
+                  background: 'linear-gradient(135deg, #FF6B35 0%, #E09F3E 50%, #FF6B35 100%)',
+                  backgroundSize: '200% auto',
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
+                  animation: 'gradient-shift 4s ease infinite',
                 }}>
                   {t('welcome.title')}
                 </Typography>

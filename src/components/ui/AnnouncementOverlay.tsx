@@ -17,7 +17,8 @@ export const AnnouncementOverlay: React.FC<AnnouncementOverlayProps> = ({ open, 
     t('announcement.body1'),
     t('announcement.body2'),
     t('announcement.body3'),
-  ];
+    t('announcement.body4'),
+  ].filter(text => text && text.trim() !== ''); // Filter out empty paragraphs
 
   return (
     <Backdrop

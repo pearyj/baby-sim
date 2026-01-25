@@ -4,13 +4,14 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // Note: Environment variables with VITE_ prefix are automatically loaded from .env.local by Vite.
+  // Only use `define` to override with non-VITE prefixed vars when they're actually set (e.g., in Vercel production).
   define: {
-    // Expose non-VITE prefixed environment variables to the client
-    // This allows compatibility with existing Vercel deployments
-    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL),
-    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY),
-    'import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY || process.env.VITE_STRIPE_PUBLISHABLE_KEY),
-    'import.meta.env.VITE_PAYWALL_VERSION': JSON.stringify(process.env.PAYWALL_VERSION || process.env.VITE_PAYWALL_VERSION),
+    // Only override if the non-VITE prefixed var is actually set (for Vercel production compatibility)
+    ...(process.env.SUPABASE_URL && { 'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL) }),
+    ...(process.env.SUPABASE_ANON_KEY && { 'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY) }),
+    ...(process.env.STRIPE_PUBLISHABLE_KEY && { 'import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY) }),
+    ...(process.env.PAYWALL_VERSION && { 'import.meta.env.VITE_PAYWALL_VERSION': JSON.stringify(process.env.PAYWALL_VERSION) }),
   },
   build: {
     // Enable dead code elimination
