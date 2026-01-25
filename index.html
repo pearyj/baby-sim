@@ -74,11 +74,15 @@
     }
     </script>
 
-    <!-- Fonts -->
+    <!-- Fonts - loaded asynchronously to prevent render blocking -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=optional" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&display=optional" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    </noscript>
 
     <!-- AdSense (development only) -->
     <script type="module">
@@ -91,55 +95,81 @@
       }
     </script>
 
-    <!-- Loading styles for pre-React render -->
+    <!-- Critical CSS - inlined for instant render -->
     <style>
+      /* Prevent flash by setting background immediately */
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #FFF7F3 0%, #FFFAF6 40%, #FCEFE5 100%);
+        background-attachment: fixed;
+      }
       .initial-loader {
+        position: fixed;
+        inset: 0;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 50%, #FFDAB9 100%);
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: inherit;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
         color: #5D4037;
         padding: 20px;
         text-align: center;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.15s ease-out;
+      }
+      .initial-loader.fade-out {
+        opacity: 0;
+        pointer-events: none;
       }
       .initial-loader h1 {
         font-size: 2rem;
-        margin-bottom: 1rem;
-        background: linear-gradient(45deg, #FF6B35, #E09F3E);
+        margin: 0 0 1rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #FF6B35, #E09F3E);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
       }
       .initial-loader p {
-        font-size: 1.1rem;
-        max-width: 600px;
-        line-height: 1.6;
+        font-size: 1rem;
+        max-width: 500px;
+        line-height: 1.5;
+        margin: 0;
+        opacity: 0.8;
       }
       .loader-spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid #FFB997;
+        width: 32px;
+        height: 32px;
+        border: 2px solid #FFB997;
         border-top-color: #FF6B35;
         border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-top: 2rem;
+        animation: spin 0.8s linear infinite;
+        margin-top: 1.5rem;
       }
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
     </style>
+    <!-- Inline script to fade out loader when React is ready -->
+    <script>
+      window.__hideLoader = function() {
+        var loader = document.querySelector('.initial-loader');
+        if (loader) {
+          loader.classList.add('fade-out');
+          setTimeout(function() { loader.remove(); }, 150);
+        }
+      };
+    </script>
   </head>
   <body>
-    <div id="root">
-      <!-- Pre-render content for SEO and loading state -->
-      <div class="initial-loader">
-        <h1>Baby Simulator</h1>
-        <p>Experience the journey of parenthood in this AI-powered simulation game. Make meaningful parenting decisions from birth to age 18 and see how your choices shape your child's future.</p>
-        <div class="loader-spinner"></div>
-      </div>
+    <div id="root"></div>
+    <!-- Minimal loader overlay - removed by React on mount -->
+    <div class="initial-loader" aria-hidden="true">
+      <h1>Baby Simulator</h1>
+      <div class="loader-spinner"></div>
     </div>
 
     <!-- Fallback for users without JavaScript -->
