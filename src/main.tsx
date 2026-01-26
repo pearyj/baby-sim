@@ -9,9 +9,16 @@ import './index.css'
 import './i18n'
 import App from './App.tsx'
 
-// Hide the initial loader once React starts rendering
-if (typeof window !== 'undefined' && (window as any).__hideLoader) {
-  (window as any).__hideLoader()
+// Hide the initial loader as soon as React starts rendering
+declare global {
+  interface Window {
+    __hideLoader?: () => void;
+  }
+}
+
+// Call hideLoader immediately - React is now taking over
+if (typeof window !== 'undefined' && window.__hideLoader) {
+  window.__hideLoader();
 }
 
 createRoot(document.getElementById('root')!).render(
