@@ -10,7 +10,7 @@ import {
   LinearProgress,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { PlayArrow, Flag, Start, CameraAlt } from '@mui/icons-material';
+import { PlayArrow, Flag, Start, CameraAlt, Refresh, Replay } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { TextDisplay } from '../../components/ui/TextDisplay';
 import { StreamingTextDisplay } from '../../components/ui/StreamingTextDisplay';
@@ -71,6 +71,27 @@ const ContinueButton = styled(Button)(({ theme }) => ({
   },
 }));
 
+// Detect if feedback text is an error message (from failed API calls)
+const isErrorFeedback = (text: string): boolean => {
+  if (!text) return false;
+  const errorPatterns = [
+    'Failed to',
+    'Error:',
+    'error:',
+    'Bad Request',
+    'bad request',
+    'technical issue',
+    'SyntaxError',
+    'Failed serverless',
+    'Failed streaming',
+    'Failed direct',
+    '技术问题',
+    '错误详情',
+    '发生错误',
+  ];
+  return errorPatterns.some(pattern => text.includes(pattern));
+};
+
 export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
   feedback,
   onContinue,
@@ -84,6 +105,7 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
   currentAge,
 }) => {
   const { t } = useTranslation();
+  const isError = isErrorFeedback(feedback);
   const [isVisible, setIsVisible] = useState(false);
   const [showAgeImagePrompt, setShowAgeImagePrompt] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -220,21 +242,58 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
                       // This helps ensure proper transition from streaming to static display
                     }}
                   />
+                ) : isError ? (
+                  <Box sx={{ textAlign: 'center', py: 2 }}>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: 'error.main',
+                        mb: 3,
+                        fontSize: { xs: '0.95rem', sm: '1.05rem' },
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {feedback}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Replay />}
+                        onClick={onContinue}
+                        sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600 }}
+                      >
+                        {t('messages.retry', { defaultValue: 'Retry' })}
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="secondary"
+                        startIcon={<Refresh />}
+                        onClick={() => window.location.reload()}
+                        sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600 }}
+                      >
+                        {t('messages.refreshPage', { defaultValue: 'Refresh Page' })}
+                      </Button>
+                    </Box>
+                  </Box>
                 ) : (
                   <Typography
                     component="div"
                     sx={{
                       fontSize: { xs: '1rem', sm: '1.125rem' },
-                      lineHeight: 1.6,
+                      lineHeight: 1.8,
                       color: 'text.primary',
                       fontWeight: 400,
                       whiteSpace: 'pre-wrap',
                       wordBreak: 'break-word',
+                      '& .text-display p': {
+                        marginBottom: '0.75em',
+                      },
                     }}
                   >
-                    <TextDisplay 
-                      text={feedback} 
-                      animated={false} 
+                    <TextDisplay
+                      text={feedback}
+                      animated={false}
                       delay={200}
                       paragraphClassName=""
                     />
@@ -242,7 +301,7 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
                 )}
               </Box>
               
-              <Zoom in={isVisible} timeout={700} style={{ transitionDelay: '300ms' }}>
+              <Zoom in={isVisible && !isError} timeout={700} style={{ transitionDelay: '300ms' }}>
                 <Box>
                   {/* Show photo button alongside continue button when it's actions.continue and we have game state */}
                   {buttonText === t('actions.continue') && gameState && currentAge ? (

@@ -247,10 +247,10 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
               </Box>
 
               <Box sx={{ mb: 4, textAlign: 'left' }}>
-                <Typography component="div" sx={{ 
+                <Typography component="div" sx={{
                   fontWeight: 400,
                   color: 'text.primary',
-                  lineHeight: 1.6,
+                  lineHeight: 1.8,
                   fontSize: { xs: '1rem', sm: '1.125rem' }
                 }}>
                   <TextDisplay 

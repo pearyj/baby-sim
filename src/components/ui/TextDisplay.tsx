@@ -47,23 +47,26 @@ export const TextDisplay: React.FC<TextDisplayProps> = ({
   return (
     <div className={`text-display ${className}`}>
       {paragraphs.map((paragraph, index) => (
-        <p 
-          key={index} 
+        <p
+          key={index}
           className={`
-            text-gray-800 
-            leading-relaxed 
-            break-words 
-            hyphens-auto 
-            whitespace-pre-wrap 
-            ${index > 0 ? 'mt-4' : ''} 
+            text-gray-800
+            leading-relaxed
+            break-words
+            hyphens-auto
+            whitespace-pre-wrap
+            ${index > 0 ? 'mt-4' : ''}
             ${animated ? 'transition-opacity duration-500 ease-in-out animated' : ''}
             ${paragraphClassName}
           `}
-          style={animated ? { 
-            opacity: isVisible ? 1 : 0, 
-            transitionDelay: `${index * delay}ms`,
-            animationDelay: `${index * delay}ms`
-          } : undefined}
+          style={{
+            marginBottom: index < paragraphs.length - 1 ? '0.75em' : undefined,
+            ...(animated ? {
+              opacity: isVisible ? 1 : 0,
+              transitionDelay: `${index * delay}ms`,
+              animationDelay: `${index * delay}ms`
+            } : undefined),
+          }}
         >
           {paragraph}
         </p>

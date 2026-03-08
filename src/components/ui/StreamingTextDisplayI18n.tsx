@@ -584,7 +584,7 @@ export const StreamingTextDisplayI18n: React.FC<StreamingTextDisplayProps> = ({
         component="div"
         sx={{
           fontSize: { xs: '1rem', sm: '1.125rem' },
-          lineHeight: 1.6,
+          lineHeight: 1.8,
           color: 'text.primary',
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
