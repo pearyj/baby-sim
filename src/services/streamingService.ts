@@ -379,9 +379,42 @@ const isJSONPotentiallyComplete = (jsonStr: string): boolean => {
   return false; // Incomplete JSON
 };
 
+// Some volcengine doubao models emit invalid `+1` integers (e.g. "financeDelta": +1)
+// when their reasoning step is disabled. Strict JSON forbids the leading `+`. Walk
+// the buffer character-by-character so we only touch `+` outside string literals;
+// a regex would also rewrite narrative text containing patterns like ": +1".
+const stripPlusBeforeDigits = (s: string): string => {
+  let out = '';
+  let inString = false;
+  let escape = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (inString) {
+      if (escape) {
+        escape = false;
+      } else if (c === '\\') {
+        escape = true;
+      } else if (c === '"') {
+        inString = false;
+      }
+      out += c;
+      continue;
+    }
+    if (c === '"') {
+      inString = true;
+      out += c;
+    } else if (c === '+' && /[0-9]/.test(s[i + 1] || '')) {
+      // drop the leading plus before a digit in numeric position
+    } else {
+      out += c;
+    }
+  }
+  return out;
+};
+
 // Helper function to clean content for JSON parsing
 const cleanJSONContent = (content: string): string => {
-  return content
+  return stripPlusBeforeDigits(content
     // Strip code-block delimiters
     .replace(/```(json)?/g, '')
     .replace(/```/g, '')
@@ -393,7 +426,7 @@ const cleanJSONContent = (content: string): string => {
     .replace(/[\u200B-\u200D\uFEFF]/g, '')
     // Convert invalid \'+ sequences to plain single quotes
     .replace(/\\'/g, "'")
-    .trim();
+    .trim());
 };
 
 // Extract the first complete top-level JSON object {...} from arbitrary text.

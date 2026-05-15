@@ -28,7 +28,6 @@ const measureImageAspect = (url: string): Promise<number> => {
     }
 
     const img = new Image();
-    img.crossOrigin = 'anonymous';
     img.onload = () => {
       if (img.naturalHeight === 0) {
         reject(new Error('Zero height image'));

@@ -1,6 +1,30 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applyCors, handlePreflight, rateLimit } from './_utils';
 
+// Allow up to ~2 minutes so volcengine's server-side queue (X-Ark-Max-Wait-Timeout-Ms,
+// configured to 60s below) plus the actual model response time still fits.
+export const config = { maxDuration: 120 };
+
+// Volcengine Ark queue wait. When set, Ark queues the request server-side for up
+// to this many ms instead of immediately returning 429 under TPM pressure.
+// Keep this < maxDuration so the function still has time for the model response.
+const VOLCENGINE_QUEUE_WAIT_MS = 60_000;
+
+// Retry policy for volcengine 429s (modeled on the tenacity example in the Ark docs:
+// wait_random_exponential(min=1, max=60), stop_after_attempt(6)). Caps adjusted so
+// the total upper bound fits inside maxDuration alongside the queue wait.
+const VOLCENGINE_MAX_ATTEMPTS = 3;
+const VOLCENGINE_BACKOFF_BASE_MS = 1_000;
+const VOLCENGINE_BACKOFF_CAP_MS = 15_000;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// wait_random_exponential analogue: random in [0, min(cap, base * 2^attempt)].
+const computeBackoff = (attempt: number): number => {
+  const ceiling = Math.min(VOLCENGINE_BACKOFF_CAP_MS, VOLCENGINE_BACKOFF_BASE_MS * Math.pow(2, attempt));
+  return Math.random() * ceiling;
+};
+
 // Types
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -64,7 +88,11 @@ const getProvider = (providerName: string): ModelProvider => {
         name: 'volcengine',
         apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
         apiKey: process.env.ARK_API_KEY || process.env.VOLCENGINE_LLM_API_KEY || process.env.VITE_VOLCENGINE_LLM_API_KEY || '',
-        model: 'deepseek-v3-250324',
+        // deepseek-v3-250324 was deprecated by volcengine; doubao-seed-2-0-lite is the
+        // officially recommended replacement. We disable its built-in reasoning step
+        // (latency ~28s/turn → ~6s/turn) and force JSON output, because the model
+        // emits leading-plus integers like `"financeDelta": +1` without it.
+        model: 'doubao-seed-2-0-lite-260215',
       };
     default:
       return {
@@ -156,25 +184,89 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ...requestBody,
         max_tokens: 2048,
       };
+    } else if (normalizedProvider === 'volcengine') {
+      // doubao-seed-2-0-lite has a built-in reasoning step that adds ~20s/turn.
+      // We disable it because game responses are short and don't benefit, and
+      // we force json_object output because the model emits invalid `+1` integers
+      // when reasoning is off.
+      requestBody = {
+        ...requestBody,
+        max_tokens: 2048,
+        top_p: 0.8,
+        thinking: { type: 'disabled' },
+        response_format: { type: 'json_object' },
+      };
     }
 
-    // Make request to AI provider
-    const response = await fetch(providerConfig.apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${providerConfig.apiKey}`,
-        ...(providerConfig.name === 'gemini' ? { 'x-goog-api-key': providerConfig.apiKey } : {}),
-        ...(streaming && { 'Accept': 'text/event-stream' }),
-      },
-      body: JSON.stringify(requestBody),
+    const buildHeaders = (): Record<string, string> => ({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${providerConfig.apiKey}`,
+      ...(providerConfig.name === 'gemini' ? { 'x-goog-api-key': providerConfig.apiKey } : {}),
+      ...(streaming ? { 'Accept': 'text/event-stream' } : {}),
+      // Volcengine Ark: queue server-side instead of returning 429 immediately.
+      ...(providerConfig.name === 'volcengine'
+        ? { 'X-Ark-Max-Wait-Timeout-Ms': String(VOLCENGINE_QUEUE_WAIT_MS) }
+        : {}),
     });
 
+    // Make request to AI provider (with volcengine-specific retry on 429).
+    let response: Response;
+    let lastErrorText = '';
+    let lastErrorCode: string | undefined;
+    const maxAttempts = providerConfig.name === 'volcengine' ? VOLCENGINE_MAX_ATTEMPTS : 1;
+    let attempt = 0;
+
+    while (true) {
+      response = await fetch(providerConfig.apiUrl, {
+        method: 'POST',
+        headers: buildHeaders(),
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) break;
+
+      // Read body once and try to extract a structured error code.
+      lastErrorText = await response.text();
+      lastErrorCode = undefined;
+      try {
+        const parsed = JSON.parse(lastErrorText);
+        lastErrorCode =
+          parsed?.error?.code ??
+          parsed?.error?.type ??
+          parsed?.code;
+      } catch {
+        // Body wasn't JSON — leave code undefined.
+      }
+
+      console.error(
+        `API Error from ${normalizedProvider}:`,
+        response.status,
+        `code=${lastErrorCode ?? 'unknown'}`,
+        `attempt=${attempt + 1}/${maxAttempts}`,
+        lastErrorText,
+      );
+
+      // Retry only volcengine 429s, and only while attempts remain.
+      const isRetryable =
+        providerConfig.name === 'volcengine' &&
+        response.status === 429 &&
+        attempt < maxAttempts - 1;
+
+      if (!isRetryable) break;
+
+      const backoff = computeBackoff(attempt);
+      attempt += 1;
+      console.warn(
+        `Retrying volcengine after ${Math.round(backoff)}ms (attempt ${attempt}/${maxAttempts}, code=${lastErrorCode ?? 'unknown'})`,
+      );
+      await sleep(backoff);
+    }
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`API Error from ${normalizedProvider}:`, response.status, errorText);
-      return res.status(response.status).json({ 
-        error: `Failed request to ${normalizedProvider}: ${response.statusText}` 
+      return res.status(response.status).json({
+        error: `Failed request to ${normalizedProvider}: ${response.statusText}`,
+        code: lastErrorCode,
+        details: lastErrorText.slice(0, 500),
       });
     }
 

@@ -48,8 +48,28 @@ export const throttledFetch = async (
         return response;
       }
 
-      // Calculate exponential back-off with jitter (2^attempt * 1s + 0-500 ms)
-      const backoff = Math.pow(2, attempt) * 1000 + Math.random() * 500;
+      // Prefer the server's Retry-After hint when present. Supports both
+      // delta-seconds (RFC 7231 §7.1.3) and HTTP-date forms.
+      let backoff: number | null = null;
+      const retryAfter = response.headers.get('Retry-After');
+      if (retryAfter) {
+        const asSeconds = Number(retryAfter);
+        if (Number.isFinite(asSeconds)) {
+          backoff = asSeconds * 1000;
+        } else {
+          const asDate = Date.parse(retryAfter);
+          if (!Number.isNaN(asDate)) {
+            backoff = Math.max(0, asDate - Date.now());
+          }
+        }
+      }
+
+      // Fall back to exponential back-off with jitter starting at 3s
+      // (3s, 9s, 27s) — upstream provider rate-limit windows rarely refill
+      // in under a few seconds.
+      if (backoff === null) {
+        backoff = Math.pow(3, attempt + 1) * 1000 + Math.random() * 500;
+      }
       attempt += 1;
 
       logger.warn(

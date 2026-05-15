@@ -592,15 +592,37 @@ export interface GPTServiceOptions {
   onProgress?: (partialContent: string) => void;
 }
 
+// Strip leading `+` from numeric values outside string literals.
+// doubao-seed-2-0-lite emits `"financeDelta": +1` which strict JSON rejects.
+const stripPlusBeforeDigits = (s: string): string => {
+  let out = '';
+  let inString = false;
+  let escape = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (inString) {
+      if (escape) escape = false;
+      else if (c === '\\') escape = true;
+      else if (c === '"') inString = false;
+      out += c;
+      continue;
+    }
+    if (c === '"') { inString = true; out += c; }
+    else if (c === '+' && /[0-9]/.test(s[i + 1] || '')) { /* drop */ }
+    else out += c;
+  }
+  return out;
+};
+
 // Helper function to safely parse JSON from API responses
 const safeJsonParse = (content: string): any => {
   logger.info("🔍 Parsing JSON response");
-  
+
   // Remove any markdown code block markers if present
-  let jsonContent = content
+  let jsonContent = stripPlusBeforeDigits(content
     .replace(/```(json)?/g, '') // Remove ```json or ``` markers
     .replace(/```/g, '')        // Remove closing ``` markers
-    .trim();                     // Remove extra whitespace
+    .trim());                    // Remove extra whitespace
   
   try {
     // More aggressive JSON content cleaning
