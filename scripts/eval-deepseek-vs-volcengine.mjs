@@ -92,15 +92,10 @@ const PROVIDERS = argFilter.length
   ? Object.fromEntries(Object.entries(ALL_PROVIDERS).filter(([k]) => argFilter.includes(k)))
   : ALL_PROVIDERS;
 
-// ─── Prompts copied verbatim from src/i18n/prompts/en.json ──────────────────
-const SYSTEM_PROMPT = `A fun and intriguing narrative game called "Baby Simulator" that simulates the experience of raising a child. The goal is to let players make choices with trade-offs, immerse themselves in the bittersweet experiences of parenting until the child is 18, ultimately loving their child and deeply reflecting on their choices.
-
-Your generated language should be plain, EXTREMELY EASY TO READ with paragraph breaks, CONCISE (outcomes ≤150 words, questions ≤120 words), realistic, non-preachy, balanced with details. Your generated story has consistency in details and does not hallucinate.
-
-Return valid and clean JSON objects directly, rules:
-- Do not use markdown format (do not use \`\`\`json or any other format wrapping)
-- Do not include any control or special characters in the text
-- Ensure all quotes (") are properly escaped as single quotation marks (\\")
+// ─── Prompts loaded live from src/i18n/prompts/en.json ─────────────────────
+// Keep the eval in lockstep with whatever production prompt is currently shipped.
+const PROMPTS = JSON.parse(fs.readFileSync(path.join(repoRoot, 'src/i18n/prompts/en.json'), 'utf8'));
+const SYSTEM_PROMPT = `${PROMPTS.system.main}
 
 At the beginning of the game, the player provided special requirements: A first-time parent in their late 20s, urban professional, average income.`;
 
