@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>养娃模拟器怎么玩 — 新手入门完全攻略</title>
+  <meta name="description" content="养娃模拟器新手攻略：详细介绍游戏玩法、如何设定家庭背景、做育儿决策、理解孩子成长轨迹，以及如何解锁最终结局。从出生到18岁，完整游戏流程解析。">
+  <meta name="keywords" content="养娃模拟器怎么玩, 养娃模拟器攻略, 育儿游戏新手指南, 云养娃游戏玩法, AI养娃攻略, 模拟养娃教程">
+  <meta name="author" content="BabySim">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://babysim.fun/guide/how-to-play-zh.html">
+  <link rel="alternate" hreflang="en" href="https://babysim.fun/guide/how-to-play.html">
+  <link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/how-to-play-zh.html">
+  <link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/how-to-play-ja.html">
+  <link rel="alternate" hreflang="es" href="https://babysim.fun/guide/how-to-play-es.html">
+  <link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/how-to-play.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#FF6B35">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://babysim.fun/guide/how-to-play-zh.html">
+  <meta property="og:title" content="养娃模拟器怎么玩 — 新手入门完全攻略">
+  <meta property="og:description" content="详细图文攻略：从家庭设定到最终结局，带你完整体验AI养娃模拟器的每一个环节。">
+  <meta property="og:image" content="https://babysim.fun/og-image.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="养娃模拟器">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; line-height: 1.8; color: #333; background: #FFFBF5; }
+    .header { background: rgba(255,251,245,0.95); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .logo { font-size: 1.4rem; font-weight: 700; color: #FF6B35; text-decoration: none; }
+    .lang-switch { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .lang-switch a { color: #666; text-decoration: none; font-size: 0.85rem; padding: 0.35rem 0.8rem; border-radius: 20px; transition: all 0.3s; }
+    .lang-switch a:hover, .lang-switch a.active { background: #FF6B35; color: white; }
+    .page-wrapper { max-width: 820px; margin: 0 auto; padding: 6rem 2rem 4rem; }
+    .breadcrumb { font-size: 0.85rem; color: #888; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #FF6B35; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 0.4rem; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; color: #2D2D2D; line-height: 1.3; margin-bottom: 1rem; }
+    .article-meta { font-size: 0.9rem; color: #888; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #FFE4CC; }
+    .intro { font-size: 1.1rem; color: #5D4037; font-weight: 500; margin-bottom: 2rem; line-height: 1.8; }
+    h2 { font-size: 1.4rem; font-weight: 700; color: #2D2D2D; margin: 2.5rem 0 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid #FFE4CC; }
+    h3 { font-size: 1.1rem; font-weight: 600; color: #5D4037; margin: 1.5rem 0 0.5rem; }
+    p { margin-bottom: 1rem; color: #444; }
+    ul, ol { margin: 0.75rem 0 1rem 1.5rem; }
+    li { margin-bottom: 0.5rem; color: #444; }
+    .tip-box { background: linear-gradient(135deg, #FFF5E6, #FFE4CC); border-left: 4px solid #FF6B35; border-radius: 0 12px 12px 0; padding: 1rem 1.25rem; margin: 1.5rem 0; }
+    .tip-box strong { color: #FF6B35; }
+    .step-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+    .step-card { background: white; border-radius: 16px; padding: 1.25rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .step-number { width: 36px; height: 36px; background: linear-gradient(135deg, #FF6B35, #E09F3E); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; margin-bottom: 0.75rem; }
+    .step-card h3 { margin-top: 0; font-size: 1rem; color: #2D2D2D; }
+    .step-card p { font-size: 0.9rem; margin-bottom: 0; }
+    .related-guides { background: white; border-radius: 20px; padding: 2rem; margin-top: 3rem; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+    .related-guides h2 { border: none; margin-top: 0; }
+    .guide-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .guide-link { display: block; background: #FFFBF5; border: 1px solid #FFE4CC; border-radius: 12px; padding: 1rem; text-decoration: none; color: #5D4037; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; }
+    .guide-link:hover { background: #FF6B35; color: white; border-color: #FF6B35; transform: translateY(-2px); }
+    .guide-link span { display: block; font-size: 1.4rem; margin-bottom: 0.4rem; }
+    .cta-section { background: linear-gradient(135deg, #FF6B35, #E09F3E); border-radius: 20px; padding: 2rem; text-align: center; margin-top: 2.5rem; color: white; }
+    .cta-section h2 { color: white; border: none; margin-top: 0; }
+    .cta-section p { color: rgba(255,255,255,0.9); }
+    .cta-button { display: inline-block; background: white; color: #FF6B35; font-weight: 700; padding: 0.85rem 2rem; border-radius: 50px; text-decoration: none; margin-top: 1rem; transition: all 0.3s; font-size: 1rem; }
+    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .footer { background: #2D2D2D; color: white; padding: 2.5rem 2rem; text-align: center; margin-top: 4rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .footer-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; }
+    .footer-links a:hover { color: #FF6B35; }
+    .footer-lang { margin-bottom: 1rem; font-size: 0.85rem; }
+    .footer-lang a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 0.4rem; }
+    .footer-lang a:hover { color: #FF6B35; }
+    .footer-copyright { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
+    @media (max-width: 640px) { .header { padding: 0.75rem 1rem; } .page-wrapper { padding: 5rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">养娃模拟器</a>
+  <nav class="lang-switch" aria-label="语言切换">
+    <a href="/guide/how-to-play.html">English</a>
+    <a href="/guide/how-to-play-zh.html" class="active">中文</a>
+    <a href="/guide/how-to-play-ja.html">日本語</a>
+    <a href="/guide/how-to-play-es.html">Español</a>
+  </nav>
+</header>
+
+<main class="page-wrapper">
+  <nav class="breadcrumb" aria-label="面包屑导航">
+    <a href="/">首页</a><span>›</span>
+    <a href="/guide/index-zh.html">攻略中心</a><span>›</span>
+    游戏玩法
+  </nav>
+
+  <h1>养娃模拟器怎么玩 — 新手入门完全攻略</h1>
+  <p class="article-meta">最近更新：2025年 &nbsp;·&nbsp; 阅读时长：约6分钟 &nbsp;·&nbsp; 养娃模拟器攻略</p>
+
+  <p class="intro">养娃模拟器是一款由AI驱动的文字育儿游戏，你将扮演父母的角色，陪伴孩子从出生成长到18岁。你做出的每一个决定——从如何应对幼儿期的哭闹，到是否为孩子选择重点学校——都会影响孩子的性格、兴趣和人生轨迹。本攻略将带你全面了解游戏的玩法。</p>
+
+  <h2>养娃模拟器是什么？</h2>
+  <p>养娃模拟器是一款免费的文字类模拟游戏，完全由人工智能驱动。与传统剧情固定的游戏不同，这款游戏的每一次游玩体验都是独一无二的——AI会根据你的具体选择，实时生成专属的故事情节和事件结果。</p>
+  <p>游戏涵盖18个游戏年，从孩子出生开始，历经婴幼儿期、童年、少年、青春期，直到18岁步入成年。在每个阶段，你都会面临真实的育儿困境：怎么管教孩子、培养哪方面的才能、如何平衡家庭和工作，以及怎样陪伴孩子渡过成长中的种种挑战。</p>
+
+  <h2>新手上手：第一次游玩</h2>
+
+  <h3>第一步 — 设定家庭背景</h3>
+  <p>游戏开始前，你需要设定家庭的基本情况。首先选择家庭的经济状况：<strong>普通家庭</strong>、<strong>中产家庭</strong>或<strong>富裕家庭</strong>。这会影响你在整个游戏过程中能做出哪些选择——富裕家庭可以负担私立学校和海外游学，而普通家庭则用另一种方式培养孩子的坚韧和独立。</p>
+  <p>你还需要给孩子起名并选择性别。AI随后会生成一段专属的出生故事，交代你的家庭背景和独特处境。</p>
+
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="step-number">1</div>
+      <h3>给孩子起名</h3>
+      <p>选择姓名和性别，AI生成专属家庭背景故事。</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">2</div>
+      <h3>阅读出生故事</h3>
+      <p>AI为你的孩子生成独特的出生叙事，开启故事。</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">3</div>
+      <h3>做出育儿决策</h3>
+      <p>面对各阶段的育儿场景，选择你的应对方式。</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">4</div>
+      <h3>见证结局</h3>
+      <p>18岁时获得完整人生总结，可选生成AI形象照。</p>
+    </div>
+  </div>
+
+  <h2>核心玩法循环</h2>
+  <p>游戏的每一"回合"都会呈现一个与孩子当前年龄相关的育儿场景。早期（0-3岁）的场景可能包括哺乳方式、睡眠训练或早教选择；随着孩子成长，场景会逐渐复杂——交友问题、学业压力、兴趣班取舍，以及青春期的叛逆与沟通。</p>
+  <p>每个场景会提供<strong>三到四个选项</strong>，代表不同的育儿思路。你也可以选择<strong>自定义回答</strong>——用文字输入你的真实想法，AI会理解你的意图并生成独特的剧情结果。自定义选项往往能带来最真实、最有共鸣的体验。</p>
+
+  <div class="tip-box">
+    <strong>小提示：</strong>不要纠结"正确答案"。游戏里没有完美的育儿方式，就像现实中一样。专注于你希望传递给孩子的价值观，保持一致性比每次选"最优解"更重要。
+  </div>
+
+  <h2>理解孩子的成长轨迹</h2>
+  <p>你的育儿决策会逐渐塑造孩子的性格特质。这些特质不以数字形式呈现，而是通过叙事描述体现——孩子的行为方式、兴趣爱好、与他人的相处模式。</p>
+  <p>游戏追踪的主要维度包括：</p>
+  <ul>
+    <li><strong>自信心：</strong>孩子面对挑战和陌生事物时的心理状态</li>
+    <li><strong>创造力：</strong>对艺术、想象力和独立思考的探索意愿</li>
+    <li><strong>学习能力：</strong>与学校和系统学习的关系</li>
+    <li><strong>社交能力：</strong>建立友谊和处理人际关系的水平</li>
+    <li><strong>情绪韧性：</strong>应对挫折和压力的能力</li>
+    <li><strong>独立性：</strong>自主程度与对家庭依赖程度的平衡</li>
+  </ul>
+  <p>这些特质会在每次决策后的AI反馈中有所体现，并最终汇聚成孩子18岁时的完整人物画像。</p>
+
+  <h2>每次决策后：读懂反馈</h2>
+  <p>做出选择后，游戏会呈现一段叙事反馈——用几段文字描述孩子的反应、事件的后续发展和最终结果。这段反馈由AI实时生成，每次都是独特的，因此即便在两局游戏中做出相同选择，故事细节也会有所不同。</p>
+  <p>认真阅读这些反馈很重要——它们不仅交代了当下的结果，还会给出孩子性格发展的线索，以及未来可能面临的场景预示。</p>
+
+  <h2>结局与AI形象照</h2>
+  <p>当孩子满18岁，游戏以一段详细的结局总结收尾。AI会写出一段人物小传，描述你的孩子成为了怎样的人——性格、价值观、职业方向、人际关系——这一切都由你在18年间做出的无数大大小小的决定共同塑造。结局往往令人动容，很多玩家都对这个只存在于文字中的虚拟孩子产生了真实的情感依恋。</p>
+  <p>作为最后的纪念，你可以选择生成一张<strong>AI绘制的孩子成年肖像</strong>。这张图像基于游戏全程积累的外形描述生成，可以保存或分享到社交媒体。</p>
+
+  <h2>新手实用建议</h2>
+  <ul>
+    <li><strong>别频繁重开：</strong>坚持玩完一局，即使中途遇到挫折，结局往往出乎意料地精彩。</li>
+    <li><strong>多用自定义选项：</strong>不要只在预设选项里选，试着输入你真实的想法，AI生成的结果通常更有深度。</li>
+    <li><strong>尝试不同经济背景：</strong>普通家庭和富裕家庭的游戏体验差异非常大，值得都玩一遍。</li>
+    <li><strong>仔细阅读反馈文字：</strong>AI生成的叙事充满情感细节，是游戏体验的核心。</li>
+    <li><strong>没有"完美结局"：</strong>成为艺术家的孩子和成为医生的孩子一样有意义，两种人生都是完整的故事。</li>
+  </ul>
+
+  <div class="tip-box">
+    <strong>实用提示：</strong>游戏进度会自动保存在浏览器本地。你可以随时关闭页面，下次打开时继续。注意：清除浏览器缓存会导致存档丢失。
+  </div>
+
+  <div class="related-guides">
+    <h2>更多攻略</h2>
+    <div class="guide-links">
+      <a href="/guide/tips-zh.html" class="guide-link"><span>💡</span>技巧与策略</a>
+      <a href="/guide/faq-zh.html" class="guide-link"><span>❓</span>常见问题</a>
+      <a href="/guide/about-zh.html" class="guide-link"><span>🎮</span>关于游戏</a>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>准备好开始你的育儿之旅了吗？</h2>
+    <p>免费畅玩，无需注册账号，你的孩子在等着你。</p>
+    <a href="/" class="cta-button">开始游玩 →</a>
+  </div>
+</main>
+
+<footer class="footer">
+  <nav class="footer-links" aria-label="底部导航">
+    <a href="/">开始游戏</a>
+    <a href="/guide/index-zh.html">攻略中心</a>
+    <a href="/gallery">画廊</a>
+    <a href="/info">关于</a>
+  </nav>
+  <div class="footer-lang">
+    <a href="/guide/how-to-play.html">English</a>
+    <a href="/guide/how-to-play-zh.html">中文</a>
+    <a href="/guide/how-to-play-ja.html">日本語</a>
+    <a href="/guide/how-to-play-es.html">Español</a>
+  </div>
+  <p class="footer-copyright">&copy; 2025 养娃模拟器. 保留所有权利。</p>
+</footer>
+
+</body>
+</html>

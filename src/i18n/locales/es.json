@@ -348,10 +348,10 @@
     }
   },
   "announcement": {
-    "title": "¡Gracias por apoyar The Baby Simulator!",
-    "body1": "Desde el lanzamiento en mayo, más de 20,000 bebés han sido criados por jugadores de todo el mundo. Me hace muy feliz conocer las maravillosas historias que han compartido sobre sus experiencias.",
-    "body2": "He actualizado el sitio con Gemini y sigo trabajando en mejoras para ofrecerles una experiencia cada vez mejor.",
-    "body3": "Si tienes alguna sugerencia o quieres compartir una historia, no dudes en escribirme por correo; me encantaría charlar contigo. ¡Gracias de nuevo por jugar y espero que sigas disfrutando este viaje con tu bebé!",
+    "title": "¡Ya estamos de vuelta — disculpa las molestias!",
+    "body1": "Una sincera disculpa: Baby Sim estuvo fuera de servicio durante un tiempo porque nuestro proveedor de modelos descontinuó la versión que usábamos. Ya he actualizado el sitio a un nuevo modelo y todo funciona con normalidad.",
+    "body2": "Muchísimas gracias por tu paciencia y por seguir disfrutando de Baby Sim. Tu apoyo significa muchísimo para mí.",
+    "body3": "Si tienes algún comentario o una historia para compartir, no dudes en escribirme; me encantaría saber de ti. ¡Feliz crianza y bienvenido de vuelta!",
     "body4": "",
     "dismissHint": "Haz clic en cualquier lugar para cerrar"
   },

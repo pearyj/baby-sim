@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acerca de Baby Simulator — La Historia del Juego de Crianza con IA</title>
+  <meta name="description" content="Descubre la historia detrás de Baby Simulator: qué lo inspiró, cómo funciona la IA, el diseño multilingüe, las actualizaciones del juego y la comunidad de más de 20.000 jugadores que lo han hecho crecer.">
+  <meta name="keywords" content="baby simulator acerca de, juego crianza IA historia, baby simulator tecnología, simulador bebé desarrollador, comunidad baby simulator">
+  <meta name="author" content="BabySim">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://babysim.fun/guide/about-es.html">
+  <link rel="alternate" hreflang="en" href="https://babysim.fun/guide/about.html">
+  <link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/about-zh.html">
+  <link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/about-ja.html">
+  <link rel="alternate" hreflang="es" href="https://babysim.fun/guide/about-es.html">
+  <link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/about.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#FF6B35">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://babysim.fun/guide/about-es.html">
+  <meta property="og:title" content="Acerca de Baby Simulator — La Historia del Juego de Crianza con IA">
+  <meta property="og:description" content="La inspiración, la tecnología, el diseño multilingüe y la comunidad detrás de Baby Simulator.">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:site_name" content="Baby Simulator">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; color: #333; background: #FFFBF5; }
+    .header { background: rgba(255,251,245,0.95); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .logo { font-size: 1.4rem; font-weight: 700; color: #FF6B35; text-decoration: none; }
+    .lang-switch { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .lang-switch a { color: #666; text-decoration: none; font-size: 0.85rem; padding: 0.35rem 0.8rem; border-radius: 20px; transition: all 0.3s; }
+    .lang-switch a:hover, .lang-switch a.active { background: #FF6B35; color: white; }
+    .page-wrapper { max-width: 820px; margin: 0 auto; padding: 6rem 2rem 4rem; }
+    .breadcrumb { font-size: 0.85rem; color: #888; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #FF6B35; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 0.4rem; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; color: #2D2D2D; line-height: 1.25; margin-bottom: 1rem; }
+    .article-meta { font-size: 0.9rem; color: #888; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #FFE4CC; }
+    .intro { font-size: 1.1rem; color: #5D4037; font-weight: 500; margin-bottom: 2rem; line-height: 1.7; }
+    h2 { font-size: 1.4rem; font-weight: 700; color: #2D2D2D; margin: 2.5rem 0 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid #FFE4CC; }
+    h3 { font-size: 1.1rem; font-weight: 600; color: #5D4037; margin: 1.5rem 0 0.5rem; }
+    p { margin-bottom: 1rem; color: #444; }
+    .tip-box { background: linear-gradient(135deg, #FFF5E6, #FFE4CC); border-left: 4px solid #FF6B35; border-radius: 0 12px 12px 0; padding: 1rem 1.25rem; margin: 1.5rem 0; }
+    .tip-box strong { color: #FF6B35; }
+    .stat-row { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+    .stat-block { background: white; border-radius: 16px; padding: 1.25rem 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); flex: 1; min-width: 120px; text-align: center; }
+    .stat-block .num { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #FF6B35, #E09F3E); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-block .label { font-size: 0.85rem; color: #888; margin-top: 0.25rem; }
+    .changelog-item { border-left: 3px solid #FFE4CC; padding-left: 1rem; margin: 1rem 0; }
+    .changelog-item .version { font-weight: 700; color: #FF6B35; font-size: 0.9rem; }
+    .changelog-item p { margin-bottom: 0; font-size: 0.95rem; }
+    .tech-stack { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0; }
+    .tech-tag { background: white; border: 1px solid #FFE4CC; border-radius: 20px; padding: 0.3rem 0.8rem; font-size: 0.85rem; color: #5D4037; font-weight: 500; }
+    .related-guides { background: white; border-radius: 20px; padding: 2rem; margin-top: 3rem; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+    .related-guides h2 { border: none; margin-top: 0; }
+    .guide-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .guide-link { display: block; background: #FFFBF5; border: 1px solid #FFE4CC; border-radius: 12px; padding: 1rem; text-decoration: none; color: #5D4037; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; }
+    .guide-link:hover { background: #FF6B35; color: white; border-color: #FF6B35; transform: translateY(-2px); }
+    .guide-link span { display: block; font-size: 1.4rem; margin-bottom: 0.4rem; }
+    .cta-section { background: linear-gradient(135deg, #FF6B35, #E09F3E); border-radius: 20px; padding: 2rem; text-align: center; margin-top: 2.5rem; color: white; }
+    .cta-section h2 { color: white; border: none; margin-top: 0; }
+    .cta-section p { color: rgba(255,255,255,0.9); }
+    .cta-button { display: inline-block; background: white; color: #FF6B35; font-weight: 700; padding: 0.85rem 2rem; border-radius: 50px; text-decoration: none; margin-top: 1rem; transition: all 0.3s; font-size: 1rem; }
+    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .footer { background: #2D2D2D; color: white; padding: 2.5rem 2rem; text-align: center; margin-top: 4rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .footer-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; }
+    .footer-links a:hover { color: #FF6B35; }
+    .footer-lang { margin-bottom: 1rem; font-size: 0.85rem; }
+    .footer-lang a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 0.4rem; }
+    .footer-lang a:hover { color: #FF6B35; }
+    .footer-copyright { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
+    @media (max-width: 640px) { .header { padding: 0.75rem 1rem; } .page-wrapper { padding: 5rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">Baby Simulator</a>
+  <nav class="lang-switch" aria-label="Selección de idioma">
+    <a href="/guide/about.html">English</a>
+    <a href="/guide/about-zh.html">中文</a>
+    <a href="/guide/about-ja.html">日本語</a>
+    <a href="/guide/about-es.html" class="active">Español</a>
+  </nav>
+</header>
+
+<main class="page-wrapper">
+  <nav class="breadcrumb" aria-label="Ruta de navegación">
+    <a href="/">Inicio</a><span>›</span>
+    <a href="/guide/how-to-play-es.html">Guías</a><span>›</span>
+    Acerca del Juego
+  </nav>
+
+  <h1>Acerca de Baby Simulator — La Historia del Juego de Crianza con IA</h1>
+  <p class="article-meta">Última actualización: 2025 &nbsp;·&nbsp; Guía de Baby Simulator</p>
+
+  <p class="intro">Baby Simulator es un juego de simulación de crianza gratuito impulsado por IA donde crías a un hijo virtual desde el nacimiento hasta los 18 años. Cada decisión — grande o pequeña — moldea quién se convierte ese hijo. Aquí está la historia detrás de cómo se construyó.</p>
+
+  <h2>¿Qué es Baby Simulator?</h2>
+  <p>Baby Simulator es un juego de simulación de vida basado en texto construido alrededor de una idea sencilla pero poderosa: ¿qué pasaría si pudieras experimentar el arco completo de criar a un hijo — desde los primeros días como recién nacido hasta los 18 años cuando entra al mundo adulto — en aproximadamente una hora?</p>
+  <p>El juego no es un sistema de puntuación ni un árbol de ramificaciones narrativas. Es una experiencia de narrativa. Cada escenario de crianza es único, cada fragmento de feedback está escrito por IA en respuesta a tus elecciones específicas, y cada final es diferente porque cada jugador cría de forma distinta. Desde el lanzamiento, más de 20.000 hijos virtuales han sido criados aquí, y no hay dos historias exactamente iguales.</p>
+
+  <div class="stat-row">
+    <div class="stat-block"><div class="num">20.000+</div><div class="label">Hijos virtuales criados</div></div>
+    <div class="stat-block"><div class="num">4.5★</div><div class="label">Valoración de jugadores</div></div>
+    <div class="stat-block"><div class="num">4</div><div class="label">Idiomas disponibles</div></div>
+    <div class="stat-block"><div class="num">18 años</div><div class="label">Arco temporal del juego</div></div>
+  </div>
+
+  <h2>La Inspiración</h2>
+  <p>La idea para Baby Simulator surgió de una observación simple: la crianza es una de las experiencias humanas más profundas, pero es casi imposible comprenderla antes de estar en ella. Los libros sobre crianza pueden describir teorías e investigaciones, pero no pueden ponerte en el momento de decidir cómo manejar una rabieta a las 11 de la noche, o cómo responder cuando tu adolescente vuelve a casa llorando por una amistad rota.</p>
+  <p>El juego fue creado para ofrecer un espacio para esa comprensión emocional — una forma de sentir el peso de las decisiones de crianza en un entorno de bajo riesgo. Los jugadores que han usado el juego describen haberse apegado genuinamente a hijos que solo existen como texto, haberse conmovido por los resúmenes de final, y reflexionar más sobre sus propios padres y filosofías de crianza después de jugar.</p>
+  <p>Esa resonancia emocional — no la mecánica de juego, no la tecnología de IA — es lo que el equipo más cuida.</p>
+
+  <h2>Cómo Funciona la IA</h2>
+  <p>Baby Simulator usa grandes modelos de lenguaje para impulsar su motor narrativo. Cuando tomas una decisión de crianza, la IA procesa el contexto completo de tu partida — la edad de tu hijo, sus rasgos en desarrollo, el trasfondo familiar y el historial de tus decisiones anteriores — y genera un resultado narrativo único para tu situación.</p>
+  <p>Esto es diferente a los juegos de árbol de ramificaciones donde los autores preescriben todos los escenarios posibles. En Baby Simulator, los resultados se generan nuevos cada vez, por lo que dos jugadores que toman la misma decisión pueden recibir desarrollos de historia diferentes. La IA se adapta a tu estilo de crianza a lo largo del tiempo, permitiendo que las consecuencias se sientan ganadas y conectadas.</p>
+
+  <h2>Tecnología</h2>
+  <p>Baby Simulator está construido como una aplicación web usando tecnologías frontend modernas, diseñada para funcionar completamente en el navegador sin instalación.</p>
+  <div class="tech-stack">
+    <span class="tech-tag">React</span>
+    <span class="tech-tag">TypeScript</span>
+    <span class="tech-tag">Vite</span>
+    <span class="tech-tag">Material UI</span>
+    <span class="tech-tag">Modelos de Lenguaje IA</span>
+    <span class="tech-tag">Generación de Imágenes IA</span>
+    <span class="tech-tag">Vercel</span>
+  </div>
+
+  <h2>Diseño Multilingüe</h2>
+  <p>Dar soporte a cuatro idiomas no es solo un esfuerzo de localización — es parte del diseño central del juego. La IA genera escenarios, diálogos y feedback narrativo nativamente en el idioma elegido por el jugador — no una traducción posterior. Esto significa que el contexto cultural de la crianza cambia significativamente entre idiomas. Una partida en español refleja diferentes expectativas sociales sobre el éxito académico y las relaciones familiares que una en inglés, y la IA lo tiene en cuenta en los escenarios que genera.</p>
+
+  <h2>Lo que se ha Añadido con el Tiempo</h2>
+
+  <div class="changelog-item">
+    <div class="version">Narrativa en Streaming</div>
+    <p>El feedback de la historia ahora se transmite palabra por palabra mientras se genera, creando una experiencia de lectura más inmersiva.</p>
+  </div>
+  <div class="changelog-item">
+    <div class="version">Galería</div>
+    <p>Una página de galería comunitaria donde los jugadores pueden compartir y explorar imágenes de retrato de IA de sus hijos virtuales adultos.</p>
+  </div>
+  <div class="changelog-item">
+    <div class="version">Respuestas Personalizadas</div>
+    <p>Los jugadores ahora pueden escribir su propia respuesta de crianza en lugar de elegir de las opciones predefinidas. La IA interpreta el texto libre y genera resultados únicos.</p>
+  </div>
+  <div class="changelog-item">
+    <div class="version">Español y Japonés</div>
+    <p>Se añadió soporte completo para español y japonés, llevando el juego a jugadores en España, Latinoamérica y Japón.</p>
+  </div>
+  <div class="changelog-item">
+    <div class="version">Modo Padre/Madre Soltero</div>
+    <p>Los jugadores ahora pueden elegir criar a su hijo como padre o madre soltero/a, desbloqueando un conjunto diferente de escenarios y limitaciones financieras.</p>
+  </div>
+
+  <h2>La Comunidad</h2>
+  <p>Baby Simulator ha construido una comunidad de jugadores que comparten sus historias de final, discuten sus elecciones de crianza y comparan los retratos de IA de sus hijos virtuales. Los jugadores frecuentemente reportan que el juego inició conversaciones con sus parejas, padres y amigos sobre filosofías de crianza reales y sus propias infancias.</p>
+  <p>La <a href="/gallery">página de Galería</a> muestra retratos de IA compartidos por la comunidad — un archivo visual creciente de hijos virtuales criados por jugadores de todo el mundo.</p>
+
+  <div class="tip-box">
+    <strong>¿Quieres dejar tu opinión?</strong> Visita la <a href="/info">página de información</a> para enviarnos un mensaje. El equipo de desarrollo lee cada sugerencia.
+  </div>
+
+  <div class="related-guides">
+    <h2>Más Guías</h2>
+    <div class="guide-links">
+      <a href="/guide/how-to-play-es.html" class="guide-link"><span>📖</span>Cómo Jugar</a>
+      <a href="/guide/tips-es.html" class="guide-link"><span>💡</span>Consejos y Estrategias</a>
+      <a href="/guide/faq-es.html" class="guide-link"><span>❓</span>Preguntas Frecuentes</a>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>Experiméntalo por ti Mismo</h2>
+    <p>Gratuito. Sin registro necesario. 18 años de crianza en una hora.</p>
+    <a href="/" class="cta-button">Jugar Baby Simulator →</a>
+  </div>
+</main>
+
+<footer class="footer">
+  <nav class="footer-links" aria-label="Navegación del pie de página">
+    <a href="/">Jugar</a>
+    <a href="/gallery">Galería</a>
+    <a href="/info">Información</a>
+  </nav>
+  <div class="footer-lang">
+    <a href="/guide/about.html">English</a>
+    <a href="/guide/about-zh.html">中文</a>
+    <a href="/guide/about-ja.html">日本語</a>
+    <a href="/guide/about-es.html">Español</a>
+  </div>
+  <p class="footer-copyright">&copy; 2025 Baby Simulator. Todos los derechos reservados.</p>
+</footer>
+
+</body>
+</html>

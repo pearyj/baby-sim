@@ -221,10 +221,10 @@
     "ok": "Got it"
   },
   "announcement": {
-    "title": "Hi! Just a quick Thank You!",
-    "body1": "Since launching in May, I've been amazed to see over 20,000 babies raised by players from all over the world. Hearing your wonderful stories and experiences has been a true highlight for me.",
-    "body2": "I've just updated the website with Gemini and am continuing to make improvements to give you the best experience possible.",
-    "body3": "If you have any feedback or just want to share a story, please feel free to email me - I'd love to hear from you. Thank you again for playing, and I hope you enjoy the journey with your little one!",
+    "title": "We're back — sorry for the downtime!",
+    "body1": "A heartfelt apology: Baby Sim was unavailable for a while because our model provider deprecated the version we were using. I've now upgraded to a new model, and the site is fully working again.",
+    "body2": "Thank you so much for your patience, and for your continued love and interest in playing Baby Sim. Your support means the world.",
+    "body3": "If you have any feedback or a story to share, please feel free to email me — I'd love to hear from you. Happy parenting, and welcome back!",
     "body4": "",
     "dismissHint": "Click anywhere to dismiss"
   },

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cómo Jugar Baby Simulator — Guía Completa para Principiantes</title>
+  <meta name="description" content="Aprende a jugar Baby Simulator, el juego de crianza con IA. Guía paso a paso: configuración familiar, decisiones de crianza, desarrollo del hijo y cómo desbloquear los diferentes finales.">
+  <meta name="keywords" content="baby simulator cómo jugar, guía juego crianza, baby simulator tutorial, juego simulador bebé guía, juego crianza IA principiantes">
+  <meta name="author" content="BabySim">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://babysim.fun/guide/how-to-play-es.html">
+  <link rel="alternate" hreflang="en" href="https://babysim.fun/guide/how-to-play.html">
+  <link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/how-to-play-zh.html">
+  <link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/how-to-play-ja.html">
+  <link rel="alternate" hreflang="es" href="https://babysim.fun/guide/how-to-play-es.html">
+  <link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/how-to-play.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#FF6B35">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://babysim.fun/guide/how-to-play-es.html">
+  <meta property="og:title" content="Cómo Jugar Baby Simulator — Guía Completa para Principiantes">
+  <meta property="og:description" content="Guía completa de Baby Simulator: configuración familiar, mecánicas de juego, decisiones de crianza y cómo influye cada elección en el futuro de tu hijo virtual.">
+  <meta property="og:image" content="https://babysim.fun/og-image.png">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:site_name" content="Baby Simulator">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; color: #333; background: #FFFBF5; }
+    .header { background: rgba(255,251,245,0.95); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .logo { font-size: 1.4rem; font-weight: 700; color: #FF6B35; text-decoration: none; }
+    .lang-switch { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .lang-switch a { color: #666; text-decoration: none; font-size: 0.85rem; padding: 0.35rem 0.8rem; border-radius: 20px; transition: all 0.3s; }
+    .lang-switch a:hover, .lang-switch a.active { background: #FF6B35; color: white; }
+    .page-wrapper { max-width: 820px; margin: 0 auto; padding: 6rem 2rem 4rem; }
+    .breadcrumb { font-size: 0.85rem; color: #888; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #FF6B35; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 0.4rem; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; color: #2D2D2D; line-height: 1.25; margin-bottom: 1rem; }
+    .article-meta { font-size: 0.9rem; color: #888; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #FFE4CC; }
+    .intro { font-size: 1.1rem; color: #5D4037; font-weight: 500; margin-bottom: 2rem; line-height: 1.7; }
+    h2 { font-size: 1.4rem; font-weight: 700; color: #2D2D2D; margin: 2.5rem 0 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid #FFE4CC; }
+    h3 { font-size: 1.1rem; font-weight: 600; color: #5D4037; margin: 1.5rem 0 0.5rem; }
+    p { margin-bottom: 1rem; color: #444; }
+    ul, ol { margin: 0.75rem 0 1rem 1.5rem; }
+    li { margin-bottom: 0.5rem; color: #444; }
+    .tip-box { background: linear-gradient(135deg, #FFF5E6, #FFE4CC); border-left: 4px solid #FF6B35; border-radius: 0 12px 12px 0; padding: 1rem 1.25rem; margin: 1.5rem 0; }
+    .tip-box strong { color: #FF6B35; }
+    .step-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+    .step-card { background: white; border-radius: 16px; padding: 1.25rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .step-number { width: 36px; height: 36px; background: linear-gradient(135deg, #FF6B35, #E09F3E); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; margin-bottom: 0.75rem; }
+    .step-card h3 { margin-top: 0; font-size: 0.95rem; color: #2D2D2D; }
+    .step-card p { font-size: 0.88rem; margin-bottom: 0; }
+    .related-guides { background: white; border-radius: 20px; padding: 2rem; margin-top: 3rem; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+    .related-guides h2 { border: none; margin-top: 0; }
+    .guide-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .guide-link { display: block; background: #FFFBF5; border: 1px solid #FFE4CC; border-radius: 12px; padding: 1rem; text-decoration: none; color: #5D4037; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; }
+    .guide-link:hover { background: #FF6B35; color: white; border-color: #FF6B35; transform: translateY(-2px); }
+    .guide-link span { display: block; font-size: 1.4rem; margin-bottom: 0.4rem; }
+    .cta-section { background: linear-gradient(135deg, #FF6B35, #E09F3E); border-radius: 20px; padding: 2rem; text-align: center; margin-top: 2.5rem; color: white; }
+    .cta-section h2 { color: white; border: none; margin-top: 0; }
+    .cta-section p { color: rgba(255,255,255,0.9); }
+    .cta-button { display: inline-block; background: white; color: #FF6B35; font-weight: 700; padding: 0.85rem 2rem; border-radius: 50px; text-decoration: none; margin-top: 1rem; transition: all 0.3s; font-size: 1rem; }
+    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .footer { background: #2D2D2D; color: white; padding: 2.5rem 2rem; text-align: center; margin-top: 4rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .footer-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; }
+    .footer-links a:hover { color: #FF6B35; }
+    .footer-lang { margin-bottom: 1rem; font-size: 0.85rem; }
+    .footer-lang a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 0.4rem; }
+    .footer-lang a:hover { color: #FF6B35; }
+    .footer-copyright { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
+    @media (max-width: 640px) { .header { padding: 0.75rem 1rem; } .page-wrapper { padding: 5rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">Baby Simulator</a>
+  <nav class="lang-switch" aria-label="Selección de idioma">
+    <a href="/guide/how-to-play.html">English</a>
+    <a href="/guide/how-to-play-zh.html">中文</a>
+    <a href="/guide/how-to-play-ja.html">日本語</a>
+    <a href="/guide/how-to-play-es.html" class="active">Español</a>
+  </nav>
+</header>
+
+<main class="page-wrapper">
+  <nav class="breadcrumb" aria-label="Ruta de navegación">
+    <a href="/">Inicio</a><span>›</span>
+    <a href="/guide/how-to-play-es.html">Guías</a><span>›</span>
+    Cómo Jugar
+  </nav>
+
+  <h1>Cómo Jugar Baby Simulator — Guía Completa para Principiantes</h1>
+  <p class="article-meta">Última actualización: 2025 &nbsp;·&nbsp; Tiempo de lectura: ~6 minutos &nbsp;·&nbsp; Guía de Baby Simulator</p>
+
+  <p class="intro">Baby Simulator es un juego de crianza con inteligencia artificial donde crías a un hijo virtual desde su nacimiento hasta los 18 años. Cada decisión que tomes — desde cómo manejar una rabieta hasta si fomentar una carrera universitaria — moldea la personalidad, los intereses y el futuro de tu hijo. Esta guía te explica todo lo que necesitas saber para empezar.</p>
+
+  <h2>¿Qué es Baby Simulator?</h2>
+  <p>Baby Simulator es un juego de simulación de vida gratuito, basado en texto y potenciado por inteligencia artificial. A diferencia de los juegos con guiones fijos, la IA genera historias, escenarios y consecuencias únicas en función de tus decisiones específicas. Ninguna partida es exactamente igual a otra.</p>
+  <p>El juego abarca 18 años de juego — desde el nacimiento de tu bebé hasta que cumple 18 años y entra al mundo adulto. En cada etapa te enfrentas a dilemas reales de crianza: cómo disciplinar, qué actividades fomentar, cómo equilibrar trabajo y familia, y cómo apoyar a tu hijo en la adolescencia.</p>
+
+  <h2>Tu Primera Partida</h2>
+
+  <h3>Paso 1 — Configura el Trasfondo Familiar</h3>
+  <p>Antes de empezar, configuras la situación de tu familia. Eliges el nivel económico: <strong>clase trabajadora</strong>, <strong>clase media</strong> o <strong>familia adinerada</strong>. Esto afecta qué opciones tienes disponibles a lo largo del juego. Una familia adinerada puede costear tutores privados y viajes al extranjero, mientras que una familia trabajadora enseña resiliencia y recursos de maneras distintas.</p>
+  <p>También le pones nombre a tu bebé y eliges su género. La IA genera entonces una historia de nacimiento personalizada que establece el trasfondo único de tu familia.</p>
+
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="step-number">1</div>
+      <h3>Nombra a tu Bebé</h3>
+      <p>Elige nombre y género. La IA crea una historia familiar única.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">2</div>
+      <h3>Lee la Historia de Nacimiento</h3>
+      <p>Una narrativa generada presenta a tu hijo y su mundo.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">3</div>
+      <h3>Toma Decisiones</h3>
+      <p>Enfrenta escenarios de crianza en cada etapa y elige cómo responder.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">4</div>
+      <h3>Descubre el Final</h3>
+      <p>A los 18 años, obtén un resumen completo y un retrato de IA de tu hijo adulto.</p>
+    </div>
+  </div>
+
+  <h2>El Ciclo de Juego</h2>
+  <p>Cada "turno" presenta un escenario de crianza ligado a la edad actual de tu hijo. En los primeros años (0-3), las situaciones pueden incluir rutinas de sueño, métodos de alimentación o estimulación temprana. A medida que el niño crece, los escenarios se vuelven más complejos: conflictos de amistad, presión académica, elección de actividades extraescolares y preguntas de identidad en la adolescencia.</p>
+  <p>En cada escenario se presentan <strong>tres o cuatro opciones de respuesta</strong>, cada una representando un enfoque de crianza diferente. También puedes escribir una <strong>respuesta personalizada</strong> — explica qué harías tú realmente, y la IA interpreta tu intención y genera un resultado único. Esta opción personalizada suele producir las experiencias más auténticas.</p>
+
+  <div class="tip-box">
+    <strong>Consejo:</strong> No busques la respuesta "correcta". No existe una forma perfecta de criar a un hijo en este juego, igual que en la vida real. Concéntrate en ser coherente con los valores que quieres transmitirle.
+  </div>
+
+  <h2>Entendiendo el Desarrollo de tu Hijo</h2>
+  <p>Las decisiones acumuladas moldean la personalidad de tu hijo a lo largo del tiempo. Estas características no aparecen como números — emergen a través de descripciones narrativas del comportamiento, gustos y relaciones del niño.</p>
+  <p>Las principales dimensiones que el juego sigue:</p>
+  <ul>
+    <li><strong>Confianza en sí mismo:</strong> Cómo enfrenta desafíos y situaciones nuevas</li>
+    <li><strong>Creatividad:</strong> Si explora el arte, la imaginación y el pensamiento independiente</li>
+    <li><strong>Aptitud académica:</strong> Su relación con la escuela y el aprendizaje estructurado</li>
+    <li><strong>Habilidades sociales:</strong> Qué tan bien forma amistades y navega relaciones</li>
+    <li><strong>Resiliencia emocional:</strong> Su capacidad para afrontar contratiempos y estrés</li>
+    <li><strong>Independencia:</strong> Qué tan autónomo se vuelve frente a su dependencia de la familia</li>
+  </ul>
+
+  <h2>El Final y el Retrato de IA</h2>
+  <p>Cuando tu hijo cumple 18 años, el juego concluye con un resumen detallado. La IA escribe un retrato del adulto en que se convirtió — su personalidad, valores, trayectoria profesional y relaciones — todo moldeado por las decisiones que tomaste a lo largo de 18 años. Este final es uno de los momentos más emotivos del juego, y muchos jugadores se sorprenden por el apego que sienten hacia un personaje que solo existe como texto.</p>
+  <p>Como toque final, puedes generar un <strong>retrato de imagen creado por IA</strong> de tu hijo adulto. Esta imagen se puede guardar y compartir en redes sociales.</p>
+
+  <h2>Consejos para Nuevos Jugadores</h2>
+  <ul>
+    <li><strong>No reinicies demasiado:</strong> La experiencia más rica surge de comprometerte con tus decisiones y ver adónde llevan, incluso cuando las cosas salen mal.</li>
+    <li><strong>Prueba la respuesta personalizada:</strong> En lugar de elegir siempre entre las opciones predefinidas, escribe tu propia respuesta de crianza. La IA suele generar resultados más matizados.</li>
+    <li><strong>Experimenta con diferentes niveles económicos:</strong> Las partidas de clase trabajadora y adinerada se sienten muy diferentes. Ambas son igualmente válidas e interesantes.</li>
+    <li><strong>Lee el feedback con atención:</strong> La narrativa contiene profundidad emocional que hace que replantear los escenarios sea más significativo.</li>
+    <li><strong>No hay un "final perfecto":</strong> Un hijo que se convierte en artista no es un resultado menor que uno que se convierte en médico. Ambos son válidos y emocionalmente satisfactorios.</li>
+  </ul>
+
+  <div class="tip-box">
+    <strong>Útil saber:</strong> Baby Simulator guarda tu progreso automáticamente en el almacenamiento local de tu navegador. Puedes cerrar la pestaña y volver más tarde para continuar. Limpiar los datos del navegador borrará tu partida guardada.
+  </div>
+
+  <div class="related-guides">
+    <h2>Más Guías</h2>
+    <div class="guide-links">
+      <a href="/guide/tips-es.html" class="guide-link"><span>💡</span>Consejos y Estrategias</a>
+      <a href="/guide/faq-es.html" class="guide-link"><span>❓</span>Preguntas Frecuentes</a>
+      <a href="/guide/about-es.html" class="guide-link"><span>🎮</span>Acerca del Juego</a>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>¿Listo para Empezar tu Viaje como Padre?</h2>
+    <p>Gratuito. Sin registro necesario. Tu hijo virtual te espera.</p>
+    <a href="/" class="cta-button">Jugar Baby Simulator →</a>
+  </div>
+</main>
+
+<footer class="footer">
+  <nav class="footer-links" aria-label="Navegación del pie de página">
+    <a href="/">Jugar</a>
+    <a href="/gallery">Galería</a>
+    <a href="/info">Información</a>
+  </nav>
+  <div class="footer-lang">
+    <a href="/guide/how-to-play.html">English</a>
+    <a href="/guide/how-to-play-zh.html">中文</a>
+    <a href="/guide/how-to-play-ja.html">日本語</a>
+    <a href="/guide/how-to-play-es.html">Español</a>
+  </div>
+  <p class="footer-copyright">&copy; 2025 Baby Simulator. Todos los derechos reservados.</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ベビーシミュレーターの遊び方 — 初心者向け完全ガイド</title>
+  <meta name="description" content="ベビーシミュレーターの遊び方を徹底解説。家族設定から18歳のエンディングまで、ゲームの流れ・育児の決断・子どもの成長システムをわかりやすく説明します。">
+  <meta name="keywords" content="ベビーシミュレーター 遊び方, 育児ゲーム ガイド, 赤ちゃん育成ゲーム 攻略, AI育児シミュレーター 始め方">
+  <meta name="author" content="BabySim">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://babysim.fun/guide/how-to-play-ja.html">
+  <link rel="alternate" hreflang="en" href="https://babysim.fun/guide/how-to-play.html">
+  <link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/how-to-play-zh.html">
+  <link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/how-to-play-ja.html">
+  <link rel="alternate" hreflang="es" href="https://babysim.fun/guide/how-to-play-es.html">
+  <link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/how-to-play.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#FF6B35">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://babysim.fun/guide/how-to-play-ja.html">
+  <meta property="og:title" content="ベビーシミュレーターの遊び方 — 初心者向け完全ガイド">
+  <meta property="og:description" content="家族の設定から18歳のエンディングまで、ベビーシミュレーターを最大限に楽しむための完全ガイドです。">
+  <meta property="og:image" content="https://babysim.fun/og-image.png">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:site_name" content="ベビーシミュレーター">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', 'Yu Gothic', sans-serif; line-height: 1.85; color: #333; background: #FFFBF5; }
+    .header { background: rgba(255,251,245,0.95); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .logo { font-size: 1.3rem; font-weight: 700; color: #FF6B35; text-decoration: none; }
+    .lang-switch { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .lang-switch a { color: #666; text-decoration: none; font-size: 0.8rem; padding: 0.3rem 0.7rem; border-radius: 20px; transition: all 0.3s; }
+    .lang-switch a:hover, .lang-switch a.active { background: #FF6B35; color: white; }
+    .page-wrapper { max-width: 820px; margin: 0 auto; padding: 6rem 2rem 4rem; }
+    .breadcrumb { font-size: 0.82rem; color: #888; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #FF6B35; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 0.4rem; }
+    h1 { font-size: clamp(1.5rem, 3.5vw, 2.1rem); font-weight: 900; color: #2D2D2D; line-height: 1.35; margin-bottom: 1rem; }
+    .article-meta { font-size: 0.85rem; color: #888; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #FFE4CC; }
+    .intro { font-size: 1.05rem; color: #5D4037; font-weight: 500; margin-bottom: 2rem; line-height: 1.9; }
+    h2 { font-size: 1.3rem; font-weight: 700; color: #2D2D2D; margin: 2.5rem 0 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid #FFE4CC; }
+    h3 { font-size: 1.05rem; font-weight: 700; color: #5D4037; margin: 1.5rem 0 0.5rem; }
+    p { margin-bottom: 1rem; color: #444; }
+    ul, ol { margin: 0.75rem 0 1rem 1.5rem; }
+    li { margin-bottom: 0.5rem; color: #444; }
+    .tip-box { background: linear-gradient(135deg, #FFF5E6, #FFE4CC); border-left: 4px solid #FF6B35; border-radius: 0 12px 12px 0; padding: 1rem 1.25rem; margin: 1.5rem 0; }
+    .tip-box strong { color: #FF6B35; }
+    .step-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+    .step-card { background: white; border-radius: 16px; padding: 1.25rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .step-number { width: 36px; height: 36px; background: linear-gradient(135deg, #FF6B35, #E09F3E); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; margin-bottom: 0.75rem; }
+    .step-card h3 { margin-top: 0; font-size: 0.95rem; color: #2D2D2D; }
+    .step-card p { font-size: 0.85rem; margin-bottom: 0; }
+    .related-guides { background: white; border-radius: 20px; padding: 2rem; margin-top: 3rem; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+    .related-guides h2 { border: none; margin-top: 0; }
+    .guide-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .guide-link { display: block; background: #FFFBF5; border: 1px solid #FFE4CC; border-radius: 12px; padding: 1rem; text-decoration: none; color: #5D4037; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+    .guide-link:hover { background: #FF6B35; color: white; border-color: #FF6B35; transform: translateY(-2px); }
+    .guide-link span { display: block; font-size: 1.4rem; margin-bottom: 0.4rem; }
+    .cta-section { background: linear-gradient(135deg, #FF6B35, #E09F3E); border-radius: 20px; padding: 2rem; text-align: center; margin-top: 2.5rem; color: white; }
+    .cta-section h2 { color: white; border: none; margin-top: 0; }
+    .cta-section p { color: rgba(255,255,255,0.9); }
+    .cta-button { display: inline-block; background: white; color: #FF6B35; font-weight: 700; padding: 0.85rem 2rem; border-radius: 50px; text-decoration: none; margin-top: 1rem; transition: all 0.3s; font-size: 1rem; }
+    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .footer { background: #2D2D2D; color: white; padding: 2.5rem 2rem; text-align: center; margin-top: 4rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .footer-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; }
+    .footer-links a:hover { color: #FF6B35; }
+    .footer-lang { margin-bottom: 1rem; font-size: 0.82rem; }
+    .footer-lang a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 0.4rem; }
+    .footer-lang a:hover { color: #FF6B35; }
+    .footer-copyright { color: rgba(255,255,255,0.4); font-size: 0.82rem; }
+    @media (max-width: 640px) { .header { padding: 0.75rem 1rem; } .page-wrapper { padding: 5rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">ベビーシミュレーター</a>
+  <nav class="lang-switch" aria-label="言語切替">
+    <a href="/guide/how-to-play.html">English</a>
+    <a href="/guide/how-to-play-zh.html">中文</a>
+    <a href="/guide/how-to-play-ja.html" class="active">日本語</a>
+    <a href="/guide/how-to-play-es.html">Español</a>
+  </nav>
+</header>
+
+<main class="page-wrapper">
+  <nav class="breadcrumb" aria-label="パンくずナビ">
+    <a href="/">ホーム</a><span>›</span>
+    <a href="/guide/how-to-play-ja.html">ガイド</a><span>›</span>
+    遊び方
+  </nav>
+
+  <h1>ベビーシミュレーターの遊び方 — 初心者向け完全ガイド</h1>
+  <p class="article-meta">最終更新：2025年 &nbsp;·&nbsp; 読了時間：約6分 &nbsp;·&nbsp; ベビーシミュレーター ガイド</p>
+
+  <p class="intro">ベビーシミュレーターは、AIが生成するテキストベースの子育てゲームです。あなたは親として、生まれたばかりの赤ちゃんを18歳になるまで育てます。夜泣きへの対応から進路選択まで、あなたが下すすべての決断が子どもの性格・価値観・人生の行方を形作ります。このガイドでは、ゲームの基本から楽しみ方のコツまで詳しく解説します。</p>
+
+  <h2>ベビーシミュレーターとは？</h2>
+  <p>ベビーシミュレーターは、人工知能（AI）を活用した無料のシミュレーションゲームです。あらかじめ決まったシナリオがある従来のゲームとは異なり、AIがあなたの選択に応じてリアルタイムでユニークなストーリーを生成します。同じ選択をしても、毎回少しずつ異なる展開になります。</p>
+  <p>ゲームは18年間をカバーし、新生児期から始まり、幼児期・小学生・思春期を経て、18歳で成人を迎えるまでのすべてを体験します。各ステージで現実的な育児のジレンマに直面します——しつけの方法、習い事の選択、仕事と家庭のバランス、そして思春期の反抗期にどう向き合うかなど。</p>
+
+  <h2>はじめてのプレイ</h2>
+
+  <h3>ステップ1 — 家族の設定</h3>
+  <p>ゲーム開始前に、家族の状況を設定します。家庭の経済状況を選択します：<strong>一般家庭</strong>、<strong>中産階級</strong>、<strong>裕福な家庭</strong>。この選択がゲーム全体を通じて利用できる選択肢に影響します。裕福な家庭では私立学校や海外留学を検討できますが、一般家庭は限られた選択肢の中で知恵を絞ることになります。</p>
+  <p>次に赤ちゃんの名前と性別を決めます。AIがあなたの家族固有の背景と状況を描いた出生ストーリーを生成します。</p>
+
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="step-number">1</div>
+      <h3>名前を決める</h3>
+      <p>名前と性別を選択。AIが家族のバックグラウンドを生成します。</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">2</div>
+      <h3>誕生ストーリーを読む</h3>
+      <p>AIが生成した出生物語があなたの子育てを始めます。</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">3</div>
+      <h3>決断を下す</h3>
+      <p>各年齢の育児シーンで、あなたの対応を選んでいきます。</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">4</div>
+      <h3>結末を見届ける</h3>
+      <p>18歳でまとめレポートを受け取り、AIポートレートも生成できます。</p>
+    </div>
+  </div>
+
+  <h2>基本的なゲームの流れ</h2>
+  <p>各「ターン」では、子どもの現在の年齢に合わせた育児シーンが展示されます。幼児期（0〜3歳）では授乳方法や睡眠トレーニング、早期教育の選択などが登場します。成長とともにシーンは複雑になり、友人関係のトラブル、学業の問題、部活や習い事の選択、思春期のアイデンティティへの向き合い方などが含まれます。</p>
+  <p>各シーンでは<strong>3〜4つの選択肢</strong>が提示され、それぞれ異なる育児スタイルを表します。また<strong>カスタム回答</strong>を入力することも可能です——自分ならどうするかを文章で入力すると、AIがその意図を解釈してユニークな展開を生成します。このカスタム機能が最も個性的な体験を生み出すことが多いです。</p>
+
+  <div class="tip-box">
+    <strong>ヒント：</strong>「正しい答え」を探しすぎないでください。このゲームには完璧な育て方などありません——現実と同じように。大切なしているのは、一貫して子どもに伝えたい価値観と向き合いながら選択することです。
+  </div>
+
+  <h2>子どもの成長を理解する</h2>
+  <p>育児の決断は積み重なって子どもの性格特性を形成していきます。これらの特性は数字ではなく、子どもの言動・好み・対人関係を描写する叙述として現れます。</p>
+  <p>ゲームが追跡する主な要素：</p>
+  <ul>
+    <li><strong>自己肯定感：</strong>困難や新しい状況にどう立ち向かうか</li>
+    <li><strong>創造性：</strong>芸術・想像力・独立した思考への探求</li>
+    <li><strong>学習能力：</strong>学校と体系的な学習との関係</li>
+    <li><strong>社会性：</strong>友人を作り、人間関係をどう築くか</li>
+    <li><strong>精神的な強さ：</strong>困難やストレスへの対処能力</li>
+    <li><strong>自立心：</strong>自分で判断する力と家族への依存のバランス</li>
+  </ul>
+  <p>これらの特性は各決断後のAIフィードバックに反映され、最終的に18歳時点の子どもの完全なプロフィールに結実します。</p>
+
+  <h2>決断後のフィードバック</h2>
+  <p>選択すると、ゲームは叙述的なフィードバックを表示します——子どもの反応、その後の数日間の出来事、そして状況の解決を描く数段落の文章です。このフィードバックはAIが毎回生成するため、同じシーンで同じ選択をしても、細部は異なります。</p>
+  <p>このフィードバックを丁寧に読むことが大切です。子どもの性格発達についてのヒントや、次に直面しそうな状況の伏線が含まれています。</p>
+
+  <h2>エンディングとAIポートレート</h2>
+  <p>子どもが18歳になると、ゲームは詳細なエンディングサマリーで締めくくられます。AIが子どもの人物像を描きます——性格、価値観、キャリアの方向性、人間関係。これらはすべて、18年間のあなたの無数の決断によって形成されたものです。このエンディングは多くのプレイヤーが最も感動する場面であり、文章の中にしか存在しない子どもに対して本物の愛着を感じる方が多いです。</p>
+  <p>最後の締めくくりとして、<strong>AIが生成した成人した子どものポートレート画像</strong>を作成できます。ゲーム全体を通じて積み上げられた外見の描写をもとに画像が生成されます。ダウンロードしてSNSでシェアすることも可能です。</p>
+
+  <h2>初心者へのアドバイス</h2>
+  <ul>
+    <li><strong>やり直しすぎないで：</strong>途中で困難があっても最後まで続けることで、最も豊かなストーリー体験が生まれます。</li>
+    <li><strong>カスタム回答を試して：</strong>用意された選択肢だけでなく、自分の言葉で回答してみましょう。より深みのある結果が得られることが多いです。</li>
+    <li><strong>異なる設定で複数プレイ：</strong>家庭の経済状況や子どもの性別を変えると、まったく異なる体験ができます。</li>
+    <li><strong>フィードバックをじっくり読む：</strong>AIが生成するテキストには感情的な深みがあり、これがゲームの核心です。</li>
+    <li><strong>「完璧な結末」はない：</strong>芸術家になった子どもも、医者になった子どもも、どちらも同じくらい意味のある結末です。</li>
+  </ul>
+
+  <div class="tip-box">
+    <strong>覚えておいてください：</strong>ゲームの進行状況はブラウザのローカルストレージに自動保存されます。タブを閉じても、次回開いたときに続きから再開できます。ただし、ブラウザのデータを消去すると保存データも失われます。
+  </div>
+
+  <div class="related-guides">
+    <h2>その他のガイド</h2>
+    <div class="guide-links">
+      <a href="/guide/tips-ja.html" class="guide-link"><span>💡</span>攻略・コツ</a>
+      <a href="/guide/faq-ja.html" class="guide-link"><span>❓</span>よくある質問</a>
+      <a href="/guide/about-ja.html" class="guide-link"><span>🎮</span>ゲームについて</a>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>子育ての旅を始めましょう</h2>
+    <p>無料プレイ。アカウント登録不要。あなたの赤ちゃんが待っています。</p>
+    <a href="/" class="cta-button">ゲームをプレイ →</a>
+  </div>
+</main>
+
+<footer class="footer">
+  <nav class="footer-links" aria-label="フッターナビ">
+    <a href="/">ゲームをプレイ</a>
+    <a href="/gallery">ギャラリー</a>
+    <a href="/info">情報</a>
+  </nav>
+  <div class="footer-lang">
+    <a href="/guide/how-to-play.html">English</a>
+    <a href="/guide/how-to-play-zh.html">中文</a>
+    <a href="/guide/how-to-play-ja.html">日本語</a>
+    <a href="/guide/how-to-play-es.html">Español</a>
+  </div>
+  <p class="footer-copyright">&copy; 2025 Baby Simulator. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

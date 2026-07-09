@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ベビーシミュレーター よくある質問（FAQ）</title>
+  <meta name="description" content="ベビーシミュレーターに関するよくある質問をまとめました。無料で遊べるの？アカウントは必要？進行状況は保存できる？対応言語は？AIポートレートとは？——すべてここで解決。">
+  <meta name="keywords" content="ベビーシミュレーター FAQ, 子育てゲーム よくある質問, ベビーシミュレーター 保存, ベビーシミュレーター 無料, AI育児ゲーム 質問">
+  <meta name="author" content="BabySim">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://babysim.fun/guide/faq-ja.html">
+  <link rel="alternate" hreflang="en" href="https://babysim.fun/guide/faq.html">
+  <link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/faq-zh.html">
+  <link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/faq-ja.html">
+  <link rel="alternate" hreflang="es" href="https://babysim.fun/guide/faq-es.html">
+  <link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/faq.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#FF6B35">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://babysim.fun/guide/faq-ja.html">
+  <meta property="og:title" content="ベビーシミュレーター よくある質問（FAQ）">
+  <meta property="og:description" content="ベビーシミュレーターへのよくある質問に一挙回答。ゲームの仕組みから保存・AIポートレートまで。">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:site_name" content="ベビーシミュレーター">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', 'Yu Gothic', sans-serif; line-height: 1.85; color: #333; background: #FFFBF5; }
+    .header { background: rgba(255,251,245,0.95); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .logo { font-size: 1.3rem; font-weight: 700; color: #FF6B35; text-decoration: none; }
+    .lang-switch { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .lang-switch a { color: #666; text-decoration: none; font-size: 0.8rem; padding: 0.3rem 0.7rem; border-radius: 20px; transition: all 0.3s; }
+    .lang-switch a:hover, .lang-switch a.active { background: #FF6B35; color: white; }
+    .page-wrapper { max-width: 820px; margin: 0 auto; padding: 6rem 2rem 4rem; }
+    .breadcrumb { font-size: 0.82rem; color: #888; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #FF6B35; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 0.4rem; }
+    h1 { font-size: clamp(1.5rem, 3.5vw, 2.1rem); font-weight: 900; color: #2D2D2D; line-height: 1.35; margin-bottom: 1rem; }
+    .article-meta { font-size: 0.85rem; color: #888; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #FFE4CC; }
+    .intro { font-size: 1.05rem; color: #5D4037; font-weight: 500; margin-bottom: 2rem; line-height: 1.9; }
+    h2 { font-size: 1.3rem; font-weight: 700; color: #2D2D2D; margin: 2.5rem 0 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid #FFE4CC; }
+    p { margin-bottom: 1rem; color: #444; }
+    .faq-item { margin-bottom: 0.75rem; border: 1px solid #FFE4CC; border-radius: 16px; overflow: hidden; background: white; }
+    .faq-question { width: 100%; text-align: left; background: none; border: none; padding: 1.1rem 1.25rem; font-size: 0.97rem; font-weight: 700; color: #2D2D2D; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-family: inherit; }
+    .faq-question:hover { background: #FFF5E6; }
+    .faq-question .icon { font-size: 1.2rem; color: #FF6B35; flex-shrink: 0; }
+    .faq-answer { padding: 0 1.25rem 1.1rem; color: #444; font-size: 0.93rem; line-height: 1.85; }
+    .faq-answer a { color: #FF6B35; text-decoration: none; }
+    .faq-answer a:hover { text-decoration: underline; }
+    .tip-box { background: linear-gradient(135deg, #FFF5E6, #FFE4CC); border-left: 4px solid #FF6B35; border-radius: 0 12px 12px 0; padding: 1rem 1.25rem; margin: 1.5rem 0; }
+    .tip-box strong { color: #FF6B35; }
+    .related-guides { background: white; border-radius: 20px; padding: 2rem; margin-top: 3rem; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+    .related-guides h2 { border: none; margin-top: 0; }
+    .guide-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .guide-link { display: block; background: #FFFBF5; border: 1px solid #FFE4CC; border-radius: 12px; padding: 1rem; text-decoration: none; color: #5D4037; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+    .guide-link:hover { background: #FF6B35; color: white; border-color: #FF6B35; transform: translateY(-2px); }
+    .guide-link span { display: block; font-size: 1.4rem; margin-bottom: 0.4rem; }
+    .cta-section { background: linear-gradient(135deg, #FF6B35, #E09F3E); border-radius: 20px; padding: 2rem; text-align: center; margin-top: 2.5rem; color: white; }
+    .cta-section h2 { color: white; border: none; margin-top: 0; }
+    .cta-section p { color: rgba(255,255,255,0.9); }
+    .cta-button { display: inline-block; background: white; color: #FF6B35; font-weight: 700; padding: 0.85rem 2rem; border-radius: 50px; text-decoration: none; margin-top: 1rem; transition: all 0.3s; font-size: 1rem; }
+    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .footer { background: #2D2D2D; color: white; padding: 2.5rem 2rem; text-align: center; margin-top: 4rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .footer-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; }
+    .footer-links a:hover { color: #FF6B35; }
+    .footer-lang { margin-bottom: 1rem; font-size: 0.82rem; }
+    .footer-lang a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 0.4rem; }
+    .footer-lang a:hover { color: #FF6B35; }
+    .footer-copyright { color: rgba(255,255,255,0.4); font-size: 0.82rem; }
+    @media (max-width: 640px) { .header { padding: 0.75rem 1rem; } .page-wrapper { padding: 5rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">ベビーシミュレーター</a>
+  <nav class="lang-switch" aria-label="言語切替">
+    <a href="/guide/faq.html">English</a>
+    <a href="/guide/faq-zh.html">中文</a>
+    <a href="/guide/faq-ja.html" class="active">日本語</a>
+    <a href="/guide/faq-es.html">Español</a>
+  </nav>
+</header>
+
+<main class="page-wrapper">
+  <nav class="breadcrumb" aria-label="パンくずナビ">
+    <a href="/">ホーム</a><span>›</span>
+    <a href="/guide/how-to-play-ja.html">ガイド</a><span>›</span>
+    よくある質問
+  </nav>
+
+  <h1>ベビーシミュレーター — よくある質問（FAQ）</h1>
+  <p class="article-meta">最終更新：2025年 &nbsp;·&nbsp; 読了時間：約5分 &nbsp;·&nbsp; ベビーシミュレーター ガイド</p>
+
+  <p class="intro">ベビーシミュレーターが初めての方や、気になることがある方のために、よく寄せられる質問をまとめました。基本的な遊び方からAI機能まで、疑問をすっきり解消しましょう。</p>
+
+  <h2>はじめる前に</h2>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+      ベビーシミュレーターは無料ですか？ <span class="icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>はい、コアゲームは完全無料です。生まれてから18歳になるまでのすべての育児シナリオ、フルストーリー、エンディングサマリーは料金なしで体験できます。</p>
+      <p>一部の追加機能（AIが生成した成人した子どものポートレート画像、プレミアムAIモデルへのアクセス）にはクレジットが必要です。これらはオプションの機能であり、メインゲームには必要ありません。</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+      アカウント登録は必要ですか？ <span class="icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>必要ありません。ゲームを開いてすぐにプレイを始められます。進行状況はブラウザのローカルストレージに自動保存されます。</p>
+      <p>メールアドレスが必要なのは、クレジットを購入する場合のみです。</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+      対応言語は何ですか？ <span class="icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>ベビーシミュレーターは4言語に対応しています：<strong>日本語</strong>、<strong>英語</strong>、<strong>中国語（簡体字）</strong>、<strong>スペイン語</strong>。ゲーム画面からいつでも言語を切り替えられます。</p>
+      <p>ストーリーの内容、シナリオ、フィードバックはすべて選択した言語でAIがネイティブに生成します——単純な翻訳ではありません。</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+      スマートフォンでも遊べますか？ <span class="icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>はい。ベビーシミュレーターはスマートフォン、タブレット、PCのモダンブラウザすべてで動作します。アプリのダウンロードは不要です。Chrome、Safari、Firefox、Edgeに対応しています。</p>
+    </div>
+  </div>
+
+  <h2>ゲームプレイについて</h2>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+      1周クリアするのにどれくらいかかりますか？ <span class="icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>誕生から18歳までの1周は、通常<strong>30〜45分</strong>ほどかかります。読む速さやカスタム回答の入力にかける時間によって変わります。</p>
+      <p>途中でいつでも中断できます。次回開いたときに続きから再開できます。</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+      進行状況は保存できますか？ <span class="icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>はい、各決断後にブラウザのローカルストレージへ自動保存されます。タブを閉じても、次に開いたときに続きから再開できます。</p>
+      <p><strong>注意：</strong>ブラウザのキャッシュやサイトデータを消去すると、保存データも失われます。</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+      「正しい」育て方はありますか？ <span class="icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>ありません。現実の子育てと同じように、このゲームには唯一の「正解」ルートはありません。どの育児スタイルも異なる結末を生み出し、どの結末も完結した物語として価値があります。芸術家になった子どもも、医師になった子どもも、どちらも等しく意味のある結末です。</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+      子どもが18歳になったらどうなりますか？ <span class="icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>ゲームは詳細な<strong>エンディングサマリー</strong>で締めくくられます——AIがあなたの子どもの人物像を描写します。性格、価値観、キャリアの方向性、人間関係など、18年間の育児の決断すべてが反映されます。</p>
+      <p>成人した子どものAIポートレート画像を生成するオプションもあります。ダウンロードしてSNSでシェアできます。</p>
+    </div>
+  </div>
+
+  <h2>AI機能について</h2>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+      AIポートレートとは何ですか？ <span class="icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>重要な成長の節目やゲーム終了時に、その年齢の子どものポートレート画像をAIが生成できます。ゲームを通じて積み重ねられた外見の描写をもとに、画像生成AIが作成します。</p>
+      <p>ポートレート生成にはクレジットが必要です。メインゲームの物語はクレジットなしで完全に体験できます。</p>
+    </div>
+  </div>
+
+  <h2>シェアについて</h2>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+      結果をシェアするには？ <span class="icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>ゲーム終了時に、エンディングカードのテキストをコピーしたり、画像として保存してSNSでシェアできます。<a href="/gallery">ギャラリーページ</a>ではコミュニティのプレイヤーがシェアしたAIポートレートを閲覧できます。</p>
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <strong>他に質問がある場合は</strong><a href="/info">情報ページ</a>からメッセージをお送りください。開発チームが一つひとつ確認します。
+  </div>
+
+  <div class="related-guides">
+    <h2>その他のガイド</h2>
+    <div class="guide-links">
+      <a href="/guide/how-to-play-ja.html" class="guide-link"><span>📖</span>遊び方ガイド</a>
+      <a href="/guide/tips-ja.html" class="guide-link"><span>💡</span>攻略・コツ</a>
+      <a href="/guide/about-ja.html" class="guide-link"><span>🎮</span>ゲームについて</a>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>さっそく始めてみませんか？</h2>
+    <p>無料プレイ。アカウント登録不要。今すぐ始められます。</p>
+    <a href="/" class="cta-button">ゲームをプレイ →</a>
+  </div>
+</main>
+
+<footer class="footer">
+  <nav class="footer-links" aria-label="フッターナビ">
+    <a href="/">ゲームをプレイ</a>
+    <a href="/gallery">ギャラリー</a>
+    <a href="/info">情報</a>
+  </nav>
+  <div class="footer-lang">
+    <a href="/guide/faq.html">English</a>
+    <a href="/guide/faq-zh.html">中文</a>
+    <a href="/guide/faq-ja.html">日本語</a>
+    <a href="/guide/faq-es.html">Español</a>
+  </div>
+  <p class="footer-copyright">&copy; 2025 Baby Simulator. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

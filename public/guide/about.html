@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Baby Simulator — The AI Parenting Simulation Game</title>
+  <meta name="description" content="Learn about Baby Simulator: an AI-powered parenting simulation game. Discover the inspiration behind the game, how the AI technology works, what the community has built, and where the project is heading.">
+  <meta name="keywords" content="about baby simulator, baby simulator game info, AI parenting game developer, baby simulator technology, virtual parenting game story, baby simulator community">
+  <meta name="author" content="BabySim">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://babysim.fun/guide/about.html">
+  <link rel="alternate" hreflang="en" href="https://babysim.fun/guide/about.html">
+  <link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/about-zh.html">
+  <link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/about-ja.html">
+  <link rel="alternate" hreflang="es" href="https://babysim.fun/guide/about-es.html">
+  <link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/about.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#FF6B35">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://babysim.fun/guide/about.html">
+  <meta property="og:title" content="About Baby Simulator — The AI Parenting Simulation Game">
+  <meta property="og:description" content="The story behind Baby Simulator: inspiration, technology, community, and what's coming next.">
+  <meta property="og:image" content="https://babysim.fun/og-image.png">
+  <meta property="og:site_name" content="Baby Simulator">
+  <meta property="og:locale" content="en_US">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; color: #333; background: #FFFBF5; }
+    .header { background: rgba(255,251,245,0.95); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .logo { font-size: 1.4rem; font-weight: 700; color: #FF6B35; text-decoration: none; }
+    .lang-switch { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .lang-switch a { color: #666; text-decoration: none; font-size: 0.85rem; padding: 0.35rem 0.8rem; border-radius: 20px; transition: all 0.3s; }
+    .lang-switch a:hover, .lang-switch a.active { background: #FF6B35; color: white; }
+    .page-wrapper { max-width: 820px; margin: 0 auto; padding: 6rem 2rem 4rem; }
+    .breadcrumb { font-size: 0.85rem; color: #888; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #FF6B35; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 0.4rem; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 800; color: #2D2D2D; line-height: 1.25; margin-bottom: 1rem; }
+    .article-meta { font-size: 0.9rem; color: #888; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #FFE4CC; }
+    .intro { font-size: 1.15rem; color: #5D4037; font-weight: 500; margin-bottom: 2rem; line-height: 1.65; }
+    h2 { font-size: 1.5rem; font-weight: 700; color: #2D2D2D; margin: 2.5rem 0 1rem; padding-bottom: 0.4rem; border-bottom: 2px solid #FFE4CC; }
+    h3 { font-size: 1.15rem; font-weight: 600; color: #5D4037; margin: 1.5rem 0 0.5rem; }
+    p { margin-bottom: 1rem; color: #444; }
+    ul, ol { margin: 0.75rem 0 1rem 1.5rem; }
+    li { margin-bottom: 0.5rem; color: #444; }
+    .tip-box { background: linear-gradient(135deg, #FFF5E6, #FFE4CC); border-left: 4px solid #FF6B35; border-radius: 0 12px 12px 0; padding: 1rem 1.25rem; margin: 1.5rem 0; }
+    .tip-box strong { color: #FF6B35; }
+    .stat-row { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+    .stat-block { background: white; border-radius: 16px; padding: 1.25rem 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); flex: 1; min-width: 130px; text-align: center; }
+    .stat-block .num { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #FF6B35, #E09F3E); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-block .label { font-size: 0.85rem; color: #888; margin-top: 0.25rem; }
+    .changelog-item { border-left: 3px solid #FFE4CC; padding-left: 1rem; margin: 1rem 0; }
+    .changelog-item .version { font-weight: 700; color: #FF6B35; font-size: 0.9rem; }
+    .changelog-item p { margin-bottom: 0; font-size: 0.95rem; }
+    .tech-stack { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0; }
+    .tech-tag { background: white; border: 1px solid #FFE4CC; border-radius: 20px; padding: 0.3rem 0.8rem; font-size: 0.85rem; color: #5D4037; font-weight: 500; }
+    .related-guides { background: white; border-radius: 20px; padding: 2rem; margin-top: 3rem; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+    .related-guides h2 { border: none; margin-top: 0; }
+    .guide-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .guide-link { display: block; background: #FFFBF5; border: 1px solid #FFE4CC; border-radius: 12px; padding: 1rem; text-decoration: none; color: #5D4037; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; }
+    .guide-link:hover { background: #FF6B35; color: white; border-color: #FF6B35; transform: translateY(-2px); }
+    .guide-link span { display: block; font-size: 1.4rem; margin-bottom: 0.4rem; }
+    .cta-section { background: linear-gradient(135deg, #FF6B35, #E09F3E); border-radius: 20px; padding: 2rem; text-align: center; margin-top: 2.5rem; color: white; }
+    .cta-section h2 { color: white; border: none; margin-top: 0; }
+    .cta-section p { color: rgba(255,255,255,0.9); }
+    .cta-button { display: inline-block; background: white; color: #FF6B35; font-weight: 700; padding: 0.85rem 2rem; border-radius: 50px; text-decoration: none; margin-top: 1rem; transition: all 0.3s; font-size: 1rem; }
+    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .footer { background: #2D2D2D; color: white; padding: 2.5rem 2rem; text-align: center; margin-top: 4rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .footer-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; }
+    .footer-links a:hover { color: #FF6B35; }
+    .footer-lang { margin-bottom: 1rem; font-size: 0.85rem; }
+    .footer-lang a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 0.4rem; }
+    .footer-lang a:hover { color: #FF6B35; }
+    .footer-copyright { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
+    @media (max-width: 640px) { .header { padding: 0.75rem 1rem; } .page-wrapper { padding: 5rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">Baby Simulator</a>
+  <nav class="lang-switch" aria-label="Language selection">
+    <a href="/guide/about.html" class="active">English</a>
+    <a href="/guide/about-zh.html">中文</a>
+    <a href="/guide/about-ja.html">日本語</a>
+    <a href="/guide/about-es.html">Español</a>
+  </nav>
+</header>
+
+<main class="page-wrapper">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Home</a><span>›</span>
+    <a href="/guide/">Guides</a><span>›</span>
+    About the Game
+  </nav>
+
+  <h1>About Baby Simulator — The AI Parenting Simulation Game</h1>
+  <p class="article-meta">Last updated: 2025 &nbsp;·&nbsp; Baby Simulator Guide</p>
+
+  <p class="intro">Baby Simulator is a free, AI-powered parenting simulation game where you raise a virtual child from birth to age 18. Every decision you make — big and small — shapes who your child becomes. Here's the story behind how it was built and what makes it different.</p>
+
+  <h2>What Is Baby Simulator?</h2>
+  <p>Baby Simulator is a text-based life simulation game built around a single, powerful idea: what if you could experience the full arc of raising a child — from a newborn's first days to an 18-year-old leaving for the wider world — in about an hour?</p>
+  <p>The game is not a checklist or a point-scoring system. It's a narrative experience. Every parenting scenario is unique, every piece of feedback is written by AI in response to your specific choices, and every ending is different because every player parents differently. Over 20,000 virtual children have been raised since launch, and no two stories are exactly alike.</p>
+
+  <div class="stat-row">
+    <div class="stat-block"><div class="num">20,000+</div><div class="label">Virtual children raised</div></div>
+    <div class="stat-block"><div class="num">4.5★</div><div class="label">Player rating</div></div>
+    <div class="stat-block"><div class="num">4</div><div class="label">Languages supported</div></div>
+    <div class="stat-block"><div class="num">18</div><div class="label">In-game years</div></div>
+  </div>
+
+  <h2>The Inspiration</h2>
+  <p>The idea for Baby Simulator came from a simple observation: parenting is one of the most profound human experiences, yet it's almost impossible to understand before you're in it. Books on parenting can describe theories and research, but they can't put you in the moment of deciding how to handle a child's tantrum at 11pm, or how to respond when your teenager comes home crying about a broken friendship.</p>
+  <p>The game was built to create a space for that emotional understanding — a way to feel the weight of parenting decisions in a low-stakes environment. Players who have used the game describe it as surprisingly affecting: genuinely attached to children who only exist as text, unexpectedly moved by the ending summaries, and more thoughtful about their own parents and their own parenting philosophies after playing.</p>
+  <p>That emotional resonance — not the game mechanics, not the AI technology — is what the team cares most about getting right.</p>
+
+  <h2>How the AI Works</h2>
+  <p>Baby Simulator uses large language models to power its narrative engine. When you make a parenting decision, the AI processes the full context of your game — your child's age, their developing traits, your family background, and the history of your past decisions — and generates a unique narrative outcome specific to your situation.</p>
+  <p>This is different from branching-tree games where authors pre-write every possible scenario. In Baby Simulator, the outcomes are generated fresh each time, which is why two players making the same choice can receive different story developments. The AI adapts to your parenting style over time, allowing consequences to feel earned and connected.</p>
+
+  <h3>AI Portrait Generation</h3>
+  <p>At major milestones and at the game's end, players can optionally generate an AI portrait image of their child. These images are created using image generation models based on the character description the narrative engine has built throughout the game. The portraits are often one of the most memorable moments for players — seeing a face that reflects the child they've been raising.</p>
+
+  <h2>Technology Stack</h2>
+  <p>Baby Simulator is built as a web application using modern frontend technologies, designed to run entirely in the browser with no installation required.</p>
+  <div class="tech-stack">
+    <span class="tech-tag">React</span>
+    <span class="tech-tag">TypeScript</span>
+    <span class="tech-tag">Vite</span>
+    <span class="tech-tag">Material UI</span>
+    <span class="tech-tag">Zustand</span>
+    <span class="tech-tag">i18next</span>
+    <span class="tech-tag">AI Language Models</span>
+    <span class="tech-tag">AI Image Generation</span>
+    <span class="tech-tag">Vercel</span>
+  </div>
+  <p>The game is deployed on Vercel and uses AI API services for both narrative generation and portrait image creation. The multilingual system (English, Chinese, Japanese, Spanish) uses i18next for UI strings, with AI-native generation for story content in each language — not post-hoc translation.</p>
+
+  <h2>Multilingual Design</h2>
+  <p>Supporting four languages isn't just a localization effort — it's part of the game's core design. The AI generates scenarios, dialogue, and narrative feedback natively in the player's chosen language. This means the cultural context of parenting shifts meaningfully between language settings. A Chinese-language playthrough reflects different social expectations around academic achievement and family relationships than an English-language one, and the AI accounts for this in the scenarios it generates.</p>
+  <p>The game is available in English, 中文 (Chinese Simplified), 日本語 (Japanese), and Español (Spanish).</p>
+
+  <h2>What's Been Added Over Time</h2>
+
+  <div class="changelog-item">
+    <div class="version">Streaming Narratives</div>
+    <p>Story feedback now streams word-by-word as it's generated, creating a more immersive reading experience and reducing perceived wait time.</p>
+  </div>
+  <div class="changelog-item">
+    <div class="version">Gallery</div>
+    <p>A community gallery page where players can share and browse AI-generated portrait images of their grown virtual children.</p>
+  </div>
+  <div class="changelog-item">
+    <div class="version">Custom Responses</div>
+    <p>Players can now type their own parenting response instead of choosing from preset options. The AI interprets free-text input and generates unique outcomes.</p>
+  </div>
+  <div class="changelog-item">
+    <div class="version">Spanish &amp; Japanese</div>
+    <p>Full language support added for Japanese and Spanish, bringing the game to players in Japan, Spain, and Latin America.</p>
+  </div>
+  <div class="changelog-item">
+    <div class="version">Single Parent Mode</div>
+    <p>Players can now choose to raise their child as a single parent, unlocking a different set of scenarios and financial constraints.</p>
+  </div>
+
+  <h2>The Community</h2>
+  <p>Baby Simulator has built a community of players who share their ending stories, discuss their parenting choices, and compare the AI portraits of their virtual children. Players frequently report that the game sparked conversations with partners, parents, and friends about real parenting philosophies and their own childhoods.</p>
+  <p>The <a href="/gallery">Gallery</a> page showcases AI portraits shared by the community — a growing visual archive of virtual children raised by players around the world.</p>
+
+  <div class="tip-box">
+    <strong>Want to share feedback?</strong> Visit the <a href="/info">Info page</a> to send us a message. Every suggestion is read by the development team.
+  </div>
+
+  <div class="related-guides">
+    <h2>More Guides</h2>
+    <div class="guide-links">
+      <a href="/guide/how-to-play.html" class="guide-link"><span>📖</span>How to Play</a>
+      <a href="/guide/tips.html" class="guide-link"><span>💡</span>Tips &amp; Strategies</a>
+      <a href="/guide/faq.html" class="guide-link"><span>❓</span>FAQ</a>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>Experience It for Yourself</h2>
+    <p>Free to play. No account required. 18 years of parenthood in one hour.</p>
+    <a href="/" class="cta-button">Play Baby Simulator →</a>
+  </div>
+</main>
+
+<footer class="footer">
+  <nav class="footer-links" aria-label="Footer navigation">
+    <a href="/">Play Game</a>
+    <a href="/guide/">Guides</a>
+    <a href="/gallery">Gallery</a>
+    <a href="/info">About</a>
+  </nav>
+  <div class="footer-lang">
+    <a href="/guide/about.html">English</a>
+    <a href="/guide/about-zh.html">中文</a>
+    <a href="/guide/about-ja.html">日本語</a>
+    <a href="/guide/about-es.html">Español</a>
+  </div>
+  <p class="footer-copyright">&copy; 2025 Baby Simulator. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

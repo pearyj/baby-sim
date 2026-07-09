@@ -5,7 +5,7 @@
   <!-- Homepage -->
   <url>
     <loc>https://babysim.fun/</loc>
-    <lastmod>2025-01-24</lastmod>
+    <lastmod>2026-07-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/?lang=en"/>
@@ -18,7 +18,7 @@
   <!-- English Landing Page (SEO) -->
   <url>
     <loc>https://babysim.fun/landing.html</loc>
-    <lastmod>2025-01-24</lastmod>
+    <lastmod>2026-07-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/landing.html"/>
@@ -29,7 +29,7 @@
   <!-- Chinese Landing Page (SEO) -->
   <url>
     <loc>https://babysim.fun/landing-zh.html</loc>
-    <lastmod>2025-01-24</lastmod>
+    <lastmod>2026-07-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/landing.html"/>
@@ -40,7 +40,7 @@
   <!-- Information/About Page -->
   <url>
     <loc>https://babysim.fun/info</loc>
-    <lastmod>2025-01-24</lastmod>
+    <lastmod>2026-07-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -48,9 +48,213 @@
   <!-- Gallery Page -->
   <url>
     <loc>https://babysim.fun/gallery</loc>
-    <lastmod>2025-01-24</lastmod>
+    <lastmod>2026-07-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
+  </url>
+
+  <!-- Guide Hub Pages -->
+  <url>
+    <loc>https://babysim.fun/guide/index.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/index.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/index-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/index.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/index-zh.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/index.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/index-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/index.html"/>
+  </url>
+
+  <!-- How to Play Pages -->
+  <url>
+    <loc>https://babysim.fun/guide/how-to-play.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/how-to-play.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/how-to-play-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/how-to-play-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/how-to-play-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/how-to-play.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/how-to-play-zh.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/how-to-play.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/how-to-play-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/how-to-play-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/how-to-play-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/how-to-play.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/how-to-play-ja.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/how-to-play.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/how-to-play-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/how-to-play-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/how-to-play-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/how-to-play.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/how-to-play-es.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/how-to-play.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/how-to-play-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/how-to-play-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/how-to-play-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/how-to-play.html"/>
+  </url>
+
+  <!-- Tips & Strategies Pages -->
+  <url>
+    <loc>https://babysim.fun/guide/tips.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/tips.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/tips-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/tips-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/tips-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/tips.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/tips-zh.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/tips.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/tips-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/tips-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/tips-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/tips.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/tips-ja.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/tips.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/tips-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/tips-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/tips-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/tips.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/tips-es.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/tips.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/tips-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/tips-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/tips-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/tips.html"/>
+  </url>
+
+  <!-- FAQ Pages -->
+  <url>
+    <loc>https://babysim.fun/guide/faq.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/faq.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/faq-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/faq-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/faq-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/faq.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/faq-zh.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/faq.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/faq-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/faq-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/faq-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/faq.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/faq-ja.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/faq.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/faq-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/faq-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/faq-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/faq.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/faq-es.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/faq.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/faq-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/faq-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/faq-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/faq.html"/>
+  </url>
+
+  <!-- About the Game Pages -->
+  <url>
+    <loc>https://babysim.fun/guide/about.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/about.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/about-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/about-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/about-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/about.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/about-zh.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/about.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/about-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/about-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/about-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/about.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/about-ja.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/about.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/about-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/about-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/about-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/about.html"/>
+  </url>
+  <url>
+    <loc>https://babysim.fun/guide/about-es.html</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://babysim.fun/guide/about.html"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/about-zh.html"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://babysim.fun/guide/about-ja.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://babysim.fun/guide/about-es.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/about.html"/>
   </url>
 
 </urlset>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>养娃模拟器攻略中心 — 玩法教程、技巧与常见问题</title>
+  <meta name="description" content="养娃模拟器官方攻略中心：新手入门教程、育儿风格策略、常见问题解答，以及游戏背后的开发故事。帮你从入门到精通。">
+  <meta name="keywords" content="养娃模拟器攻略, 养娃模拟器教程, 云养娃游戏指南, 育儿游戏攻略, 养娃模拟器帮助中心">
+  <meta name="author" content="BabySim">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://babysim.fun/guide/index-zh.html">
+  <link rel="alternate" hreflang="en" href="https://babysim.fun/guide/">
+  <link rel="alternate" hreflang="zh" href="https://babysim.fun/guide/index-zh.html">
+  <link rel="alternate" hreflang="x-default" href="https://babysim.fun/guide/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#FF6B35">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://babysim.fun/guide/index-zh.html">
+  <meta property="og:title" content="养娃模拟器攻略中心 — 玩法教程、技巧与常见问题">
+  <meta property="og:description" content="养娃模拟器完整攻略中心，帮你快速上手并深度体验这款AI育儿游戏。">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="养娃模拟器">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; line-height: 1.8; color: #333; background: #FFFBF5; }
+    .header { background: rgba(255,251,245,0.95); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .logo { font-size: 1.4rem; font-weight: 700; color: #FF6B35; text-decoration: none; }
+    .lang-switch { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .lang-switch a { color: #666; text-decoration: none; font-size: 0.85rem; padding: 0.35rem 0.8rem; border-radius: 20px; transition: all 0.3s; }
+    .lang-switch a:hover, .lang-switch a.active { background: #FF6B35; color: white; }
+    .page-wrapper { max-width: 900px; margin: 0 auto; padding: 6rem 2rem 4rem; }
+    .breadcrumb { font-size: 0.85rem; color: #888; margin-bottom: 1.5rem; }
+    .breadcrumb a { color: #FF6B35; text-decoration: none; }
+    .breadcrumb span { margin: 0 0.4rem; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; color: #2D2D2D; line-height: 1.3; margin-bottom: 1rem; }
+    .intro { font-size: 1.1rem; color: #5D4037; font-weight: 500; margin-bottom: 2.5rem; line-height: 1.8; padding-bottom: 2rem; border-bottom: 2px solid #FFE4CC; }
+    h2 { font-size: 1.4rem; font-weight: 700; color: #2D2D2D; margin: 2.5rem 0 1.25rem; }
+    .guide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1rem; }
+    .guide-card { background: white; border-radius: 20px; padding: 1.75rem; box-shadow: 0 2px 16px rgba(0,0,0,0.07); text-decoration: none; color: inherit; transition: all 0.25s; display: block; border: 2px solid transparent; }
+    .guide-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(255,107,53,0.15); border-color: #FFE4CC; }
+    .guide-card .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .guide-card h3 { font-size: 1.15rem; font-weight: 700; color: #2D2D2D; margin-bottom: 0.5rem; }
+    .guide-card p { font-size: 0.92rem; color: #666; line-height: 1.7; margin-bottom: 1rem; }
+    .guide-card .read-more { font-size: 0.9rem; font-weight: 600; color: #FF6B35; }
+    .cta-section { background: linear-gradient(135deg, #FF6B35, #E09F3E); border-radius: 20px; padding: 2.5rem; text-align: center; margin-top: 3rem; color: white; }
+    .cta-section h2 { color: white; margin-top: 0; }
+    .cta-section p { color: rgba(255,255,255,0.9); margin-bottom: 0; }
+    .cta-button { display: inline-block; background: white; color: #FF6B35; font-weight: 700; padding: 0.85rem 2rem; border-radius: 50px; text-decoration: none; margin-top: 1.25rem; transition: all 0.3s; font-size: 1rem; }
+    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .footer { background: #2D2D2D; color: white; padding: 2.5rem 2rem; text-align: center; margin-top: 4rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .footer-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; }
+    .footer-links a:hover { color: #FF6B35; }
+    .footer-lang { margin-bottom: 1rem; font-size: 0.85rem; }
+    .footer-lang a { color: rgba(255,255,255,0.6); text-decoration: none; margin: 0 0.4rem; }
+    .footer-lang a:hover { color: #FF6B35; }
+    .footer-copyright { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
+    @media (max-width: 640px) { .header { padding: 0.75rem 1rem; } .page-wrapper { padding: 5rem 1rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">养娃模拟器</a>
+  <nav class="lang-switch" aria-label="语言切换">
+    <a href="/guide/">English</a>
+    <a href="/guide/index-zh.html" class="active">中文</a>
+  </nav>
+</header>
+
+<main class="page-wrapper">
+  <nav class="breadcrumb" aria-label="面包屑导航">
+    <a href="/">首页</a><span>›</span>
+    攻略中心
+  </nav>
+
+  <h1>养娃模拟器攻略中心</h1>
+  <p class="intro">从第一次上手到深度体验——这里汇集了养娃模拟器的全部攻略内容，帮助你更好地理解游戏机制，并从每一局游玩中获得更有深度的体验。</p>
+
+  <div class="guide-grid">
+    <a href="/guide/how-to-play-zh.html" class="guide-card">
+      <div class="icon">📖</div>
+      <h3>新手玩法教程</h3>
+      <p>完整的新手入门攻略：如何设定家庭背景、做出育儿决策、理解孩子的成长，以及游戏最终结局。</p>
+      <span class="read-more">查看攻略 →</span>
+    </a>
+    <a href="/guide/tips-zh.html" class="guide-card">
+      <div class="icon">💡</div>
+      <h3>技巧与策略</h3>
+      <p>深入解析育儿风格、财务规划思路、如何培养特定性格特质，以及自定义回答的使用技巧。</p>
+      <span class="read-more">查看攻略 →</span>
+    </a>
+    <a href="/guide/faq-zh.html" class="guide-card">
+      <div class="icon">❓</div>
+      <h3>常见问题解答</h3>
+      <p>快速解答所有疑问：游戏是否免费？怎么保存进度？支持什么语言？AI肖像图怎么获得？</p>
+      <span class="read-more">查看攻略 →</span>
+    </a>
+    <a href="/guide/about-zh.html" class="guide-card">
+      <div class="icon">🎮</div>
+      <h3>关于游戏</h3>
+      <p>养娃模拟器的诞生故事：创作初衷、AI驱动原理、多语言设计，以及玩家社区的成长。</p>
+      <span class="read-more">查看攻略 →</span>
+    </a>
+  </div>
+
+  <div class="cta-section">
+    <h2>准备好了吗？</h2>
+    <p>免费畅玩，无需注册，你的孩子在等着你。</p>
+    <a href="/" class="cta-button">开始游玩 →</a>
+  </div>
+</main>
+
+<footer class="footer">
+  <nav class="footer-links" aria-label="底部导航">
+    <a href="/">开始游戏</a>
+    <a href="/guide/index-zh.html">攻略中心</a>
+    <a href="/gallery">画廊</a>
+    <a href="/info">关于</a>
+  </nav>
+  <div class="footer-lang">
+    <a href="/guide/">English</a>
+    <a href="/guide/index-zh.html">中文</a>
+  </div>
+  <p class="footer-copyright">&copy; 2025 养娃模拟器. 保留所有权利。</p>
+</footer>
+
+</body>
+</html>
