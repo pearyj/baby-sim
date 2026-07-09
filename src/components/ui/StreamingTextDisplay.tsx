@@ -11,6 +11,8 @@ interface StreamingTextDisplayProps {
   onStreamingComplete?: () => void;
   onStreamingStart?: () => void;
   placeholder?: string;
+  /** Show the question/options skeleton while waiting (question generation only) */
+  showQuestionSkeleton?: boolean;
 }
 
 // Cursor animation for typewriter effect
@@ -414,7 +416,8 @@ export const StreamingTextDisplay: React.FC<StreamingTextDisplayProps> = ({
   showTypewriter = true,
   onStreamingComplete,
   onStreamingStart,
-  placeholder
+  placeholder,
+  showQuestionSkeleton = false
 }) => {
   const { t } = useGameTranslations();
   const defaultPlaceholder = placeholder || t('game.loading');
@@ -539,8 +542,8 @@ export const StreamingTextDisplay: React.FC<StreamingTextDisplayProps> = ({
 
   // Show placeholder when no content
   if (!content && isStreaming) {
-    const isOutcomePlaceholder = defaultPlaceholder.includes('结果');
-    
+    const isOutcomePlaceholder = !showQuestionSkeleton;
+
     return (
       <StreamingContainer>
         <Fade in timeout={300}>
@@ -559,9 +562,9 @@ export const StreamingTextDisplay: React.FC<StreamingTextDisplayProps> = ({
             
             {!isOutcomePlaceholder && (
               <Box sx={{ opacity: 0.3 }}>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>问题：</Typography>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>{t('ui.questionLabel')}</Typography>
                 <Box sx={{ height: 60, mb: 3, backgroundColor: 'action.hover', borderRadius: 1 }} />
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>选项：</Typography>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>{t('ui.optionsLabel')}</Typography>
                 <Box sx={{ height: 120, backgroundColor: 'action.hover', borderRadius: 1 }} />
               </Box>
             )}

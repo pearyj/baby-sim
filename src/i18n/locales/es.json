@@ -31,7 +31,9 @@
     "whitePeople": "Blanco",
     "asianPeople": "Asiático",
     "blackPeople": "Negro",
-    "LatinPeople": "Latino"
+    "LatinPeople": "Latino",
+    "ageYears_one": "{{count}} año",
+    "ageYears_other": "{{count}} años"
   },
   "wealth": {
     "poor": "Pobre",
@@ -53,6 +55,8 @@
     "charactersCount": "{{count}}/200 caracteres",
     "loadingQuestion": "Cargando pregunta...",
     "generatingQuestion": "Generando pregunta...",
+    "questionLabel": "Pregunta:",
+    "optionsLabel": "Opciones:",
     "childGrowing": "{{childName}} está creciendo...",
     "timelineEmpty": "Cada momento precioso con tu bebé será registrado aquí.",
     "timelineTitle": "Línea de Tiempo de Crecimiento",
@@ -151,7 +155,8 @@
     "thankYouSupport": "¡Gracias por tu apoyo!",
     "createImages": "Crear Imágenes",
     "useCreditsHint": "Pista: Puedes usar créditos para {{childName}} para generar imágenes.",
-    "creditsUsageShort": "Los créditos sirven para Gemini 3.0 Pro y la generación de imágenes."
+    "creditsUsageShort": "Los créditos sirven para Gemini 3.0 Pro y la generación de imágenes.",
+    "testPayment": "(Dev) Probar pago"
   },
   "header": {
     "title": "El Simulador de Bebés",
@@ -222,9 +227,9 @@
     "gameFeatures": "Características del Juego",
     "feature1": "Antecedentes de personajes, escenarios de crianza e historias generadas por IA",
     "feature2": "Cada decisión afecta el camino de tu hijo",
-      "feature3": "Ve una línea de tiempo de tu viaje de crianza hasta que tu hijo alcance la edad adulta a los 18, y reflexiona sobre qué tipo de padre eres",
-      "feature4": "Genera una foto de tu hijo de 18 años en el estilo que prefieras",
-      "feature5": "Actualiza a Gemini 3.0 Pro para disfrutar de una mejor generación de escenarios y escritura",
+    "feature3": "Ve una línea de tiempo de tu viaje de crianza hasta que tu hijo alcance la edad adulta a los 18, y reflexiona sobre qué tipo de padre eres",
+    "feature4": "Genera una foto de tu hijo de 18 años en el estilo que prefieras",
+    "feature5": "Actualiza a Gemini 3.0 Pro para disfrutar de una mejor generación de escenarios y escritura",
     "startGameInfo": "Haz clic en iniciar juego para generar aleatoriamente un personaje padre e información básica del niño.",
     "specialRequirements": "Requisitos Especiales (Opcional)",
     "specialRequirementsPlaceholder": "Quiero un niño feo pero tierno",

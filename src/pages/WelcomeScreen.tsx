@@ -656,7 +656,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onTestEnding }) =>
                   fullWidth
                   variant="text"
                   color="info"
-                  onClick={() => navigate('/payment-test-page')}
+                  onClick={() => navigate('/test/payment')}
                   size="small"
                   sx={{ mt: 1 }}
                 >

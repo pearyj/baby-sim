@@ -48,11 +48,12 @@ export const Header: React.FC = () => {
   return (
     <StyledAppBar position="fixed" elevation={2} role="banner">
       <Toolbar sx={{ maxWidth: '3xl', mx: 'auto', width: '100%', px: 2 }} aria-label="Main navigation">
-        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', minWidth: 0 }}>
           <StyledTitle
             variant="h4"
+            noWrap
             sx={{
-              fontSize: { xs: '1.5rem', sm: '2rem' },
+              fontSize: { xs: '1.25rem', sm: '2rem' },
               textAlign: 'center'
             }}
             onClick={() => navigate('/')}
@@ -65,7 +66,7 @@ export const Header: React.FC = () => {
           </StyledTitle>
         </Box>
         
-        <Box sx={{ position: 'absolute', right: 16, display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ flexShrink: 0, display: 'flex', gap: { xs: 1, sm: 2 }, alignItems: 'center' }}>
           {/* Language Toggle */}
           <LanguageToggle />
 

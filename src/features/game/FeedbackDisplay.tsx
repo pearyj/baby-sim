@@ -201,7 +201,7 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({
   }, [feedback, isStreaming, streamingContent]);
   
   return (
-    <Box className="feedback-display" sx={{ width: '100%', marginLeft: '24px', px: { xs: 2, sm: 3 } }} ref={containerRef}>
+    <Box className="feedback-display" sx={{ width: '100%', marginLeft: { xs: 0, sm: '24px' }, px: { xs: 2, sm: 3 } }} ref={containerRef}>
       <Box sx={{ maxWidth: '48rem', mx: 'auto' }}>
         <Fade in={isVisible} timeout={500}>
           <StyledCard elevation={3} variant="glass">

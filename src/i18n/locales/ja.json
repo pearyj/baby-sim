@@ -31,7 +31,8 @@
     "whitePeople": "白人",
     "asianPeople": "アジア人",
     "blackPeople": "黒人",
-    "LatinPeople": "ラテン人"
+    "LatinPeople": "ラテン人",
+    "ageYears_other": "{{count}}歳"
   },
   "wealth": {
     "poor": "貧しい",
@@ -53,6 +54,8 @@
     "charactersCount": "{{count}}/200文字",
     "loadingQuestion": "質問を読み込み中...",
     "generatingQuestion": "質問を生成中...",
+    "questionLabel": "質問：",
+    "optionsLabel": "選択肢：",
     "childGrowing": "{{childName}}が成長しています...",
     "timelineEmpty": "あなたの赤ちゃんとの大切な瞬間がここに記録されます。",
     "timelineTitle": "成長タイムライン",
@@ -152,7 +155,8 @@
     "thankYouSupport": "ありがとうございます！サポートを提供してくださった方に感謝します！",
     "createImages": "画像を生成する",
     "useCreditsHint": "ヒント：{{childName}}の画像を生成するには、{{childName}}のクレジットを使用してください。",
-    "creditsUsageShort": "クレジットは、Gemini 3.0 Pro と画像生成に使えます。"
+    "creditsUsageShort": "クレジットは、Gemini 3.0 Pro と画像生成に使えます。",
+    "testPayment": "（開発）決済テスト"
   },
   "header": {
     "title": "ベビーシミュレーター",
@@ -223,9 +227,9 @@
     "gameFeatures": "ゲームの特徴",
     "feature1": "AI生成のキャラクター背景、子育てシナリオ、ストーリーライン",
     "feature2": "すべての決断があなたの子どもの道筋に影響します",
-      "feature3": "子どもが18歳の成人になるまでの子育ての旅のタイムラインを見て、どんな親だったかを振り返ります",
-      "feature4": "お好みのスタイルで18歳の子どもの写真を生成",
-      "feature5": "Gemini 3.0 Pro にアップグレードして、より良いシナリオ生成と文章表現を体験",
+    "feature3": "子どもが18歳の成人になるまでの子育ての旅のタイムラインを見て、どんな親だったかを振り返ります",
+    "feature4": "お好みのスタイルで18歳の子どもの写真を生成",
+    "feature5": "Gemini 3.0 Pro にアップグレードして、より良いシナリオ生成と文章表現を体験",
     "startGameInfo": "ゲーム開始をクリックして、親キャラクターと基本的な子どもの情報をランダムに生成します。",
     "specialRequirements": "特別なリクエスト（任意）",
     "specialRequirementsPlaceholder": "ブサカワな子が欲しいです",

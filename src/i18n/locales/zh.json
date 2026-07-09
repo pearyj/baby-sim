@@ -31,7 +31,8 @@
     "whitePeople": "白人",
     "asianPeople": "亚洲人",
     "blackPeople": "黑人",
-    "LatinPeople": "拉丁裔人"
+    "LatinPeople": "拉丁裔人",
+    "ageYears_other": "{{count}}岁"
   },
   "wealth": {
     "poor": "贫困",
@@ -52,6 +53,8 @@
     "charactersCount": "{{count}}/200 字符",
     "loadingQuestion": "正在加载问题...",
     "generatingQuestion": "正在生成问题...",
+    "questionLabel": "问题：",
+    "optionsLabel": "选项：",
     "childGrowing": "{{childName}}正在成长中...",
     "timelineEmpty": "辛勤养娃的一点一滴都会被记录下来。",
     "timelineTitle": "成长时间轴",
@@ -151,7 +154,8 @@
     "thankYouSupport": "感谢您的支持！",
     "createImages": "生成图片",
     "useCreditsHint": "提示：您可以使用积分为{{childName}}生成结尾图片。",
-    "creditsUsageShort": "积分可用于高级 Gemini 3.0 Pro 与图片生成。"
+    "creditsUsageShort": "积分可用于高级 Gemini 3.0 Pro 与图片生成。",
+    "testPayment": "（开发）测试支付"
   },
   "header": {
     "title": "养娃模拟器",
@@ -229,9 +233,9 @@
     "gameFeatures": "游戏特点",
     "feature1": "AI生成的角色背景、养育情境和故事线",
     "feature2": "每个决定都会影响娃的成长路径",
-      "feature3": "时间轴记录你的养育历程，直到送娃18岁成人，并反思自己是个什么样的父母",
-      "feature4": "生成您18岁孩子的照片，风格自选",
-      "feature5": "升级至 Gemini 3.0 Pro，体验更好的情境生成与写作",
+    "feature3": "时间轴记录你的养育历程，直到送娃18岁成人，并反思自己是个什么样的父母",
+    "feature4": "生成您18岁孩子的照片，风格自选",
+    "feature5": "升级至 Gemini 3.0 Pro，体验更好的情境生成与写作",
     "startGameInfo": "点击开始游戏，随机生成一位父亲/母亲的角色，以及娃的基本信息。",
     "specialRequirements": "特殊要求（可选）",
     "specialRequirementsPlaceholder": "我想养个邻居家的孩子",

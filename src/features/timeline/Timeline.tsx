@@ -148,7 +148,7 @@ export const Timeline: React.FC<TimelineProps> = ({
             }}>
               {/* <AdDisplay currentAge={event.age} /> */}
               <Tooltip 
-                title={`${event.age} ${t('game.yearsOld')} - ${iconConfig.description} (${developmentalStage})`}
+                title={`${t('game.ageYears', { count: event.age })} - ${iconConfig.description} (${developmentalStage})`}
                 placement="left"
               >
                 <TimelineIcon sx={{ 
@@ -165,7 +165,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Chip 
-                          label={`${event.age} ${t('game.yearsOld')}`} 
+                          label={t('game.ageYears', { count: event.age })} 
                           color="primary" 
                           size="small"
                           variant="filled"
@@ -219,7 +219,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Chip 
-                          label={`${event.age} ${t('game.yearsOld')}`} 
+                          label={t('game.ageYears', { count: event.age })} 
                           size="small"
                           variant="outlined"
                           sx={{ 

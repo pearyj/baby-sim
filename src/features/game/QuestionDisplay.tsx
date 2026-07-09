@@ -142,6 +142,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                   isStreaming={isStreaming}
                   isComplete={false}
                   showTypewriter={true}
+                  showQuestionSkeleton={true}
                   placeholder={t('ui.generatingQuestion')}
                   onStreamingStart={() => {
                     // Scrolling removed for QuestionDisplay
@@ -200,7 +201,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Chip 
-                    label={`${currentAge} ${t('game.yearsOld')}`} 
+                    label={t('game.ageYears', { count: currentAge })}
                     color="primary" 
                     size="small"
                     variant="filled"
@@ -276,8 +277,8 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                         color: 'text.primary',
                         textAlign: 'left'
                       }}>
-                        <TextDisplay 
-                          text={`${option.id}: ${option.text}`}
+                        <TextDisplay
+                          text={/^[A-Za-z]$/.test(option.id) ? `${option.id}: ${option.text}` : option.text}
                           paragraphClassName=""
                           inline={true}
                         />
@@ -286,7 +287,8 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                   </OptionButton>
                 ))}
 
-                
+
+                {!question.id?.startsWith('error-') && (
                 <CustomOptionCard elevation={1}>
                   <CardContent sx={{ p: 3 }}>
                     <Box sx={{ mb: 2 }}>
@@ -334,6 +336,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                     </Stack>
                   </CardContent>
                 </CustomOptionCard>
+                )}
               </Stack>
             </CardContent>
           </StyledCard>

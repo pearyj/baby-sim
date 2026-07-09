@@ -23,7 +23,7 @@ export const useGameTranslations = () => {
   };
 
   const formatAge = (age: number) => {
-    return `${age}${t('game.yearsOld')}`;
+    return t('game.ageYears', { count: age });
   };
 
   const getGameLabels = () => ({

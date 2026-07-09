@@ -31,7 +31,9 @@
     "whitePeople": "White",
     "asianPeople": "Asian",
     "blackPeople": "Black",
-    "LatinPeople": "Latin"
+    "LatinPeople": "Latin",
+    "ageYears_one": "{{count}} year old",
+    "ageYears_other": "{{count}} years old"
   },
   "wealth": {
     "poor": "Poor",
@@ -52,6 +54,8 @@
     "charactersCount": "{{count}}/200 characters",
     "loadingQuestion": "Loading question...",
     "generatingQuestion": "Generating question...",
+    "questionLabel": "Question:",
+    "optionsLabel": "Options:",
     "childGrowing": "{{childName}} is growing up...",
     "timelineEmpty": "Every precious moment with your baby will be recorded here.",
     "timelineTitle": "Growth Timeline",
@@ -155,7 +159,8 @@
     "thankYouSupport": "Thank you for your support!",
     "createImages": "Create Images",
     "useCreditsHint": "Hint: You can use credits for {{childName}} to generate images.",
-    "creditsUsageShort": "Credits can be used for Gemini 3.0 Pro and image generation."
+    "creditsUsageShort": "Credits can be used for Gemini 3.0 Pro and image generation.",
+    "testPayment": "(Dev) Test Payment"
   },
   "header": {
     "title": "The Baby Simulator",
