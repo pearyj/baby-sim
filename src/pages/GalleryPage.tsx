@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { InfiniteGallery } from '../components/InfiniteGallery';
 import { useSEO } from '../hooks/useSEO';
+import { track } from '@vercel/analytics';
 
 const FloatingButton = styled(Button)(({ theme }) => ({
   position: 'fixed',
@@ -42,7 +43,10 @@ export const GalleryPage: React.FC = () => {
       <FloatingButton
         variant="contained"
         color="primary"
-        onClick={() => navigate('/')}
+        onClick={() => {
+          track('Gallery CTA Clicked');
+          navigate('/');
+        }}
       >
         {t('gallery.raiseBaby')}
       </FloatingButton>

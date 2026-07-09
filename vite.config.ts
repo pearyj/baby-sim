@@ -14,6 +14,17 @@ export default defineConfig({
     ...(process.env.PAYWALL_VERSION && { 'import.meta.env.VITE_PAYWALL_VERSION': JSON.stringify(process.env.PAYWALL_VERSION) }),
   },
   build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-mui': ['@mui/material', '@mui/system', '@mui/icons-material', '@mui/lab', '@emotion/react', '@emotion/styled'],
+          'vendor-i18n': ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
+          'vendor-data': ['@supabase/supabase-js', 'zustand', 'zod'],
+          'vendor-markdown': ['react-markdown'],
+        },
+      },
+    },
     // Enable dead code elimination
     minify: 'terser',
     terserOptions: {

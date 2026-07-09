@@ -31,16 +31,12 @@ import { FeedbackDisplay } from './features/game/FeedbackDisplay'
 import { WelcomeScreen } from './pages/WelcomeScreen'
 import { TimelineProvider } from './features/timeline/TimelineProvider'
 import { Header } from './components/layout/Header'
-import { InfoPage } from './pages/InfoPage'
+import { SiteFooter } from './components/layout/SiteFooter'
 import { StreamingTextDisplay } from './components/ui/StreamingTextDisplay'
 import { PerformanceMonitor } from './components/dev/PerformanceMonitor'
 import { DebugNumericalValues } from './components/dev/DebugNumericalValues'
 import { FeedbackButton } from './components/ui/FeedbackButton'
 import { AnnouncementOverlay } from './components/ui/AnnouncementOverlay'
-import { AdTestPage } from './pages/AdTestPage'
-import { PaymentTestPage } from './pages/PaymentTestPage'
-import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
-import { GalleryPage } from './pages/GalleryPage';
 import GalleryCarousel from './components/GalleryCarousel';
 import { debugPrintActiveModel, isPremiumStyleActive } from './services/gptServiceUnified';
 import { PaywallUI } from './components/payment/PaywallUI';
@@ -48,6 +44,12 @@ import { usePaymentStore } from './stores/usePaymentStore';
 
 import React from 'react';
 import * as storageService from './services/storageService';
+
+const InfoPage = React.lazy(() => import('./pages/InfoPage').then(m => ({ default: m.InfoPage })));
+const AdTestPage = React.lazy(() => import('./pages/AdTestPage').then(m => ({ default: m.AdTestPage })));
+const PaymentTestPage = React.lazy(() => import('./pages/PaymentTestPage').then(m => ({ default: m.PaymentTestPage })));
+const PaymentSuccessPage = React.lazy(() => import('./pages/PaymentSuccessPage').then(m => ({ default: m.PaymentSuccessPage })));
+const GalleryPage = React.lazy(() => import('./pages/GalleryPage').then(m => ({ default: m.GalleryPage })));
 
 const MainContainer = styled(Box)({
   minHeight: '100vh',
@@ -87,7 +89,7 @@ const ErrorCard = styled(Card)(({ theme }) => ({
 }));
 
 const EndingCard = styled(Card)(({ theme }) => ({
-  background: `url('/endingbkgd.png')`,
+  background: `url('/endingbkgd.jpg')`,
   backgroundSize: 'cover',
   backgroundPosition: 'bottom center',
   backgroundRepeat: 'no-repeat',
@@ -102,7 +104,7 @@ const EndingCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const THANK_YOU_ANNOUNCEMENT_STORAGE_KEY = 'thankYouAnnouncementDismissed_v1';
+const THANK_YOU_ANNOUNCEMENT_STORAGE_KEY = 'thankYouAnnouncementDismissed_v2';
 
 function App() {
   useGameFlow() // Initialize game flow logic
@@ -640,6 +642,13 @@ function App() {
       <Header />
       <ContentArea>
         <MainContentArea>
+          <React.Suspense
+            fallback={
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                <CircularProgress />
+              </Box>
+            }
+          >
           <Routes>
             <Route path="/info" element={<InfoPage />} />
             {/* Add dedicated route for AdTestPage in development */} 
@@ -692,8 +701,10 @@ function App() {
               </Container>
             } />
           </Routes>
+          </React.Suspense>
         </MainContentArea>
       </ContentArea>
+      <SiteFooter />
       <AnnouncementOverlay
         open={showAnnouncement}
         onClose={handleDismissAnnouncement}

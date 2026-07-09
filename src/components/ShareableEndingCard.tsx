@@ -15,8 +15,6 @@ import { Download, Share, ContentCopy } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import { formatJourneyText } from '../utils/formatJourney';
-import html2canvas from 'html2canvas';
-import { saveAs } from 'file-saver';
 import { track } from '@vercel/analytics';
 import { AIImageGenerator } from './AIImageGenerator';
 // import { MultiAgeImageGenerator } from './MultiAgeImageGenerator';
@@ -39,7 +37,7 @@ const cleanEndingSummaryForDisplay = (text: string): string => {
 };
 
 const ShareableCard = styled(Card)(({ theme }) => ({
-  background: `url('${window.location.origin}/endingbkgd.png')`,
+  background: `url('${window.location.origin}/endingbkgd.jpg')`,
   backgroundSize: 'cover',
   backgroundPosition: 'bottom center',
   backgroundRepeat: 'no-repeat',
@@ -165,6 +163,7 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
       await new Promise((r) => requestAnimationFrame(r));
       // === END NEW ===
 
+      const { default: html2canvas } = await import('html2canvas');
       const canvas = await html2canvas(cardRef.current, {
         backgroundColor: null,
         scale: 2,
@@ -178,7 +177,7 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
           // Ensure background image loads in cloned document
           const clonedCard = clonedDoc.querySelector('[data-card-ref]') as HTMLElement;
           if (clonedCard) {
-            clonedCard.style.backgroundImage = `url('${window.location.origin}/endingbkgd.png')`;
+            clonedCard.style.backgroundImage = `url('${window.location.origin}/endingbkgd.jpg')`;
           }
         },
       });
@@ -199,6 +198,7 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
         element.style.display = 'none';
       });
 
+      const { saveAs } = await import('file-saver');
       canvas.toBlob((blob) => {
         if (blob) {
           const fileName = `${childName}-parenting-journey-${new Date().getTime()}.png`;
@@ -225,21 +225,24 @@ export const ShareableEndingCard: React.FC<ShareableEndingCardProps> = ({
     // Clean the ending summary for sharing (remove markdown)
     const cleanedSummary = cleanEndingSummaryForDisplay(endingSummaryText || '');
     const shareText = `${cleanedSummary}\n\n${t('share.text', { childName })}`;
-    
+    const shareUrl = 'https://babysim.fun/?utm_source=share&utm_medium=ending_card';
+
     if (navigator.share) {
       try {
         await navigator.share({
           title: t('share.title', { childName }),
           text: shareText,
-          url: 'https://babysim.fun', // Provide explicit URL to enable rich preview
+          url: shareUrl, // Provide explicit URL to enable rich preview
         });
+        track('Ending Shared');
       } catch (error) {
         console.error('Error sharing:', error);
       }
     } else {
       // Fallback: copy URL to clipboard
       try {
-        await navigator.clipboard.writeText(shareText);
+        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+        track('Ending Share Copied');
         setSnackbar({
           open: true,
           message: t('share.linkCopied'),

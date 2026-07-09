@@ -26,6 +26,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { isMobileDevice } from '../../utils/deviceDetection';
 import { isApplePaySupported } from '../../utils/deviceDetection';
 import { isEmailWhitelisted } from '../../constants/emailWhitelist';
+import { track } from '@vercel/analytics';
 
 interface PaywallUIProps {
   open: boolean;
@@ -90,6 +91,12 @@ export const PaywallUI: React.FC<PaywallUIProps> = ({ open, onClose, childName, 
   const pricing = calculatePricing(donatedUnits, currency);
 
   // Reset state when dialog closes
+  useEffect(() => {
+    if (open) {
+      track('Paywall Shown', { mode });
+    }
+  }, [open, mode]);
+
   useEffect(() => {
     if (!open) {
       setShowEmbeddedCheckout(false);
