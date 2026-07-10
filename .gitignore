@@ -39,3 +39,7 @@ marketing_screenshots/
 .claude
 baby-raising-simulator
 AGENTS.md
+
+# Generated eval artifacts
+scripts/eval-output/
+.codex/
