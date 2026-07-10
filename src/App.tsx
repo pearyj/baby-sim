@@ -248,17 +248,10 @@ function App() {
     debugPrintActiveModel();
   }, []);
 
-  // Show announcement once per user until dismissed
-  useEffect(() => {
-    try {
-      const dismissed = localStorage.getItem(THANK_YOU_ANNOUNCEMENT_STORAGE_KEY);
-      if (dismissed !== 'true') {
-        setShowAnnouncement(true);
-      }
-    } catch (_) {
-      setShowAnnouncement(true);
-    }
-  }, []);
+  // Announcement disabled — no active announcement right now.
+  // To re-enable: set a fresh storage key (bump the _vN suffix) and restore:
+  //   const dismissed = localStorage.getItem(THANK_YOU_ANNOUNCEMENT_STORAGE_KEY);
+  //   if (dismissed !== 'true') setShowAnnouncement(true);
 
   const handleDismissAnnouncement = () => {
     setShowAnnouncement(false);
